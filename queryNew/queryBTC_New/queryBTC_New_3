@@ -1,0 +1,9 @@
+PREFIX pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX dbpedia: <http://dbpedia.org/property/>
+select ?p ?l where {
+	?p dbpedia:name [] .
+	?p dbpedia:deathPlace ?l . 
+	?p dbpedia:spouse ?c .
+	?p <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/ontology/Person> .
+	?l pos:long ?long .
+}

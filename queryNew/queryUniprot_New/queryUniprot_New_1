@@ -1,0 +1,11 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX uni: <http://purl.uniprot.org/core/>
+prefix taxon: <http://purl.uniprot.org/taxonomy/>
+select ?protein ?annotation where 
+{
+	?protein uni:annotation ?annotation .
+	?protein rdf:type uni:Protein .
+	?protein uni:organism [] .
+    ?annotation rdf:type [] .
+    ?annotation uni:range ?range .
+}
