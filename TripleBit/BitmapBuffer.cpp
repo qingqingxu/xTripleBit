@@ -95,7 +95,10 @@ ChunkManager* BitmapBuffer::getChunkManager(ID id, unsigned char type) {
  *         flag: indicate whether x is bigger than y;
  */
 Status BitmapBuffer::insertTriple(ID predicateId, ID xId, ID yId, bool flag, unsigned char f) {
-	unsigned char len = 4 * 2;
+	unsigned char len;
+
+	len = getLen(xId);
+	len += getLen(yId);
 
 	if (flag == false) {
 		getChunkManager(predicateId, f)->insertXY(xId, yId, len, 1);
@@ -834,18 +837,28 @@ ChunkManager::~ChunkManager() {
 
 static void getInsertChars(char* temp, unsigned x, unsigned y) {
 	char* ptr = temp;
-	ptr[0] = static_cast<unsigned char>((x & 0xFF000000) >> 24);
-	ptr[1] = static_cast<unsigned char>((x & 0xFF0000) >> 16);
-	ptr[2] = static_cast<unsigned char>((x & 0xFF00) >> 8);
-	ptr[3] = static_cast<unsigned char>((x & 0xFF));
-	ptr[4] = static_cast<unsigned char>((y & 0xFF000000) >> 24);
-	ptr[5] = static_cast<unsigned char>((y & 0xFF0000) >> 16);
-	ptr[6] = static_cast<unsigned char>((y & 0xFF00) >> 8);
-	ptr[7] = static_cast<unsigned char>((y & 0xFF));
+
+	while (x >= 128) {
+		unsigned char c = static_cast<unsigned char> (x & 127);
+		*ptr = c;
+		ptr++;
+		x >>= 7;
+	}
+	*ptr = static_cast<unsigned char> (x & 127);
+	ptr++;
+
+	while (y >= 128) {
+		unsigned char c = static_cast<unsigned char> (y | 128);
+		*ptr = c;
+		ptr++;
+		y >>= 7;
+	}
+	*ptr = static_cast<unsigned char> (y | 128);
+	ptr++;
 }
 
 void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char type)
-//x:xID, y:yID, len:4*2, type: x>y:1, x<y:2
+//x:xID, y:yID, len:len(xID + yID), type: x>y:1, x<y:2
 {
 	char temp[10];
 	getInsertChars(temp, x, y);
@@ -878,7 +891,7 @@ void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char 
 
 			resize(type);
 			metaData = (MetaData*) (meta->endPtr[1]);
-			metaData->minID = y;
+			metaData->minID = x + y;
 			metaData->haveNextPage = false;
 			metaData->NextPageNo = 0;
 			metaData->usedSpace = 0;
@@ -891,7 +904,7 @@ void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char 
 	} else if (meta->usedSpace[type - 1] == 0) {
 		MetaData *metaData = (MetaData*) (meta->startPtr[type - 1]);
 		memset((char*) metaData, 0, sizeof(MetaData));
-		metaData->minID = ((type == 1) ? x : y);
+		metaData->minID = ((type == 1) ? x : (x + y));
 		metaData->haveNextPage = false;
 		metaData->NextPageNo = 0;
 		metaData->usedSpace = 0;
@@ -1023,15 +1036,165 @@ static inline unsigned int readUInt(const uchar* reader) {
 }
 
 const uchar* Chunk::readXId(const uchar* reader, register ID& id) {
-	id = reader[0] << 24 | reader[1] << 16 | reader[2] << 8 | reader[3];
-	reader += 4;
+#ifdef WORD_ALIGN
+	id = 0;
+	register unsigned int c = *((unsigned int*)reader);
+	register unsigned int flag = c & 0x80808080; /* get the first bit of every byte. */
+	switch(flag) {
+		case 0: //reads 4 or more bytes;
+		id = *reader;
+		reader++;
+		id = id | ((*reader) << 7);
+		reader++;
+		id = id | ((*reader) << 14);
+		reader++;
+		id = id | ((*reader) << 21);
+		reader++;
+		if(*reader < 128) {
+			id = id | ((*reader) << 28);
+			reader++;
+		}
+		break;
+		case 0x80000080:
+		case 0x808080:
+		case 0x800080:
+		case 0x80008080:
+		case 0x80:
+		case 0x8080:
+		case 0x80800080:
+		case 0x80808080:
+		break;
+
+		case 0x80808000://reads 1 byte;
+		case 0x808000:
+		case 0x8000:
+		case 0x80008000:
+		id = *reader;
+		reader++;
+		break;
+		case 0x800000: //read 2 bytes;
+		case 0x80800000:
+		id = *reader;
+		reader++;
+		id = id | ((*reader) << 7);
+		reader++;
+		break;
+		case 0x80000000: //reads 3 bytes;
+		id = *reader;
+		reader++;
+		id = id | ((*reader) << 7);
+		reader++;
+		id = id | ((*reader) << 14);
+		reader++;
+		break;
+	}
 	return reader;
+#else
+	// Read an x id
+	register unsigned shift = 0;
+	id = 0;
+	register unsigned int c;
+
+	while (true) {
+		c = *reader;
+		if (!(c & 128)) {
+			id |= c << shift;
+			shift += 7;
+		} else {
+			break;
+		}
+		reader++;
+	}
+	return reader;
+#endif /* end for WORD_ALIGN */
 }
 
 const uchar* Chunk::readYId(const uchar* reader, register ID& id) {
 	// Read an y id
-	id = reader[0] << 24 | reader[1] << 16 | reader[2] << 8 | reader[3];
-	reader += 4;
+#ifdef WORD_ALIGN
+	id = 0;
+	register unsigned int c = *((unsigned int*)reader);
+	register unsigned int flag = c & 0x80808080; /* get the first bit of every byte. */
+	switch(flag) {
+		case 0: //no byte;
+		case 0x8000:
+		case 0x808000:
+		case 0x80008000:
+		case 0x80800000:
+		case 0x800000:
+		case 0x80000000:
+		case 0x80808000:
+		break;
+		case 0x80:
+		case 0x80800080:
+		case 0x80000080:
+		case 0x800080: //one byte
+		id = (*reader)& 0x7F;
+		reader++;
+		break;
+		case 0x8080:
+		case 0x80008080: // two bytes
+		id = (*reader)& 0x7F;
+		reader++;
+		id = id | (((*reader) & 0x7F) << 7);
+		reader++;
+		break;
+		case 0x808080: //three bytes;
+		id = (*reader) & 0x7F;
+		reader++;
+		id = id | (((*reader) & 0x7F) << 7);
+		reader++;
+		id = id | (((*reader) & 0x7F) << 14);
+		reader++;
+		break;
+		case 0x80808080: //reads 4 or 5 bytes;
+		id = (*reader) & 0x7F;
+		reader++;
+		id = id | (((*reader) & 0x7F) << 7);
+		reader++;
+		id = id | (((*reader) & 0x7F) << 14);
+		reader++;
+		id = id | (((*reader) & 0x7F) << 21);
+		reader++;
+		if(*reader >= 128) {
+			id = id | (((*reader) & 0x7F) << 28);
+			reader++;
+		}
+		break;
+	}
+	return reader;
+#else
+	register unsigned shift = 0;
+	id = 0;
+	register unsigned int c;
+
+	while (true) {
+		c = *reader;
+		if (c & 128) {
+			id |= (c & 0x7F) << shift;
+			shift += 7;
+		} else {
+			break;
+		}
+		reader++;
+	}
+	return reader;
+#endif /* END FOR WORD_ALIGN */
+}
+
+uchar* Chunk::deleteXId(uchar* reader)
+/// Delete a subject id (just set the id to 0)
+{
+	register unsigned int c;
+
+	while (true) {
+		c = *reader;
+		if (!(c & 128))
+			(*reader) = 0;
+		else
+			break;
+		reader++;
+	}
 	return reader;
 }
 

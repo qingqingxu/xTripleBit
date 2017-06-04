@@ -106,9 +106,10 @@ bool TripleBitBuilder::generateXY(ID& subjectID, ID& objectID)
 	{
 		ID temp = subjectID;
 		subjectID = objectID;
-		objectID = temp;
+		objectID = temp - objectID;
 		return true;
 	}else{
+		objectID = objectID - subjectID;
 		return false;
 	}
 }
@@ -217,7 +218,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 		loadTriple(reader, subjectID, predicateID, objectID);
 		lastSubject = subjectID; lastPredicate = predicateID; lastObject = objectID;
 		reader = skipIdIdId(reader);
-		bool v = generateXY(subjectID, objectID);//s>o:true;s<o:false;
+		bool v = generateXY(subjectID, objectID);
 		bitmap->insertTriple(predicateID, subjectID, objectID, v, 0);
 		count0 = count1 = 1;
 		
