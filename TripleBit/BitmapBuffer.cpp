@@ -1024,150 +1024,16 @@ static inline unsigned int readUInt(const uchar* reader) {
 }
 
 const uchar* Chunk::readXId(const uchar* reader, register ID& id) {
-#ifdef WORD_ALIGN
-	id = 0;
-	register unsigned int c = *((unsigned int*)reader);
-	register unsigned int flag = c & 0x80808080; /* get the first bit of every byte. */
-	switch(flag) {
-		case 0: //reads 4 or more bytes;
-		id = *reader;
-		reader++;
-		id = id | ((*reader) << 7);
-		reader++;
-		id = id | ((*reader) << 14);
-		reader++;
-		id = id | ((*reader) << 21);
-		reader++;
-		if(*reader < 128) {
-			id = id | ((*reader) << 28);
-			reader++;
-		}
-		break;
-		case 0x80000080:
-		case 0x808080:
-		case 0x800080:
-		case 0x80008080:
-		case 0x80:
-		case 0x8080:
-		case 0x80800080:
-		case 0x80808080:
-		break;
-
-		case 0x80808000://reads 1 byte;
-		case 0x808000:
-		case 0x8000:
-		case 0x80008000:
-		id = *reader;
-		reader++;
-		break;
-		case 0x800000: //read 2 bytes;
-		case 0x80800000:
-		id = *reader;
-		reader++;
-		id = id | ((*reader) << 7);
-		reader++;
-		break;
-		case 0x80000000: //reads 3 bytes;
-		id = *reader;
-		reader++;
-		id = id | ((*reader) << 7);
-		reader++;
-		id = id | ((*reader) << 14);
-		reader++;
-		break;
-	}
+	id = reader[0] << 24 | reader[1] << 16 | reader[2] << 8 | reader[3];
+	reader += 4;
 	return reader;
-#else
-	// Read an x id
-	register unsigned shift = 0;
-	id = 0;
-	register unsigned int c;
-
-	while (true) {
-		c = *reader;
-		if (!(c & 128)) {
-			id |= c << shift;
-			shift += 7;
-		} else {
-			break;
-		}
-		reader++;
-	}
-	return reader;
-#endif /* end for WORD_ALIGN */
 }
 
 const uchar* Chunk::readYId(const uchar* reader, register ID& id) {
 	// Read an y id
-#ifdef WORD_ALIGN
-	id = 0;
-	register unsigned int c = *((unsigned int*)reader);
-	register unsigned int flag = c & 0x80808080; /* get the first bit of every byte. */
-	switch(flag) {
-		case 0: //no byte;
-		case 0x8000:
-		case 0x808000:
-		case 0x80008000:
-		case 0x80800000:
-		case 0x800000:
-		case 0x80000000:
-		case 0x80808000:
-		break;
-		case 0x80:
-		case 0x80800080:
-		case 0x80000080:
-		case 0x800080: //one byte
-		id = (*reader)& 0x7F;
-		reader++;
-		break;
-		case 0x8080:
-		case 0x80008080: // two bytes
-		id = (*reader)& 0x7F;
-		reader++;
-		id = id | (((*reader) & 0x7F) << 7);
-		reader++;
-		break;
-		case 0x808080: //three bytes;
-		id = (*reader) & 0x7F;
-		reader++;
-		id = id | (((*reader) & 0x7F) << 7);
-		reader++;
-		id = id | (((*reader) & 0x7F) << 14);
-		reader++;
-		break;
-		case 0x80808080: //reads 4 or 5 bytes;
-		id = (*reader) & 0x7F;
-		reader++;
-		id = id | (((*reader) & 0x7F) << 7);
-		reader++;
-		id = id | (((*reader) & 0x7F) << 14);
-		reader++;
-		id = id | (((*reader) & 0x7F) << 21);
-		reader++;
-		if(*reader >= 128) {
-			id = id | (((*reader) & 0x7F) << 28);
-			reader++;
-		}
-		break;
-	}
+	id = reader[0] << 24 | reader[1] << 16 | reader[2] << 8 | reader[3];
+	reader += 4;
 	return reader;
-#else
-	register unsigned shift = 0;
-	id = 0;
-	register unsigned int c;
-
-	while (true) {
-		c = *reader;
-		if (c & 128) {
-			id |= (c & 0x7F) << shift;
-			shift += 7;
-		} else {
-			break;
-		}
-		reader++;
-	}
-	return reader;
-#endif /* END FOR WORD_ALIGN */
 }
 
 uchar* Chunk::deleteXId(uchar* reader)
