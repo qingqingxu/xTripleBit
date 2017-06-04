@@ -31,3 +31,5 @@
 *.out
 *.app
 .settings/language.settings.xml.cproject
+.project
+.cproject
