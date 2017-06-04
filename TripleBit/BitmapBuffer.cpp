@@ -1068,14 +1068,10 @@ uchar* Chunk::deleteYId(uchar* reader)
 	return reader;
 }
 
-const uchar* Chunk::skipId(const uchar* reader, unsigned char flag) {
+const uchar* Chunk::skipId(const uchar* reader, unsigned char idNums) {
 	// Skip an id
-	if (flag == 1) {
-		while ((*reader) & 128)
-			++reader;
-	} else {
-		while (!((*reader) & 128))
-			++reader;
+	for(int i = 0; i < idNums; i++){
+		reader += 4;
 	}
 
 	return reader;
@@ -1083,7 +1079,7 @@ const uchar* Chunk::skipId(const uchar* reader, unsigned char flag) {
 
 const uchar* Chunk::skipForward(const uchar* reader) {
 	// skip a x,y forward;
-	return skipId(skipId(reader, 0), 1);
+	return skipId(reader, 2);
 }
 
 const uchar* Chunk::skipBackward(const uchar* reader) {
