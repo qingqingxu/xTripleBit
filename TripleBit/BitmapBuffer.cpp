@@ -95,10 +95,7 @@ ChunkManager* BitmapBuffer::getChunkManager(ID id, unsigned char type) {
  *         flag: indicate whether x is bigger than y;
  */
 Status BitmapBuffer::insertTriple(ID predicateId, ID xId, ID yId, bool flag, unsigned char f) {
-	unsigned char len;
-
-	len = getLen(xId);
-	len += getLen(yId);
+	unsigned char len = 4 * 2;
 
 	if (flag == false) {
 		getChunkManager(predicateId, f)->insertXY(xId, yId, len, 1);
@@ -838,23 +835,14 @@ ChunkManager::~ChunkManager() {
 static void getInsertChars(char* temp, unsigned x, unsigned y) {
 	char* ptr = temp;
 
-	while (x >= 128) {
-		unsigned char c = static_cast<unsigned char> (x & 127);
-		*ptr = c;
-		ptr++;
-		x >>= 7;
-	}
-	*ptr = static_cast<unsigned char> (x & 127);
-	ptr++;
-
-	while (y >= 128) {
-		unsigned char c = static_cast<unsigned char> (y | 128);
-		*ptr = c;
-		ptr++;
-		y >>= 7;
-	}
-	*ptr = static_cast<unsigned char> (y | 128);
-	ptr++;
+	ptr[0] = static_cast<unsigned char>((x & 0xFF000000) >> 24);
+	ptr[1] = static_cast<unsigned char>((x & 0xFF0000) >> 16);
+	ptr[2] = static_cast<unsigned char>((x & 0xFF00) >> 8);
+	ptr[3] = static_cast<unsigned char>((x & 0xFF));
+	ptr[4] = static_cast<unsigned char>((y & 0xFF000000) >> 24);
+	ptr[5] = static_cast<unsigned char>((y & 0xFF0000) >> 16);
+	ptr[6] = static_cast<unsigned char>((y & 0xFF00) >> 8);
+	ptr[7] = static_cast<unsigned char>((y & 0xFF));
 }
 
 void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char type)
@@ -891,7 +879,7 @@ void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char 
 
 			resize(type);
 			metaData = (MetaData*) (meta->endPtr[1]);
-			metaData->minID = x + y;
+			metaData->minID = y;
 			metaData->haveNextPage = false;
 			metaData->NextPageNo = 0;
 			metaData->usedSpace = 0;
@@ -904,7 +892,7 @@ void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char 
 	} else if (meta->usedSpace[type - 1] == 0) {
 		MetaData *metaData = (MetaData*) (meta->startPtr[type - 1]);
 		memset((char*) metaData, 0, sizeof(MetaData));
-		metaData->minID = ((type == 1) ? x : (x + y));
+		metaData->minID = ((type == 1) ? x : y);
 		metaData->haveNextPage = false;
 		metaData->NextPageNo = 0;
 		metaData->usedSpace = 0;

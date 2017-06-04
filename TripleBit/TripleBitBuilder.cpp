@@ -106,10 +106,9 @@ bool TripleBitBuilder::generateXY(ID& subjectID, ID& objectID)
 	{
 		ID temp = subjectID;
 		subjectID = objectID;
-		objectID = temp - objectID;
+		objectID = temp;
 		return true;
 	}else{
-		objectID = objectID - subjectID;
 		return false;
 	}
 }
