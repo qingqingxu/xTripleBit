@@ -217,8 +217,8 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 		loadTriple(reader, subjectID, predicateID, objectID);
 		lastSubject = subjectID; lastPredicate = predicateID; lastObject = objectID;
 		reader = skipIdIdId(reader);
-		bool v = generateXY(subjectID, objectID);
-		bitmap->insertTriple(predicateID, subjectID, objectID, v, 0);
+		bool v = generateXY(subjectID, objectID);//s > o:swap(s, o), return true; s < o: return false
+		bitmap->insertTriple(predicateID, subjectID, objectID, v, 0); //0 sort by s; 1 sort by o
 		count0 = count1 = 1;
 		
 		while (reader < limit) {

@@ -11,6 +11,8 @@
 #include "TempFile.h"
 #include "TempMMapBuffer.h"
 
+#define INFO
+
 unsigned int ChunkManager::bufferCount = 0;
 
 //#define WORD_ALIGN 1
@@ -97,9 +99,13 @@ ChunkManager* BitmapBuffer::getChunkManager(ID id, unsigned char type) {
 Status BitmapBuffer::insertTriple(ID predicateId, ID xId, ID yId, bool flag, unsigned char f) {
 	unsigned char len = 4 * 2;
 
-	if (flag == false) {
+#ifdef INFO
+	cout << "predicateId: " << predicateId <<endl;
+#endif
+
+	if (flag == false) { //s < o
 		getChunkManager(predicateId, f)->insertXY(xId, yId, len, 1);
-	} else {
+	} else { // s > o, xId: o, yId: s
 		getChunkManager(predicateId, f)->insertXY(xId, yId, len, 2);
 	}
 
@@ -851,7 +857,14 @@ void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char 
 	char temp[10];
 	getInsertChars(temp, x, y);
 
+#ifdef INFO
+	cout << "x:　" << x << "\t y: " << y <<endl;
+#endif
+
 	if (isPtrFull(type, len) == true) {
+#ifdef INFO
+	cout << "full type:　" << type <<endl;
+#endif
 		if (type == 1) {
 			if (meta->length[0] == MemoryBuffer::pagesize) {
 				MetaData *metaData = (MetaData*) (meta->endPtr[0] - meta->usedSpace[0]);
@@ -890,6 +903,9 @@ void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char 
 			tripleCountAdd(type);
 		}
 	} else if (meta->usedSpace[type - 1] == 0) {
+#ifdef INFO
+	cout << "usedSpace:　0" <<endl;
+#endif
 		MetaData *metaData = (MetaData*) (meta->startPtr[type - 1]);
 		memset((char*) metaData, 0, sizeof(MetaData));
 		metaData->minID = ((type == 1) ? x : y);
@@ -902,6 +918,9 @@ void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char 
 		meta->usedSpace[type - 1] = sizeof(MetaData) + len;
 		tripleCountAdd(type);
 	} else {
+#ifdef INFO
+	cout << "usedSpace:　not 0" <<endl;
+#endif
 		memcpy(meta->endPtr[type - 1], temp, len);
 
 		meta->endPtr[type - 1] = meta->endPtr[type - 1] + len;

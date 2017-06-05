@@ -81,7 +81,7 @@ Status TripleBitWorker::Execute(string& queryString) {
 		}
 		uriMutex->unlock();
 
-		if (queryGraph->knownEmpty() == true) { //��õĲ�ѯ�Ƿ�Ϊ��
+		if (queryGraph->knownEmpty() == true) {
 			cout << "Empty result" << endl;
 			return OK;
 		}
