@@ -142,7 +142,6 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 	out.open("buildindex", ios::app);
 	out << "chunktype: " << chunkType <<endl;
 	out.close();
-	out = NULL;
 #endif
 	if (idTable == NULL)
 	{
@@ -187,7 +186,6 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 		tmp += 8;
 	}
 	out.close();
-	out = NULL;
 #endif
 		insertEntries(minID, maxID);
 
@@ -219,7 +217,6 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 		tmp += 8;
 	}
 	out.close();
-	out = NULL;
 #endif
 			insertEntries(minID, maxID);
 
@@ -279,7 +276,6 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 		tmp += 8;
 	}
 	out.close();
-	out = NULL;
 #endif
 			insertEntries(minID, maxID);
 
