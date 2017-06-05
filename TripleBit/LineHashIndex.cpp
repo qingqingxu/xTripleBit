@@ -138,7 +138,11 @@ static ID splitID[3] =
 Status LineHashIndex::buildIndex(unsigned chunkType)
 {
 #ifdef MYDEBUG
-	cout << "chunktype: " << chunkType <<endl;
+	ofstream out;
+	out.open("buildindex", ios::app);
+	out << "chunktype: " << chunkType <<endl;
+	out.close();
+	out = NULL;
 #endif
 	if (idTable == NULL)
 	{
@@ -172,14 +176,18 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 			reader = reader + 4 * 2 - metaData->usedSpace;// return chunk startPtr
 		}
 #ifdef MYDEBUG
-	cout << "minID: " << minID << "\tmaxID: " << maxID <<endl;
+	ofstream out;
+	out.open("buildindex", ios::app);
+	out << "minID: " << minID << "\tmaxID: " << maxID <<endl;
 	const uchar* tmp = reader;
 	tmp += sizeof(MetaData);
 	int xynums = (metaData->usedSpace - sizeof(MetaData))/8;
 	for(int i = 0; i < xynums; i++){
-		cout << "x: " << *(ID*)tmp << "\ty: " << *(ID*)(tmp+4) << endl;
+		out << "x: " << *(ID*)tmp << "\ty: " << *(ID*)(tmp+4) << endl;
 		tmp += 8;
 	}
+	out.close();
+	out = NULL;
 #endif
 		insertEntries(minID, maxID);
 
@@ -200,14 +208,18 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 				reader = reader + 4 * 2 - metaData->usedSpace;// return chunk startPtr
 			}
 #ifdef MYDEBUG
-	cout << "minID: " << minID << "\tmaxID: " << maxID <<endl;
+	ofstream out;
+	out.open("buildindex", ios::app);
+	out << "minID: " << minID << "\tmaxID: " << maxID <<endl;
 	const uchar* tmp = reader;
 	tmp += sizeof(MetaData);
 	int xynums = (metaData->usedSpace - sizeof(MetaData))/8;
 	for(int i = 0; i < xynums; i++){
-		cout << "x: " << *(ID*)tmp << "\ty: " << *(ID*)(tmp+4) << endl;
+		out << "x: " << *(ID*)tmp << "\ty: " << *(ID*)(tmp+4) << endl;
 		tmp += 8;
 	}
+	out.close();
+	out = NULL;
 #endif
 			insertEntries(minID, maxID);
 
@@ -233,9 +245,6 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 		}
 	}
 
-	cout << "pause" << endl;
-	system("pause");
-
 	if (chunkType == 2)
 	{
 		reader = chunkManager.getStartPtr(2);
@@ -259,6 +268,8 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 				reader = reader + 4 * 2 - metaData->usedSpace;// return chunk startPtr
 			}
 #ifdef MYDEBUG
+	ofstream out;
+	out.open("buildindex", ios::app);
 	cout << "minID: " << minID << "\tmaxID: " << maxID <<endl;
 	const uchar* tmp = reader;
 	tmp += sizeof(MetaData);
@@ -267,6 +278,8 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 		cout << "x: " << *(ID*)tmp << "\ty: " << *(ID*)(tmp+4) << endl;
 		tmp += 8;
 	}
+	out.close();
+	out = NULL;
 #endif
 			insertEntries(minID, maxID);
 
