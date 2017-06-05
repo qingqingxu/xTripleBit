@@ -197,13 +197,18 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 			} else {
 				reader = reader + (metaData->usedSpace - 4 * 2);// get this chunk last <x, y>
 				maxID = *(ID*)reader;
-				reader = reader + 4 * 2 - metaData->usedSpace + 4 * 2;// return chunk startPtr
+				reader = reader + 4 * 2 - metaData->usedSpace;// return chunk startPtr
 			}
-/*
 #ifdef MYDEBUG
 	cout << "minID: " << minID << "\tmaxID: " << maxID <<endl;
+	const uchar* tmp = reader;
+	tmp += sizeof(MetaData);
+	int xynums = (metaData->usedSpace - sizeof(MetaData))/8;
+	for(int i = 0; i < xynums; i++){
+		cout << "x: " << *(ID*)tmp << "\ty: " << *(ID*)(tmp+4) << endl;
+		tmp += 8;
+	}
 #endif
-*/
 			insertEntries(minID, maxID);
 
 			if (minID > splitID[lineNo])
@@ -248,21 +253,18 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 			} else {
 				reader = reader + (metaData->usedSpace - 4 * 2);// get this chunk last <x, y>
 				maxID = *(ID*)reader;
-				reader = reader + 4 * 2 - metaData->usedSpace + 4 * 2;// return chunk startPtr
+				reader = reader + 4 * 2 - metaData->usedSpace;// return chunk startPtr
 			}
-/*
 #ifdef MYDEBUG
-			cout << "minID: " << minID << "\tmaxID: " << maxID << endl;
-			const uchar* tmp = reader;
-			tmp += sizeof(MetaData);
-			int xynums = (metaData->usedSpace - sizeof(MetaData)) / 8;
-			for (int i = 0; i < xynums; i++) {
-				cout << "x: " << *(ID*) tmp << "\ty: " << *(ID*) (tmp + 4)
-						<< endl;
-				tmp += 8;
-			}
+	cout << "minID: " << minID << "\tmaxID: " << maxID <<endl;
+	const uchar* tmp = reader;
+	tmp += sizeof(MetaData);
+	int xynums = (metaData->usedSpace - sizeof(MetaData))/8;
+	for(int i = 0; i < xynums; i++){
+		cout << "x: " << *(ID*)tmp << "\ty: " << *(ID*)(tmp+4) << endl;
+		tmp += 8;
+	}
 #endif
-*/
 			insertEntries(minID, maxID);
 
 			if (minID > splitID[lineNo])
