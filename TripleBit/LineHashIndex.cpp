@@ -135,6 +135,9 @@ static ID splitID[3] =
 
 Status LineHashIndex::buildIndex(unsigned chunkType)
 {
+#ifdef MYDEBUG
+	cout << "chunktype: " << chunkType <<endl;
+#endif
 	if (idTable == NULL)
 	{
 		idTable = new MemoryBuffer(HASH_CAPACITY);
@@ -166,7 +169,9 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 			maxID = *(ID*)reader;
 			reader -= metaData->usedSpace + 4 * 2;// return chunk startPtr
 		}
-
+#ifdef MYDEBUG
+	cout << "minID: " << minID << "\tmaxID: " << maxID <<endl;
+#endif
 		insertEntries(minID, maxID);
 
 		reader = reader + (int) (MemoryBuffer::pagesize - sizeof(ChunkManagerMeta));
@@ -185,7 +190,9 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 				maxID = *(ID*) reader;
 				reader -= metaData->usedSpace + 4 * 2;
 			}
-
+#ifdef MYDEBUG
+	cout << "minID: " << minID << "\tmaxID: " << maxID <<endl;
+#endif
 			insertEntries(minID, maxID);
 
 			if (minID > splitID[lineNo])
@@ -232,6 +239,9 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 				maxID = *(ID*) reader;
 				reader -= metaData->usedSpace + 4 * 2;
 			}
+#ifdef MYDEBUG
+	cout << "minID: " << minID << "\tmaxID: " << maxID <<endl;
+#endif
 			insertEntries(minID, maxID);
 
 			if (minID > splitID[lineNo])
