@@ -14,6 +14,7 @@
 unsigned int ChunkManager::bufferCount = 0;
 
 //#define WORD_ALIGN 1
+#define MYDEBUG
 
 BitmapBuffer::BitmapBuffer(const string _dir) :
 	dir(_dir) {

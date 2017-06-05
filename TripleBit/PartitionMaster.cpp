@@ -25,6 +25,7 @@
 #include "util/Timestamp.h"
 
 #define QUERY_TIME
+#define MYDEBUG
 
 PartitionMaster::PartitionMaster(TripleBitRepository*& repo, const ID parID) {
 	tripleBitRepo = repo;

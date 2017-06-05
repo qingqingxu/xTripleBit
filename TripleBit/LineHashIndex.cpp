@@ -12,6 +12,8 @@
 
 #include <math.h>
 
+#define MYDEBUG
+
 /**
  * linear fit;
  * f(x)=kx + b;

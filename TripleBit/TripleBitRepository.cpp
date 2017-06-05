@@ -24,6 +24,7 @@
 #include "comm/IndexForTT.h"
 #include <boost/thread/thread.hpp>
 
+#define MYDEBUG
 int TripleBitRepository::colNo = INT_MAX - 1;
 
 TripleBitRepository::TripleBitRepository() {
