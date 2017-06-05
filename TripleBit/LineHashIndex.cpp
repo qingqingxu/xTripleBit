@@ -260,9 +260,9 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 			if (metaData->usedSpace == sizeof(MetaData)) {
 				maxID = minID;
 			} else {
-				reader = reader + (metaData->usedSpace - 4 * 2);// get this chunk last <x, y>
+				reader = reader + (metaData->usedSpace - 4);// get this chunk last <x, y>
 				maxID = *(ID*)reader;
-				reader = reader + 4 * 2 - metaData->usedSpace;// return chunk startPtr
+				reader = reader + 4 - metaData->usedSpace;// return chunk startPtr
 			}
 #ifdef MYDEBUG
 	ofstream out;
