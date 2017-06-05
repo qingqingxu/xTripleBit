@@ -484,7 +484,10 @@ void BitmapBuffer::save() {
 	for (map<ID, ChunkManager*>::iterator iter = predicate_managers[0].begin(); iter != predicate_managers[0].end(); iter++) {
 		if (iter->second) {
 #ifdef MYDEBUG
-			cout<< "pid: " <<iter->first<<endl;
+			ofstream out;
+			out.open("buildindex", ios::app);
+			out<< "pid: " <<iter->first<<endl;
+			out.close();
 #endif
 			iter->second->buildChunkIndex();
 			offset = iter->second->getChunkIndex(1)->save(bitmapIndex);
@@ -501,8 +504,11 @@ void BitmapBuffer::save() {
 #endif
 	for (map<ID, ChunkManager*>::iterator iter = predicate_managers[1].begin(); iter != predicate_managers[1].end(); iter++) {
 		if (iter->second) {
-#ifdef MYDEBUF
-			cout<< "pid: " << iter->first<<endl;
+#ifdef MYDEBUG
+			ofstream out;
+			out.open("buildindex", ios::app);
+			out<< "pid: " << iter->first<<endl;
+			out.close();
 #endif
 			iter->second->buildChunkIndex();
 			offset = iter->second->getChunkIndex(1)->save(bitmapIndex);
