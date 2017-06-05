@@ -19,6 +19,8 @@
 #include <pthread.h>
 #include <fstream>
 
+#define MYDEBUG
+
 static int getCharPos(const char* data, char ch)
 {
 	const char * p = data;
@@ -222,7 +224,9 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 	unsigned count0 = 0, count1 = 0;
 	TempFile sortedBySubject("./SortByS"), sortedByObject("./SortByO");
 	Sorter::sort(rawFacts, sortedBySubject, skipIdIdId, compare123);
+#ifdef MYDEBUG
 	print(sortedBySubject, "sortedBySubject_temp");
+#endif
 	{
 		//insert into chunk
 		sortedBySubject.close();
@@ -272,7 +276,9 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 	//sort
 	cerr << "Sort by Object" << endl;
 	Sorter::sort(rawFacts, sortedByObject, skipIdIdId, compare321);
+#ifdef MYDEBUG
 	print(sortedByObject, "sortedByObject_temp");
+#endif
 	{
 		//insert into chunk
 		sortedByObject.close();

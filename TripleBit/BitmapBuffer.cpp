@@ -115,18 +115,6 @@ void BitmapBuffer::flush() {
 	temp4->flush();
 }
 
-void BitmapBuffer::generateXY(ID& subjectID, ID& objectID) {
-	ID temp;
-
-	if (subjectID > objectID) {
-		temp = subjectID;
-		subjectID = objectID;
-		objectID = temp - objectID;
-	} else {
-		objectID = objectID - subjectID;
-	}
-}
-
 unsigned char BitmapBuffer::getBytes(ID id) {
 	if (id <= 0xFF) {
 		return 1;
@@ -850,10 +838,17 @@ static void getInsertChars(char* temp, unsigned x, unsigned y) {
 	ptr[7] = static_cast<unsigned char>((y & 0xFF));
 }
 
+void ChunkManager::writeXYId(const char* reader, ID x, ID y){
+	*((ID*) reader) = x;
+	reader += sizeof(ID);
+	*((ID*) reader) = y;
+	reader -= sizeof(ID);//go back
+}
+
 void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char type)
 {
-	char temp[8];
-	getInsertChars(temp, x, y);
+	/*char temp[8];
+	getInsertChars(temp, x, y);*/
 
 	if (isPtrFull(type, len) == true) {
 		if (type == 1) {
@@ -872,7 +867,8 @@ void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char 
 			metaData->NextPageNo = 0;
 			metaData->usedSpace = 0;
 
-			memcpy(meta->endPtr[0] + sizeof(MetaData), temp, len);
+			writeXYId(meta->endPtr[0] + sizeof(MetaData), x, y);
+			//memcpy(meta->endPtr[0] + sizeof(MetaData), temp, len);
 			meta->endPtr[0] = meta->endPtr[0] + sizeof(MetaData) + len;
 			meta->usedSpace[0] = meta->length[0] - MemoryBuffer::pagesize - sizeof(ChunkManagerMeta) + sizeof(MetaData) + len;// indicate one chunk spare will not save
 			tripleCountAdd(type);
@@ -888,7 +884,8 @@ void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char 
 			metaData->NextPageNo = 0;
 			metaData->usedSpace = 0;
 
-			memcpy(meta->endPtr[1] + sizeof(MetaData), temp, len);
+			writeXYId(meta->endPtr[1] + sizeof(MetaData), x, y);
+			//memcpy(meta->endPtr[1] + sizeof(MetaData), temp, len);
 			meta->endPtr[1] = meta->endPtr[1] + sizeof(MetaData) + len;
 			meta->usedSpace[1] = meta->length[1] - MemoryBuffer::pagesize + sizeof(MetaData) + len;
 			tripleCountAdd(type);
@@ -901,12 +898,14 @@ void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char 
 		metaData->NextPageNo = 0;
 		metaData->usedSpace = 0;
 
-		memcpy(meta->endPtr[type - 1] + sizeof(MetaData), temp, len);
+		writeXYId(meta->endPtr[type - 1] + sizeof(MetaData), x, y);
+		//memcpy(meta->endPtr[type - 1] + sizeof(MetaData), temp, len);
 		meta->endPtr[type - 1] = meta->endPtr[type - 1] + sizeof(MetaData) + len;
 		meta->usedSpace[type - 1] = sizeof(MetaData) + len;
 		tripleCountAdd(type);
 	} else {
-		memcpy(meta->endPtr[type - 1], temp, len);
+		writeXYId(meta->endPtr[type - 1], x, y);
+		//memcpy(meta->endPtr[type - 1], temp, len);
 
 		meta->endPtr[type - 1] = meta->endPtr[type - 1] + len;
 		meta->usedSpace[type - 1] = meta->usedSpace[type - 1] + len;

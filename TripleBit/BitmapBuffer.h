@@ -54,8 +54,6 @@ public:
 //	static BitmapBuffer* load(const string bitmapBufferDir, MMapBuffer*& bitmapIndexImage, MMapBuffer* bitmapPredicateImage);
 	static BitmapBuffer* load(MMapBuffer* bitmapImage, MMapBuffer*& bitmapIndexImage, MMapBuffer* bitmapPredicateImage);
 private:
-	/// generate the x and y;
-	void generateXY(ID& subjectID, ID& objectID);
 	/// get the bytes of a id;
 	unsigned char getBytes(ID id);
 	/// get the storage space (in bytes) of a id;
@@ -137,6 +135,8 @@ public:
 
 	void insertXY(unsigned x, unsigned y, unsigned len, unsigned char type);
 
+	void writeXYId(const char* reader, ID x, ID y);
+
 	uchar* getStartPtr(unsigned char type) {
 		return reinterpret_cast<uchar*> (meta->startPtr[type -1]);
 	}
@@ -196,6 +196,7 @@ public:
 	unsigned char getType() {
 		return type;
 	}
+
 	/// Read a subject id
 	static const uchar* readXId(const uchar* reader, register ID& id);
 	/// Read an object id

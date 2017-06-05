@@ -171,7 +171,6 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 			maxID = *(ID*)reader;
 			reader = reader + 4 * 2 - metaData->usedSpace + 4 * 2;// return chunk startPtr
 		}
-/*
 #ifdef MYDEBUG
 	cout << "minID: " << minID << "\tmaxID: " << maxID <<endl;
 	const uchar* tmp = reader;
@@ -182,7 +181,6 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 		tmp += 8;
 	}
 #endif
-*/
 		insertEntries(minID, maxID);
 
 		reader = reader + (int) (MemoryBuffer::pagesize - sizeof(ChunkManagerMeta));
