@@ -173,6 +173,13 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 		}
 #ifdef MYDEBUG
 	cout << "minID: " << minID << "\tmaxID: " << maxID <<endl;
+	const uchar* tmp = reader;
+	tmp += sizeof(MetaData);
+	int xynums = (metaData->usedSpace - sizeof(MetaData))/8;
+	for(int i = 0; i < xynums; i++){
+		cout << "x: " << *(ID*)tmp << "\ty: " << *(ID*)(tmp+4) << endl;
+		tmp += 8;
+	}
 #endif
 		insertEntries(minID, maxID);
 
