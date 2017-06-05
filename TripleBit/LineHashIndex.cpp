@@ -163,14 +163,6 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 		}
 
 		MetaData* metaData = (MetaData*) reader;
-		minID = metaData->minID;
-		if(metaData->usedSpace == sizeof(MetaData)){
-			maxID = minID;
-		}else{
-			reader += metaData->usedSpace - 4 * 2;// get this chunk last <x, y>
-			maxID = *(ID*)reader;
-			reader -= metaData->usedSpace + 4 * 2;// return chunk startPtr
-		}
 #ifdef MYDEBUG
 	cout << "minID: " << minID << "\tmaxID: " << maxID <<endl;
 	const uchar* tmp = reader;
@@ -181,6 +173,28 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 		tmp += 8;
 	}
 #endif
+
+
+		minID = metaData->minID;
+		if(metaData->usedSpace == sizeof(MetaData)){
+			maxID = minID;
+		}else{
+			reader += metaData->usedSpace - 4 * 2;// get this chunk last <x, y>
+			maxID = *(ID*)reader;
+			reader -= metaData->usedSpace + 4 * 2;// return chunk startPtr
+		}
+/*
+#ifdef MYDEBUG
+	cout << "minID: " << minID << "\tmaxID: " << maxID <<endl;
+	const uchar* tmp = reader;
+	tmp += sizeof(MetaData);
+	int xynums = (metaData->usedSpace - sizeof(MetaData))/8;
+	for(int i = 0; i < xynums; i++){
+		cout << "x: " << *(ID*)tmp << "\ty: " << *(ID*)(tmp+4) << endl;
+		tmp += 8;
+	}
+#endif
+*/
 		insertEntries(minID, maxID);
 
 		reader = reader + (int) (MemoryBuffer::pagesize - sizeof(ChunkManagerMeta));
@@ -199,9 +213,11 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 				maxID = *(ID*) reader;
 				reader -= metaData->usedSpace + 4 * 2;
 			}
+/*
 #ifdef MYDEBUG
 	cout << "minID: " << minID << "\tmaxID: " << maxID <<endl;
 #endif
+*/
 			insertEntries(minID, maxID);
 
 			if (minID > splitID[lineNo])
@@ -248,6 +264,7 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 				maxID = *(ID*) reader;
 				reader -= metaData->usedSpace + 4 * 2;
 			}
+/*
 #ifdef MYDEBUG
 			cout << "minID: " << minID << "\tmaxID: " << maxID << endl;
 			const uchar* tmp = reader;
@@ -259,6 +276,7 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 				tmp += 8;
 			}
 #endif
+*/
 			insertEntries(minID, maxID);
 
 			if (minID > splitID[lineNo])
