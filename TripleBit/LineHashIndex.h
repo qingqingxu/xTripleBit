@@ -56,7 +56,7 @@ public:
 	vector<chunkMetaData> chunkMeta;
 
 private:
-	void insertEntries(ID id);
+	void insertEntries(ID minID, ID maxID);
 	size_t searchChunkFrank(ID id);
 	bool buildLine(int startEntry, int endEntry, int lineNo);
 	ID MetaID(size_t index);

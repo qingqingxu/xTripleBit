@@ -30,7 +30,7 @@ public:
 	size_t usedPage1, usedPage2, usedPage3, usedPage4;
 public:
 	BitmapBuffer(const string dir);
-	BitmapBuffer() : startColID(0), dir("") {}
+	BitmapBuffer() : startColID(0), dir(DATABASE_PATH) {}
 	~BitmapBuffer();
 	/// insert a predicate given specified sorting type and predicate id 
 	Status insertPredicate(ID predicateID, unsigned char typeID);

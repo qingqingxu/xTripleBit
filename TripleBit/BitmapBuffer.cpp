@@ -11,8 +11,6 @@
 #include "TempFile.h"
 #include "TempMMapBuffer.h"
 
-#define INFO
-
 unsigned int ChunkManager::bufferCount = 0;
 
 //#define WORD_ALIGN 1
@@ -99,10 +97,6 @@ ChunkManager* BitmapBuffer::getChunkManager(ID id, unsigned char type) {
 Status BitmapBuffer::insertTriple(ID predicateId, ID xId, ID yId, bool flag, unsigned char f) {
 	unsigned char len = 4 * 2;
 
-#ifdef INFO
-	cout << "predicateId: " << predicateId <<endl;
-#endif
-
 	if (flag == false) { //s < o
 		getChunkManager(predicateId, f)->insertXY(xId, yId, len, 1);
 	} else { // s > o, xId: o, yId: s
@@ -153,7 +147,7 @@ char* BitmapBuffer::getPage(unsigned char type, unsigned char flag, size_t& page
 	//cout<<__FUNCTION__<<" begin"<<endl;
 
 	if (type == 0) {
-		if (flag == 0) {
+		if (flag == 0) { //x < y,first apply 1024*4096, then one page use, when apply memery is not enough, expend 1024*4096
 			if (usedPage1 * MemoryBuffer::pagesize >= temp1->getSize()) {
 				temp1->resize(INCREMENT_PAGE_COUNT * MemoryBuffer::pagesize);
 				tempresize = true;
@@ -161,7 +155,7 @@ char* BitmapBuffer::getPage(unsigned char type, unsigned char flag, size_t& page
 			pageNo = usedPage1;
 			rt = temp1->get_address() + usedPage1 * MemoryBuffer::pagesize;
 			usedPage1++;
-		} else {
+		} else { // x > y
 			if (usedPage2 * MemoryBuffer::pagesize >= temp2->getSize()) {
 				temp2->resize(INCREMENT_PAGE_COUNT * MemoryBuffer::pagesize);
 				tempresize = true;
@@ -401,6 +395,7 @@ void BitmapBuffer::save() {
 
 	predicateWriter = predicateBuffer->get_address();
 
+	//update bitmap point address
 	ID id;
 	for (iter = predicate_managers[0].begin(); iter != predicate_managers[0].end(); iter++) {
 		id = *((ID*) predicateWriter);
@@ -416,6 +411,7 @@ void BitmapBuffer::save() {
 		iter->second->meta->startPtr[1] = base + iter->second->meta->length[0];
 		iter->second->meta->endPtr[1] = iter->second->meta->startPtr[1] + iter->second->meta->usedSpace[1];
 
+		//why only update last metadata
 		if (iter->second->meta->usedSpace[0] + sizeof(ChunkManagerMeta) <= MemoryBuffer::pagesize) {
 			MetaData *metaData = (MetaData*) iter->second->meta->startPtr[0];
 			metaData->usedSpace = iter->second->meta->usedSpace[0];
@@ -852,19 +848,11 @@ static void getInsertChars(char* temp, unsigned x, unsigned y) {
 }
 
 void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char type)
-//x:xID, y:yID, len:len(xID + yID), type: x>y:1, x<y:2
 {
-	char temp[10];
+	char temp[8];
 	getInsertChars(temp, x, y);
 
-#ifdef INFO
-	cout << "x:　" << x << "\t y: " << y <<endl;
-#endif
-
 	if (isPtrFull(type, len) == true) {
-#ifdef INFO
-	cout << "full type:　" << type <<endl;
-#endif
 		if (type == 1) {
 			if (meta->length[0] == MemoryBuffer::pagesize) {
 				MetaData *metaData = (MetaData*) (meta->endPtr[0] - meta->usedSpace[0]);
@@ -872,7 +860,7 @@ void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char 
 			} else {
 				size_t usedPage = MemoryBuffer::pagesize - (meta->length[0] - meta->usedSpace[0] - sizeof(ChunkManagerMeta));
 				MetaData *metaData = (MetaData*) (meta->endPtr[0] - usedPage);
-				metaData->usedSpace = usedPage;
+				metaData->usedSpace = usedPage;// every chunk usedspace, include metadata
 			}
 			resize(type);
 			MetaData *metaData = (MetaData*) (meta->endPtr[0]);
@@ -883,7 +871,7 @@ void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char 
 
 			memcpy(meta->endPtr[0] + sizeof(MetaData), temp, len);
 			meta->endPtr[0] = meta->endPtr[0] + sizeof(MetaData) + len;
-			meta->usedSpace[0] = meta->length[0] - MemoryBuffer::pagesize - sizeof(ChunkManagerMeta) + sizeof(MetaData) + len;
+			meta->usedSpace[0] = meta->length[0] - MemoryBuffer::pagesize - sizeof(ChunkManagerMeta) + sizeof(MetaData) + len;// indicate one chunk spare will not save
 			tripleCountAdd(type);
 		} else {
 			size_t usedPage = MemoryBuffer::pagesize - (meta->length[1] - meta->usedSpace[1]);
@@ -903,9 +891,6 @@ void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char 
 			tripleCountAdd(type);
 		}
 	} else if (meta->usedSpace[type - 1] == 0) {
-#ifdef INFO
-	cout << "usedSpace:　0" <<endl;
-#endif
 		MetaData *metaData = (MetaData*) (meta->startPtr[type - 1]);
 		memset((char*) metaData, 0, sizeof(MetaData));
 		metaData->minID = ((type == 1) ? x : y);
@@ -918,9 +903,6 @@ void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char 
 		meta->usedSpace[type - 1] = sizeof(MetaData) + len;
 		tripleCountAdd(type);
 	} else {
-#ifdef INFO
-	cout << "usedSpace:　not 0" <<endl;
-#endif
 		memcpy(meta->endPtr[type - 1], temp, len);
 
 		meta->endPtr[type - 1] = meta->endPtr[type - 1] + len;
@@ -1103,18 +1085,55 @@ const uchar* Chunk::skipForward(const uchar* reader) {
 
 const uchar* Chunk::skipBackward(const uchar* reader) {
 	// skip backward to the last x,y;
-	while ((*reader) == 0)
-		--reader;
-	while ((*reader) & 128)
-		--reader;
-	while (!((*reader) & 128))
-		--reader;
-	return ++reader;
+	while ((ID*)reader == 0) //last y
+		reader -= 4;
+	reader -= 4; //last x
+	return reader;
 }
 
 const uchar* Chunk::skipBackward(const uchar* reader, const uchar* begin, unsigned type) {
 	//if is the begin of One Chunk
+
 	if (type == 1) {
+			if ((reader - begin - sizeof(MetaData) + sizeof(ChunkManagerMeta)) % MemoryBuffer::pagesize == 0 || (reader + 1 - begin - sizeof(MetaData) + sizeof(ChunkManagerMeta)) % MemoryBuffer::pagesize
+					== 0) {
+				if ((reader - begin - sizeof(MetaData) + sizeof(ChunkManagerMeta)) == MemoryBuffer::pagesize || (reader + 1 - begin - sizeof(MetaData) + sizeof(ChunkManagerMeta))
+						== MemoryBuffer::pagesize)
+				// if is the second Chunk
+				{
+					reader = begin;
+					MetaData* metaData = (MetaData*) reader;
+					reader = reader + metaData->usedSpace;
+					--reader;
+					return skipBackward(reader);
+				}
+				reader = begin - sizeof(ChunkManagerMeta) + MemoryBuffer::pagesize * ((reader - begin + sizeof(ChunkManagerMeta)) / MemoryBuffer::pagesize - 1);
+				MetaData* metaData = (MetaData*) reader;
+				reader = reader + metaData->usedSpace;
+				--reader;
+				return skipBackward(reader);
+			} else if (reader <= begin + sizeof(MetaData)) {
+				return begin - 1;
+			} else {
+				//if is not the begin of one Chunk
+				return skipBackward(reader);
+			}
+		}
+		if (type == 2) {
+			if ((reader - begin - sizeof(MetaData)) % MemoryBuffer::pagesize == 0 || (reader + 1 - begin - sizeof(MetaData)) % MemoryBuffer::pagesize == 0) {
+				reader = begin + MemoryBuffer::pagesize * ((reader - begin) / MemoryBuffer::pagesize - 1);
+				MetaData* metaData = (MetaData*) reader;
+				reader = reader + metaData->usedSpace;
+				--reader;
+				return skipBackward(reader);
+			} else if (reader <= begin + sizeof(MetaData)) {
+				return begin - 1;
+			} else {
+				//if is not the begin of one Chunk
+				return skipBackward(reader);
+			}
+		}
+	/*if (type == 1) {
 		if ((reader - begin - sizeof(MetaData) + sizeof(ChunkManagerMeta)) % MemoryBuffer::pagesize == 0 || (reader + 1 - begin - sizeof(MetaData) + sizeof(ChunkManagerMeta)) % MemoryBuffer::pagesize
 				== 0) {
 			if ((reader - begin - sizeof(MetaData) + sizeof(ChunkManagerMeta)) == MemoryBuffer::pagesize || (reader + 1 - begin - sizeof(MetaData) + sizeof(ChunkManagerMeta))
@@ -1152,5 +1171,5 @@ const uchar* Chunk::skipBackward(const uchar* reader, const uchar* begin, unsign
 			//if is not the begin of one Chunk
 			return skipBackward(reader);
 		}
-	}
+	}*/
 }

@@ -74,7 +74,7 @@ bool LineHashIndex::buildLine(int startEntry, int endEntry, int lineNo)
 	int i;
 
 	//build lower limit line;
-	for (i = startEntry; i < endEntry; i++)
+	for (i = startEntry; i < endEntry; i += 2)
 	{
 		pt.x = idTableEntries[i];
 		pt.y = i;
@@ -104,7 +104,7 @@ bool LineHashIndex::buildLine(int startEntry, int endEntry, int lineNo)
 
 	vpt.resize(0);
 	//build upper limit line;
-	for (i = startEntry; i < endEntry; i++)
+	for (i = startEntry; i < endEntry; i += 2)
 	{
 		pt.x = idTableEntries[i + 1];
 		pt.y = i;
@@ -133,7 +133,7 @@ bool LineHashIndex::buildLine(int startEntry, int endEntry, int lineNo)
 static ID splitID[3] =
 { 255, 65535, 16777215 };
 
-Status LineHashIndex::buildIndex(unsigned chunkType) //�������� chunkType: 1: x>y ; 2: x<y
+Status LineHashIndex::buildIndex(unsigned chunkType)
 {
 	if (idTable == NULL)
 	{
@@ -144,6 +144,7 @@ Status LineHashIndex::buildIndex(unsigned chunkType) //�������� 
 
 	const uchar* begin, *limit, *reader;
 	ID x, y;
+	ID minID, maxID;
 
 	int lineNo = 0;
 	int startEntry = 0, endEntry = 0;
@@ -158,39 +159,55 @@ Status LineHashIndex::buildIndex(unsigned chunkType) //�������� 
 		}
 
 		MetaData* metaData = (MetaData*) reader;
-		x = metaData->minID;
-		insertEntries(x);
+		minID = metaData->minID;
+		if(metaData->usedSpace == sizeof(MetaData)){
+			maxID = minID;
+		}else{
+			reader += metaData->usedSpace - 4 * 2;// get this chunk last <x, y>
+			maxID = (ID*)reader;
+			reader -= metaData->usedSpace + 4 * 2;// return chunk startPtr
+		}
+
+		insertEntries(minID, maxID);
 
 		reader = reader + (int) (MemoryBuffer::pagesize - sizeof(ChunkManagerMeta));
 
+		bool isHasChunkExincludeIndex = true;
+
 		while (reader < limit)
 		{
+			isHasChunkExincludeIndex = true;
 			metaData = (MetaData*) reader;
-			x = metaData->minID;
-			insertEntries(x);
+			minID = metaData->minID;
+			if (metaData->usedSpace == sizeof(MetaData)) {
+				maxID = minID;
+			} else {
+				reader += metaData->usedSpace - 4 * 2;
+				maxID = (ID*) reader;
+				reader -= metaData->usedSpace + 4 * 2;
+			}
 
-			if (x > splitID[lineNo])
+			insertEntries(minID, maxID);
+
+			if (minID > splitID[lineNo])
 			{
 				startEntry = endEntry;
 				endEntry = tableSize;
 				if (buildLine(startEntry, endEntry, lineNo) == true)
 				{
 					++lineNo;
+					isHasChunkExincludeIndex = false;
 				}
 			}
 			reader = reader + (int) MemoryBuffer::pagesize;
 		}
 
-		reader = Chunk::skipBackward(limit, begin, chunkType);
-		x = 0;
-		Chunk::readXId(reader, x);
-		insertEntries(x);
-
-		startEntry = endEntry;
-		endEntry = tableSize;
-		if (buildLine(startEntry, endEntry, lineNo) == true)
-		{
-			++lineNo;
+		if(isHasChunkExincludeIndex){
+			startEntry = endEntry;
+			endEntry = tableSize;
+			if (buildLine(startEntry, endEntry, lineNo) == true) {
+				++lineNo;
+			}
 		}
 	}
 
@@ -203,33 +220,40 @@ Status LineHashIndex::buildIndex(unsigned chunkType) //�������� 
 			return OK;
 		}
 
+		bool isHasChunkExincludeIndex = true;
 		while (reader < limit)
 		{
+			isHasChunkExincludeIndex = true;
 			MetaData* metaData = (MetaData*) reader;
-			x = metaData->minID;
-			insertEntries(x);
+			minID = metaData->minID;
+			if (metaData->usedSpace == sizeof(MetaData)) {
+				maxID = minID;
+			} else {
+				reader += metaData->usedSpace - 4 * 2;
+				maxID = (ID*) reader;
+				reader -= metaData->usedSpace + 4 * 2;
+			}
+			insertEntries(minID, maxID);
 
-			if (x > splitID[lineNo])
+			if (minID > splitID[lineNo])
 			{
 				startEntry = endEntry;
 				endEntry = tableSize;
 				if (buildLine(startEntry, endEntry, lineNo) == true)
 				{
 					++lineNo;
+					isHasChunkExincludeIndex = false;
 				}
 			}
 			reader = reader + (int) MemoryBuffer::pagesize;
 		}
-		x = y = 0;
-		reader = Chunk::skipBackward(limit, begin, chunkType);
-		Chunk::readYId(Chunk::readXId(reader, x), y);
-		insertEntries(x + y);
 
-		startEntry = endEntry;
-		endEntry = tableSize;
-		if (buildLine(startEntry, endEntry, lineNo) == true)
-		{
-			++lineNo;
+		if(isHasChunkExincludeIndex){
+			startEntry = endEntry;
+			endEntry = tableSize;
+			if (buildLine(startEntry, endEntry, lineNo) == true) {
+				++lineNo;
+			}
 		}
 	}
 	return OK;
@@ -240,16 +264,15 @@ bool LineHashIndex::isBufferFull()
 	return tableSize >= idTable->getSize() / 4;
 }
 
-void LineHashIndex::insertEntries(ID id)
+void LineHashIndex::insertEntries(ID minID, ID maxID)
 {
 	if (isBufferFull())
 	{
 		idTable->resize(HASH_CAPACITY);
 		idTableEntries = (ID*) idTable->get_address();
 	}
-	idTableEntries[tableSize] = id;
-
-	tableSize++;
+	idTableEntries[tableSize++] = minID;
+	idTableEntries[tableSize++] = maxID;
 }
 
 ID LineHashIndex::MetaID(size_t index)
@@ -461,11 +484,11 @@ void LineHashIndex::updateChunkMetaData(int offsetId)
 		if (xyType == LineHashIndex::YBIGTHANX)
 		{
 			chunkMeta[offsetId].minIDx = x;
-			chunkMeta[offsetId].minIDy = x + y;
+			chunkMeta[offsetId].minIDy = y;
 		}
 		else if (xyType == LineHashIndex::XBIGTHANY)
 		{
-			chunkMeta[offsetId].minIDx = x + y;
+			chunkMeta[offsetId].minIDx = y;
 			chunkMeta[offsetId].minIDy = x;
 		}
 	}
