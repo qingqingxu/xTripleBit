@@ -233,6 +233,9 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 		}
 	}
 
+	cout << "pause" << endl;
+	system("pause");
+
 	if (chunkType == 2)
 	{
 		reader = chunkManager.getStartPtr(2);
