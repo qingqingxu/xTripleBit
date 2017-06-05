@@ -207,7 +207,7 @@ void print(TempFile& infile, char* outfile){
 	// Produce tempfile
 	ofstream out(outfile);
 	while (reader < limit) {
-		out >> *(ID*)reader >> "\t" >> *(ID*)(reader + 4) >> "\t" >> *(ID*)(reader + 8) >> "\n";
+		out << *(ID*)reader << "\t" << *(ID*)(reader + 4) << "\t" << *(ID*)(reader + 8) << endl;
 		reader += 12;
 	}
 	mappedIn.close();
