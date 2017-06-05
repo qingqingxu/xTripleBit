@@ -178,24 +178,24 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 	ofstream out;
 	out.open("buildindex", ios::app);
 	out << "minID: " << minID << "\tmaxID: " << maxID <<endl;
-	const uchar* tmp = reader;
+	/*const uchar* tmp = reader;
 	tmp += sizeof(MetaData);
 	int xynums = (metaData->usedSpace - sizeof(MetaData))/8;
 	for(int i = 0; i < xynums; i++){
 		out << "x: " << *(ID*)tmp << "\ty: " << *(ID*)(tmp+4) << endl;
 		tmp += 8;
-	}
+	}*/
 	out.close();
 #endif
 		insertEntries(minID, maxID);
 
 		reader = reader + (int) (MemoryBuffer::pagesize - sizeof(ChunkManagerMeta));
 
-		bool isHasChunkExincludeIndex = true;
+		bool isHasChunkExcludeIndex = true;
 
 		while (reader < limit)
 		{
-			isHasChunkExincludeIndex = true;
+			isHasChunkExcludeIndex = true;
 			metaData = (MetaData*) reader;
 			minID = metaData->minID;
 			if (metaData->usedSpace == sizeof(MetaData)) {
@@ -209,13 +209,13 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 	ofstream out;
 	out.open("buildindex", ios::app);
 	out << "minID: " << minID << "\tmaxID: " << maxID <<endl;
-	const uchar* tmp = reader;
+	/*const uchar* tmp = reader;
 	tmp += sizeof(MetaData);
 	int xynums = (metaData->usedSpace - sizeof(MetaData))/8;
 	for(int i = 0; i < xynums; i++){
 		out << "x: " << *(ID*)tmp << "\ty: " << *(ID*)(tmp+4) << endl;
 		tmp += 8;
-	}
+	}*/
 	out.close();
 #endif
 			insertEntries(minID, maxID);
@@ -227,13 +227,13 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 				if (buildLine(startEntry, endEntry, lineNo) == true)
 				{
 					++lineNo;
-					isHasChunkExincludeIndex = false;
+					isHasChunkExcludeIndex = false;
 				}
 			}
 			reader = reader + (int) MemoryBuffer::pagesize;
 		}
 
-		if(isHasChunkExincludeIndex){
+		if(isHasChunkExcludeIndex){
 			startEntry = endEntry;
 			endEntry = tableSize;
 			if (buildLine(startEntry, endEntry, lineNo) == true) {
@@ -268,13 +268,13 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 	ofstream out;
 	out.open("buildindex", ios::app);
 	out << "minID: " << minID << "\tmaxID: " << maxID <<endl;
-	const uchar* tmp = reader;
+	/*const uchar* tmp = reader;
 	tmp += sizeof(MetaData);
 	int xynums = (metaData->usedSpace - sizeof(MetaData))/8;
 	for(int i = 0; i < xynums; i++){
 		out << "x: " << *(ID*)tmp << "\ty: " << *(ID*)(tmp+4) << endl;
 		tmp += 8;
-	}
+	}*/
 	out.close();
 #endif
 			insertEntries(minID, maxID);
