@@ -17,6 +17,7 @@
 
 #include <string.h>
 #include <pthread.h>
+#include <fstream>
 
 static int getCharPos(const char* data, char ch)
 {
@@ -198,6 +199,20 @@ int TripleBitBuilder::compare321(const char* left, const char* right) {
 	return cmpTriples(l3, l2, l1, r3, r2, r1);
 }
 
+void print(TempFile& infile, char* outfile){
+	MemoryMappedFile mappedIn;
+	assert(mappedIn.open(infile.getFile().c_str()));
+	const char* reader = mappedIn.getBegin(), *limit = mappedIn.getEnd();
+
+	// Produce tempfile
+	ofstream out(outfile);
+	while (reader < limit) {
+		out >> *(ID*)reader >> "\t" >> *(ID*)(reader + 4) >> "\t" >> *(ID*)(reader + 8) >> "\n";
+		reader += 12;
+	}
+	mappedIn.close();
+	out.close();
+}
 
 Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 	cout<<"Sort by Subject"<<endl;
@@ -207,6 +222,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 	unsigned count0 = 0, count1 = 0;
 	TempFile sortedBySubject("./SortByS"), sortedByObject("./SortByO");
 	Sorter::sort(rawFacts, sortedBySubject, skipIdIdId, compare123);
+	print(sortedBySubject, "sortedBySubject_temp");
 	{
 		//insert into chunk
 		sortedBySubject.close();
@@ -256,6 +272,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 	//sort
 	cerr << "Sort by Object" << endl;
 	Sorter::sort(rawFacts, sortedByObject, skipIdIdId, compare321);
+	print(sortedByObject, "sortedByObject_temp");
 	{
 		//insert into chunk
 		sortedByObject.close();
