@@ -143,7 +143,6 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 	}
 
 	const uchar* begin, *limit, *reader;
-	ID x, y;
 	ID minID, maxID;
 
 	int lineNo = 0;
@@ -164,7 +163,7 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 			maxID = minID;
 		}else{
 			reader += metaData->usedSpace - 4 * 2;// get this chunk last <x, y>
-			maxID = (ID*)reader;
+			maxID = *(ID*)reader;
 			reader -= metaData->usedSpace + 4 * 2;// return chunk startPtr
 		}
 
@@ -183,7 +182,7 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 				maxID = minID;
 			} else {
 				reader += metaData->usedSpace - 4 * 2;
-				maxID = (ID*) reader;
+				maxID = *(ID*) reader;
 				reader -= metaData->usedSpace + 4 * 2;
 			}
 
@@ -230,7 +229,7 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 				maxID = minID;
 			} else {
 				reader += metaData->usedSpace - 4 * 2;
-				maxID = (ID*) reader;
+				maxID = *(ID*) reader;
 				reader -= metaData->usedSpace + 4 * 2;
 			}
 			insertEntries(minID, maxID);
