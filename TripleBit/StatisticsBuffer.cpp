@@ -65,7 +65,7 @@ bool OneConstantStatisticsBuffer::isPtrFull(unsigned len)
 const uchar* OneConstantStatisticsBuffer::decode(const uchar* begin, const uchar* end)
 {
 	Triple* writer = triples;
-	unsigned value1, count;
+	uint value1, count;
 	readData(begin, value1);
 	while(begin < end && value1){
 		begin = readData(begin, value1);
@@ -598,7 +598,7 @@ Status TwoConstantStatisticsBuffer::save(MMapBuffer*& indexBuffer)
 
 	memcpy(writer, (char*)index, indexPos * sizeof(Triple));
 #ifdef MYDEBUG
-	for(int i = 0; i < indexPos; i++)
+	for(uint i = 0; i < indexPos; i++)
 	{
 		cout<<index[i].value1<<" : "<<index[i].value2<<" : "<<index[i].count<<endl; // count is usedspace
 	}
