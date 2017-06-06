@@ -520,6 +520,9 @@ int TwoConstantStatisticsBuffer::findPredicate(unsigned value1,Triple*pos,Triple
 
 Status TwoConstantStatisticsBuffer::getStatis(unsigned& v1, unsigned v2)
 {
+#ifdef MYDEBUG
+	cout << v1 << "\t" << v2 << endl;
+#endif
 	pos = index, posLimit = index + indexPos;
 	find(v1, v2);
 	if(::greater(pos->value1, pos->value2, v1, v2))

@@ -15,6 +15,7 @@
 using namespace std;
 
 //#define DEBUGPLAN
+#define MYDEBUG
 
 bool isUnused(const TripleBitQueryGraph::SubQuery& query,const TripleNode& node,unsigned val)
 // Check if a variable is unused outside its primary pattern
@@ -322,7 +323,12 @@ int PlanGenerator::getSelectivity(TripleBitQueryGraph::TripleNodeID& tripleID)
 		if ( iter->constObject) {
 			if (iter->constSubject)
 				selectivity = 1;
-			else selectivity = repo.get_object_predicate_count(iter->object, iter->predicate);
+			else {
+				selectivity = repo.get_object_predicate_count(iter->object, iter->predicate);
+#ifdef MYDEBUG
+				cout << "selectivity: " << selectivity << endl;
+#endif
+			}
 		} else {
 			if (iter->constSubject)
 				selectivity = repo.get_subject_predicate_count(iter->subject, iter->predicate);
