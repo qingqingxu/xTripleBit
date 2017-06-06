@@ -30,28 +30,6 @@ static void writeUint32(unsigned char* target,unsigned value)
    target[3]=value&0xFF;
 }
 
-static unsigned char* writeDelta0(unsigned char* buffer, unsigned value)
-   // Write an integer with varying size
-{
-	if (value >= (1 << 24)) {
-		writeUint32(buffer, value);
-		return buffer + 4;
-	} else if (value >= (1 << 16)) {
-		buffer[0] = value >> 16;
-		buffer[1] = (value >> 8) & 0xFF;
-		buffer[2] = value & 0xFF;
-		return buffer + 3;
-	} else if (value >= (1 << 8)) {
-		buffer[0] = value >> 8;
-		buffer[1] = value & 0xFF;
-		return buffer + 2;
-	} else if (value > 0) {
-		buffer[0] = value;
-		return buffer + 1;
-	} else
-		return buffer;
-}
-
 StatisticsBuffer::StatisticsBuffer() : HEADSPACE(2) {
 	// TODO Auto-generated constructor stub
 	
@@ -91,170 +69,24 @@ OneConstantStatisticsBuffer::~OneConstantStatisticsBuffer()
 	buffer = NULL;
 }
 
-void OneConstantStatisticsBuffer::writeId(unsigned id, char*& ptr, bool isID)
-{
-	if ( isID == true ) {
-		while (id >= 128) {
-			unsigned char c = static_cast<unsigned char> (id & 127);
-			*ptr = c;
-			ptr++;
-			id >>= 7;
-		}
-		*ptr = static_cast<unsigned char> (id & 127);
-		ptr++;
-	} else {
-		while (id >= 128) {
-			unsigned char c = static_cast<unsigned char> (id | 128);
-			*ptr = c;
-			ptr++;
-			id >>= 7;
-		}
-		*ptr = static_cast<unsigned char> (id | 128);
-		ptr++;
-	}
-}
-
 bool OneConstantStatisticsBuffer::isPtrFull(unsigned len) 
 {
 	return (unsigned int) ( writer - (unsigned char*)buffer->getBuffer() + len ) > buffer->getSize() ? true : false;
-}
-
-unsigned OneConstantStatisticsBuffer::getLen(unsigned v)
-{
-	if (v >= (1 << 24))
-		return 4;
-	else if (v >= (1 << 16))
-		return 3;
-	else if (v >= (1 << 8))
-		return 2;
-	else if(v > 0)
-		return 1;
-	else
-		return 0;
-}
-
-static unsigned int countEntity(const unsigned char* begin, const unsigned char* end)
-{
-	if(begin >= end) 
-		return 0;
-
-	//cout<<"begin - end: "<<end - begin<<endl;
-
-	unsigned int entityCount = 0;
-	entityCount = 1;
-	begin = begin + 8;
-
-	while(begin < end) {
-		// Decode the header byte
-		unsigned info = *(begin++);
-		// Small gap only?
-		if (info < 0x80) {
-			if (!info)
-				break;
-			/*
-			count = (info >> 4) + 1;
-			value1 += (info & 15);
-			(*writer).value1 = value1;
-			(*writer).count = count;
-			++writer;
-			*/
-			entityCount++ ;
-			continue;
-		}
-		// Decode the parts
-		//value1 += 1;
-		switch (info & 127) {
-			case 0: break;
-			case 1: begin += 1; break;
-			case 2: begin += 2;break;
-			case 3: begin += 3;break;
-			case 4: begin += 4;break;
-			case 5: begin += 1;break;
-			case 6: begin += 2;break;
-			case 7: begin += 3;break;
-			case 8: begin += 4;break;
-			case 9: begin += 5; break;
-			case 10: begin += 2; break;
-			case 11: begin += 3; break;
-			case 12: begin += 4; break;
-			case 13: begin += 5; break;
-			case 14: begin += 6; break;
-			case 15: begin += 3; break;
-			case 16: begin += 4; break;
-			case 17: begin += 5; break;
-			case 18: begin += 6; break;
-			case 19: begin += 7;break;
-			case 20: begin += 4;break;
-			case 21: begin += 5;break;
-			case 22: begin += 6;break;
-			case 23: begin += 7;break;
-			case 24: begin += 8;break;
-		}
-		entityCount++;
-	}
-
-	return entityCount;
 }
 
 const unsigned char* OneConstantStatisticsBuffer::decode(const unsigned char* begin, const unsigned char* end)
 {
 	Triple* writer = triples;
 	unsigned value1, count;
-	value1 = readDelta4(begin);
-	begin += 4;
-	count = readDelta4(begin);
-	begin += 4;
+	while(begin < end && readDelta4(begin)){
+		value1 = readDelta4(begin);
+		begin += 4;
+		count = readDelta4(begin);
+		begin += 4;
 
-	(*writer).value1 = value1;
-	(*writer).count = count;
-	writer++;
-
-	while (begin < end) {
-		// Decode the header byte
-		unsigned info = *(begin++);
-		// Small gap only?
-		if (info < 0x80) {
-			if (!info)
-				break;
-			count = (info >> 4) + 1;
-			value1 += (info & 15);
-			(*writer).value1 = value1;
-			(*writer).count = count;
-			++writer;
-			continue;
-		}
-		// Decode the parts
-		value1 += 1;
-		switch (info & 127) {
-			case 0: count = 1;break;
-			case 1: count = readDelta1(begin) + 1; begin += 1; break;
-			case 2: count = readDelta2(begin) + 1;begin += 2;break;
-			case 3: count = readDelta3(begin) + 1;begin += 3;break;
-			case 4: count = readDelta4(begin) + 1;begin += 4;break;
-			case 5: value1 += readDelta1(begin);count = 1;begin += 1;break;
-			case 6: value1 += readDelta1(begin);count = readDelta1(begin + 1) + 1;begin += 2;break;
-			case 7: value1 += readDelta1(begin);count = readDelta2(begin + 1) + 1;begin += 3;break;
-			case 8: value1 += readDelta1(begin);count = readDelta3(begin + 1) + 1;begin += 4;break;
-			case 9: value1 += readDelta1(begin); count = readDelta4(begin + 1) + 1; begin += 5; break;
-			case 10: value1 += readDelta2(begin); count = 1; begin += 2; break;
-			case 11: value1 += readDelta2(begin); count = readDelta1(begin + 2) + 1; begin += 3; break;
-			case 12: value1 += readDelta2(begin); count = readDelta2(begin + 2) + 1; begin += 4; break;
-			case 13: value1 += readDelta2(begin); count = readDelta3(begin + 2) + 1; begin += 5; break;
-			case 14: value1 += readDelta2(begin); count = readDelta4(begin + 2) + 1; begin += 6; break;
-			case 15: value1 += readDelta3(begin); count = 1; begin += 3; break;
-			case 16: value1 += readDelta3(begin); count = readDelta1(begin + 3) + 1; begin += 4; break;
-			case 17: value1 += readDelta3(begin); count = readDelta2(begin + 3) + 1; begin += 5; break;
-			case 18: value1 += readDelta3(begin); count = readDelta3(begin + 3) + 1; begin += 6; break;
-			case 19: value1 += readDelta3(begin);count = readDelta4(begin + 3) + 1;begin += 7;break;
-			case 20: value1 += readDelta4(begin);count = 1;begin += 4;break;
-			case 21: value1 += readDelta4(begin);count = readDelta1(begin + 4) + 1;begin += 5;break;
-			case 22: value1 += readDelta4(begin);count = readDelta2(begin + 4) + 1;begin += 6;break;
-			case 23: value1 += readDelta4(begin);count = readDelta3(begin + 4) + 1;begin += 7;break;
-			case 24: value1 += readDelta4(begin);count = readDelta4(begin + 4) + 1;begin += 8;break;
-		}
 		(*writer).value1 = value1;
 		(*writer).count = count;
-		++writer;
+		writer++;
 	}
 
 	pos = triples;
@@ -290,12 +122,10 @@ unsigned int OneConstantStatisticsBuffer::getEntityCount()
 		if(endChunk != 0) {
 			begin = (const unsigned char*)(buffer->getBuffer()) + beginChunk;
 			end = (const unsigned char*)(buffer->getBuffer()) + endChunk;
-			entityCount = entityCount + countEntity(begin, end);
+			entityCount = entityCount + (end - begin) / (4 * 2);
 
 			beginChunk = endChunk;
 		}
-
-		//beginChunk = endChunk;
 	}
 
 	return entityCount;
@@ -303,62 +133,36 @@ unsigned int OneConstantStatisticsBuffer::getEntityCount()
 
 Status OneConstantStatisticsBuffer::addStatis(unsigned v1, unsigned v2, unsigned v3 /* = 0 */)
 {
-//	static bool first = true;
-	unsigned interVal;
-	if ( v1 >= nextHashValue ) {
-		interVal = v1;
-	} else {
-		interVal = v1 - lastId;
+	unsigned len = 4 * 2;
+	if (isPtrFull(len) == true) {
+		usedSpace = writer - (unsigned char*) buffer->getBuffer();
+		buffer->resize(
+				STATISTICS_BUFFER_INCREMENT_PAGE_COUNT * MemoryBuffer::pagesize,
+				true);
+		writer = (unsigned char*) buffer->getBuffer() + usedSpace;
 	}
 
-	unsigned len;
-	if(v1 >= nextHashValue) {
-		len = 8;
-	} else if(interVal < 16 && v2 <= 8) {
-		len = 1;
-	} else {
-		len = 1 + getLen(interVal - 1) + getLen(v2 - 1);
-	}
-
-	if ( isPtrFull(len) == true ) {
-		//MessageEngine::showMessage("OneConstantStatisticsBuffer::addStatis()", MessageEngine::INFO);
-		usedSpace = writer - (unsigned char*)buffer->getBuffer();
-		buffer->resize(STATISTICS_BUFFER_INCREMENT_PAGE_COUNT * MemoryBuffer::pagesize);
-		writer = (unsigned char*)buffer->getBuffer() + usedSpace;
-	}
-
-	if ( first || (v1 >= nextHashValue) ) {
-		unsigned offset = writer - (uchar*)buffer->getBuffer();
+	if (first || v1 >= nextHashValue) {
+		unsigned offset = writer - (uchar*) buffer->getBuffer();
 		while (index.size() <= (v1 / ID_HASH)) {
-			index.resize(index.size() + 2000, 0);
+			index.resize(index.size() + 2000, 0);//vector<unsigned> index;其大小每次充满时便添加2000
 #ifdef DEBUG
-			cout<<"index size"<<index.size()<<" v1 / ID_HASH: "<<(v1 / ID_HASH)<<endl;
+			cout << "index size" << index.size() << " v1 / ID_HASH: "
+			<< (v1 / ID_HASH) << endl;
 #endif
 		}
-
-		index[v1 / ID_HASH] = offset;
-		while(nextHashValue <= v1) nextHashValue += HASH_RANGE;
-
-		writeUint32(writer, v1);
-		writer += 4;
-		writeUint32(writer, v2);
-		writer += 4;
-
+		index[v1 / ID_HASH] = offset; // (v1/ID_HASH),得到在hash索引中的偏移值，从而得到ID所在块号
+		while (nextHashValue <= v1)
+			nextHashValue += HASH_RANGE;
 		first = false;
-	} else {
-		if(len == 1) {
-			*writer = ((v2 - 1) << 4) | (interVal);
-			writer++;
-		} else {
-			*writer = 0x80|((getLen(interVal-1)*5)+getLen(v2 - 1));
-			writer++;
-			writer = writeDelta0(writer,interVal - 1);
-			writer = writeDelta0(writer, v2 - 1);
-		}
 	}
 
-	lastId = v1;
-	usedSpace = writer - (uchar*)buffer->getBuffer();
+	writeUint32(writer, v1);
+	writer += 4;
+	writeUint32(writer, v2);
+	writer += 4;
+
+	usedSpace = writer - (uchar*) buffer->getBuffer();
 
 	return OK;
 }
@@ -599,330 +403,18 @@ TwoConstantStatisticsBuffer::~TwoConstantStatisticsBuffer()
 
 const uchar* TwoConstantStatisticsBuffer::decode(const uchar* begin, const uchar* end)
 {
-	unsigned value1 = readDelta4(begin); begin += 4;
-	unsigned value2 = readDelta4(begin); begin += 4;
-	unsigned count = readDelta4(begin); begin += 4;
+	unsigned value1, value2, count;
 	Triple* writer = &triples[0];
-	(*writer).value1 = value1;
-	(*writer).value2 = value2;
-	(*writer).count = count;
-	++writer;
-
-	// Decompress the remainder of the page
-	while (begin < end) {
-		// Decode the header byte
-		unsigned info = *(begin++);
-		// Small gap only?
-		if (info < 0x80) {
-			if (!info)
-				break;
-			count = (info >> 5) + 1;
-			value2 += (info & 31);
-			(*writer).value1 = value1;
-			(*writer).value2 = value2;
-			(*writer).count = count;
-			++writer;
-			continue;
-		}
-	      // Decode the parts
-		switch (info&127) {
-		case 0: count=1; break;
-		case 1: count=readDelta1(begin)+1; begin+=1; break;
-		case 2: count=readDelta2(begin)+1; begin+=2; break;
-		case 3: count=readDelta3(begin)+1; begin+=3; break;
-		case 4: count=readDelta4(begin)+1; begin+=4; break;
-		case 5: value2 += readDelta1(begin); count=1; begin+=1; break;
-		case 6: value2 += readDelta1(begin); count=readDelta1(begin+1)+1; begin+=2; break;
-		case 7: value2 += readDelta1(begin); count=readDelta2(begin+1)+1; begin+=3; break;
-		case 8: value2 += readDelta1(begin); count=readDelta3(begin+1)+1; begin+=4; break;
-		case 9: value2 += readDelta1(begin); count=readDelta4(begin+1)+1; begin+=5; break;
-		case 10: value2 += readDelta2(begin); count=1; begin+=2; break;
-		case 11: value2 += readDelta2(begin); count=readDelta1(begin+2)+1; begin+=3; break;
-		case 12: value2 += readDelta2(begin); count=readDelta2(begin+2)+1; begin+=4; break;
-		case 13: value2 += readDelta2(begin); count=readDelta3(begin+2)+1; begin+=5; break;
-		case 14: value2 += readDelta2(begin); count=readDelta4(begin+2)+1; begin+=6; break;
-		case 15: value2 += readDelta3(begin); count=1; begin+=3; break;
-		case 16: value2 += readDelta3(begin); count=readDelta1(begin+3)+1; begin+=4; break;
-		case 17: value2 += readDelta3(begin); count=readDelta2(begin+3)+1; begin+=5; break;
-		case 18: value2 += readDelta3(begin); count=readDelta3(begin+3)+1; begin+=6; break;
-		case 19: value2 += readDelta3(begin); count=readDelta4(begin+3)+1; begin+=7; break;
-		case 20: value2 += readDelta4(begin); count=1; begin+=4; break;
-		case 21: value2 += readDelta4(begin); count=readDelta1(begin+4)+1; begin+=5; break;
-		case 22: value2 += readDelta4(begin); count=readDelta2(begin+4)+1; begin+=6; break;
-		case 23: value2 += readDelta4(begin); count=readDelta3(begin+4)+1; begin+=7; break;
-		case 24: value2 += readDelta4(begin); count=readDelta4(begin+4)+1; begin+=8; break;
-		case 25: value1 += readDelta1(begin); value2=0; count=1; begin+=1; break;
-		case 26: value1 += readDelta1(begin); value2=0; count=readDelta1(begin+1)+1; begin+=2; break;
-		case 27: value1 += readDelta1(begin); value2=0; count=readDelta2(begin+1)+1; begin+=3; break;
-		case 28: value1 += readDelta1(begin); value2=0; count=readDelta3(begin+1)+1; begin+=4; break;
-		case 29: value1 += readDelta1(begin); value2=0; count=readDelta4(begin+1)+1; begin+=5; break;
-		case 30: value1 += readDelta1(begin); value2=readDelta1(begin+1); count=1; begin+=2; break;
-		case 31: value1 += readDelta1(begin); value2=readDelta1(begin+1); count=readDelta1(begin+2)+1; begin+=3; break;
-		case 32: value1 += readDelta1(begin); value2=readDelta1(begin+1); count=readDelta2(begin+2)+1; begin+=4; break;
-		case 33: value1+=readDelta1(begin); value2=readDelta1(begin+1); count=readDelta3(begin+2)+1; begin+=5; break;
-		case 34: value1+=readDelta1(begin); value2=readDelta1(begin+1); count=readDelta4(begin+2)+1; begin+=6; break;
-		case 35: value1+=readDelta1(begin); value2=readDelta2(begin+1); count=1; begin+=3; break;
-		case 36: value1+=readDelta1(begin); value2=readDelta2(begin+1); count=readDelta1(begin+3)+1; begin+=4; break;
-		case 37: value1+=readDelta1(begin); value2=readDelta2(begin+1); count=readDelta2(begin+3)+1; begin+=5; break;
-		case 38: value1+=readDelta1(begin); value2=readDelta2(begin+1); count=readDelta3(begin+3)+1; begin+=6; break;
-		case 39: value1+=readDelta1(begin); value2=readDelta2(begin+1); count=readDelta4(begin+3)+1; begin+=7; break;
-		case 40: value1+=readDelta1(begin); value2=readDelta3(begin+1); count=1; begin+=4; break;
-		case 41: value1+=readDelta1(begin); value2=readDelta3(begin+1); count=readDelta1(begin+4)+1; begin+=5; break;
-		case 42: value1+=readDelta1(begin); value2=readDelta3(begin+1); count=readDelta2(begin+4)+1; begin+=6; break;
-		case 43: value1+=readDelta1(begin); value2=readDelta3(begin+1); count=readDelta3(begin+4)+1; begin+=7; break;
-		case 44: value1+=readDelta1(begin); value2=readDelta3(begin+1); count=readDelta4(begin+4)+1; begin+=8; break;
-		case 45: value1+=readDelta1(begin); value2=readDelta4(begin+1); count=1; begin+=5; break;
-		case 46: value1+=readDelta1(begin); value2=readDelta4(begin+1); count=readDelta1(begin+5)+1; begin+=6; break;
-		case 47: value1+=readDelta1(begin); value2=readDelta4(begin+1); count=readDelta2(begin+5)+1; begin+=7; break;
-		case 48: value1+=readDelta1(begin); value2=readDelta4(begin+1); count=readDelta3(begin+5)+1; begin+=8; break;
-		case 49: value1+=readDelta1(begin); value2=readDelta4(begin+1); count=readDelta4(begin+5)+1; begin+=9; break;
-		case 50: value1+=readDelta2(begin); value2=0; count=1; begin+=2; break;
-		case 51: value1+=readDelta2(begin); value2=0; count=readDelta1(begin+2)+1; begin+=3; break;
-		case 52: value1+=readDelta2(begin); value2=0; count=readDelta2(begin+2)+1; begin+=4; break;
-		case 53: value1+=readDelta2(begin); value2=0; count=readDelta3(begin+2)+1; begin+=5; break;
-		case 54: value1+=readDelta2(begin); value2=0; count=readDelta4(begin+2)+1; begin+=6; break;
-		case 55: value1+=readDelta2(begin); value2=readDelta1(begin+2); count=1; begin+=3; break;
-		case 56: value1+=readDelta2(begin); value2=readDelta1(begin+2); count=readDelta1(begin+3)+1; begin+=4; break;
-		case 57: value1+=readDelta2(begin); value2=readDelta1(begin+2); count=readDelta2(begin+3)+1; begin+=5; break;
-		case 58: value1+=readDelta2(begin); value2=readDelta1(begin+2); count=readDelta3(begin+3)+1; begin+=6; break;
-		case 59: value1+=readDelta2(begin); value2=readDelta1(begin+2); count=readDelta4(begin+3)+1; begin+=7; break;
-		case 60: value1+=readDelta2(begin); value2=readDelta2(begin+2); count=1; begin+=4; break;
-		case 61: value1+=readDelta2(begin); value2=readDelta2(begin+2); count=readDelta1(begin+4)+1; begin+=5; break;
-		case 62: value1+=readDelta2(begin); value2=readDelta2(begin+2); count=readDelta2(begin+4)+1; begin+=6; break;
-		case 63: value1+=readDelta2(begin); value2=readDelta2(begin+2); count=readDelta3(begin+4)+1; begin+=7; break;
-		case 64: value1+=readDelta2(begin); value2=readDelta2(begin+2); count=readDelta4(begin+4)+1; begin+=8; break;
-		case 65: value1+=readDelta2(begin); value2=readDelta3(begin+2); count=1; begin+=5; break;
-		case 66: value1+=readDelta2(begin); value2=readDelta3(begin+2); count=readDelta1(begin+5)+1; begin+=6; break;
-		case 67: value1+=readDelta2(begin); value2=readDelta3(begin+2); count=readDelta2(begin+5)+1; begin+=7; break;
-		case 68: value1+=readDelta2(begin); value2=readDelta3(begin+2); count=readDelta3(begin+5)+1; begin+=8; break;
-		case 69: value1+=readDelta2(begin); value2=readDelta3(begin+2); count=readDelta4(begin+5)+1; begin+=9; break;
-		case 70: value1+=readDelta2(begin); value2=readDelta4(begin+2); count=1; begin+=6; break;
-		case 71: value1+=readDelta2(begin); value2=readDelta4(begin+2); count=readDelta1(begin+6)+1; begin+=7; break;
-		case 72: value1+=readDelta2(begin); value2=readDelta4(begin+2); count=readDelta2(begin+6)+1; begin+=8; break;
-		case 73: value1+=readDelta2(begin); value2=readDelta4(begin+2); count=readDelta3(begin+6)+1; begin+=9; break;
-		case 74: value1+=readDelta2(begin); value2=readDelta4(begin+2); count=readDelta4(begin+6)+1; begin+=10; break;
-		case 75: value1+=readDelta3(begin); value2=0; count=1; begin+=3; break;
-		case 76: value1+=readDelta3(begin); value2=0; count=readDelta1(begin+3)+1; begin+=4; break;
-		case 77: value1+=readDelta3(begin); value2=0; count=readDelta2(begin+3)+1; begin+=5; break;
-		case 78: value1+=readDelta3(begin); value2=0; count=readDelta3(begin+3)+1; begin+=6; break;
-		case 79: value1+=readDelta3(begin); value2=0; count=readDelta4(begin+3)+1; begin+=7; break;
-		case 80: value1+=readDelta3(begin); value2=readDelta1(begin+3); count=1; begin+=4; break;
-		case 81: value1+=readDelta3(begin); value2=readDelta1(begin+3); count=readDelta1(begin+4)+1; begin+=5; break;
-		case 82: value1+=readDelta3(begin); value2=readDelta1(begin+3); count=readDelta2(begin+4)+1; begin+=6; break;
-		case 83: value1+=readDelta3(begin); value2=readDelta1(begin+3); count=readDelta3(begin+4)+1; begin+=7; break;
-		case 84: value1+=readDelta3(begin); value2=readDelta1(begin+3); count=readDelta4(begin+4)+1; begin+=8; break;
-		case 85: value1+=readDelta3(begin); value2=readDelta2(begin+3); count=1; begin+=5; break;
-		case 86: value1+=readDelta3(begin); value2=readDelta2(begin+3); count=readDelta1(begin+5)+1; begin+=6; break;
-		case 87: value1+=readDelta3(begin); value2=readDelta2(begin+3); count=readDelta2(begin+5)+1; begin+=7; break;
-		case 88: value1+=readDelta3(begin); value2=readDelta2(begin+3); count=readDelta3(begin+5)+1; begin+=8; break;
-		case 89: value1+=readDelta3(begin); value2=readDelta2(begin+3); count=readDelta4(begin+5)+1; begin+=9; break;
-		case 90: value1+=readDelta3(begin); value2=readDelta3(begin+3); count=1; begin+=6; break;
-		case 91: value1+=readDelta3(begin); value2=readDelta3(begin+3); count=readDelta1(begin+6)+1; begin+=7; break;
-		case 92: value1+=readDelta3(begin); value2=readDelta3(begin+3); count=readDelta2(begin+6)+1; begin+=8; break;
-		case 93: value1+=readDelta3(begin); value2=readDelta3(begin+3); count=readDelta3(begin+6)+1; begin+=9; break;
-		case 94: value1+=readDelta3(begin); value2=readDelta3(begin+3); count=readDelta4(begin+6)+1; begin+=10; break;
-		case 95: value1+=readDelta3(begin); value2=readDelta4(begin+3); count=1; begin+=7; break;
-		case 96: value1+=readDelta3(begin); value2=readDelta4(begin+3); count=readDelta1(begin+7)+1; begin+=8; break;
-		case 97: value1+=readDelta3(begin); value2=readDelta4(begin+3); count=readDelta2(begin+7)+1; begin+=9; break;
-		case 98: value1+=readDelta3(begin); value2=readDelta4(begin+3); count=readDelta3(begin+7)+1; begin+=10; break;
-		case 99: value1+=readDelta3(begin); value2=readDelta4(begin+3); count=readDelta4(begin+7)+1; begin+=11; break;
-		case 100: value1+=readDelta4(begin); value2=0; count=1; begin+=4; break;
-		case 101: value1+=readDelta4(begin); value2=0; count=readDelta1(begin+4)+1; begin+=5; break;
-		case 102: value1+=readDelta4(begin); value2=0; count=readDelta2(begin+4)+1; begin+=6; break;
-		case 103: value1+=readDelta4(begin); value2=0; count=readDelta3(begin+4)+1; begin+=7; break;
-		case 104: value1+=readDelta4(begin); value2=0; count=readDelta4(begin+4)+1; begin+=8; break;
-		case 105: value1+=readDelta4(begin); value2=readDelta1(begin+4); count=1; begin+=5; break;
-		case 106: value1+=readDelta4(begin); value2=readDelta1(begin+4); count=readDelta1(begin+5)+1; begin+=6; break;
-		case 107: value1+=readDelta4(begin); value2=readDelta1(begin+4); count=readDelta2(begin+5)+1; begin+=7; break;
-		case 108: value1+=readDelta4(begin); value2=readDelta1(begin+4); count=readDelta3(begin+5)+1; begin+=8; break;
-		case 109: value1+=readDelta4(begin); value2=readDelta1(begin+4); count=readDelta4(begin+5)+1; begin+=9; break;
-		case 110: value1+=readDelta4(begin); value2=readDelta2(begin+4); count=1; begin+=6; break;
-		case 111: value1+=readDelta4(begin); value2=readDelta2(begin+4); count=readDelta1(begin+6)+1; begin+=7; break;
-		case 112: value1+=readDelta4(begin); value2=readDelta2(begin+4); count=readDelta2(begin+6)+1; begin+=8; break;
-		case 113: value1+=readDelta4(begin); value2=readDelta2(begin+4); count=readDelta3(begin+6)+1; begin+=9; break;
-		case 114: value1+=readDelta4(begin); value2=readDelta2(begin+4); count=readDelta4(begin+6)+1; begin+=10; break;
-		case 115: value1+=readDelta4(begin); value2=readDelta3(begin+4); count=1; begin+=7; break;
-		case 116: value1+=readDelta4(begin); value2=readDelta3(begin+4); count=readDelta1(begin+7)+1; begin+=8; break;
-		case 117: value1+=readDelta4(begin); value2=readDelta3(begin+4); count=readDelta2(begin+7)+1; begin+=9; break;
-		case 118: value1+=readDelta4(begin); value2=readDelta3(begin+4); count=readDelta3(begin+7)+1; begin+=10; break;
-		case 119: value1+=readDelta4(begin); value2=readDelta3(begin+4); count=readDelta4(begin+7)+1; begin+=11; break;
-		case 120: value1+=readDelta4(begin); value2=readDelta4(begin+4); count=1; begin+=8; break;
-		case 121: value1+=readDelta4(begin); value2=readDelta4(begin+4); count=readDelta1(begin+8)+1; begin+=9; break;
-		case 122: value1+=readDelta4(begin); value2=readDelta4(begin+4); count=readDelta2(begin+8)+1; begin+=10; break;
-		case 123: value1+=readDelta4(begin); value2=readDelta4(begin+4); count=readDelta3(begin+8)+1; begin+=11; break;
-		case 124: value1+=readDelta4(begin); value2=readDelta4(begin+4); count=readDelta4(begin+8)+1; begin+=12; break;
-		}
-		(*writer).value1=value1;
-		(*writer).value2=value2;
-		(*writer).count=count;
-		++writer;
-	}
-
-	// Update the entries
-	pos=triples;
-	posLimit=writer;
-
-	return begin;
-}
-
-const uchar* TwoConstantStatisticsBuffer::decodeIdAndPredicate(const uchar* begin, const uchar* end)
-{
-	unsigned value1 = readDelta4(begin); begin += 4;
-	unsigned value2 = readDelta4(begin); begin += 4;
-	unsigned count = readDelta4(begin); begin += 4;
-	Triple* writer = &triples[0];
-	(*writer).value1 = value1;
-	(*writer).value2 = value2;
-	(*writer).count = count;
-	++writer;
-
-	// Decompress the remainder of the page
-	while (begin < end) {
-		// Decode the header byte
-		unsigned info = *(begin++);
-		// Small gap only?
-		if (info < 0x80) {
-			if (!info)
-				break;
-			//count = (info >> 5) + 1;
-			value2 += (info & 31);
-			(*writer).value1 = value1;
-			(*writer).value2 = value2;
-			(*writer).count = count;
-			++writer;
-			continue;
-		}
-	      // Decode the parts
-		switch (info&127) {
-		case 0: break;
-		case 1: begin+=1; break;
-		case 2: begin+=2; break;
-		case 3: begin+=3; break;
-		case 4: begin+=4; break;
-		case 5: value2 += readDelta1(begin); begin+=1; break;
-		case 6: value2 += readDelta1(begin); begin+=2; break;
-		case 7: value2 += readDelta1(begin); begin+=3; break;
-		case 8: value2 += readDelta1(begin); begin+=4; break;
-		case 9: value2 += readDelta1(begin); begin+=5; break;
-		case 10: value2 += readDelta2(begin); begin+=2; break;
-		case 11: value2 += readDelta2(begin); begin+=3; break;
-		case 12: value2 += readDelta2(begin); begin+=4; break;
-		case 13: value2 += readDelta2(begin); begin+=5; break;
-		case 14: value2 += readDelta2(begin); begin+=6; break;
-		case 15: value2 += readDelta3(begin); begin+=3; break;
-		case 16: value2 += readDelta3(begin); begin+=4; break;
-		case 17: value2 += readDelta3(begin); begin+=5; break;
-		case 18: value2 += readDelta3(begin); begin+=6; break;
-		case 19: value2 += readDelta3(begin); begin+=7; break;
-		case 20: value2 += readDelta4(begin); begin+=4; break;
-		case 21: value2 += readDelta4(begin); begin+=5; break;
-		case 22: value2 += readDelta4(begin); begin+=6; break;
-		case 23: value2 += readDelta4(begin); begin+=7; break;
-		case 24: value2 += readDelta4(begin); begin+=8; break;
-		case 25: value1 += readDelta1(begin); value2=0; begin+=1; break;
-		case 26: value1 += readDelta1(begin); value2=0; begin+=2; break;
-		case 27: value1 += readDelta1(begin); value2=0; begin+=3; break;
-		case 28: value1 += readDelta1(begin); value2=0; begin+=4; break;
-		case 29: value1 += readDelta1(begin); value2=0; begin+=5; break;
-		case 30: value1 += readDelta1(begin); value2=readDelta1(begin+1); begin+=2; break;
-		case 31: value1 += readDelta1(begin); value2=readDelta1(begin+1); begin+=3; break;
-		case 32: value1 += readDelta1(begin); value2=readDelta1(begin+1); begin+=4; break;
-		case 33: value1+=readDelta1(begin); value2=readDelta1(begin+1); begin+=5; break;
-		case 34: value1+=readDelta1(begin); value2=readDelta1(begin+1); begin+=6; break;
-		case 35: value1+=readDelta1(begin); value2=readDelta2(begin+1); begin+=3; break;
-		case 36: value1+=readDelta1(begin); value2=readDelta2(begin+1); begin+=4; break;
-		case 37: value1+=readDelta1(begin); value2=readDelta2(begin+1); begin+=5; break;
-		case 38: value1+=readDelta1(begin); value2=readDelta2(begin+1); begin+=6; break;
-		case 39: value1+=readDelta1(begin); value2=readDelta2(begin+1); begin+=7; break;
-		case 40: value1+=readDelta1(begin); value2=readDelta3(begin+1); begin+=4; break;
-		case 41: value1+=readDelta1(begin); value2=readDelta3(begin+1); begin+=5; break;
-		case 42: value1+=readDelta1(begin); value2=readDelta3(begin+1); begin+=6; break;
-		case 43: value1+=readDelta1(begin); value2=readDelta3(begin+1); begin+=7; break;
-		case 44: value1+=readDelta1(begin); value2=readDelta3(begin+1); begin+=8; break;
-		case 45: value1+=readDelta1(begin); value2=readDelta4(begin+1); begin+=5; break;
-		case 46: value1+=readDelta1(begin); value2=readDelta4(begin+1); begin+=6; break;
-		case 47: value1+=readDelta1(begin); value2=readDelta4(begin+1); begin+=7; break;
-		case 48: value1+=readDelta1(begin); value2=readDelta4(begin+1); begin+=8; break;
-		case 49: value1+=readDelta1(begin); value2=readDelta4(begin+1); begin+=9; break;
-		case 50: value1+=readDelta2(begin); value2=0; begin+=2; break;
-		case 51: value1+=readDelta2(begin); value2=0; begin+=3; break;
-		case 52: value1+=readDelta2(begin); value2=0; begin+=4; break;
-		case 53: value1+=readDelta2(begin); value2=0; begin+=5; break;
-		case 54: value1+=readDelta2(begin); value2=0; begin+=6; break;
-		case 55: value1+=readDelta2(begin); value2=readDelta1(begin+2); begin+=3; break;
-		case 56: value1+=readDelta2(begin); value2=readDelta1(begin+2); begin+=4; break;
-		case 57: value1+=readDelta2(begin); value2=readDelta1(begin+2); begin+=5; break;
-		case 58: value1+=readDelta2(begin); value2=readDelta1(begin+2); begin+=6; break;
-		case 59: value1+=readDelta2(begin); value2=readDelta1(begin+2); begin+=7; break;
-		case 60: value1+=readDelta2(begin); value2=readDelta2(begin+2); begin+=4; break;
-		case 61: value1+=readDelta2(begin); value2=readDelta2(begin+2); begin+=5; break;
-		case 62: value1+=readDelta2(begin); value2=readDelta2(begin+2); begin+=6; break;
-		case 63: value1+=readDelta2(begin); value2=readDelta2(begin+2); begin+=7; break;
-		case 64: value1+=readDelta2(begin); value2=readDelta2(begin+2); begin+=8; break;
-		case 65: value1+=readDelta2(begin); value2=readDelta3(begin+2); begin+=5; break;
-		case 66: value1+=readDelta2(begin); value2=readDelta3(begin+2); begin+=6; break;
-		case 67: value1+=readDelta2(begin); value2=readDelta3(begin+2); begin+=7; break;
-		case 68: value1+=readDelta2(begin); value2=readDelta3(begin+2); begin+=8; break;
-		case 69: value1+=readDelta2(begin); value2=readDelta3(begin+2); begin+=9; break;
-		case 70: value1+=readDelta2(begin); value2=readDelta4(begin+2); begin+=6; break;
-		case 71: value1+=readDelta2(begin); value2=readDelta4(begin+2); begin+=7; break;
-		case 72: value1+=readDelta2(begin); value2=readDelta4(begin+2); begin+=8; break;
-		case 73: value1+=readDelta2(begin); value2=readDelta4(begin+2); begin+=9; break;
-		case 74: value1+=readDelta2(begin); value2=readDelta4(begin+2); begin+=10; break;
-		case 75: value1+=readDelta3(begin); value2=0; begin+=3; break;
-		case 76: value1+=readDelta3(begin); value2=0; begin+=4; break;
-		case 77: value1+=readDelta3(begin); value2=0; begin+=5; break;
-		case 78: value1+=readDelta3(begin); value2=0; begin+=6; break;
-		case 79: value1+=readDelta3(begin); value2=0; begin+=7; break;
-		case 80: value1+=readDelta3(begin); value2=readDelta1(begin+3); begin+=4; break;
-		case 81: value1+=readDelta3(begin); value2=readDelta1(begin+3); begin+=5; break;
-		case 82: value1+=readDelta3(begin); value2=readDelta1(begin+3); begin+=6; break;
-		case 83: value1+=readDelta3(begin); value2=readDelta1(begin+3); begin+=7; break;
-		case 84: value1+=readDelta3(begin); value2=readDelta1(begin+3); begin+=8; break;
-		case 85: value1+=readDelta3(begin); value2=readDelta2(begin+3); begin+=5; break;
-		case 86: value1+=readDelta3(begin); value2=readDelta2(begin+3); begin+=6; break;
-		case 87: value1+=readDelta3(begin); value2=readDelta2(begin+3); begin+=7; break;
-		case 88: value1+=readDelta3(begin); value2=readDelta2(begin+3); begin+=8; break;
-		case 89: value1+=readDelta3(begin); value2=readDelta2(begin+3); begin+=9; break;
-		case 90: value1+=readDelta3(begin); value2=readDelta3(begin+3); begin+=6; break;
-		case 91: value1+=readDelta3(begin); value2=readDelta3(begin+3); begin+=7; break;
-		case 92: value1+=readDelta3(begin); value2=readDelta3(begin+3); begin+=8; break;
-		case 93: value1+=readDelta3(begin); value2=readDelta3(begin+3); begin+=9; break;
-		case 94: value1+=readDelta3(begin); value2=readDelta3(begin+3); begin+=10; break;
-		case 95: value1+=readDelta3(begin); value2=readDelta4(begin+3); begin+=7; break;
-		case 96: value1+=readDelta3(begin); value2=readDelta4(begin+3); begin+=8; break;
-		case 97: value1+=readDelta3(begin); value2=readDelta4(begin+3); begin+=9; break;
-		case 98: value1+=readDelta3(begin); value2=readDelta4(begin+3); begin+=10; break;
-		case 99: value1+=readDelta3(begin); value2=readDelta4(begin+3); begin+=11; break;
-		case 100: value1+=readDelta4(begin); value2=0; begin+=4; break;
-		case 101: value1+=readDelta4(begin); value2=0; begin+=5; break;
-		case 102: value1+=readDelta4(begin); value2=0; begin+=6; break;
-		case 103: value1+=readDelta4(begin); value2=0; begin+=7; break;
-		case 104: value1+=readDelta4(begin); value2=0; begin+=8; break;
-		case 105: value1+=readDelta4(begin); value2=readDelta1(begin+4); begin+=5; break;
-		case 106: value1+=readDelta4(begin); value2=readDelta1(begin+4); begin+=6; break;
-		case 107: value1+=readDelta4(begin); value2=readDelta1(begin+4); begin+=7; break;
-		case 108: value1+=readDelta4(begin); value2=readDelta1(begin+4); begin+=8; break;
-		case 109: value1+=readDelta4(begin); value2=readDelta1(begin+4); begin+=9; break;
-		case 110: value1+=readDelta4(begin); value2=readDelta2(begin+4); begin+=6; break;
-		case 111: value1+=readDelta4(begin); value2=readDelta2(begin+4); begin+=7; break;
-		case 112: value1+=readDelta4(begin); value2=readDelta2(begin+4); begin+=8; break;
-		case 113: value1+=readDelta4(begin); value2=readDelta2(begin+4); begin+=9; break;
-		case 114: value1+=readDelta4(begin); value2=readDelta2(begin+4); begin+=10; break;
-		case 115: value1+=readDelta4(begin); value2=readDelta3(begin+4); begin+=7; break;
-		case 116: value1+=readDelta4(begin); value2=readDelta3(begin+4); begin+=8; break;
-		case 117: value1+=readDelta4(begin); value2=readDelta3(begin+4); begin+=9; break;
-		case 118: value1+=readDelta4(begin); value2=readDelta3(begin+4); begin+=10; break;
-		case 119: value1+=readDelta4(begin); value2=readDelta3(begin+4); begin+=11; break;
-		case 120: value1+=readDelta4(begin); value2=readDelta4(begin+4); begin+=8; break;
-		case 121: value1+=readDelta4(begin); value2=readDelta4(begin+4); begin+=9; break;
-		case 122: value1+=readDelta4(begin); value2=readDelta4(begin+4); begin+=10; break;
-		case 123: value1+=readDelta4(begin); value2=readDelta4(begin+4); begin+=11; break;
-		case 124: value1+=readDelta4(begin); value2=readDelta4(begin+4); begin+=12; break;
-		}
-		(*writer).value1=value1;
-		(*writer).value2=value2;
-		(*writer).count=count;
+	while (begin < end && readDelta4(begin)) {
+		value1 = readDelta4(begin);
+		begin += 4;
+		value2 = readDelta4(begin);
+		begin += 4;
+		count = readDelta4(begin);
+		begin += 4;
+		(*writer).value1 = value1;
+		(*writer).value2 = value2;
+		(*writer).count = count;
 		++writer;
 	}
 
@@ -1040,59 +532,48 @@ Status TwoConstantStatisticsBuffer::getStatis(unsigned& v1, unsigned v2)
 
 Status TwoConstantStatisticsBuffer::addStatis(unsigned v1, unsigned v2, unsigned v3)
 {
-//	static bool first = true;
-	unsigned len = 0;
+	unsigned len = 4 * 3;
 
-	// otherwise store the compressed value
-	if ( v1 == lastId && (v2 - lastPredicate) < 32 && v3 < 5) {
-		len = 1;
-	} else if(v1 == lastId) {
-		len = 1 + getLen(v2 - lastPredicate) + getLen(v3 - 1);
-	} else {
-		len = 1+ getLen(v1-lastId)+ getLen(v2)+getLen(v3 - 1);
-	}
+	if (first || usedSpace + len > buffer->getSize()) {
+		usedSpace = writer - (uchar*) buffer->getBuffer();
+		buffer->resize(
+				STATISTICS_BUFFER_INCREMENT_PAGE_COUNT * MemoryBuffer::pagesize,
+				true);	//加大空间
+		writer = (uchar*) buffer->getBuffer() + usedSpace;
 
-	if ( first == true || ( usedSpace + len ) > buffer->getSize() ) {
-		usedSpace = writer - (uchar*)buffer->getBuffer();
-		buffer->resize(STATISTICS_BUFFER_INCREMENT_PAGE_COUNT * MemoryBuffer::pagesize);
-		writer = (uchar*)buffer->getBuffer() + usedSpace;
-
-		writeUint32(writer, v1); writer += 4;
-		writeUint32(writer, v2); writer += 4;
-		writeUint32(writer, v3); writer += 4;
-
-		if((indexPos + 1) >= indexSize) {
+		if ((indexPos + 1) >= indexSize) {
 #ifdef DEBUF
 			cout<<"indexPos: "<<indexPos<<" indexSize: "<<indexSize<<endl;
 #endif
-			index = (Triple*)realloc(index, indexSize * sizeof(Triple) + MemoryBuffer::pagesize * sizeof(Triple));
+			index = (Triple*) realloc(index,
+					indexSize * sizeof(Triple)
+							+ MemoryBuffer::pagesize * sizeof(Triple));
+			if (index == NULL) {
+				cout << "realloc StatisticsBuffer error" << endl;
+				return ERR;
+			}
 			indexSize += MemoryBuffer::pagesize;
 		}
 
 		index[indexPos].value1 = v1;
 		index[indexPos].value2 = v2;
-		index[indexPos].count = usedSpace; //record offset
-		indexPos++;
+		index[indexPos].count = usedSpace; //record offset，可以得出实体——谓词所在的块号
 
+		indexPos++;
 		first = false;
-	} else {
-		if (v1 == lastId && v2 - lastPredicate < 32 && v3 < 5) {
-			*writer++ = ((v3 - 1) << 5) | (v2 - lastPredicate);
-		} else if (v1 == lastId) {
-			*writer++ = 0x80 | (getLen(v1 - lastId) * 25 + getLen(v2 - lastPredicate) * 5 + getLen(v3 - 1));
-			writer = writeDelta0(writer, v2 - lastPredicate);
-			writer = writeDelta0(writer, v3 - 1);
-		} else {
-			*writer++ = 0x80 | (getLen(v1 - lastId) * 25 + getLen(v2) * 5 + getLen(v3 - 1));
-			writer = writeDelta0(writer, v1 - lastId);
-			writer = writeDelta0(writer, v2);
-			writer = writeDelta0(writer, v3 - 1);
-		}
 	}
 
-	lastId = v1; lastPredicate = v2;
+	writeUint32(writer, v1);
+	writer += 4;
+	writeUint32(writer, v2);
+	writer += 4;
+	writeUint32(writer, v3);
+	writer += 4;
 
-	usedSpace = writer - (uchar*)buffer->getBuffer();
+	lastId = v1;
+	lastPredicate = v2;
+	usedSpace = writer - (uchar*) buffer->getBuffer();
+
 	return OK;
 }
 
@@ -1146,20 +627,6 @@ TwoConstantStatisticsBuffer* TwoConstantStatisticsBuffer::load(StatisticsType ty
 #endif
 
 	return statBuffer;
-}
-
-unsigned TwoConstantStatisticsBuffer::getLen(unsigned v)
-{
-	if (v>=(1<<24))
-		return 4; 
-	else if (v>=(1<<16))
-		return 3;
-	else if (v>=(1<<8)) 
-		return 2;
-	else if(v > 0)
-		return 1;
-	else
-		return 0;
 }
 
 Status TwoConstantStatisticsBuffer::getPredicatesByID(unsigned id,EntityIDBuffer* entBuffer, ID minID, ID maxID) {
@@ -1251,174 +718,24 @@ bool TwoConstantStatisticsBuffer::find(unsigned value1,Triple*& pos,Triple*& pos
 
 const uchar* TwoConstantStatisticsBuffer::decode(const uchar* begin, const uchar* end,Triple*triples,Triple* &pos,Triple* &posLimit)
 {
-//	printf("decode   %x  %x\n",begin,end);
-	unsigned value1 = readDelta4(begin); begin += 4;
-	unsigned value2 = readDelta4(begin); begin += 4;
-	unsigned count = readDelta4(begin); begin += 4;
+	unsigned value1, value2, count;
 	Triple* writer = &triples[0];
-	(*writer).value1 = value1;
-	(*writer).value2 = value2;
-	(*writer).count = count;
-//	cout << "value1:" << value1 << "   value2:" << value2 << "   count:" << count<<endl;
-	++writer;
-
-	// Decompress the remainder of the page
-	while (begin < end) {
-		// Decode the header byte
-		unsigned info = *(begin++);
-		// Small gap only?
-		if (info < 0x80) {
-			if (!info){
-				break;
-			}
-			count = (info >> 5) + 1;
-			value2 += (info & 31);
-			(*writer).value1 = value1;
-			(*writer).value2 = value2;
-			(*writer).count = count;
-//			cout << "value1:" << value1 << "   value2:" << value2 << "   count:" << count<<endl;
-			++writer;
-			continue;
-		}
-	      // Decode the parts
- 		switch (info&127) {
-		case 0: count=1; break;
-		case 1: count=readDelta1(begin)+1; begin+=1; break;
-		case 2: count=readDelta2(begin)+1; begin+=2; break;
-		case 3: count=readDelta3(begin)+1; begin+=3; break;
-		case 4: count=readDelta4(begin)+1; begin+=4; break;
-		case 5: value2 += readDelta1(begin); count=1; begin+=1; break;
-		case 6: value2 += readDelta1(begin); count=readDelta1(begin+1)+1; begin+=2; break;
-		case 7: value2 += readDelta1(begin); count=readDelta2(begin+1)+1; begin+=3; break;
-		case 8: value2 += readDelta1(begin); count=readDelta3(begin+1)+1; begin+=4; break;
-		case 9: value2 += readDelta1(begin); count=readDelta4(begin+1)+1; begin+=5; break;
-		case 10: value2 += readDelta2(begin); count=1; begin+=2; break;
-		case 11: value2 += readDelta2(begin); count=readDelta1(begin+2)+1; begin+=3; break;
-		case 12: value2 += readDelta2(begin); count=readDelta2(begin+2)+1; begin+=4; break;
-		case 13: value2 += readDelta2(begin); count=readDelta3(begin+2)+1; begin+=5; break;
-		case 14: value2 += readDelta2(begin); count=readDelta4(begin+2)+1; begin+=6; break;
-		case 15: value2 += readDelta3(begin); count=1; begin+=3; break;
-		case 16: value2 += readDelta3(begin); count=readDelta1(begin+3)+1; begin+=4; break;
-		case 17: value2 += readDelta3(begin); count=readDelta2(begin+3)+1; begin+=5; break;
-		case 18: value2 += readDelta3(begin); count=readDelta3(begin+3)+1; begin+=6; break;
-		case 19: value2 += readDelta3(begin); count=readDelta4(begin+3)+1; begin+=7; break;
-		case 20: value2 += readDelta4(begin); count=1; begin+=4; break;
-		case 21: value2 += readDelta4(begin); count=readDelta1(begin+4)+1; begin+=5; break;
-		case 22: value2 += readDelta4(begin); count=readDelta2(begin+4)+1; begin+=6; break;
-		case 23: value2 += readDelta4(begin); count=readDelta3(begin+4)+1; begin+=7; break;
-		case 24: value2 += readDelta4(begin); count=readDelta4(begin+4)+1; begin+=8; break;
-		case 25: value1 += readDelta1(begin); value2=0; count=1; begin+=1; break;
-		case 26: value1 += readDelta1(begin); value2=0; count=readDelta1(begin+1)+1; begin+=2; break;
-		case 27: value1 += readDelta1(begin); value2=0; count=readDelta2(begin+1)+1; begin+=3; break;
-		case 28: value1 += readDelta1(begin); value2=0; count=readDelta3(begin+1)+1; begin+=4; break;
-		case 29: value1 += readDelta1(begin); value2=0; count=readDelta4(begin+1)+1; begin+=5; break;
-		case 30: value1 += readDelta1(begin); value2=readDelta1(begin+1); count=1; begin+=2; break;
-		case 31: value1 += readDelta1(begin); value2=readDelta1(begin+1); count=readDelta1(begin+2)+1; begin+=3; break;
-		case 32: value1 += readDelta1(begin); value2=readDelta1(begin+1); count=readDelta2(begin+2)+1; begin+=4; break;
-		case 33: value1+=readDelta1(begin); value2=readDelta1(begin+1); count=readDelta3(begin+2)+1; begin+=5; break;
-		case 34: value1+=readDelta1(begin); value2=readDelta1(begin+1); count=readDelta4(begin+2)+1; begin+=6; break;
-		case 35: value1+=readDelta1(begin); value2=readDelta2(begin+1); count=1; begin+=3; break;
-		case 36: value1+=readDelta1(begin); value2=readDelta2(begin+1); count=readDelta1(begin+3)+1; begin+=4; break;
-		case 37: value1+=readDelta1(begin); value2=readDelta2(begin+1); count=readDelta2(begin+3)+1; begin+=5; break;
-		case 38: value1+=readDelta1(begin); value2=readDelta2(begin+1); count=readDelta3(begin+3)+1; begin+=6; break;
-		case 39: value1+=readDelta1(begin); value2=readDelta2(begin+1); count=readDelta4(begin+3)+1; begin+=7; break;
-		case 40: value1+=readDelta1(begin); value2=readDelta3(begin+1); count=1; begin+=4; break;
-		case 41: value1+=readDelta1(begin); value2=readDelta3(begin+1); count=readDelta1(begin+4)+1; begin+=5; break;
-		case 42: value1+=readDelta1(begin); value2=readDelta3(begin+1); count=readDelta2(begin+4)+1; begin+=6; break;
-		case 43: value1+=readDelta1(begin); value2=readDelta3(begin+1); count=readDelta3(begin+4)+1; begin+=7; break;
-		case 44: value1+=readDelta1(begin); value2=readDelta3(begin+1); count=readDelta4(begin+4)+1; begin+=8; break;
-		case 45: value1+=readDelta1(begin); value2=readDelta4(begin+1); count=1; begin+=5; break;
-		case 46: value1+=readDelta1(begin); value2=readDelta4(begin+1); count=readDelta1(begin+5)+1; begin+=6; break;
-		case 47: value1+=readDelta1(begin); value2=readDelta4(begin+1); count=readDelta2(begin+5)+1; begin+=7; break;
-		case 48: value1+=readDelta1(begin); value2=readDelta4(begin+1); count=readDelta3(begin+5)+1; begin+=8; break;
-		case 49: value1+=readDelta1(begin); value2=readDelta4(begin+1); count=readDelta4(begin+5)+1; begin+=9; break;
-		case 50: value1+=readDelta2(begin); value2=0; count=1; begin+=2; break;
-		case 51: value1+=readDelta2(begin); value2=0; count=readDelta1(begin+2)+1; begin+=3; break;
-		case 52: value1+=readDelta2(begin); value2=0; count=readDelta2(begin+2)+1; begin+=4; break;
-		case 53: value1+=readDelta2(begin); value2=0; count=readDelta3(begin+2)+1; begin+=5; break;
-		case 54: value1+=readDelta2(begin); value2=0; count=readDelta4(begin+2)+1; begin+=6; break;
-		case 55: value1+=readDelta2(begin); value2=readDelta1(begin+2); count=1; begin+=3; break;
-		case 56: value1+=readDelta2(begin); value2=readDelta1(begin+2); count=readDelta1(begin+3)+1; begin+=4; break;
-		case 57: value1+=readDelta2(begin); value2=readDelta1(begin+2); count=readDelta2(begin+3)+1; begin+=5; break;
-		case 58: value1+=readDelta2(begin); value2=readDelta1(begin+2); count=readDelta3(begin+3)+1; begin+=6; break;
-		case 59: value1+=readDelta2(begin); value2=readDelta1(begin+2); count=readDelta4(begin+3)+1; begin+=7; break;
-		case 60: value1+=readDelta2(begin); value2=readDelta2(begin+2); count=1; begin+=4; break;
-		case 61: value1+=readDelta2(begin); value2=readDelta2(begin+2); count=readDelta1(begin+4)+1; begin+=5; break;
-		case 62: value1+=readDelta2(begin); value2=readDelta2(begin+2); count=readDelta2(begin+4)+1; begin+=6; break;
-		case 63: value1+=readDelta2(begin); value2=readDelta2(begin+2); count=readDelta3(begin+4)+1; begin+=7; break;
-		case 64: value1+=readDelta2(begin); value2=readDelta2(begin+2); count=readDelta4(begin+4)+1; begin+=8; break;
-		case 65: value1+=readDelta2(begin); value2=readDelta3(begin+2); count=1; begin+=5; break;
-		case 66: value1+=readDelta2(begin); value2=readDelta3(begin+2); count=readDelta1(begin+5)+1; begin+=6; break;
-		case 67: value1+=readDelta2(begin); value2=readDelta3(begin+2); count=readDelta2(begin+5)+1; begin+=7; break;
-		case 68: value1+=readDelta2(begin); value2=readDelta3(begin+2); count=readDelta3(begin+5)+1; begin+=8; break;
-		case 69: value1+=readDelta2(begin); value2=readDelta3(begin+2); count=readDelta4(begin+5)+1; begin+=9; break;
-		case 70: value1+=readDelta2(begin); value2=readDelta4(begin+2); count=1; begin+=6; break;
-		case 71: value1+=readDelta2(begin); value2=readDelta4(begin+2); count=readDelta1(begin+6)+1; begin+=7; break;
-		case 72: value1+=readDelta2(begin); value2=readDelta4(begin+2); count=readDelta2(begin+6)+1; begin+=8; break;
-		case 73: value1+=readDelta2(begin); value2=readDelta4(begin+2); count=readDelta3(begin+6)+1; begin+=9; break;
-		case 74: value1+=readDelta2(begin); value2=readDelta4(begin+2); count=readDelta4(begin+6)+1; begin+=10; break;
-		case 75: value1+=readDelta3(begin); value2=0; count=1; begin+=3; break;
-		case 76: value1+=readDelta3(begin); value2=0; count=readDelta1(begin+3)+1; begin+=4; break;
-		case 77: value1+=readDelta3(begin); value2=0; count=readDelta2(begin+3)+1; begin+=5; break;
-		case 78: value1+=readDelta3(begin); value2=0; count=readDelta3(begin+3)+1; begin+=6; break;
-		case 79: value1+=readDelta3(begin); value2=0; count=readDelta4(begin+3)+1; begin+=7; break;
-		case 80: value1+=readDelta3(begin); value2=readDelta1(begin+3); count=1; begin+=4; break;
-		case 81: value1+=readDelta3(begin); value2=readDelta1(begin+3); count=readDelta1(begin+4)+1; begin+=5; break;
-		case 82: value1+=readDelta3(begin); value2=readDelta1(begin+3); count=readDelta2(begin+4)+1; begin+=6; break;
-		case 83: value1+=readDelta3(begin); value2=readDelta1(begin+3); count=readDelta3(begin+4)+1; begin+=7; break;
-		case 84: value1+=readDelta3(begin); value2=readDelta1(begin+3); count=readDelta4(begin+4)+1; begin+=8; break;
-		case 85: value1+=readDelta3(begin); value2=readDelta2(begin+3); count=1; begin+=5; break;
-		case 86: value1+=readDelta3(begin); value2=readDelta2(begin+3); count=readDelta1(begin+5)+1; begin+=6; break;
-		case 87: value1+=readDelta3(begin); value2=readDelta2(begin+3); count=readDelta2(begin+5)+1; begin+=7; break;
-		case 88: value1+=readDelta3(begin); value2=readDelta2(begin+3); count=readDelta3(begin+5)+1; begin+=8; break;
-		case 89: value1+=readDelta3(begin); value2=readDelta2(begin+3); count=readDelta4(begin+5)+1; begin+=9; break;
-		case 90: value1+=readDelta3(begin); value2=readDelta3(begin+3); count=1; begin+=6; break;
-		case 91: value1+=readDelta3(begin); value2=readDelta3(begin+3); count=readDelta1(begin+6)+1; begin+=7; break;
-		case 92: value1+=readDelta3(begin); value2=readDelta3(begin+3); count=readDelta2(begin+6)+1; begin+=8; break;
-		case 93: value1+=readDelta3(begin); value2=readDelta3(begin+3); count=readDelta3(begin+6)+1; begin+=9; break;
-		case 94: value1+=readDelta3(begin); value2=readDelta3(begin+3); count=readDelta4(begin+6)+1; begin+=10; break;
-		case 95: value1+=readDelta3(begin); value2=readDelta4(begin+3); count=1; begin+=7; break;
-		case 96: value1+=readDelta3(begin); value2=readDelta4(begin+3); count=readDelta1(begin+7)+1; begin+=8; break;
-		case 97: value1+=readDelta3(begin); value2=readDelta4(begin+3); count=readDelta2(begin+7)+1; begin+=9; break;
-		case 98: value1+=readDelta3(begin); value2=readDelta4(begin+3); count=readDelta3(begin+7)+1; begin+=10; break;
-		case 99: value1+=readDelta3(begin); value2=readDelta4(begin+3); count=readDelta4(begin+7)+1; begin+=11; break;
-		case 100: value1+=readDelta4(begin); value2=0; count=1; begin+=4; break;
-		case 101: value1+=readDelta4(begin); value2=0; count=readDelta1(begin+4)+1; begin+=5; break;
-		case 102: value1+=readDelta4(begin); value2=0; count=readDelta2(begin+4)+1; begin+=6; break;
-		case 103: value1+=readDelta4(begin); value2=0; count=readDelta3(begin+4)+1; begin+=7; break;
-		case 104: value1+=readDelta4(begin); value2=0; count=readDelta4(begin+4)+1; begin+=8; break;
-		case 105: value1+=readDelta4(begin); value2=readDelta1(begin+4); count=1; begin+=5; break;
-		case 106: value1+=readDelta4(begin); value2=readDelta1(begin+4); count=readDelta1(begin+5)+1; begin+=6; break;
-		case 107: value1+=readDelta4(begin); value2=readDelta1(begin+4); count=readDelta2(begin+5)+1; begin+=7; break;
-		case 108: value1+=readDelta4(begin); value2=readDelta1(begin+4); count=readDelta3(begin+5)+1; begin+=8; break;
-		case 109: value1+=readDelta4(begin); value2=readDelta1(begin+4); count=readDelta4(begin+5)+1; begin+=9; break;
-		case 110: value1+=readDelta4(begin); value2=readDelta2(begin+4); count=1; begin+=6; break;
-		case 111: value1+=readDelta4(begin); value2=readDelta2(begin+4); count=readDelta1(begin+6)+1; begin+=7; break;
-		case 112: value1+=readDelta4(begin); value2=readDelta2(begin+4); count=readDelta2(begin+6)+1; begin+=8; break;
-		case 113: value1+=readDelta4(begin); value2=readDelta2(begin+4); count=readDelta3(begin+6)+1; begin+=9; break;
-		case 114: value1+=readDelta4(begin); value2=readDelta2(begin+4); count=readDelta4(begin+6)+1; begin+=10; break;
-		case 115: value1+=readDelta4(begin); value2=readDelta3(begin+4); count=1; begin+=7; break;
-		case 116: value1+=readDelta4(begin); value2=readDelta3(begin+4); count=readDelta1(begin+7)+1; begin+=8; break;
-		case 117: value1+=readDelta4(begin); value2=readDelta3(begin+4); count=readDelta2(begin+7)+1; begin+=9; break;
-		case 118: value1+=readDelta4(begin); value2=readDelta3(begin+4); count=readDelta3(begin+7)+1; begin+=10; break;
-		case 119: value1+=readDelta4(begin); value2=readDelta3(begin+4); count=readDelta4(begin+7)+1; begin+=11; break;
-		case 120: value1+=readDelta4(begin); value2=readDelta4(begin+4); count=1; begin+=8; break;
-		case 121: value1+=readDelta4(begin); value2=readDelta4(begin+4); count=readDelta1(begin+8)+1; begin+=9; break;
-		case 122: value1+=readDelta4(begin); value2=readDelta4(begin+4); count=readDelta2(begin+8)+1; begin+=10; break;
-		case 123: value1+=readDelta4(begin); value2=readDelta4(begin+4); count=readDelta3(begin+8)+1; begin+=11; break;
-		case 124: value1+=readDelta4(begin); value2=readDelta4(begin+4); count=readDelta4(begin+8)+1; begin+=12; break;
-		}
-		(*writer).value1=value1;
-		(*writer).value2=value2;
-		(*writer).count=count;
-//		cout << "value1:" << value1 << "   value2:" << value2 << "   count:" << count<<endl;
+	while (begin < end && readDelta4(begin)) {
+		value1 = readDelta4(begin);
+		begin += 4;
+		value2 = readDelta4(begin);
+		begin += 4;
+		count = readDelta4(begin);
+		begin += 4;
+		(*writer).value1 = value1;
+		(*writer).value2 = value2;
+		(*writer).count = count;
 		++writer;
 	}
 
 	// Update the entries
-	pos=triples;
-	posLimit=writer;
+	pos = triples;
+	posLimit = writer;
 
 	return begin;
 }
-

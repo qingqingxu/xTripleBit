@@ -66,14 +66,10 @@ public:
 	Status getIDs(EntityIDBuffer* entBuffer, ID minID, ID maxID);
 	unsigned int getEntityCount();
 private:
-	/// write a id to buffer; isID indicate the id really is a ID, maybe is a count.
-	void writeId(unsigned id, char*& ptr, bool isID);
 	/// read a id from buffer;
 	const char* readId(unsigned& id, const char* ptr, bool isID);
 	/// judge the buffer is full;
 	bool isPtrFull(unsigned len);
-	/// get the value length in bytes;
-	unsigned getLen(unsigned v);
 
 	const unsigned char* decode(const unsigned char* begin, const unsigned char* end);
 	bool find(unsigned value);
@@ -118,12 +114,8 @@ public:
 	/// load the statistics buffer;
 	static TwoConstantStatisticsBuffer* load(StatisticsType type, const string path, char*& indxBuffer);
 private:
-	/// get the value length in bytes;
-	unsigned getLen(unsigned v);
 	/// decode a chunk
 	const uchar* decode(const uchar* begin, const uchar* end);
-	/// decode id and predicate in a chunk
-	const uchar* decodeIdAndPredicate(const uchar* begin, const uchar* end);
 	///
 	bool find(unsigned value1, unsigned value2);
 	int findPredicate(unsigned,Triple*,Triple*);

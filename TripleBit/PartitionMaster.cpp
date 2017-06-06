@@ -184,7 +184,7 @@ void PartitionMaster::executeQuery(SubTrans *subTransaction){
 
 #ifdef MYDEBUG
 	triple->print();
-	cout << "minID: " << minID << "maxID: " << minID <<endl;
+	cout << "minID: " << minID << "\tmaxID: " << minID <<endl;
 #endif
 
 	size_t chunkCount, xChunkCount, xyChunkCount;
