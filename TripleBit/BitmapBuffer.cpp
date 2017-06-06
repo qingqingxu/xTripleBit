@@ -436,7 +436,7 @@ void BitmapBuffer::save() {
 		offset = *((size_t*) predicateWriter);
 		predicateWriter = predicateWriter + sizeof(size_t) * 2;
 
-		char *base = buffer->get_address() + offset;
+		uchar *base = buffer->get_address() + offset;
 		iter->second->meta = (ChunkManagerMeta*) base;
 		iter->second->meta->startPtr[0] = base + sizeof(ChunkManagerMeta);
 		iter->second->meta->endPtr[0] = iter->second->meta->startPtr[0] + iter->second->meta->usedSpace[0];
