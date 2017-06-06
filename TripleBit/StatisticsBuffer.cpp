@@ -468,7 +468,10 @@ bool TwoConstantStatisticsBuffer::find(unsigned value1, unsigned value2)
 	if(left == right) {
 		return false;
 	} else {
-		pos = &pos[middle];
+#ifdef MYDEBUG
+	cout << "middle: " << middle << endl;
+#endif
+		pos = &pos[middle];// value1 and value2 is between middle-1 and middle
 		return true;
 	}
 }
@@ -524,17 +527,19 @@ Status TwoConstantStatisticsBuffer::getStatis(unsigned& v1, unsigned v2)
 	cout << v1 << "\t" << v2 << endl;
 #endif
 	pos = index, posLimit = index + indexPos;
-	find(v1, v2);
+	find(v1, v2); // get index location, that is pos
 	if(::greater(pos->value1, pos->value2, v1, v2))
 		pos--;
 
 	unsigned start = pos->count; pos++;
-	unsigned end = pos->count;
+	unsigned end = pos->count; // count is usedspace
 	if(pos == (index + indexPos))
 		end = usedSpace;
-
+#ifdef MYDEBUG
+	cout << "usedSpace: " << usedSpace << endl;
+#endif
 	const unsigned char* begin = (uchar*)buffer->getBuffer() + start, *limit = (uchar*)buffer->getBuffer() + end;
-	decode(begin, limit);
+	decode(begin, limit);//in order to get pos and posLimit
 	find(v1, v2);
 	if(pos->value1 == v1 && pos->value2 == v2) {
 		v1 = pos->count;
@@ -615,7 +620,7 @@ Status TwoConstantStatisticsBuffer::save(MMapBuffer*& indexBuffer)
 #ifdef MYDEBUG
 	for(int i = 0; i < indexPos; i++)
 	{
-		cout<<index[i].value1<<" : "<<index[i].value2<<" : "<<index[i].count<<endl;
+		cout<<index[i].value1<<" : "<<index[i].value2<<" : "<<index[i].count<<endl; // count is usedspace
 	}
 
 	cout<<"indexPos: "<<indexPos<<endl;
