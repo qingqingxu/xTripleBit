@@ -519,7 +519,10 @@ int TwoConstantStatisticsBuffer::findPredicate(unsigned value1,Triple*pos,Triple
 Status TwoConstantStatisticsBuffer::getStatis(unsigned& v1, unsigned v2)
 {
 #ifdef MYDEBUG
-	cout << v1 << "\t" << v2 << endl;
+		ofstream out;
+		out.open("findvalue", ios::app);
+		out << "v1: " << v1 << "\tv2: " << v2 << endl;
+		out.close();
 #endif
 	pos = index, posLimit = index + indexPos;
 	find(v1, v2); // get index location, that is pos
@@ -534,11 +537,13 @@ Status TwoConstantStatisticsBuffer::getStatis(unsigned& v1, unsigned v2)
 	const unsigned char* begin = (uchar*)buffer->getBuffer() + start, *limit = (uchar*)buffer->getBuffer() + end;
 	decode(begin, limit);//decode from bitmapbuffer, in order to get pos and posLimit
 	find(v1, v2);
+/*
 #ifdef MYDEBUG
 	if(find(v1, v2)){
 		cout << pos->value1 << "\tfind\t" << pos->value2 << endl;
 	}
 #endif
+*/
 	if(pos->value1 == v1 && pos->value2 == v2) {
 		v1 = pos->count;
 		return OK;
