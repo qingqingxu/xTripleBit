@@ -411,6 +411,12 @@ const uchar* TwoConstantStatisticsBuffer::decode(const uchar* begin, const uchar
 		(*writer).value2 = value2;
 		(*writer).count = count;
 		++writer;
+#ifdef MYDEBUG
+		ofstream out;
+		out.open("findvalue", ios::app);
+		out << value1 << "\t" << value2 << "\t" << count << endl;
+		out.close();
+#endif
 	}
 
 	// Update the entries
@@ -734,12 +740,6 @@ const uchar* TwoConstantStatisticsBuffer::decode(const uchar* begin, const uchar
 		(*writer).value1 = value1;
 		(*writer).value2 = value2;
 		(*writer).count = count;
-#ifdef MYDEBUG
-		ofstream out;
-		out.open("findvalue", ios::app);
-		out << value1 << "\t" << value2 << "\t" << count << endl;
-		out.close();
-#endif
 		++writer;
 	}
 
