@@ -100,6 +100,9 @@ Status TripleBitWorker::Execute(string& queryString) {
 
 		workerQuery->query(queryGraph, resultSet, trans->transTime);
 
+		for(vector<string>::iterator iter = resultSet.begin(); iter != resultSet.end(); iter++){
+			cout << *iter << endl;
+		}
 #ifdef TOTAL_TIME
 		gettimeofday(&end, NULL);
 		cout << " time elapsed: " << ((end.tv_sec - start.tv_sec) * 1000000 + end.tv_usec - start.tv_usec) / 1000000.0 << " s" << endl;

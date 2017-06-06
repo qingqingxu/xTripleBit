@@ -79,7 +79,7 @@ bool LineHashIndex::buildLine(int startEntry, int endEntry, int lineNo)
 	for (i = startEntry; i < endEntry; i += 2)
 	{
 		pt.x = idTableEntries[i];
-		pt.y = i;
+		pt.y = i/2; //idTableEntries save min and max
 		vpt.push_back(pt);
 	}
 
@@ -109,7 +109,7 @@ bool LineHashIndex::buildLine(int startEntry, int endEntry, int lineNo)
 	for (i = startEntry; i < endEntry; i += 2)
 	{
 		pt.x = idTableEntries[i + 1];
-		pt.y = i;
+		pt.y = i/2;
 		vpt.push_back(pt);
 	}
 
