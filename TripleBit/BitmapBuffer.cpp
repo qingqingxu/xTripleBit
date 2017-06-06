@@ -949,7 +949,7 @@ ChunkManager* ChunkManager::load(unsigned pid, unsigned type, uchar* buffer, siz
 	}
 
 	ChunkManager* manager = new ChunkManager();
-	char* base = buffer + offset + sizeof(ChunkManagerMeta);
+	uchar* base = buffer + offset + sizeof(ChunkManagerMeta);
 	manager->meta = meta;
 	manager->meta->startPtr[0] = base;
 	manager->meta->startPtr[1] = buffer + offset + manager->meta->length[0];
@@ -963,7 +963,7 @@ ChunkManager* ChunkManager::load(unsigned pid, unsigned type, uchar* buffer, siz
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Chunk::Chunk(uchar type, ID xMax, ID xMin, ID yMax, ID yMin, char* startPtr, char* endPtr) {
+Chunk::Chunk(uchar type, ID xMax, ID xMin, ID yMax, ID yMin, uchar* startPtr, uchar* endPtr) {
 	// TODO Auto-generated constructor stub
 	this->type = type;
 	this->xMax = xMax;
