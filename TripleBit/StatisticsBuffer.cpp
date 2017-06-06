@@ -135,11 +135,16 @@ unsigned int OneConstantStatisticsBuffer::getEntityCount()
 
 Status OneConstantStatisticsBuffer::addStatis(unsigned v1, unsigned v2, unsigned v3 /* = 0 */)
 {
+/*
 #ifdef MYDEBUG
 	cout << "OneConstantStatisticsBuffer: " << v1 << "\t" << v2 << "\t" << v3 << endl;
 #endif
+*/
 	unsigned len = 4 * 2;
 	if (isPtrFull(len) == true) {
+#ifdef MYDEBUG
+	cout << "OneConstantStatisticsBuffer: " << "isPtrFull" << endl;
+#endif
 		usedSpace = writer - (unsigned char*) buffer->getBuffer();
 		buffer->resize(
 				STATISTICS_BUFFER_INCREMENT_PAGE_COUNT * MemoryBuffer::pagesize,
@@ -151,7 +156,7 @@ Status OneConstantStatisticsBuffer::addStatis(unsigned v1, unsigned v2, unsigned
 		unsigned offset = writer - (uchar*) buffer->getBuffer();
 		while (index.size() <= (v1 / ID_HASH)) {
 			index.resize(index.size() + 2000, 0);//vector<unsigned> index;其大小每次充满时便添加2000
-#ifdef DEBUG
+#ifdef MYDEBUG
 			cout << "index size" << index.size() << " v1 / ID_HASH: "
 			<< (v1 / ID_HASH) << endl;
 #endif
@@ -537,9 +542,11 @@ Status TwoConstantStatisticsBuffer::getStatis(unsigned& v1, unsigned v2)
 
 Status TwoConstantStatisticsBuffer::addStatis(unsigned v1, unsigned v2, unsigned v3)
 {
+/*
 #ifdef MYDEBUG
 	cout << "OneConstantStatisticsBuffer: " << v1 << "\t" << v2 << "\t" << v3 << endl;
 #endif
+*/
 
 	unsigned len = 4 * 3;
 
