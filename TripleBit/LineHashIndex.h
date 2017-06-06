@@ -40,7 +40,7 @@ private:
 	IndexType indexType;
 	XYType xyType;
 	size_t tableSize;   //chunk number plus 1,because the end edge
-	char* lineHashIndexBase; //used to do update
+	uchar* lineHashIndexBase; //used to do update
 
 	//line parameters;
 	double upperk[4];
