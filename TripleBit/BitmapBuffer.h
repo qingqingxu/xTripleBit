@@ -135,7 +135,7 @@ public:
 
 	void insertXY(unsigned x, unsigned y, unsigned len, uchar type);
 
-	void writeXYId(const char* reader, ID x, ID y);
+	void writeXYId(const uchar* reader, ID x, ID y);
 
 	uchar* getStartPtr(uchar type) {
 		return meta->startPtr[type -1];
@@ -169,9 +169,9 @@ private:
 	vector<bool>* soFlags;
 public:
 //	boost::dynamic_bitset<> flagVector;
-	Chunk(unsigned char, ID, ID, ID, ID, char*, char*);
-	static void writeXId(ID id, char*& ptr);
-	static void writeYId(ID id, char*& ptr);
+	Chunk(unsigned char, ID, ID, ID, ID, uchar*, uchar*);
+	static void writeXId(ID id, uchar*& ptr);
+	static void writeYId(ID id, uchar*& ptr);
 	~Chunk();
 	unsigned int getCount() { return count; }
 	void addCount() { count++; }

@@ -744,7 +744,7 @@ void BitmapBuffer::endUpdate(MMapBuffer *bitmapPredicateImage, MMapBuffer *bitma
 		cout << "offset:" << offset << " indexOffset:" << predicateOffset << endl;
 #endif
 
-		char *base = buffer->get_address() + offset;
+		uchar *base = buffer->get_address() + offset;
 		ChunkManagerMeta *meta = (ChunkManagerMeta*) base;
 		meta->startPtr[0] = base + sizeof(ChunkManagerMeta);
 		meta->endPtr[0] = meta->startPtr[0] + meta->usedSpace[0];
@@ -831,31 +831,15 @@ ChunkManager::~ChunkManager() {
 	chunkIndex[1] = NULL;
 }
 
-static void getInsertChars(char* temp, unsigned x, unsigned y) {
-	char* ptr = temp;
-
-	ptr[0] = static_cast<unsigned char>((x & 0xFF000000) >> 24);
-	ptr[1] = static_cast<unsigned char>((x & 0xFF0000) >> 16);
-	ptr[2] = static_cast<unsigned char>((x & 0xFF00) >> 8);
-	ptr[3] = static_cast<unsigned char>((x & 0xFF));
-	ptr[4] = static_cast<unsigned char>((y & 0xFF000000) >> 24);
-	ptr[5] = static_cast<unsigned char>((y & 0xFF0000) >> 16);
-	ptr[6] = static_cast<unsigned char>((y & 0xFF00) >> 8);
-	ptr[7] = static_cast<unsigned char>((y & 0xFF));
-}
-
-void ChunkManager::writeXYId(const char* reader, ID x, ID y){
+void ChunkManager::writeXYId(const uchar* reader, ID x, ID y){
 	*((ID*) reader) = x;
 	reader += sizeof(ID);
 	*((ID*) reader) = y;
 	reader -= sizeof(ID);//go back
 }
 
-void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char type)
+void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, uchar type)
 {
-	/*char temp[8];
-	getInsertChars(temp, x, y);*/
-
 	if (isPtrFull(type, len) == true) {
 		if (type == 1) {
 			if (meta->length[0] == MemoryBuffer::pagesize) {
@@ -905,13 +889,11 @@ void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char 
 		metaData->usedSpace = 0;
 
 		writeXYId(meta->endPtr[type - 1] + sizeof(MetaData), x, y);
-		//memcpy(meta->endPtr[type - 1] + sizeof(MetaData), temp, len);
 		meta->endPtr[type - 1] = meta->endPtr[type - 1] + sizeof(MetaData) + len;
 		meta->usedSpace[type - 1] = sizeof(MetaData) + len;
 		tripleCountAdd(type);
 	} else {
 		writeXYId(meta->endPtr[type - 1], x, y);
-		//memcpy(meta->endPtr[type - 1], temp, len);
 
 		meta->endPtr[type - 1] = meta->endPtr[type - 1] + len;
 		meta->usedSpace[type - 1] = meta->usedSpace[type - 1] + len;
@@ -919,7 +901,7 @@ void ChunkManager::insertXY(unsigned x, unsigned y, unsigned len, unsigned char 
 	}
 }
 
-Status ChunkManager::resize(unsigned char type) {
+Status ChunkManager::resize(uchar type) {
 	// TODO
 	size_t pageNo = 0;
 	ptrs[type - 1] = bitmapBuffer->getPage(meta->type, type - 1, pageNo);
@@ -981,7 +963,7 @@ ChunkManager* ChunkManager::load(unsigned pid, unsigned type, uchar* buffer, siz
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Chunk::Chunk(unsigned char type, ID xMax, ID xMin, ID yMax, ID yMin, char* startPtr, char* endPtr) {
+Chunk::Chunk(uchar type, ID xMax, ID xMin, ID yMax, ID yMin, char* startPtr, char* endPtr) {
 	// TODO Auto-generated constructor stub
 	this->type = type;
 	this->xMax = xMax;
@@ -1002,7 +984,7 @@ Chunk::~Chunk() {
 /*
  *	write x id; set the 7th bit to 0 to indicate it is a x byte;
  */
-void Chunk::writeXId(ID id, char*& ptr) {
+void Chunk::writeXId(ID id, uchar*& ptr) {
 	// Write a id
 	while (id >= 128) {
 		unsigned char c = static_cast<unsigned char> (id & 127);
@@ -1017,14 +999,14 @@ void Chunk::writeXId(ID id, char*& ptr) {
 /*
  *	write y id; set the 7th bit to 1 to indicate it is a y byte;
  */
-void Chunk::writeYId(ID id, char*& ptr) {
+void Chunk::writeYId(ID id, uchar*& ptr) {
 	while (id >= 128) {
-		unsigned char c = static_cast<unsigned char> (id | 128);
+		uchar c = static_cast<uchar> (id | 128);
 		*ptr = c;
 		ptr++;
 		id >>= 7;
 	}
-	*ptr = static_cast<unsigned char> (id | 128);
+	*ptr = static_cast<uchar> (id | 128);
 	ptr++;
 }
 
@@ -1077,7 +1059,7 @@ uchar* Chunk::deleteYId(uchar* reader)
 	return reader;
 }
 
-const uchar* Chunk::skipId(const uchar* reader, unsigned char idNums) {
+const uchar* Chunk::skipId(const uchar* reader, uchar idNums) {
 	// Skip an id
 	for(int i = 0; i < idNums; i++){
 		reader += 4;
