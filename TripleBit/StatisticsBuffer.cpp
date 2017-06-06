@@ -68,8 +68,9 @@ const uchar* OneConstantStatisticsBuffer::decode(const uchar* begin, const uchar
 	uint value1, count;
 	readData(begin, value1);
 	while(begin < end && value1){
-		begin = readData(begin, value1);
-		begin = readData(begin, count);
+
+		begin = (const uchar*)readData(begin, value1);
+		begin = (const uchar*)readData(begin, count);
 
 		(*writer).value1 = value1;
 		(*writer).count = count;
