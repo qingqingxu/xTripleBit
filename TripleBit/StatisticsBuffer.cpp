@@ -299,6 +299,16 @@ OneConstantStatisticsBuffer* OneConstantStatisticsBuffer::load(StatisticsType ty
 		statBuffer->index.push_back(first);
 	}
 
+#ifdef MYDEBUG
+	ofstream out;
+	out.open("statIndex", ios::app);
+	out << "###########################" << endl;
+	for (uint i = 0; i < statBuffer->index.size(); i++) {
+		out << statBuffer->index[i] << endl;
+	}
+	out.close();
+#endif
+
 	return statBuffer;
 }
 
@@ -643,11 +653,16 @@ TwoConstantStatisticsBuffer* TwoConstantStatisticsBuffer::load(StatisticsType ty
 	statBuffer->index = (Triple*)indexBuffer;
 	indexBuffer = indexBuffer + statBuffer->indexPos * sizeof(Triple);
 
-#ifdef DEBUG
-	for(int i = 0; i < 3; i++)
-	{
-		cout<<statBuffer->index[i].value1<<" : "<<statBuffer->index[i].value2<<" : "<<statBuffer->index[i].count<<endl;
+#ifdef MYDEBUG
+	ofstream out;
+	out.open("statIndex", ios::app);
+	out << "###########################" << endl;
+	for (uint i = 0; i < indexPos; i++) {
+		out << statBuffer->index[i].value1 << " : "
+				<< statBuffer->index[i].value2 << " : "
+				<< statBuffer->index[i].count << endl;
 	}
+	out.close();
 #endif
 
 	return statBuffer;
