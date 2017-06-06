@@ -612,8 +612,8 @@ Status TwoConstantStatisticsBuffer::save(MMapBuffer*& indexBuffer)
 	writer = writeData(writer, indexPos);
 
 	memcpy(writer, (char*)index, indexPos * sizeof(Triple));
-#ifdef DEBUG
-	for(int i = 0; i < 3; i++)
+#ifdef MYDEBUG
+	for(int i = 0; i < indexPos; i++)
 	{
 		cout<<index[i].value1<<" : "<<index[i].value2<<" : "<<index[i].count<<endl;
 	}
