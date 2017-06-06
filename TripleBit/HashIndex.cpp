@@ -352,7 +352,7 @@ void HashIndex::save(MMapBuffer*& buffer)
 {
 //	hashTable->flush();
 	//size_t size = buffer->getSize();
-	char* writeBuf;
+	uchar* writeBuf;
 
 	if(buffer == NULL) {
 		buffer = MMapBuffer::create(string(string(DATABASE_PATH) + "BitmapBuffer_index").c_str(), hashTable->getSize() + 4);
