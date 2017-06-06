@@ -142,14 +142,14 @@ Status OneConstantStatisticsBuffer::addStatis(unsigned v1, unsigned v2, unsigned
 */
 	unsigned len = 4 * 2;
 	if (isPtrFull(len) == true) {
-#ifdef MYDEBUG
-	cout << "OneConstantStatisticsBuffer: " << "isPtrFull" << endl;
-#endif
 		usedSpace = writer - (unsigned char*) buffer->getBuffer();
 		buffer->resize(
 				STATISTICS_BUFFER_INCREMENT_PAGE_COUNT * MemoryBuffer::pagesize,
 				true);
 		writer = (unsigned char*) buffer->getBuffer() + usedSpace;
+#ifdef MYDEBUG
+	cout << "OneConstantStatisticsBuffer: " << buffer->getSize() << endl;
+#endif
 	}
 
 	if (first || v1 >= nextHashValue) {
