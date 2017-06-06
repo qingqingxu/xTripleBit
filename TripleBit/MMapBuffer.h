@@ -18,14 +18,14 @@ class MMapBuffer {
 	string filename;
 	size_t size;
 public:
-	char* resize(size_t incrementSize);
-	char* getBuffer();
-	char* getBuffer(int pos);
+	uchar* resize(size_t incrementSize);
+	uchar* getBuffer();
+	uchar* getBuffer(int pos);
 	void discard();
 	Status flush();
 	size_t getSize() { return size;}
 	size_t get_length() { return size;}
-	char * get_address() const { return (char*)mmap_addr; }
+	uchar * get_address() const { return (uchar*)mmap_addr; }
 
 	virtual Status resize(size_t new_size,bool clear);
 	virtual void   memset(char value);

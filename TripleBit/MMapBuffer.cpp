@@ -60,13 +60,13 @@ Status MMapBuffer::flush()
 	return ERROR;
 }
 
-char* MMapBuffer::resize(size_t incrementSize)
+uchar* MMapBuffer::resize(size_t incrementSize)
 {
 	size_t newsize = size + incrementSize;
 
 	//cout<<filename.c_str()<<": "<<__FUNCTION__<<" begin: "<<size<<" : "<<newsize<<endl;
 
-	char* new_addr = NULL;
+	uchar* new_addr = NULL;
 	if (munmap((char*)mmap_addr, size) != 0 ){
 		MessageEngine::showMessage("resize-munmap error!", MessageEngine::ERROR);
 		return NULL;
@@ -77,7 +77,7 @@ char* MMapBuffer::resize(size_t incrementSize)
 		return NULL;
 	}
 
-	if((new_addr = (char*)mmap(NULL, newsize,PROT_READ|PROT_WRITE,MAP_FILE|MAP_SHARED, fd, 0)) == (char*)MAP_FAILED)
+	if((new_addr = (uchar*)mmap(NULL, newsize,PROT_READ|PROT_WRITE,MAP_FILE|MAP_SHARED, fd, 0)) == (uchar*)MAP_FAILED)
 	{
 		MessageEngine::showMessage("mmap buffer resize error!", MessageEngine::ERROR);
 		return NULL;
@@ -86,11 +86,11 @@ char* MMapBuffer::resize(size_t incrementSize)
 	//cout<<filename.c_str()<<": "<<__FUNCTION__<<" begin: "<<size<<" : "<<newsize<<endl;
 	mmap_addr = (char volatile*)new_addr;
 
-	::memset((char*)mmap_addr + size, 0, incrementSize);
+	::memset((uchar*)mmap_addr + size, 0, incrementSize);
 
 	//cout<<filename.c_str()<<": "<<__FUNCTION__<<" end: "<<size<<" : "<<newsize<<endl;
 	size = newsize;
-	return (char*)mmap_addr;
+	return (uchar*)mmap_addr;
 }
 
 void MMapBuffer::discard()
@@ -100,22 +100,22 @@ void MMapBuffer::discard()
 	unlink(filename.c_str());
 }
 
-char* MMapBuffer::getBuffer()
+uchar* MMapBuffer::getBuffer()
 {
-	return (char*)mmap_addr;
+	return (uchar*)mmap_addr;
 }
 
-char* MMapBuffer::getBuffer(int pos)
+uchar* MMapBuffer::getBuffer(int pos)
 {
-	return (char*)mmap_addr + pos;
+	return (uchar*)mmap_addr + pos;
 }
 
 Status MMapBuffer::resize(size_t new_size, bool clear)
 {
 	//size_t newsize = size + incrementSize;
-	char* new_addr = NULL;
+	uchar* new_addr = NULL;
 	if (munmap((char*)mmap_addr, size) != 0 || ftruncate(fd, new_size) != 0 ||
-				(new_addr = (char*)mmap(NULL, new_size,PROT_READ|PROT_WRITE,MAP_FILE|MAP_SHARED, fd, 0)) == (char*)MAP_FAILED)
+				(new_addr = (uchar*)mmap(NULL, new_size,PROT_READ|PROT_WRITE,MAP_FILE|MAP_SHARED, fd, 0)) == (uchar*)MAP_FAILED)
 	{
 		MessageEngine::showMessage("mmap buffer resize error!", MessageEngine::ERROR);
 		return ERROR;
@@ -123,7 +123,7 @@ Status MMapBuffer::resize(size_t new_size, bool clear)
 
 	mmap_addr = (char volatile*)new_addr;
 
-	::memset((char*)mmap_addr + size, 0, new_size - size);
+	::memset((uchar*)mmap_addr + size, 0, new_size - size);
 	size = new_size;
 	return OK;
 }
