@@ -62,7 +62,7 @@ bool OneConstantStatisticsBuffer::isPtrFull(unsigned len)
 	return (uint) ( writer - (uchar*)buffer->getBuffer() + len ) > buffer->getSize() ? true : false;
 }
 
-const unsigned char* OneConstantStatisticsBuffer::decode(const uchar* begin, const uchar* end)
+const uchar* OneConstantStatisticsBuffer::decode(const uchar* begin, const uchar* end)
 {
 	Triple* writer = triples;
 	unsigned value1, count;
@@ -286,15 +286,15 @@ OneConstantStatisticsBuffer* OneConstantStatisticsBuffer::load(StatisticsType ty
 	OneConstantStatisticsBuffer* statBuffer = new OneConstantStatisticsBuffer(path, type);
 
 	unsigned size, first;
-	indexBuffer = readData(indexBuffer, statBuffer->usedSpace);
-	indexBuffer = readData(indexBuffer, size);
+	indexBuffer = (uchar*)readData(indexBuffer, statBuffer->usedSpace);
+	indexBuffer = (uchar*)readData(indexBuffer, size);
 
 	statBuffer->index.resize(0);
 
 	statBuffer->indexSize = size;
 
 	for( unsigned i = 0; i < size; i++ ) {
-		indexBuffer = readData(indexBuffer, first);
+		indexBuffer = (uchar*)readData(indexBuffer, first);
 		statBuffer->index.push_back(first);
 	}
 
@@ -614,8 +614,8 @@ TwoConstantStatisticsBuffer* TwoConstantStatisticsBuffer::load(StatisticsType ty
 {
 	TwoConstantStatisticsBuffer* statBuffer = new TwoConstantStatisticsBuffer(path, type);
 
-	indexBuffer = readData(indexBuffer, statBuffer->usedSpace);
-	indexBuffer = readData(indexBuffer, statBuffer->indexPos);
+	indexBuffer = (uchar*)readData(indexBuffer, statBuffer->usedSpace);
+	indexBuffer = (uchar*)readData(indexBuffer, statBuffer->indexPos);
 #ifdef DEBUG
 	cout<<__FUNCTION__<<"indexPos: "<<statBuffer->indexPos<<endl;
 #endif
