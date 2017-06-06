@@ -498,7 +498,7 @@ size_t LineHashIndex::save(MMapBuffer*& indexBuffer)
 
 void LineHashIndex::updateLineIndex()
 {
-	char* base = lineHashIndexBase;
+	uchar* base = lineHashIndexBase;
 
 	*(ID*) base = tableSize;
 	base += sizeof(ID);
