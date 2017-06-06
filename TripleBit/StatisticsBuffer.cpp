@@ -144,12 +144,13 @@ Status OneConstantStatisticsBuffer::addStatis(unsigned v1, unsigned v2, unsigned
 	if (isPtrFull(len) == true) {
 		usedSpace = writer - (unsigned char*) buffer->getBuffer();
 		buffer->resize(
-				STATISTICS_BUFFER_INCREMENT_PAGE_COUNT * MemoryBuffer::pagesize,
-				true);
+				STATISTICS_BUFFER_INCREMENT_PAGE_COUNT * MemoryBuffer::pagesize);
 		writer = (unsigned char*) buffer->getBuffer() + usedSpace;
+/*
 #ifdef MYDEBUG
 	cout << "OneConstantStatisticsBuffer: " << buffer->getSize() << endl;
 #endif
+*/
 	}
 
 	if (first || v1 >= nextHashValue) {
@@ -553,8 +554,7 @@ Status TwoConstantStatisticsBuffer::addStatis(unsigned v1, unsigned v2, unsigned
 	if (first || usedSpace + len > buffer->getSize()) {
 		usedSpace = writer - (uchar*) buffer->getBuffer();
 		buffer->resize(
-				STATISTICS_BUFFER_INCREMENT_PAGE_COUNT * MemoryBuffer::pagesize,
-				true);	//加大空间
+				STATISTICS_BUFFER_INCREMENT_PAGE_COUNT * MemoryBuffer::pagesize);	//加大空间
 		writer = (uchar*) buffer->getBuffer() + usedSpace;
 
 		if ((indexPos + 1) >= indexSize) {
