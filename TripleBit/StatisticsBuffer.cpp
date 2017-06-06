@@ -657,7 +657,7 @@ TwoConstantStatisticsBuffer* TwoConstantStatisticsBuffer::load(StatisticsType ty
 	ofstream out;
 	out.open("statIndex", ios::app);
 	out << "###########################" << endl;
-	for (uint i = 0; i < indexPos; i++) {
+	for (uint i = 0; i < statBuffer->indexPos; i++) {
 		out << statBuffer->index[i].value1 << " : "
 				<< statBuffer->index[i].value2 << " : "
 				<< statBuffer->index[i].count << endl;
