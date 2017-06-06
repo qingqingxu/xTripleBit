@@ -202,7 +202,7 @@ public:
 			header = get_meta();
 			header->length = new_length;
 		}
-		char * top = data->get_address() + header->usage;
+		uchar * top = data->get_address() + header->usage;
 
 #ifdef USE_C_STRING
 		*(ID*)top = id;
