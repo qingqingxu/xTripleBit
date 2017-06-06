@@ -129,6 +129,13 @@ bool LineHashIndex::buildLine(int startEntry, int endEntry, int lineNo)
 
 	upperk[lineNo] = ktemp;
 	upperb[lineNo] = btemp;
+#ifdef MYDEBUG
+	ofstream out;
+	out.open("buildindex", ios::app);
+	out << "lowerk[" << lineNo << "] = " << lowerk[lineNo] << "\tlowerb[" << lineNo << "] = " << lowerb[lineNo] << endl;
+	out << "upperk[" << lineNo << "] = " << upperk[lineNo] << "\tupperb[" << lineNo << "] = " << upperb[lineNo] << endl;
+	out.close();
+#endif
 	return true;
 }
 
