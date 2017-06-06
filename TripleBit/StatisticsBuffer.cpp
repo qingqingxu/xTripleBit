@@ -452,9 +452,6 @@ bool TwoConstantStatisticsBuffer::find(unsigned value1, unsigned value2)
 	if(left == right) {
 		return false;
 	} else {
-#ifdef MYDEBUG
-	cout << "middle: " << middle << endl;
-#endif
 		pos = &pos[middle];// value1 and value2 is between middle-1 and middle
 		return true;
 	}
@@ -519,12 +516,15 @@ Status TwoConstantStatisticsBuffer::getStatis(unsigned& v1, unsigned v2)
 	unsigned end = pos->count; // count is usedspace
 	if(pos == (index + indexPos))
 		end = usedSpace;
-#ifdef MYDEBUG
-	cout << "usedSpace: " << usedSpace << endl;
-#endif
+
 	const unsigned char* begin = (uchar*)buffer->getBuffer() + start, *limit = (uchar*)buffer->getBuffer() + end;
 	decode(begin, limit);//decode from bitmapbuffer, in order to get pos and posLimit
 	find(v1, v2);
+#ifdef MYDEBUG
+	if(find(v1, v2)){
+		cout << pos->value1 << "\tfind\t" << pos->value2 << endl;
+	}
+#endif
 	if(pos->value1 == v1 && pos->value2 == v2) {
 		v1 = pos->count;
 		return OK;
