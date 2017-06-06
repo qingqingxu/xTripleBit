@@ -438,8 +438,24 @@ bool TwoConstantStatisticsBuffer::find(unsigned value1, unsigned value2)
 	int left = 0, right = posLimit - pos;
 	int middle;
 
+#ifdef MYDEBUG
+		ofstream out;
+		out.open("findvalue", ios::app);
+		out << "value: " << value1 << "\tvalue2: " << value2 << endl;
+		out.close();
+#endif
+
 	while (left != right) {
 		middle = left + ((right - left) / 2);
+
+#ifdef MYDEBUG
+		ofstream out;
+		out.open("findvalue", ios::app);
+		out << "pos[" << middle << "].value1: " << pos[middle].value1 << "\tpos[" << middle << "].value2: " << pos[middle].value2 << endl;
+		out << "pos[" << middle-1 << "].value1: " << pos[middle-1].value1 << "\tpos[" << middle-1 << "].value2: " << pos[middle-1].value2 << endl;
+		out.close();
+#endif
+
 		if (::greater(value1, value2, pos[middle].value1, pos[middle].value2)) {
 			left = middle + 1;
 		} else if ((!middle) || ::greater(value1, value2, pos[middle - 1].value1, pos[middle -1].value2)) {
