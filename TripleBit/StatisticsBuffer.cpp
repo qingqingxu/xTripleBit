@@ -404,9 +404,9 @@ const uchar* TwoConstantStatisticsBuffer::decode(const uchar* begin, const uchar
 	Triple* writer = &triples[0];
 	readData(begin, value1);
 	while (begin < end && value1) {
-		begin = readData(begin, value1);
-		begin = readData(begin, value2);
-		begin = readData(begin, count);
+		begin = (const uchar*)readData(begin, value1);
+		begin = (const uchar*)readData(begin, value2);
+		begin = (const uchar*)readData(begin, count);
 		(*writer).value1 = value1;
 		(*writer).value2 = value2;
 		(*writer).count = count;
@@ -727,9 +727,9 @@ const uchar* TwoConstantStatisticsBuffer::decode(const uchar* begin, const uchar
 	Triple* writer = &triples[0];
 	readData(begin, value1);
 	while (begin < end && value1) {
-		begin = readData(begin, value1);
-		begin = readData(begin, value2);
-		begin = readData(begin, count);
+		begin = (const uchar*)readData(begin, value1);
+		begin = (const uchar*)readData(begin, value2);
+		begin = (const uchar*)readData(begin, count);
 		(*writer).value1 = value1;
 		(*writer).value2 = value2;
 		(*writer).count = count;
