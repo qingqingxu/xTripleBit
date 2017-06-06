@@ -130,7 +130,7 @@ unsigned char BitmapBuffer::getBytes(ID id) {
 }
 
 uchar* BitmapBuffer::getPage(uchar type, uchar flag, size_t& pageNo) {
-	char* rt;
+	uchar* rt;
 	bool tempresize = false;
 
 	//cout<<__FUNCTION__<<" begin"<<endl;
@@ -259,8 +259,8 @@ void BitmapBuffer::save() {
 	predicateFile.append("_predicate");
 
 	MMapBuffer *predicateBuffer = new MMapBuffer(predicateFile.c_str(), predicate_managers[0].size() * (sizeof(ID) + sizeof(SOType) + sizeof(size_t) * 2) * 2);
-	char *predicateWriter = predicateBuffer->get_address();
-	char *bufferWriter = NULL;
+	uchar *predicateWriter = predicateBuffer->get_address();
+	uchar *bufferWriter = NULL;
 
 	map<ID, ChunkManager*>::const_iterator iter = predicate_managers[0].begin();
 	size_t offset = 0;
@@ -286,7 +286,7 @@ void BitmapBuffer::save() {
 	offset += iter->second->meta->length[0];
 
 	bufferWriter = buffer->resize(iter->second->meta->length[1]);
-	char *startPos = bufferWriter + offset;
+	uchar *startPos = bufferWriter + offset;
 
 	pageNoIter = iter->second->usedPage[1].begin();
 	limit = iter->second->usedPage[1].end();
@@ -393,7 +393,7 @@ void BitmapBuffer::save() {
 		offset = *((size_t*) predicateWriter);
 		predicateWriter += sizeof(size_t) * 2;
 
-		char *base = buffer->get_address() + offset;
+		uchar *base = buffer->get_address() + offset;
 		iter->second->meta = (ChunkManagerMeta*) base;
 		iter->second->meta->startPtr[0] = base + sizeof(ChunkManagerMeta);
 		iter->second->meta->endPtr[0] = iter->second->meta->startPtr[0] + iter->second->meta->usedSpace[0];
@@ -526,7 +526,7 @@ void BitmapBuffer::save() {
 
 BitmapBuffer *BitmapBuffer::load(MMapBuffer* bitmapImage, MMapBuffer*& bitmapIndexImage, MMapBuffer* bitmapPredicateImage) {
 	BitmapBuffer *buffer = new BitmapBuffer();
-	char *predicateReader = bitmapPredicateImage->get_address();
+	uchar *predicateReader = bitmapPredicateImage->get_address();
 
 	ID id;
 	SOType soType;
@@ -560,10 +560,10 @@ BitmapBuffer *BitmapBuffer::load(MMapBuffer* bitmapImage, MMapBuffer*& bitmapInd
 }
 
 void BitmapBuffer::endUpdate(MMapBuffer *bitmapPredicateImage, MMapBuffer *bitmapOld) {
-	char *predicateReader = bitmapPredicateImage->get_address();
+	uchar *predicateReader = bitmapPredicateImage->get_address();
 
 	int offsetId = 0, tableSize = 0;
-	char *startPtr, *bufferWriter, *chunkBegin, *chunkManagerBegin, *bufferWriterBegin, *bufferWriterEnd;
+	uchar *startPtr, *bufferWriter, *chunkBegin, *chunkManagerBegin, *bufferWriterBegin, *bufferWriterEnd;
 	MetaData *metaData = NULL, *metaDataNew = NULL;
 	size_t offsetPage = 0, lastoffsetPage = 0;
 
@@ -590,7 +590,7 @@ void BitmapBuffer::endUpdate(MMapBuffer *bitmapPredicateImage, MMapBuffer *bitma
 		predicateReader += sizeof(size_t); //skip the indexoffset
 
 		//the part of xyType0
-		startPtr = (char*) predicate_managers[soType][id]->getStartPtr(1);
+		startPtr = predicate_managers[soType][id]->getStartPtr(1);
 		offsetId = 0;
 		tableSize = predicate_managers[soType][id]->getChunkNumber(1);
 		metaData = (MetaData*) startPtr;
@@ -662,7 +662,7 @@ void BitmapBuffer::endUpdate(MMapBuffer *bitmapPredicateImage, MMapBuffer *bitma
 		//the part of xyType1
 		buffer->resize(MemoryBuffer::pagesize);
 		bufferWriter = buffer->get_address() + offsetPage * MemoryBuffer::pagesize;
-		startPtr = (char*) predicate_managers[soType][id]->getStartPtr(2);
+		startPtr = predicate_managers[soType][id]->getStartPtr(2);
 		offsetId = 0;
 		tableSize = predicate_managers[soType][id]->getChunkNumber(2);
 		metaData = (MetaData*) startPtr;

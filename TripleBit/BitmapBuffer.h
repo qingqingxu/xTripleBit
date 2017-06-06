@@ -70,8 +70,8 @@ struct ChunkManagerMeta
 	int tripleCount[2];
 	unsigned type;
 	unsigned pid;
-	char* startPtr[2];
-	char* endPtr[2];
+	uchar* startPtr[2];
+	uchar* endPtr[2];
 };
 
 struct MetaData
@@ -138,11 +138,11 @@ public:
 	void writeXYId(const char* reader, ID x, ID y);
 
 	uchar* getStartPtr(uchar type) {
-		return reinterpret_cast<uchar*> (meta->startPtr[type -1]);
+		return meta->startPtr[type -1];
 	}
 
 	uchar* getEndPtr(uchar type) {
-		return reinterpret_cast<uchar*> (meta->endPtr[type -1]);
+		return meta->endPtr[type -1];
 	}
 
 	Status buildChunkIndex();
@@ -223,10 +223,10 @@ public:
 	ID getYMin() {
 		return yMin;
 	}
-	char* getStartPtr() {
+	uchar* getStartPtr() {
 		return startPtr;
 	}
-	char* getEndPtr() {
+	uchar* getEndPtr() {
 		return endPtr;
 	}
 

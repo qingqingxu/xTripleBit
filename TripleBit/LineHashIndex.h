@@ -77,7 +77,7 @@ public:
 private:
 	bool isBufferFull();
 public:
-	static LineHashIndex* load(ChunkManager& manager, IndexType index_type, XYType xy_type, char* buffer, size_t& offset);
+	static LineHashIndex* load(ChunkManager& manager, IndexType index_type, XYType xy_type, uchar* buffer, size_t& offset);
 };
 
 #endif /* LINEHASHINDEX_H_ */

@@ -545,7 +545,7 @@ void LineHashIndex::updateChunkMetaData(int offsetId)
 	}
 }
 
-LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, XYType xy_type, char*buffer,
+LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, XYType xy_type, uchar*buffer,
 		size_t& offset)
 {
 	LineHashIndex* index = new LineHashIndex(manager, index_type, xy_type);
