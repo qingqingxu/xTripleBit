@@ -328,6 +328,12 @@ struct TripleNode {
 			selectivity = orig.selectivity;
 			return *this;
 		}
+
+		void print(){
+			cout << "subject: " << subject << "\t predicate: " << predicate <<"\t object: " << object << endl;
+			cout << "constSubject: " << constSubject << "\t constPredicate: " << constPredicate <<"\t constObject: " << constObject << endl;
+			cout << "tripleNodeID: " << tripleNodeID << "\t scanOperation: " << scanOperation <<"\t selectivity: " << selectivity << endl;
+		}
 };
 
 inline uint64_t getTicks(){

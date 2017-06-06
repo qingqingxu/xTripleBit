@@ -181,6 +181,12 @@ void PartitionMaster::executeQuery(SubTrans *subTransaction){
 	ID minID = subTransaction->minID;
 	ID maxID = subTransaction->maxID;
 	TripleNode *triple = &(subTransaction->triple);
+
+#ifdef MYDEBUG
+	triple->print();
+	cout << "minID: " << minID << "maxID: " << minID <<endl;
+#endif
+
 	size_t chunkCount, xChunkCount, xyChunkCount;
 	size_t xChunkIDMin, xChunkIDMax, xyChunkIDMin, xyChunkIDMax;
 	int soType, xyType;

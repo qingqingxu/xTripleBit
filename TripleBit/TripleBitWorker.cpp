@@ -98,6 +98,7 @@ Status TripleBitWorker::Execute(string& queryString) {
 //		cout << "---------------After GeneratePlan-------------" << endl;
 //		Print();
 
+		resultSet.clear();
 		workerQuery->query(queryGraph, resultSet, trans->transTime);
 
 		for(vector<string>::iterator iter = resultSet.begin(); iter != resultSet.end(); iter++){
