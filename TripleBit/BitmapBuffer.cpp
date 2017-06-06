@@ -129,7 +129,7 @@ unsigned char BitmapBuffer::getBytes(ID id) {
 	}
 }
 
-char* BitmapBuffer::getPage(unsigned char type, unsigned char flag, size_t& pageNo) {
+uchar* BitmapBuffer::getPage(uchar type, uchar flag, size_t& pageNo) {
 	char* rt;
 	bool tempresize = false;
 
@@ -958,7 +958,7 @@ ID ChunkManager::getChunkNumber(unsigned char type) {
 	return (meta->length[type - 1]) / (MemoryBuffer::pagesize);
 }
 
-ChunkManager* ChunkManager::load(unsigned pid, unsigned type, char* buffer, size_t& offset) {
+ChunkManager* ChunkManager::load(unsigned pid, unsigned type, uchar* buffer, size_t& offset) {
 	ChunkManagerMeta * meta = (ChunkManagerMeta*) (buffer + offset);
 	if (meta->pid != pid || meta->type != type) {
 		MessageEngine::showMessage("load chunkmanager error: check meta info", MessageEngine::ERROR);

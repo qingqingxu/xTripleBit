@@ -48,16 +48,16 @@ public:
 	void flush();
 	ID getColCnt() { return startColID; }
 
-	char* getPage(unsigned char type, unsigned char flag, size_t& pageNo);
+	uchar* getPage(unsigned char type, unsigned char flag, size_t& pageNo);
 	void save();
 	void endUpdate(MMapBuffer *bitmapPredicateImage, MMapBuffer *bitmapOld);
 //	static BitmapBuffer* load(const string bitmapBufferDir, MMapBuffer*& bitmapIndexImage, MMapBuffer* bitmapPredicateImage);
 	static BitmapBuffer* load(MMapBuffer* bitmapImage, MMapBuffer*& bitmapIndexImage, MMapBuffer* bitmapPredicateImage);
 private:
 	/// get the bytes of a id;
-	unsigned char getBytes(ID id);
+	uchar getBytes(ID id);
 	/// get the storage space (in bytes) of a id;
-	unsigned char getLen(ID id);
+	uchar getLen(ID id);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -84,11 +84,11 @@ struct MetaData
 
 class ChunkManager {
 private:
-	char* ptrs[2];
+	uchar* ptrs[2];
 
 	ChunkManagerMeta* meta;
 	///the No. of buffer
-	static unsigned int bufferCount;
+	static uint bufferCount;
 
 	///hash index; index the subject and object
 	LineHashIndex* chunkIndex[2];
@@ -106,8 +106,8 @@ public:
 	ChunkManager(){}
 	ChunkManager(unsigned pid, unsigned _type, BitmapBuffer* bitmapBuffer);
 	~ChunkManager();
-	Status resize(unsigned char type);
-	Status tripleCountAdd(unsigned char type) {
+	Status resize(uchar type);
+	Status tripleCountAdd(uchar type) {
 		meta->tripleCount[type - 1]++;
 		return OK;
 	}
@@ -119,35 +119,35 @@ public:
 		return chunkIndex[type - 1];
 	}
 
-	bool isPtrFull(unsigned char type, unsigned len);
+	bool isPtrFull(uchar type, unsigned len);
 
 	int getTripleCount() {
 		return meta->tripleCount[0] + meta->tripleCount[1];
 	}
-	int getTripleCount(unsigned char type) {
+	int getTripleCount(uchar type) {
 			return meta->tripleCount[type - 1];
 	}
 	unsigned int getPredicateID() const {
 		return meta->pid;
 	}
 
-	ID getChunkNumber(unsigned char type);
+	ID getChunkNumber(uchar type);
 
-	void insertXY(unsigned x, unsigned y, unsigned len, unsigned char type);
+	void insertXY(unsigned x, unsigned y, unsigned len, uchar type);
 
 	void writeXYId(const char* reader, ID x, ID y);
 
-	uchar* getStartPtr(unsigned char type) {
+	uchar* getStartPtr(uchar type) {
 		return reinterpret_cast<uchar*> (meta->startPtr[type -1]);
 	}
 
-	uchar* getEndPtr(unsigned char type) {
+	uchar* getEndPtr(uchar type) {
 		return reinterpret_cast<uchar*> (meta->endPtr[type -1]);
 	}
 
 	Status buildChunkIndex();
 	Status updateChunkIndex();
-	static ChunkManager* load(unsigned pid, unsigned type, char* buffer, size_t& offset);
+	static ChunkManager* load(unsigned pid, unsigned type, uchar* buffer, size_t& offset);
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -156,16 +156,16 @@ public:
 
 class Chunk {
 private:
-	unsigned char type;
-	unsigned int count;
+	uchar type;
+	uint count;
 	ID xMax;
 	ID xMin;
 	ID yMax;
 	ID yMin;
 	ID colStart;
 	ID colEnd;
-	char* startPtr;
-	char* endPtr;
+	uchar* startPtr;
+	uchar* endPtr;
 	vector<bool>* soFlags;
 public:
 //	boost::dynamic_bitset<> flagVector;
@@ -175,10 +175,10 @@ public:
 	~Chunk();
 	unsigned int getCount() { return count; }
 	void addCount() { count++; }
-	bool getSOFlags(unsigned int pos) {
+	bool getSOFlags(uint pos) {
 		return (*soFlags)[pos];
 	}
-	Status setSOFlags(unsigned int pos, bool value) {
+	Status setSOFlags(uint pos, bool value) {
 		(*soFlags)[pos] = value;
 		return OK;
 	}
@@ -187,11 +187,11 @@ public:
 	}
 	bool isChunkFull() {
 		//unsigned char type = this->type;
-		return (unsigned int) (endPtr - startPtr + Type_2_Length(type)) > CHUNK_SIZE * getpagesize() ? true : false;
+		return (uint) (endPtr - startPtr + Type_2_Length(type)) > CHUNK_SIZE * getpagesize() ? true : false;
 	}
-	bool isChunkFull(unsigned char len) {
+	bool isChunkFull(uchar len) {
 			//unsigned char type = this->type;
-			return (unsigned int) (endPtr - startPtr + len) > CHUNK_SIZE * getpagesize() ? true : false;
+			return (uint) (endPtr - startPtr + len) > CHUNK_SIZE * getpagesize() ? true : false;
 	}
 	unsigned char getType() {
 		return type;
@@ -246,11 +246,11 @@ public:
 		colEnd = _colEnd;
 	}
 
-	void setStartPtr(char* ptr){
+	void setStartPtr(uchar* ptr){
 		startPtr = ptr;
 	}
 
-	void setEndPtr(char* ptr) {
+	void setEndPtr(uchar* ptr) {
 		endPtr = ptr;
 	}
 };
