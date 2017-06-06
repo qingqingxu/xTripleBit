@@ -39,8 +39,8 @@ Status FixedObjectPool::get_by_id( ID id, OffsetType * plength, void **ppdata )
 {
 	// TODO: optimaze
 	ObjectPoolMeta * meta = get_meta();
-	char * p = data->get_address() + sizeof(ObjectPoolMeta);
-	char * end = data->get_address() + meta->usage;
+	uchar * p = data->get_address() + sizeof(ObjectPoolMeta);
+	uchar * end = data->get_address() + meta->usage;
 
 	id = id - 1;
 	*ppdata = p + id * meta->entrysize;
