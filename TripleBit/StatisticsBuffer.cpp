@@ -13,6 +13,8 @@
 #include "URITable.h"
 #include "MemoryBuffer.h"
 
+#define MYDEBUG
+
 extern char* writeData(char* writer, unsigned data);
 extern const char* readData(const char* reader, unsigned int& data);
 
@@ -133,6 +135,9 @@ unsigned int OneConstantStatisticsBuffer::getEntityCount()
 
 Status OneConstantStatisticsBuffer::addStatis(unsigned v1, unsigned v2, unsigned v3 /* = 0 */)
 {
+#ifdef MYDEBUG
+	cout << "OneConstantStatisticsBuffer: " << v1 << "\t" << v2 << "\t" << v3 << endl;
+#endif
 	unsigned len = 4 * 2;
 	if (isPtrFull(len) == true) {
 		usedSpace = writer - (unsigned char*) buffer->getBuffer();
@@ -532,6 +537,10 @@ Status TwoConstantStatisticsBuffer::getStatis(unsigned& v1, unsigned v2)
 
 Status TwoConstantStatisticsBuffer::addStatis(unsigned v1, unsigned v2, unsigned v3)
 {
+#ifdef MYDEBUG
+	cout << "OneConstantStatisticsBuffer: " << v1 << "\t" << v2 << "\t" << v3 << endl;
+#endif
+
 	unsigned len = 4 * 3;
 
 	if (first || usedSpace + len > buffer->getSize()) {
