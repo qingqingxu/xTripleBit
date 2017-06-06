@@ -336,7 +336,7 @@ unsigned HashIndex::next(ID id)
 	return hashTableEntries[firstHash];
 }
 
-char* writeData(uchar* writer, uint data)
+uchar* writeData(uchar* writer, uint data)
 {
 	memcpy(writer, &data, 4);
 	return writer+4;

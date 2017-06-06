@@ -15,7 +15,7 @@
 
 #define MYDEBUG
 
-extern char* writeData(uchar* writer, uint data);
+extern uchar* writeData(uchar* writer, uint data);
 extern const char* readData(const uchar* reader, uint& data);
 
 StatisticsBuffer::StatisticsBuffer() : HEADSPACE(2) {
@@ -109,8 +109,8 @@ unsigned int OneConstantStatisticsBuffer::getEntityCount()
 		}
 			
 		if(endChunk != 0) {
-			begin = (const unsigned char*)(buffer->getBuffer()) + beginChunk;
-			end = (const unsigned char*)(buffer->getBuffer()) + endChunk;
+			begin = (const uchar*)(buffer->getBuffer()) + beginChunk;
+			end = (const uchar*)(buffer->getBuffer()) + endChunk;
 			entityCount = entityCount + (end - begin) / (4 * 2);
 
 			beginChunk = endChunk;
@@ -129,10 +129,10 @@ Status OneConstantStatisticsBuffer::addStatis(unsigned v1, unsigned v2, unsigned
 */
 	unsigned len = 4 * 2;
 	if (isPtrFull(len) == true) {
-		usedSpace = writer - (unsigned char*) buffer->getBuffer();
+		usedSpace = writer - (uchar*) buffer->getBuffer();
 		buffer->resize(
 				STATISTICS_BUFFER_INCREMENT_PAGE_COUNT * MemoryBuffer::pagesize);
-		writer = (unsigned char*) buffer->getBuffer() + usedSpace;
+		writer = (uchar*) buffer->getBuffer() + usedSpace;
 /*
 #ifdef MYDEBUG
 	cout << "OneConstantStatisticsBuffer: " << buffer->getSize() << endl;
@@ -231,7 +231,7 @@ Status OneConstantStatisticsBuffer::getStatis(unsigned& v1, unsigned v2 /* = 0 *
 	if(i == indexSize)
 		end = usedSpace;
 
-	reader = (unsigned char*)buffer->getBuffer() + begin;
+	reader = (uchar*)buffer->getBuffer() + begin;
 
 	readData(reader, lastId);
 	reader += 4;

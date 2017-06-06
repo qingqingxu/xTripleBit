@@ -272,7 +272,7 @@ TripleBitRepository* TripleBitRepository::create(const string &path) {
 
 	filename = path + "/statIndex";
 	MMapBuffer* indexBufferFile = MMapBuffer::create(filename.c_str(), 0);
-	char* indexBuffer = indexBufferFile->get_address();
+	uchar* indexBuffer = indexBufferFile->get_address();
 
 	string statFilename = path + "/subject_statis";
 	repo->subjectStat = OneConstantStatisticsBuffer::load(StatisticsBuffer::SUBJECT_STATIS, statFilename, indexBuffer);
