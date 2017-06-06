@@ -38,8 +38,8 @@ TempMMapBuffer::TempMMapBuffer(const char *_filename, size_t initSize):filename(
 		MessageEngine::showMessage("lseek file error", MessageEngine::ERROR);
 	}
 
-	mmapAddr = (char volatile*)mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-	if(mmapAddr == MAP_FAILED){
+	mmapAddr = (uchar volatile*)mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	if(mmapAddr == (uchar volatile *)MAP_FAILED){
 		perror(_filename);
 		cout << "size: " << size << endl;
 		MessageEngine::showMessage("map file to memory error", MessageEngine::ERROR);
@@ -51,23 +51,23 @@ TempMMapBuffer::TempMMapBuffer(const char *_filename, size_t initSize):filename(
 
 TempMMapBuffer::~TempMMapBuffer(){
 	flush();
-	munmap((char*)mmapAddr, size);
+	munmap((uchar*)mmapAddr, size);
 	close(fd);
 	pthread_mutex_destroy(&mutex);
 }
 
 Status TempMMapBuffer::flush(){
-	if(msync((char*)mmapAddr, size, MS_SYNC) == 0){
+	if(msync((uchar*)mmapAddr, size, MS_SYNC) == 0){
 		return OK;
 	}
 	return ERROR;
 }
 
-char *TempMMapBuffer::resize(size_t incrementSize){
+uchar *TempMMapBuffer::resize(size_t incrementSize){
 	size_t newSize = size + incrementSize;
 
-	char *newAddr = NULL;
-	if(munmap((char*)mmapAddr, size) != 0){
+	uchar *newAddr = NULL;
+	if(munmap((uchar*)mmapAddr, size) != 0){
 		MessageEngine::showMessage("resize-munmap error!", MessageEngine::ERROR);
 		return NULL;
 	}
@@ -75,48 +75,48 @@ char *TempMMapBuffer::resize(size_t incrementSize){
 		MessageEngine::showMessage("resize-ftruncate file error!", MessageEngine::ERROR);
 		return NULL;
 	}
-	if((newAddr = (char*)mmap(NULL, newSize, PROT_READ | PROT_WRITE, MAP_FILE | MAP_SHARED, fd, 0)) == (char*)MAP_FAILED){
+	if((newAddr = (uchar*)mmap(NULL, newSize, PROT_READ | PROT_WRITE, MAP_FILE | MAP_SHARED, fd, 0)) == (uchar*)MAP_FAILED){
 		MessageEngine::showMessage("mmap buffer resize error!", MessageEngine::ERROR);
 		return NULL;
 	}
-	mmapAddr = (char volatile*)newAddr;
-	::memset((char*)mmapAddr + size, 0, incrementSize);
+	mmapAddr = (uchar volatile*)newAddr;
+	::memset((uchar*)mmapAddr + size, 0, incrementSize);
 
 	size = newSize;
-	return (char*)mmapAddr;
+	return (uchar*)mmapAddr;
 }
 
 void TempMMapBuffer::discard(){
-	munmap((char*)mmapAddr, size);
+	munmap((uchar*)mmapAddr, size);
 	close(fd);
 	unlink(filename.c_str());
 }
 
-char *TempMMapBuffer::getBuffer(){
-	return (char*)mmapAddr;
+uchar *TempMMapBuffer::getBuffer(){
+	return (uchar*)mmapAddr;
 }
 
-char *TempMMapBuffer::getBuffer(int pos){
-	return (char*)mmapAddr + pos;
+uchar *TempMMapBuffer::getBuffer(int pos){
+	return (uchar*)mmapAddr + pos;
 }
 
 Status TempMMapBuffer::resize(size_t newSize, bool clear){
-	char *newAddr = NULL;
-	if(munmap((char*)mmapAddr, size) != 0 || ftruncate(fd, newSize) != 0 ||
-			(newAddr = (char*)mmap(NULL, newSize, PROT_READ | PROT_WRITE, MAP_FILE | MAP_SHARED, fd, 0)) == (char*)MAP_FAILED){
+	uchar *newAddr = NULL;
+	if(munmap((uchar*)mmapAddr, size) != 0 || ftruncate(fd, newSize) != 0 ||
+			(newAddr = (uchar*)mmap(NULL, newSize, PROT_READ | PROT_WRITE, MAP_FILE | MAP_SHARED, fd, 0)) == (uchar*)MAP_FAILED){
 		MessageEngine::showMessage("mmap buffer resize error!", MessageEngine::ERROR);
 		return ERROR;
 	}
 
-	mmapAddr = (char volatile*)newAddr;
+	mmapAddr = (uchar volatile*)newAddr;
 
-	::memset((char*)mmapAddr + size, 0, newSize - size);
+	::memset((uchar*)mmapAddr + size, 0, newSize - size);
 	size = newSize;
 	return OK;
 }
 
 void TempMMapBuffer::memset(char value){
-	::memset((char*)mmapAddr, value, size);
+	::memset((uchar*)mmapAddr, value, size);
 }
 
 void TempMMapBuffer::create(const char *filename, size_t initSize = TEMPMMAPBUFFER_INIT_PAGE*MemoryBuffer::pagesize){
@@ -138,9 +138,9 @@ void TempMMapBuffer::deleteInstance(){
 	}
 }
 
-char *TempMMapBuffer::getPage(size_t &pageNo){
+uchar *TempMMapBuffer::getPage(size_t &pageNo){
 	pthread_mutex_lock(&mutex);
-	char *rt;
+	uchar *rt;
 	if(usedPage * MemoryBuffer::pagesize >= size){
 		resize(size);
 	}

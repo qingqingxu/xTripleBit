@@ -14,7 +14,7 @@ class TempMMapBuffer
 {
 private:
 	int fd;
-	char volatile *mmapAddr;
+	uchar volatile *mmapAddr;
 	string filename;
 	size_t size;
 
@@ -26,19 +26,19 @@ private:
 private:
 	TempMMapBuffer(const char *filename, size_t initSize);
 	~TempMMapBuffer();
-	char *resize(size_t incrementSize);
+	uchar *resize(size_t incrementSize);
 	Status resize(size_t newSize, bool clear);
 	void memset(char value);
 
 public:
-	char *getBuffer();
-	char *getBuffer(int pos);
+	uchar *getBuffer();
+	uchar *getBuffer(int pos);
 	void discard();
 	Status flush();
 	size_t getSize(){ return size; }
 	size_t getLength() { return size; }
-	char *getAddress() const { return (char*)mmapAddr; }
-	char *getPage(size_t &pageNo);
+	uchar *getAddress() const { return (uchar*)mmapAddr; }
+	uchar *getPage(size_t &pageNo);
 	size_t getUsedPage(){ return usedPage; }
 
 public:
