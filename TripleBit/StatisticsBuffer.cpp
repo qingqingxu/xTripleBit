@@ -15,22 +15,8 @@
 
 #define MYDEBUG
 
-extern char* writeData(char* writer, unsigned data);
-extern const char* readData(const char* reader, unsigned int& data);
-
-static inline unsigned readDelta1(const unsigned char* pos) { return pos[0]; }
-static unsigned readDelta2(const unsigned char* pos) { return (pos[0]<<8)|pos[1]; }
-static unsigned readDelta3(const unsigned char* pos) { return (pos[0]<<16)|(pos[1]<<8)|pos[2]; }
-static unsigned readDelta4(const unsigned char* pos) { return (pos[0]<<24)|(pos[1]<<16)|(pos[2]<<8)|pos[3]; }
-
-static void writeUint32(unsigned char* target,unsigned value)
-   // Write a 32bit value
-{
-   target[0]=value>>24;
-   target[1]=(value>>16)&0xFF;
-   target[2]=(value>>8)&0xFF;
-   target[3]=value&0xFF;
-}
+extern char* writeData(uchar* writer, uint data);
+extern const char* readData(const uchar* reader, uint& data);
 
 StatisticsBuffer::StatisticsBuffer() : HEADSPACE(2) {
 	// TODO Auto-generated constructor stub
@@ -73,22 +59,23 @@ OneConstantStatisticsBuffer::~OneConstantStatisticsBuffer()
 
 bool OneConstantStatisticsBuffer::isPtrFull(unsigned len) 
 {
-	return (unsigned int) ( writer - (unsigned char*)buffer->getBuffer() + len ) > buffer->getSize() ? true : false;
+	return (uint) ( writer - (uchar*)buffer->getBuffer() + len ) > buffer->getSize() ? true : false;
 }
 
-const unsigned char* OneConstantStatisticsBuffer::decode(const unsigned char* begin, const unsigned char* end)
+const unsigned char* OneConstantStatisticsBuffer::decode(const uchar* begin, const uchar* end)
 {
 	Triple* writer = triples;
 	unsigned value1, count;
-	while(begin < end && readDelta4(begin)){
-		value1 = readDelta4(begin);
-		begin += 4;
-		count = readDelta4(begin);
-		begin += 4;
+	readData(begin, value1);
+	while(begin < end && value1){
+		begin = readData(begin, value1);
+		begin = readData(begin, count);
 
 		(*writer).value1 = value1;
 		(*writer).count = count;
 		writer++;
+
+		readData(begin, value1);
 	}
 
 	pos = triples;
@@ -168,10 +155,8 @@ Status OneConstantStatisticsBuffer::addStatis(unsigned v1, unsigned v2, unsigned
 		first = false;
 	}
 
-	writeUint32(writer, v1);
-	writer += 4;
-	writeUint32(writer, v2);
-	writer += 4;
+	writer = writeData(writer, v1);
+	writer = writeData(writer, v2);
 
 	usedSpace = writer - (uchar*) buffer->getBuffer();
 
@@ -248,13 +233,13 @@ Status OneConstantStatisticsBuffer::getStatis(unsigned& v1, unsigned v2 /* = 0 *
 
 	reader = (unsigned char*)buffer->getBuffer() + begin;
 
-	lastId = readDelta4(reader);
+	readData(reader, lastId);
 	reader += 4;
 
 	//reader = readId(lastId, reader, true);
 	if ( lastId == v1 ) {
 		//reader = readId(v1, reader, false);
-		v1 = readDelta4(reader);
+		readData(reader, v1);
 		return OK;
 	}
 
@@ -275,7 +260,7 @@ Status OneConstantStatisticsBuffer::save(MMapBuffer*& indexBuffer)
 #ifdef DEBUG
 	cout<<"index size: "<<index.size()<<endl;
 #endif
-	char * writer;
+	uchar * writer;
 	if(indexBuffer == NULL) {
 		indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/statIndex").c_str(), (index.size() + 2) * 4);
 		writer = indexBuffer->get_address();
@@ -296,20 +281,20 @@ Status OneConstantStatisticsBuffer::save(MMapBuffer*& indexBuffer)
 	return OK;
 }
 
-OneConstantStatisticsBuffer* OneConstantStatisticsBuffer::load(StatisticsType type,const string path, char*& indexBuffer)
+OneConstantStatisticsBuffer* OneConstantStatisticsBuffer::load(StatisticsType type,const string path, uchar*& indexBuffer)
 {
 	OneConstantStatisticsBuffer* statBuffer = new OneConstantStatisticsBuffer(path, type);
 
 	unsigned size, first;
-	indexBuffer = (char*)readData(indexBuffer, statBuffer->usedSpace);
-	indexBuffer = (char*)readData(indexBuffer, size);
+	indexBuffer = readData(indexBuffer, statBuffer->usedSpace);
+	indexBuffer = readData(indexBuffer, size);
 
 	statBuffer->index.resize(0);
 
 	statBuffer->indexSize = size;
 
 	for( unsigned i = 0; i < size; i++ ) {
-		indexBuffer = (char*)readData(indexBuffer, first);
+		indexBuffer = readData(indexBuffer, first);
 		statBuffer->index.push_back(first);
 	}
 
@@ -336,7 +321,7 @@ Status OneConstantStatisticsBuffer::getIDs(EntityIDBuffer* entBuffer, ID minID, 
 
 	const uchar* limit = (uchar*)buffer->getBuffer() + end;
 
-	lastId = readDelta4(reader);
+	readData(reader, lastId);
 	decode(reader, limit);
 	if ( lastId != minID ) {
 		find(minID);
@@ -416,13 +401,11 @@ const uchar* TwoConstantStatisticsBuffer::decode(const uchar* begin, const uchar
 {
 	unsigned value1, value2, count;
 	Triple* writer = &triples[0];
-	while (begin < end && readDelta4(begin)) {
-		value1 = readDelta4(begin);
-		begin += 4;
-		value2 = readDelta4(begin);
-		begin += 4;
-		count = readDelta4(begin);
-		begin += 4;
+	readData(begin, value1);
+	while (begin < end && value1) {
+		begin = readData(begin, value1);
+		begin = readData(begin, value2);
+		begin = readData(begin, count);
 		(*writer).value1 = value1;
 		(*writer).value2 = value2;
 		(*writer).count = count;
@@ -539,7 +522,7 @@ Status TwoConstantStatisticsBuffer::getStatis(unsigned& v1, unsigned v2)
 	cout << "usedSpace: " << usedSpace << endl;
 #endif
 	const unsigned char* begin = (uchar*)buffer->getBuffer() + start, *limit = (uchar*)buffer->getBuffer() + end;
-	decode(begin, limit);//in order to get pos and posLimit
+	decode(begin, limit);//decode from bitmapbuffer, in order to get pos and posLimit
 	find(v1, v2);
 	if(pos->value1 == v1 && pos->value2 == v2) {
 		v1 = pos->count;
@@ -587,12 +570,9 @@ Status TwoConstantStatisticsBuffer::addStatis(unsigned v1, unsigned v2, unsigned
 		first = false;
 	}
 
-	writeUint32(writer, v1);
-	writer += 4;
-	writeUint32(writer, v2);
-	writer += 4;
-	writeUint32(writer, v3);
-	writer += 4;
+	writer = writeData(writer, v1);
+	writer = writeData(writer, v2);
+	writer = writeData(writer, v3);
 
 	lastId = v1;
 	lastPredicate = v2;
@@ -603,7 +583,7 @@ Status TwoConstantStatisticsBuffer::addStatis(unsigned v1, unsigned v2, unsigned
 
 Status TwoConstantStatisticsBuffer::save(MMapBuffer*& indexBuffer)
 {
-	char* writer;
+	uchar* writer;
 	if(indexBuffer == NULL) {
 		indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/statIndex").c_str(), indexPos * sizeof(Triple) + 2 * sizeof(unsigned));
 		writer = indexBuffer->get_address();
@@ -630,12 +610,12 @@ Status TwoConstantStatisticsBuffer::save(MMapBuffer*& indexBuffer)
 	return OK;
 }
 
-TwoConstantStatisticsBuffer* TwoConstantStatisticsBuffer::load(StatisticsType type, const string path, char*& indexBuffer)
+TwoConstantStatisticsBuffer* TwoConstantStatisticsBuffer::load(StatisticsType type, const string path, uchar*& indexBuffer)
 {
 	TwoConstantStatisticsBuffer* statBuffer = new TwoConstantStatisticsBuffer(path, type);
 
-	indexBuffer = (char*)readData(indexBuffer, statBuffer->usedSpace);
-	indexBuffer = (char*)readData(indexBuffer, statBuffer->indexPos);
+	indexBuffer = readData(indexBuffer, statBuffer->usedSpace);
+	indexBuffer = readData(indexBuffer, statBuffer->indexPos);
 #ifdef DEBUG
 	cout<<__FUNCTION__<<"indexPos: "<<statBuffer->indexPos<<endl;
 #endif
@@ -744,13 +724,11 @@ const uchar* TwoConstantStatisticsBuffer::decode(const uchar* begin, const uchar
 {
 	unsigned value1, value2, count;
 	Triple* writer = &triples[0];
-	while (begin < end && readDelta4(begin)) {
-		value1 = readDelta4(begin);
-		begin += 4;
-		value2 = readDelta4(begin);
-		begin += 4;
-		count = readDelta4(begin);
-		begin += 4;
+	readData(begin, value1);
+	while (begin < end && value1) {
+		begin = readData(begin, value1);
+		begin = readData(begin, value2);
+		begin = readData(begin, count);
 		(*writer).value1 = value1;
 		(*writer).value2 = value2;
 		(*writer).count = count;

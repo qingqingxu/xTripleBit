@@ -25,7 +25,7 @@ HashIndex::HashIndex(ChunkManager& _chunkManager, IndexType type) : chunkManager
 HashIndex::~HashIndex() {
 	// TODO Auto-generated destructor stub
 	if(hashTable != NULL) {
-		//删除临时文件＄1�7
+		//删除临时文件＄1�7
 		//hashTable->discard();
 		delete hashTable;
 		hashTable = NULL;
@@ -336,13 +336,13 @@ unsigned HashIndex::next(ID id)
 	return hashTableEntries[firstHash];
 }
 
-char* writeData(char* writer, unsigned int data)
+char* writeData(uchar* writer, uint data)
 {
 	memcpy(writer, &data, 4);
 	return writer+4;
 }
 
-const char* readData(const char* reader, unsigned int& data)
+const uchar* readData(const uchar* reader, uint& data)
 {
 	memcpy(&data, reader, 4);
 	return reader+4;
@@ -373,7 +373,7 @@ void HashIndex::save(MMapBuffer*& buffer)
 	hashTable = NULL;
 }
 
-HashIndex* HashIndex::load(ChunkManager& manager, IndexType type, char* buffer, unsigned int& offset)
+HashIndex* HashIndex::load(ChunkManager& manager, IndexType type, uchar* buffer, uint& offset)
 {
 	HashIndex* index = new HashIndex(manager, type);
 	size_t size = ((ID*)(buffer + offset))[0];

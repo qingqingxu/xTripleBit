@@ -41,8 +41,8 @@ public:
 private:
 	StatisticsType type;
 	MMapBuffer* buffer;
-	const unsigned char* reader;
-	unsigned char* writer;
+	const uchar* reader;
+	uchar* writer;
 
 	/// index for query;
 	vector<unsigned> index;
@@ -61,7 +61,7 @@ public:
 	Status addStatis(unsigned v1, unsigned v2, unsigned v3 = 0);
 	Status getStatis(unsigned& v1, unsigned v2 = 0);
 	Status save(MMapBuffer*& indexBuffer);
-	static OneConstantStatisticsBuffer* load(StatisticsType type, const string path, char*& indexBuffer);
+	static OneConstantStatisticsBuffer* load(StatisticsType type, const string path, uchar*& indexBuffer);
 	/// get the subject or object ids from minID to maxID;
 	Status getIDs(EntityIDBuffer* entBuffer, ID minID, ID maxID);
 	unsigned int getEntityCount();
@@ -112,7 +112,7 @@ public:
 	/// save the statistics buffer;
 	Status save(MMapBuffer*& indexBuffer);
 	/// load the statistics buffer;
-	static TwoConstantStatisticsBuffer* load(StatisticsType type, const string path, char*& indxBuffer);
+	static TwoConstantStatisticsBuffer* load(StatisticsType type, const string path, uchar*& indxBuffer);
 private:
 	/// decode a chunk
 	const uchar* decode(const uchar* begin, const uchar* end);

@@ -45,7 +45,7 @@ public:
 	Status getOffsetByID(ID id, unsigned& offset, unsigned typeID);
 	void save(MMapBuffer*& buffer);
 public:
-	static HashIndex* load(ChunkManager& manager, IndexType type, char* buffer, unsigned int& offset);
+	static HashIndex* load(ChunkManager& manager, IndexType type, uchar* buffer, uint& offset);
 private:
 	/// insert a record into index; position is the position of chunk in chunks vector.
 	Status hashInsert(ID id, unsigned int offset);
