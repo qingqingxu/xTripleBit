@@ -419,6 +419,13 @@ const uchar* TwoConstantStatisticsBuffer::decode(const uchar* begin, const uchar
 #endif
 	}
 
+#ifdef MYDEBUG
+		ofstream out;
+		out.open("findvalue", ios::app);
+		out << "####################################" << endl;
+		out.close();
+#endif
+
 	// Update the entries
 	pos=triples;
 	posLimit=writer;
