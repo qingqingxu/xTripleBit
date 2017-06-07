@@ -539,11 +539,10 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 
 			reader = reader + MemoryBuffer::pagesize;
 		}
-		/*reader = index->endPtr;
-		reader = Chunk::skipBackward(reader, index->startPtr, 1);
+		reader = Chunk::skipBackward(reader, index->endPtr, 1);
 		Chunk::readYId(Chunk::readXId(reader, x), y);
 		index->chunkMeta.push_back(
-		{ x, y });*/
+		{ x, y });
 	}
 	else if (index->xyType == LineHashIndex::XBIGTHANY)
 	{
@@ -572,11 +571,10 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 			reader = reader + MemoryBuffer::pagesize;
 		}
 
-		/*reader = index->endPtr;
-		reader = Chunk::skipBackward(reader, index->startPtr, 2);
+		reader = Chunk::skipBackward(reader, index->endPtr, 1);
 		Chunk::readYId(Chunk::readXId(reader, x), y);
 		index->chunkMeta.push_back(
-		{ y, x });*/
+		{ y, x });
 	}
 	return index;
 }

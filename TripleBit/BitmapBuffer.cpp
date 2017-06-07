@@ -1065,6 +1065,13 @@ const uchar* Chunk::skipBackward(const uchar* reader) {
 	return reader;
 }
 
+static const uchar* Chunk::skipBackward(const uchar* reader, const uchar* endPtr, unsigned step){
+	while((*endPtr) == 0){
+		endPtr--;
+	}
+	return reader + sizeof(MetaData) + (endPtr - (reader + sizeof(MetaData)))/(sizeof(ID) * 2) * (sizeof(ID) * 2);
+}
+
 const uchar* Chunk::skipBackward(const uchar* reader, unsigned step, bool isFirstPage) {
 	//reader is metadata first address, return last x,y address
 	const uchar* endPtr = NULL;
