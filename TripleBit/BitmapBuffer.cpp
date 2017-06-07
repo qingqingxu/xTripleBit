@@ -1065,7 +1065,7 @@ const uchar* Chunk::skipBackward(const uchar* reader) {
 	return reader;
 }
 
-static const uchar* Chunk::skipBackward(const uchar* reader, const uchar* endPtr, unsigned step){
+const uchar* Chunk::skipBackward(const uchar* reader, const uchar* endPtr, unsigned step){
 	while((*endPtr) == 0){
 		endPtr--;
 	}
