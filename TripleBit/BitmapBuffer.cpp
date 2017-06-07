@@ -1015,14 +1015,14 @@ static inline unsigned int readUInt(const uchar* reader) {
 }
 
 const uchar* Chunk::readXId(const uchar* reader, register ID& id) {
-	id = reader[0] << 24 | reader[1] << 16 | reader[2] << 8 | reader[3];
+	id = *(ID*)reader;
 	reader += 4;
 	return reader;
 }
 
 const uchar* Chunk::readYId(const uchar* reader, register ID& id) {
 	// Read an y id
-	id = reader[0] << 24 | reader[1] << 16 | reader[2] << 8 | reader[3];
+	id = *(ID*)reader;
 	reader += 4;
 	return reader;
 }

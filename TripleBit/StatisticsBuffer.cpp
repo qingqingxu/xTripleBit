@@ -574,15 +574,16 @@ Status TwoConstantStatisticsBuffer::getStatis(unsigned& v1, unsigned v2)
 		out.open("findvalue", ios::app);
 		out << "v1: " << v1 << "\tv2: " << v2 << endl;
 		out.close();
+		cout << "v1: " << v1 << "\tv2: " << v2 << endl;
 #endif
 */
-	cout << "v1: " << v1 << "\tv2: " << v2 << endl;
+
 	pos = index, posLimit = index + indexPos;
 	findPriorityByValue2(v1, v2); // get index location, that is pos
 	if(::greater(pos->value1, pos->value2, v1, v2))
 		pos--;
 
-	cout << "fisrt  find: " << pos->value1 << "\t" << pos->value2 << "\t" << pos->count << endl;
+	//cout << "fisrt  find: " << pos->value1 << "\t" << pos->value2 << "\t" << pos->count << endl;
 
 	unsigned start = pos->count; pos++;
 	unsigned end = pos->count; // count is usedspace
@@ -592,7 +593,7 @@ Status TwoConstantStatisticsBuffer::getStatis(unsigned& v1, unsigned v2)
 	const unsigned char* begin = (uchar*)buffer->getBuffer() + start, *limit = (uchar*)buffer->getBuffer() + end;
 	decode(begin, limit);//decode from bitmapbuffer, in order to get pos and posLimit
 	findPriorityByValue2(v1, v2);
-	cout << "second find: " << pos->value1 << "\t" << pos->value2 << "\t" << pos->count << endl;
+	//cout << "second find: " << pos->value1 << "\t" << pos->value2 << "\t" << pos->count << endl;
 /*
 #ifdef MYDEBUG
 	if(find(v1, v2)){

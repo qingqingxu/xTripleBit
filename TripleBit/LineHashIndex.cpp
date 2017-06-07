@@ -340,7 +340,7 @@ ID LineHashIndex::MetaYID(size_t index)
 
 size_t LineHashIndex::searchChunkFrank(ID id)
 {
-	size_t low = 0, mid = 0, high = tableSize - 1;
+	size_t low = 0, mid = 0, high = tableSize - 2;
 
 	if (low == high){
 		return low;
@@ -350,8 +350,8 @@ size_t LineHashIndex::searchChunkFrank(ID id)
 		mid = low + (high-low) / 2;
 		while (MetaID(mid) == id)
 		{
-			if (mid > 0 && MetaID(mid - 1) < id){
-				return mid - 1;
+			if (mid > 0 && MetaID(mid - 2) < id){
+				return mid - 2;
 			}
 			if (mid == 0){
 				return mid;
@@ -359,14 +359,14 @@ size_t LineHashIndex::searchChunkFrank(ID id)
 			mid--;
 		}
 		if (MetaID(mid) < id){
-			low = mid + 1;
+			low = mid + 2;
 		}
 		else if (MetaID(mid) > id){
 			high = mid;
 		}
 	}
 	if (low > 0 && MetaID(low) >= id){
-		return low - 1;
+		return low - 2;
 	}
 	else{
 		return low;
@@ -414,15 +414,15 @@ bool LineHashIndex::searchChunk(ID xID, ID yID, size_t& offsetID)
 
 	while (offsetID < tableSize - 2)
 	{
-		if (MetaID(offsetID + 1) == xID)
+		if (MetaID(offsetID + 2) == xID)
 		{
-			if (MetaYID(offsetID + 1) > yID)
+			if (MetaYID(offsetID + 2) > yID)
 			{
 				return true;
 			}
 			else
 			{
-				offsetID++;
+				offsetID += 2;
 			}
 		}
 		else
@@ -435,7 +435,7 @@ bool LineHashIndex::searchChunk(ID xID, ID yID, size_t& offsetID)
 
 bool LineHashIndex::isQualify(size_t offsetId, ID xID, ID yID)
 {
-	return (xID < MetaID(offsetId + 1) || (xID == MetaID(offsetId + 1) && yID < MetaYID(offsetId + 1))) && (xID > MetaID(offsetId) || (xID == MetaID(offsetId) && yID >= MetaYID(offsetId)));
+	return (xID < MetaID(offsetId + 2) || (xID == MetaID(offsetId + 2) && yID < MetaYID(offsetId + 2))) && (xID > MetaID(offsetId) || (xID == MetaID(offsetId) && yID >= MetaYID(offsetId)));
 }
 
 void LineHashIndex::getOffsetPair(size_t offsetID, unsigned& offsetBegin, unsigned& offsetEnd)
