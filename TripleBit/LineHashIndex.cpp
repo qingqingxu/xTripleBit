@@ -342,7 +342,7 @@ ID LineHashIndex::MetaYID(size_t index)
 size_t LineHashIndex::searchChunkFrank(ID id)
 {
 #ifdef MYDEBUG
-	cout << __FUNCTION__ << "tableSize： " << tableSize <<  endl;
+	cout << __FUNCTION__ << "\ttableSize： " << tableSize <<  endl;
 #endif
 	size_t low = 0, mid = 0, high = tableSize - 1;
 
@@ -372,6 +372,11 @@ size_t LineHashIndex::searchChunkFrank(ID id)
 			high = mid;
 		}
 	}
+
+	if(low >= high){
+		low -= 2;
+	}
+
 	if (low > 0 && MetaID(low) >= id){
 		return low - 2;
 	}
