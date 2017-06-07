@@ -251,6 +251,7 @@ void PartitionMaster::executeQuery(SubTrans *subTransaction){
 			} else
 				xyChunkCount = 0;
 		} else if (minID < triple->object && maxID > triple->object) {
+			cout << "minID < triple->object && maxID > triple->object" << endl;
 			xyType = 1;
 			if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(triple->object, triple->object + 1, xChunkIDMin)) {
 				if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(triple->object, maxID, xChunkIDMax)) {
