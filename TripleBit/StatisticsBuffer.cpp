@@ -578,7 +578,7 @@ Status TwoConstantStatisticsBuffer::getStatis(unsigned& v1, unsigned v2)
 */
 	cout << "v1: " << v1 << "\tv2: " << v2 << endl;
 	pos = index, posLimit = index + indexPos;
-	findPriorityByValue1(v1, v2); // get index location, that is pos
+	findPriorityByValue2(v1, v2); // get index location, that is pos
 	if(::greater(pos->value1, pos->value2, v1, v2))
 		pos--;
 
