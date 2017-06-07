@@ -341,6 +341,9 @@ ID LineHashIndex::MetaYID(size_t index)
 
 size_t LineHashIndex::searchChunkFrank(ID id)
 {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 	size_t low = 0, mid = 0, high = tableSize - 2;
 
 	if (low == high){
@@ -375,6 +378,9 @@ size_t LineHashIndex::searchChunkFrank(ID id)
 }
 
 size_t LineHashIndex::searchChunk(ID xID, ID yID){
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 	if(MetaID(0) > xID || tableSize == 0){
 		return 0;
 	}
@@ -402,6 +408,9 @@ size_t LineHashIndex::searchChunk(ID xID, ID yID){
 bool LineHashIndex::searchChunk(ID xID, ID yID, size_t& offsetID)
 //return the  exactly which chunk the triple(xID, yID) is in
 {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 	if(MetaID(0) > xID || tableSize == 0){
 		offsetID = 0;
 		return false;
@@ -436,6 +445,9 @@ bool LineHashIndex::searchChunk(ID xID, ID yID, size_t& offsetID)
 
 bool LineHashIndex::isQualify(size_t offsetId, ID xID, ID yID)
 {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 	return (xID < MetaID(offsetId + 2) || (xID == MetaID(offsetId + 2) && yID < MetaYID(offsetId + 2))) && (xID > MetaID(offsetId) || (xID == MetaID(offsetId) && yID >= MetaYID(offsetId)));
 }
 
