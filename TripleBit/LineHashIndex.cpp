@@ -353,6 +353,7 @@ size_t LineHashIndex::searchChunkFrank(ID id)
 	{
 		mid = low + (high-low) / 2;
 		mid = (mid%2 == 0) ? mid : (mid - 1);
+		cout << mid << endl;
 		while (MetaID(mid) == id)
 		{
 			if (mid > 0 && MetaID(mid - 2) < id){
@@ -362,6 +363,7 @@ size_t LineHashIndex::searchChunkFrank(ID id)
 				return mid;
 			}
 			mid -= 2;
+			cout << mid << endl;
 		}
 		if (MetaID(mid) < id){
 			low = mid + 2;
