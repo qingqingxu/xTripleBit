@@ -275,10 +275,16 @@ Status OneConstantStatisticsBuffer::save(MMapBuffer*& indexBuffer)
 
 	vector<unsigned>::iterator iter, limit;
 
+#ifdef MYDEBUG
+	ofstream out;
+	out.open("onestatistics", ios::app);
 	for(iter = index.begin(), limit = index.end(); iter != limit; iter++) {
+		out << *iter << endl;
 		writer = writeData(writer, *iter);
 	}
-
+	out << "***********************************" << endl;
+	out.close();
+#endif
 	return OK;
 }
 
