@@ -472,11 +472,11 @@ void LineHashIndex::updateChunkMetaData(int offsetId)
 		if (xyType == LineHashIndex::YBIGTHANX)
 		{
 			chunkMeta[offsetId].minIDx = x;
-			chunkMeta[offsetId].minIDy = x + y;
+			chunkMeta[offsetId].minIDy = y;
 		}
 		else if (xyType == LineHashIndex::XBIGTHANY)
 		{
-			chunkMeta[offsetId].minIDx = x + y;
+			chunkMeta[offsetId].minIDx = y;
 			chunkMeta[offsetId].minIDy = x;
 		}
 	}
@@ -527,7 +527,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 		temp = index->startPtr + sizeof(MetaData);
 		Chunk::readYId(Chunk::readXId(temp, x), y);
 		index->chunkMeta.push_back(
-		{ x, x + y, sizeof(MetaData) });
+		{ x, y, sizeof(MetaData) });
 
 		reader = index->startPtr - sizeof(ChunkManagerMeta) + MemoryBuffer::pagesize;
 		while (reader < index->endPtr)
@@ -535,15 +535,15 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 			temp = reader + sizeof(MetaData);
 			Chunk::readYId(Chunk::readXId(temp, x), y);
 			index->chunkMeta.push_back(
-			{ x, x + y, reader - index->startPtr + sizeof(MetaData) });
+			{ x, y, reader - index->startPtr + sizeof(MetaData) });
 
 			reader = reader + MemoryBuffer::pagesize;
 		}
-		reader = index->endPtr;
+		/*reader = index->endPtr;
 		reader = Chunk::skipBackward(reader, index->startPtr, 1);
 		Chunk::readYId(Chunk::readXId(reader, x), y);
 		index->chunkMeta.push_back(
-		{ x, x + y });
+		{ x, y });*/
 	}
 	else if (index->xyType == LineHashIndex::XBIGTHANY)
 	{
@@ -559,7 +559,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 		temp = index->startPtr + sizeof(MetaData);
 		Chunk::readYId(Chunk::readXId(temp, x), y);
 		index->chunkMeta.push_back(
-		{ x + y, x, sizeof(MetaData) });
+		{ y, x, sizeof(MetaData) });
 
 		reader = index->startPtr + MemoryBuffer::pagesize;
 		while (reader < index->endPtr)
@@ -567,16 +567,16 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 			temp = reader + sizeof(MetaData);
 			Chunk::readYId(Chunk::readXId(temp, x), y);
 			index->chunkMeta.push_back(
-			{ x + y, x, reader - index->startPtr + sizeof(MetaData) });
+			{ y, x, reader - index->startPtr + sizeof(MetaData) });
 
 			reader = reader + MemoryBuffer::pagesize;
 		}
 
-		reader = index->endPtr;
+		/*reader = index->endPtr;
 		reader = Chunk::skipBackward(reader, index->startPtr, 2);
 		Chunk::readYId(Chunk::readXId(reader, x), y);
 		index->chunkMeta.push_back(
-		{ x + y, x });
+		{ y, x });*/
 	}
 	return index;
 }
