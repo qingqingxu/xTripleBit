@@ -379,8 +379,8 @@ size_t LineHashIndex::searchChunk(ID xID, ID yID){
 	}
 
 	size_t offsetID = searchChunkFrank(xID);
-	if(offsetID == tableSize-1){
-		return offsetID-1;
+	if(offsetID == tableSize-2){
+		return offsetID-2;
 	}
 	while(offsetID < tableSize-2){
 		if(MetaID(offsetID+2) == xID){
@@ -407,7 +407,7 @@ bool LineHashIndex::searchChunk(ID xID, ID yID, size_t& offsetID)
 	}
 
 	offsetID = searchChunkFrank(xID);
-	if (offsetID == tableSize-1)
+	if (offsetID == tableSize-2)
 	{
 		return false;
 	}
@@ -602,11 +602,11 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 
 			reader = reader + MemoryBuffer::pagesize;
 		}
-		reader = index->endPtr;
+		/*reader = index->endPtr;
 		reader = Chunk::skipBackward(reader, index->startPtr, 1);
 		Chunk::readYId(Chunk::readXId(reader, x), y);
 		index->chunkMeta.push_back(
-		{ x, y });
+		{ x, y });*/
 	}
 	else if (index->xyType == LineHashIndex::XBIGTHANY)
 	{
@@ -635,11 +635,11 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 			reader = reader + MemoryBuffer::pagesize;
 		}
 
-		reader = index->endPtr;
+		/*reader = index->endPtr;
 		reader = Chunk::skipBackward(reader, index->startPtr, 2);
 		Chunk::readYId(Chunk::readXId(reader, x), y);
 		index->chunkMeta.push_back(
-		{ y, x });
+		{ y, x });*/
 	}
 	return index;
 }
