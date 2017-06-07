@@ -76,10 +76,10 @@ bool LineHashIndex::buildLine(int startEntry, int endEntry, int lineNo)
 	int i;
 
 	//build lower limit line;
-	for (i = startEntry; i < endEntry; i += 2)
+	for (i = startEntry; i < endEntry; i++)
 	{
 		pt.x = idTableEntries[i];
-		pt.y = i/2; //idTableEntries save min and max
+		pt.y = i; //idTableEntries save min and max
 		vpt.push_back(pt);
 	}
 
@@ -106,10 +106,10 @@ bool LineHashIndex::buildLine(int startEntry, int endEntry, int lineNo)
 
 	vpt.resize(0);
 	//build upper limit line;
-	for (i = startEntry; i < endEntry; i += 2)
+	for (i = startEntry; i < endEntry; i++)
 	{
 		pt.x = idTableEntries[i + 1];
-		pt.y = i/2;
+		pt.y = i;
 		vpt.push_back(pt);
 	}
 
@@ -158,7 +158,7 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 	}
 
 	const uchar* begin, *limit, *reader;
-	ID minID, maxID;
+	ID minID;
 
 	int lineNo = 0;
 	int startEntry = 0, endEntry = 0;
@@ -174,58 +174,18 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 
 		MetaData* metaData = (MetaData*) reader;
 		minID = metaData->minID;
-		if(metaData->usedSpace == sizeof(MetaData)){
-			maxID = minID;
-		}else{
-			const uchar* endPtr = Chunk::skipBackward(reader, 1, true);// get this chunk last <x, y>
-			maxID = *(ID*)endPtr;
-			endPtr = NULL;
-		}
-#ifdef MYDEBUG
-	ofstream out;
-	out.open("buildindex", ios::app);
-	out << "minID: " << minID << "\tmaxID: " << maxID <<endl;
-	/*const uchar* tmp = reader;
-	tmp += sizeof(MetaData);
-	int xynums = (metaData->usedSpace - sizeof(MetaData))/8;
-	for(int i = 0; i < xynums; i++){
-		out << "x: " << *(ID*)tmp << "\ty: " << *(ID*)(tmp+4) << endl;
-		tmp += 8;
-	}*/
-	out.close();
-#endif
-		insertEntries(minID, maxID);
+		insertEntries(minID);
 
 		reader = reader + (int) (MemoryBuffer::pagesize - sizeof(ChunkManagerMeta));
 
-		bool isHasChunkExcludeIndex = true;
+		bool isFisrtChunk = true;
 
 		while (reader < limit)
 		{
-			isHasChunkExcludeIndex = true;
+			isFisrtChunk = false;
 			metaData = (MetaData*) reader;
 			minID = metaData->minID;
-			if (metaData->usedSpace == sizeof(MetaData)) {
-				maxID = minID;
-			} else {
-				const uchar* endPtr = Chunk::skipBackward(reader, 1, false);// get this chunk last <x, y>
-				maxID = *(ID*)endPtr;
-				endPtr = NULL;
-			}
-#ifdef MYDEBUG
-	ofstream out;
-	out.open("buildindex", ios::app);
-	out << "minID: " << minID << "\tmaxID: " << maxID <<endl;
-	/*const uchar* tmp = reader;
-	tmp += sizeof(MetaData);
-	int xynums = (metaData->usedSpace - sizeof(MetaData))/8;
-	for(int i = 0; i < xynums; i++){
-		out << "x: " << *(ID*)tmp << "\ty: " << *(ID*)(tmp+4) << endl;
-		tmp += 8;
-	}*/
-	out.close();
-#endif
-			insertEntries(minID, maxID);
+			insertEntries(minID);
 
 			if (minID > splitID[lineNo])
 			{
@@ -234,18 +194,20 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 				if (buildLine(startEntry, endEntry, lineNo) == true)
 				{
 					++lineNo;
-					isHasChunkExcludeIndex = false;
 				}
 			}
 			reader = reader + (int) MemoryBuffer::pagesize;
 		}
 
-		if(isHasChunkExcludeIndex){
-			startEntry = endEntry;
-			endEntry = tableSize;
-			if (buildLine(startEntry, endEntry, lineNo) == true) {
-				++lineNo;
-			}
+		const uchar* endPtr = Chunk::skipBackward(reader, 1, isFisrtChunk);// get this chunk last <x, y>
+		minID = *(ID*)endPtr;
+		endPtr = NULL;
+		insertEntries(minID);
+
+		startEntry = endEntry;
+		endEntry = tableSize;
+		if (buildLine(startEntry, endEntry, lineNo) == true) {
+			++lineNo;
 		}
 	}
 
@@ -258,33 +220,11 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 			return OK;
 		}
 
-		bool isHasChunkExincludeIndex = true;
 		while (reader < limit)
 		{
-			isHasChunkExincludeIndex = true;
 			MetaData* metaData = (MetaData*) reader;
 			minID = metaData->minID;
-			if (metaData->usedSpace == sizeof(MetaData)) {
-				maxID = minID;
-			} else {
-				const uchar* endPtr = Chunk::skipBackward(reader, 1, false);// get this chunk last <x, y>
-				maxID = *(ID*)endPtr;
-				endPtr = NULL;
-			}
-#ifdef MYDEBUG
-	ofstream out;
-	out.open("buildindex", ios::app);
-	out << "minID: " << minID << "\tmaxID: " << maxID <<endl;
-	/*const uchar* tmp = reader;
-	tmp += sizeof(MetaData);
-	int xynums = (metaData->usedSpace - sizeof(MetaData))/8;
-	for(int i = 0; i < xynums; i++){
-		out << "x: " << *(ID*)tmp << "\ty: " << *(ID*)(tmp+4) << endl;
-		tmp += 8;
-	}*/
-	out.close();
-#endif
-			insertEntries(minID, maxID);
+			insertEntries(minID);
 
 			if (minID > splitID[lineNo])
 			{
@@ -293,18 +233,20 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 				if (buildLine(startEntry, endEntry, lineNo) == true)
 				{
 					++lineNo;
-					isHasChunkExincludeIndex = false;
 				}
 			}
 			reader = reader + (int) MemoryBuffer::pagesize;
 		}
 
-		if(isHasChunkExincludeIndex){
-			startEntry = endEntry;
-			endEntry = tableSize;
-			if (buildLine(startEntry, endEntry, lineNo) == true) {
-				++lineNo;
-			}
+		const uchar* endPtr = Chunk::skipBackward(reader, 1, false);// get this chunk last <x, y>, not have chunkmanagermeta, so third parameter is false
+		minID = *(ID*)(endPtr + 4); //chunkType == 2 , y为s
+		endPtr = NULL;
+		insertEntries(minID);
+
+		startEntry = endEntry;
+		endEntry = tableSize;
+		if (buildLine(startEntry, endEntry, lineNo) == true) {
+			++lineNo;
 		}
 	}
 	return OK;
@@ -315,7 +257,7 @@ bool LineHashIndex::isBufferFull()
 	return tableSize >= idTable->getSize() / sizeof(ID);
 }
 
-void LineHashIndex::insertEntries(ID minID, ID maxID)
+void LineHashIndex::insertEntries(ID minID)
 {
 	if (isBufferFull())
 	{
@@ -323,19 +265,18 @@ void LineHashIndex::insertEntries(ID minID, ID maxID)
 		idTableEntries = (ID*) idTable->get_address();
 	}
 	idTableEntries[tableSize++] = minID;
-	idTableEntries[tableSize++] = maxID;
 }
 
 ID LineHashIndex::MetaID(size_t index)
 {
-	assert(index/2 < chunkMeta.size());
-	return chunkMeta[index/2].minIDx;
+	assert(index < chunkMeta.size());
+	return chunkMeta[index].minIDx;
 }
 
 ID LineHashIndex::MetaYID(size_t index)
 {
-	assert(index/2 < chunkMeta.size());
-	return chunkMeta[index/2].minIDy;
+	assert(index < chunkMeta.size());
+	return chunkMeta[index].minIDy;
 }
 
 size_t LineHashIndex::searchChunkFrank(ID id)
@@ -351,33 +292,26 @@ size_t LineHashIndex::searchChunkFrank(ID id)
 	while (low < high)
 	{
 		mid = low + (high-low) / 2;
-		mid = (mid%2 == 0) ? mid : (mid - 1);
-		cout << mid << endl;
 		while (MetaID(mid) == id)
 		{
-			if (mid > 0 && MetaID(mid - 2) < id){
-				return mid - 2;
+			if (mid > 0 && MetaID(mid - 1) < id){
+				return mid - 1;
 			}
 			if (mid == 0){
 				return mid;
 			}
-			mid -= 2;
-			cout << mid << endl;
+			mid--;
 		}
 		if (MetaID(mid) < id){
-			low = mid + 2;
+			low = mid + 1;
 		}
 		else if (MetaID(mid) > id){
 			high = mid;
 		}
 	}
 
-	if(low >= high){
-		low -= 2;
-	}
-
 	if (low > 0 && MetaID(low) >= id){
-		return low - 2;
+		return low - 1;
 	}
 	else{
 		return low;
@@ -393,16 +327,16 @@ size_t LineHashIndex::searchChunk(ID xID, ID yID){
 	}
 
 	size_t offsetID = searchChunkFrank(xID);
-	if(offsetID == tableSize-2){
-		return offsetID-2;
+	if(offsetID == tableSize-1){
+		return offsetID-1;
 	}
-	while(offsetID < tableSize-2){
-		if(MetaID(offsetID+2) == xID){
-			if(MetaYID(offsetID+2) > yID){
+	while(offsetID < tableSize-1){
+		if(MetaID(offsetID+1) == xID){
+			if(MetaYID(offsetID+1) > yID){
 				return offsetID;
 			}
 			else{
-				offsetID += 2;
+				offsetID++;
 			}
 		}
 		else{
@@ -424,22 +358,22 @@ bool LineHashIndex::searchChunk(ID xID, ID yID, size_t& offsetID)
 	}
 
 	offsetID = searchChunkFrank(xID);
-	if (offsetID == tableSize-2)
+	if (offsetID == tableSize-1)
 	{
 		return false;
 	}
 
-	while (offsetID < tableSize - 2)
+	while (offsetID < tableSize - 1)
 	{
-		if (MetaID(offsetID + 2) == xID)
+		if (MetaID(offsetID + 1) == xID)
 		{
-			if (MetaYID(offsetID + 2) > yID)
+			if (MetaYID(offsetID + 1) > yID)
 			{
 				return true;
 			}
 			else
 			{
-				offsetID += 2;
+				offsetID++;
 			}
 		}
 		else
@@ -455,7 +389,7 @@ bool LineHashIndex::isQualify(size_t offsetId, ID xID, ID yID)
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << endl;
 #endif
-	return (xID < MetaID(offsetId + 2) || (xID == MetaID(offsetId + 2) && yID < MetaYID(offsetId + 2))) && (xID > MetaID(offsetId) || (xID == MetaID(offsetId) && yID >= MetaYID(offsetId)));
+	return (xID < MetaID(offsetId + 1) || (xID == MetaID(offsetId + 1) && yID < MetaYID(offsetId + 1))) && (xID > MetaID(offsetId) || (xID == MetaID(offsetId) && yID >= MetaYID(offsetId)));
 }
 
 void LineHashIndex::getOffsetPair(size_t offsetID, unsigned& offsetBegin, unsigned& offsetEnd)
