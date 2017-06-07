@@ -1030,32 +1030,16 @@ const uchar* Chunk::readYId(const uchar* reader, register ID& id) {
 uchar* Chunk::deleteXId(uchar* reader)
 /// Delete a subject id (just set the id to 0)
 {
-	register unsigned int c;
-
-	while (true) {
-		c = *reader;
-		if (!(c & 128))
-			(*reader) = 0;
-		else
-			break;
-		reader++;
-	}
+	*(ID*)reader = 0;
+	reader += 4;
 	return reader;
 }
 
 uchar* Chunk::deleteYId(uchar* reader)
 /// Delete an object id (just set the id to 0)
 {
-	register unsigned int c;
-
-	while (true) {
-		c = *reader;
-		if (c & 128)
-			(*reader) = (*reader) & 0x80;
-		else
-			break;
-		reader++;
-	}
+	*(ID*)reader = 0;
+	reader += 4;
 	return reader;
 }
 

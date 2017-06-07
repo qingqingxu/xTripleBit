@@ -1115,9 +1115,9 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask, const ID 
 				if (x < subjectID)
 					continue;
 				else if (x == subjectID) {
-					if (x + y < objectID)
+					if (y < objectID)
 						continue;
-					else if (x + y == objectID) {
+					else if (y == objectID) {
 						temp = Chunk::deleteYId(Chunk::deleteXId(temp));
 						return;
 					} else
@@ -1136,9 +1136,9 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask, const ID 
 					if (x < subjectID)
 						continue;
 					else if (x == subjectID) {
-						if (x + y < objectID)
+						if (y < objectID)
 							continue;
-						else if (x + y == objectID) {
+						else if (y == objectID) {
 							temp = Chunk::deleteYId(Chunk::deleteXId(temp));
 							return;
 						} else
@@ -1160,9 +1160,9 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask, const ID 
 			while (reader < limit) {
 				temp = const_cast<uchar*>(reader);
 				reader = Chunk::readYId(Chunk::readXId(reader, x), y);
-				if (x + y < subjectID)
+				if (y < subjectID)
 					continue;
-				else if (x + y == subjectID) {
+				else if (y == subjectID) {
 					if (x < objectID)
 						continue;
 					else if (x == objectID) {
@@ -1181,9 +1181,9 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask, const ID 
 				while (reader < limit) {
 					temp = const_cast<uchar*>(reader);
 					reader = Chunk::readYId(Chunk::readXId(reader, x), y);
-					if (x + y < subjectID)
+					if (y < subjectID)
 						continue;
-					else if (x + y == subjectID) {
+					else if (y == subjectID) {
 						if (x < objectID)
 							continue;
 						else if (x == objectID) {
@@ -1213,9 +1213,9 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask, const ID 
 				if (x < objectID)
 					continue;
 				else if (x == objectID) {
-					if (x + y < subjectID)
+					if (y < subjectID)
 						continue;
-					else if (x + y == subjectID) {
+					else if (y == subjectID) {
 						temp = Chunk::deleteYId(Chunk::deleteXId(temp));
 						return;
 					} else
@@ -1234,9 +1234,9 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask, const ID 
 					if (x < objectID)
 						continue;
 					else if (x == objectID) {
-						if (x + y < subjectID)
+						if (y < subjectID)
 							continue;
-						else if (x + y == subjectID) {
+						else if (y == subjectID) {
 							temp = Chunk::deleteYId(Chunk::deleteXId(temp));
 							return;
 						} else
@@ -1257,9 +1257,9 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask, const ID 
 			while (reader < limit) {
 				temp = const_cast<uchar*>(reader);
 				reader = Chunk::readYId(Chunk::readXId(reader, x), y);
-				if (x + y < objectID)
+				if (y < objectID)
 					continue;
-				else if (x + y == objectID) {
+				else if (y == objectID) {
 					if (x < subjectID)
 						continue;
 					else if (x == subjectID) {
@@ -1278,9 +1278,9 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask, const ID 
 				while (reader < limit) {
 					temp = const_cast<uchar*>(reader);
 					reader = Chunk::readYId(Chunk::readXId(reader, x), y);
-					if (x + y < objectID)
+					if (y < objectID)
 						continue;
-					else if (x + y == objectID) {
+					else if (y == objectID) {
 						if (x < subjectID)
 							continue;
 						else if (x == subjectID) {
@@ -1380,7 +1380,7 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask, const I
 			if (x < deleteXID)
 				continue;
 			else if (x == deleteXID) {
-				retBuffer->insertID(x + y);
+				retBuffer->insertID(y);
 				temp = Chunk::deleteYId(Chunk::deleteXId(temp));
 			} else
 				goto END;
@@ -1396,7 +1396,7 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask, const I
 				if (x < deleteXID)
 					continue;
 				else if (x == deleteXID) {
-					retBuffer->insertID(x + y);
+					retBuffer->insertID(y);
 					temp = Chunk::deleteYId(Chunk::deleteXId(temp));
 				} else
 					goto END;
@@ -1410,9 +1410,9 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask, const I
 		while (reader < limit) {
 			temp = const_cast<uchar*>(reader);
 			reader = Chunk::readYId(Chunk::readXId(reader, x), y);
-			if (x + y < deleteXYID)
+			if (y < deleteXYID)
 				continue;
-			else if (x + y == deleteXYID) {
+			else if (y == deleteXYID) {
 				retBuffer->insertID(x);
 				temp = Chunk::deleteYId(Chunk::deleteXId(temp));
 			} else
@@ -1426,9 +1426,9 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask, const I
 			while (reader < limit) {
 				temp = const_cast<uchar*>(reader);
 				reader = Chunk::readYId(Chunk::readXId(reader, x), y);
-				if (x + y < deleteXYID)
+				if (y < deleteXYID)
 					continue;
-				else if (x + y == deleteXYID) {
+				else if (y == deleteXYID) {
 					retBuffer->insertID(x);
 					temp = Chunk::deleteYId(Chunk::deleteXId(temp));
 				} else
@@ -1586,7 +1586,7 @@ void PartitionMaster::executeChunkTaskUpdate(ChunkTask *chunkTask, const ID chun
 			if (x < deleteXID)
 				continue;
 			else if (x == deleteXID) {
-				retBuffer->insertID(x + y);
+				retBuffer->insertID(y);
 				temp = Chunk::deleteYId(Chunk::deleteXId(temp));
 			} else
 				goto END;
@@ -1602,7 +1602,7 @@ void PartitionMaster::executeChunkTaskUpdate(ChunkTask *chunkTask, const ID chun
 				if (x < deleteXID)
 					continue;
 				else if (x == deleteXID) {
-					retBuffer->insertID(x + y);
+					retBuffer->insertID(y);
 					temp = Chunk::deleteYId(Chunk::deleteXId(temp));
 				} else
 					goto END;
@@ -1616,9 +1616,9 @@ void PartitionMaster::executeChunkTaskUpdate(ChunkTask *chunkTask, const ID chun
 		while (reader < limit) {
 			temp = const_cast<uchar*>(reader);
 			reader = Chunk::readYId(Chunk::readXId(reader, x), y);
-			if (x + y < deleteXYID)
+			if (y < deleteXYID)
 				continue;
-			else if (x + y == deleteXYID) {
+			else if (y == deleteXYID) {
 				retBuffer->insertID(x);
 				temp = Chunk::deleteYId(Chunk::deleteXId(temp));
 			} else
@@ -1632,9 +1632,9 @@ void PartitionMaster::executeChunkTaskUpdate(ChunkTask *chunkTask, const ID chun
 			while (reader < limit) {
 				temp = const_cast<uchar*>(reader);
 				reader = Chunk::readYId(Chunk::readXId(reader, x), y);
-				if (x + y < deleteXYID)
+				if (y < deleteXYID)
 					continue;
-				else if (x + y == deleteXYID) {
+				else if (y == deleteXYID) {
 					retBuffer->insertID(x);
 					temp = Chunk::deleteYId(Chunk::deleteXId(temp));
 				} else
@@ -1728,10 +1728,10 @@ void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID, Enti
 			if (x < subjectID)
 				continue;
 			else if (x == subjectID) {
-				if (x + y < minID)
+				if (y < minID)
 					continue;
-				else if (x + y <= maxID)
-					retBuffer->insertID(x + y);
+				else if (y <= maxID)
+					retBuffer->insertID(y);
 				else
 					return;
 			} else
@@ -1748,10 +1748,10 @@ void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID, Enti
 				if (x < subjectID)
 					continue;
 				else if (x == subjectID) {
-					if (x + y < minID)
+					if (y < minID)
 						continue;
-					else if (x + y <= maxID)
-						retBuffer->insertID(x + y);
+					else if (y <= maxID)
+						retBuffer->insertID(y);
 					else
 						return;
 				} else
@@ -1764,9 +1764,9 @@ void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID, Enti
 		limit = chunkBegin + metaData->usedSpace;
 		while (reader < limit) {
 			reader = Chunk::readYId(Chunk::readXId(reader, x), y);
-			if (x + y < subjectID)
+			if (y < subjectID)
 				continue;
-			else if (x + y == subjectID) {
+			else if (y == subjectID) {
 				if (x < minID)
 					continue;
 				else if (x <= maxID)
@@ -1783,9 +1783,9 @@ void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID, Enti
 			limit = chunkBegin + metaData->usedSpace;
 			while (reader < limit) {
 				reader = Chunk::readYId(Chunk::readXId(reader, x), y);
-				if (x + y < subjectID)
+				if (y < subjectID)
 					continue;
-				else if (x + y == subjectID) {
+				else if (y == subjectID) {
 					if (x < minID)
 						continue;
 					else if (x <= maxID)
@@ -1816,7 +1816,7 @@ void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID, Enti
 			if (x < subjectID)
 				continue;
 			else if (x == subjectID)
-				retBuffer->insertID(x + y);
+				retBuffer->insertID(y);
 			else
 				return;
 		}
@@ -1831,7 +1831,7 @@ void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID, Enti
 				if (x < subjectID)
 					continue;
 				else if (x == subjectID)
-					retBuffer->insertID(x + y);
+					retBuffer->insertID(y);
 				else
 					return;
 			}
@@ -1843,9 +1843,9 @@ void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID, Enti
 
 		while (reader < limit) {
 			reader = Chunk::readYId(Chunk::readXId(reader, x), y);
-			if (x + y < subjectID)
+			if (y < subjectID)
 				continue;
-			else if (x + y == subjectID)
+			else if (y == subjectID)
 				retBuffer->insertID(x);
 			else
 				return;
@@ -1858,9 +1858,9 @@ void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID, Enti
 
 			while (reader < limit) {
 				reader = Chunk::readYId(Chunk::readXId(reader, x), y);
-				if (x + y < subjectID)
+				if (y < subjectID)
 					continue;
-				else if (x + y == subjectID)
+				else if (y == subjectID)
 					retBuffer->insertID(x);
 				else
 					return;
@@ -1908,7 +1908,7 @@ void PartitionMaster::findObjectIDAndSubjectIDByPredicate(EntityIDBuffer *retBuf
 				continue;
 			else if (x <= maxID) {
 				retBuffer->insertID(x);
-				retBuffer->insertID(x + y);
+				retBuffer->insertID(y);
 			} else
 				return;
 		}
@@ -1923,7 +1923,7 @@ void PartitionMaster::findObjectIDAndSubjectIDByPredicate(EntityIDBuffer *retBuf
 					continue;
 				else if (x <= maxID) {
 					retBuffer->insertID(x);
-					retBuffer->insertID(x + y);
+					retBuffer->insertID(y);
 				} else
 					return;
 			}
@@ -1935,10 +1935,10 @@ void PartitionMaster::findObjectIDAndSubjectIDByPredicate(EntityIDBuffer *retBuf
 
 		while (reader < limit) {
 			reader = Chunk::readYId(Chunk::readXId(reader, x), y);
-			if (x + y < minID)
+			if (y < minID)
 				continue;
-			else if (x + y <= maxID) {
-				retBuffer->insertID(x + y);
+			else if (y <= maxID) {
+				retBuffer->insertID(y);
 				retBuffer->insertID(x);
 			} else
 				return;
@@ -1950,10 +1950,10 @@ void PartitionMaster::findObjectIDAndSubjectIDByPredicate(EntityIDBuffer *retBuf
 			limit = reader + metaData->usedSpace;
 			while (reader < limit) {
 				reader = Chunk::readYId(Chunk::readXId(reader, x), y);
-				if (x + y < minID)
+				if (y < minID)
 					continue;
-				else if (x + y <= maxID) {
-					retBuffer->insertID(x + y);
+				else if (y <= maxID) {
+					retBuffer->insertID(y);
 					retBuffer->insertID(x);
 				} else
 					return;
@@ -1976,7 +1976,7 @@ void PartitionMaster::findObjectIDAndSubjectIDByPredicate(EntityIDBuffer *retBuf
 		while (reader < limit) {
 			reader = Chunk::readYId(Chunk::readXId(reader, x), y);
 			retBuffer->insertID(x);
-			retBuffer->insertID(x + y);
+			retBuffer->insertID(y);
 		}
 		while (metaData->haveNextPage) {
 			chunkBegin = reinterpret_cast<uchar*>(TempMMapBuffer::getInstance().getAddress()) + metaData->NextPageNo * MemoryBuffer::pagesize;
@@ -1986,7 +1986,7 @@ void PartitionMaster::findObjectIDAndSubjectIDByPredicate(EntityIDBuffer *retBuf
 			while (reader < limit) {
 				reader = Chunk::readYId(Chunk::readXId(reader, x), y);
 				retBuffer->insertID(x);
-				retBuffer->insertID(x + y);
+				retBuffer->insertID(y);
 			}
 		}
 	} else if (xyType == 2) {
@@ -1995,7 +1995,7 @@ void PartitionMaster::findObjectIDAndSubjectIDByPredicate(EntityIDBuffer *retBuf
 		limit = reader + metaData->usedSpace;
 		while (reader < limit) {
 			reader = Chunk::readYId(Chunk::readXId(reader, x), y);
-			retBuffer->insertID(x + y);
+			retBuffer->insertID(y);
 			retBuffer->insertID(x);
 		}
 		while (metaData->haveNextPage) {
@@ -2005,7 +2005,7 @@ void PartitionMaster::findObjectIDAndSubjectIDByPredicate(EntityIDBuffer *retBuf
 			limit = reader + metaData->usedSpace;
 			while (reader < limit) {
 				reader = Chunk::readYId(Chunk::readXId(reader, x), y);
-				retBuffer->insertID(x + y);
+				retBuffer->insertID(y);
 				retBuffer->insertID(x);
 			}
 		}
@@ -2071,10 +2071,10 @@ void PartitionMaster::findObjectIDByPredicate(EntityIDBuffer *retBuffer, const I
 		limit = chunkBegin + metaData->usedSpace;
 		while (reader < limit) {
 			reader = Chunk::readYId(Chunk::readXId(reader, x), y);
-			if (x + y < minID)
+			if (y < minID)
 				continue;
-			else if (x + y <= maxID)
-				retBuffer->insertID(x + y);
+			else if (y <= maxID)
+				retBuffer->insertID(y);
 			else
 				return;
 		}
@@ -2085,10 +2085,10 @@ void PartitionMaster::findObjectIDByPredicate(EntityIDBuffer *retBuffer, const I
 			limit = chunkBegin + metaData->usedSpace;
 			while (reader < limit) {
 				reader = Chunk::readYId(Chunk::readXId(reader, x), y);
-				if (x + y < minID)
+				if (y < minID)
 					continue;
-				else if (x + y <= maxID)
-					retBuffer->insertID(x + y);
+				else if (y <= maxID)
+					retBuffer->insertID(y);
 				else
 					return;
 			}
@@ -2127,7 +2127,7 @@ void PartitionMaster::findObjectIDByPredicate(EntityIDBuffer *retBuffer, const u
 		limit = reader + metaData->usedSpace;
 		while (reader < limit) {
 			reader = Chunk::readYId(Chunk::readXId(reader, x), y);
-			retBuffer->insertID(x + y);
+			retBuffer->insertID(y);
 		}
 		while (metaData->haveNextPage) {
 			chunkBegin = reinterpret_cast<uchar*>(TempMMapBuffer::getInstance().getAddress()) + metaData->NextPageNo * MemoryBuffer::pagesize;
@@ -2136,7 +2136,7 @@ void PartitionMaster::findObjectIDByPredicate(EntityIDBuffer *retBuffer, const u
 			limit = reader + metaData->usedSpace;
 			while (reader < limit) {
 				reader = Chunk::readYId(Chunk::readXId(reader, x), y);
-				retBuffer->insertID(x + y);
+				retBuffer->insertID(y);
 			}
 		}
 	}
