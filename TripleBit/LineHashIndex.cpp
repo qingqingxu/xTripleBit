@@ -11,9 +11,7 @@
 #include "BitmapBuffer.h"
 
 #include <math.h>
-
 #define MYDEBUG
-
 /**
  * linear fit;
  * f(x)=kx + b;
@@ -79,7 +77,7 @@ bool LineHashIndex::buildLine(int startEntry, int endEntry, int lineNo)
 	for (i = startEntry; i < endEntry; i++)
 	{
 		pt.x = idTableEntries[i];
-		pt.y = i; //idTableEntries save min and max
+		pt.y = i;
 		vpt.push_back(pt);
 	}
 
@@ -129,20 +127,13 @@ bool LineHashIndex::buildLine(int startEntry, int endEntry, int lineNo)
 
 	upperk[lineNo] = ktemp;
 	upperb[lineNo] = btemp;
-#ifdef MYDEBUG
-	ofstream out;
-	out.open("buildindex", ios::app);
-	out << "lowerk[" << lineNo << "] = " << lowerk[lineNo] << "\tlowerb[" << lineNo << "] = " << lowerb[lineNo] << endl;
-	out << "upperk[" << lineNo << "] = " << upperk[lineNo] << "\tupperb[" << lineNo << "] = " << upperb[lineNo] << endl;
-	out.close();
-#endif
 	return true;
 }
 
 static ID splitID[3] =
 { 255, 65535, 16777215 };
 
-Status LineHashIndex::buildIndex(unsigned chunkType)
+Status LineHashIndex::buildIndex(unsigned chunkType) //建立索引 chunkType: 1: x>y ; 2: x<y
 {
 #ifdef MYDEBUG
 	ofstream out;
@@ -238,7 +229,7 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 			reader = reader + (int) MemoryBuffer::pagesize;
 		}
 
-		const uchar* endPtr = Chunk::skipBackward(reader, 1, false);// get this chunk last <x, y>, not have chunkmanagermeta, so third parameter is false
+		const uchar* endPtr = Chunk::skipBackward(reader, 1, false);// get this chunk last <x, y>, not have chunkmanagermeta, 1：a byte, so third parameter is false
 		minID = *(ID*)(endPtr + 4); //chunkType == 2 , y为s
 		endPtr = NULL;
 		insertEntries(minID);
@@ -254,17 +245,19 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 
 bool LineHashIndex::isBufferFull()
 {
-	return tableSize >= idTable->getSize() / sizeof(ID);
+	return tableSize >= idTable->getSize() / 4;
 }
 
-void LineHashIndex::insertEntries(ID minID)
+void LineHashIndex::insertEntries(ID id)
 {
 	if (isBufferFull())
 	{
 		idTable->resize(HASH_CAPACITY);
 		idTableEntries = (ID*) idTable->get_address();
 	}
-	idTableEntries[tableSize++] = minID;
+	idTableEntries[tableSize] = id;
+
+	tableSize++;
 }
 
 ID LineHashIndex::MetaID(size_t index)
@@ -309,7 +302,6 @@ size_t LineHashIndex::searchChunkFrank(ID id)
 			high = mid;
 		}
 	}
-
 	if (low > 0 && MetaID(low) >= id){
 		return low - 1;
 	}
@@ -319,9 +311,6 @@ size_t LineHashIndex::searchChunkFrank(ID id)
 }
 
 size_t LineHashIndex::searchChunk(ID xID, ID yID){
-#ifdef MYDEBUG
-	cout << __FUNCTION__ << endl;
-#endif
 	if(MetaID(0) > xID || tableSize == 0){
 		return 0;
 	}
@@ -330,7 +319,7 @@ size_t LineHashIndex::searchChunk(ID xID, ID yID){
 	if(offsetID == tableSize-1){
 		return offsetID-1;
 	}
-	while(offsetID < tableSize-1){
+	while(offsetID < tableSize-2){
 		if(MetaID(offsetID+1) == xID){
 			if(MetaYID(offsetID+1) > yID){
 				return offsetID;
@@ -349,9 +338,6 @@ size_t LineHashIndex::searchChunk(ID xID, ID yID){
 bool LineHashIndex::searchChunk(ID xID, ID yID, size_t& offsetID)
 //return the  exactly which chunk the triple(xID, yID) is in
 {
-#ifdef MYDEBUG
-	cout << __FUNCTION__ << endl;
-#endif
 	if(MetaID(0) > xID || tableSize == 0){
 		offsetID = 0;
 		return false;
@@ -363,7 +349,7 @@ bool LineHashIndex::searchChunk(ID xID, ID yID, size_t& offsetID)
 		return false;
 	}
 
-	while (offsetID < tableSize - 1)
+	while (offsetID < tableSize - 2)
 	{
 		if (MetaID(offsetID + 1) == xID)
 		{
@@ -386,9 +372,6 @@ bool LineHashIndex::searchChunk(ID xID, ID yID, size_t& offsetID)
 
 bool LineHashIndex::isQualify(size_t offsetId, ID xID, ID yID)
 {
-#ifdef MYDEBUG
-	cout << __FUNCTION__ << endl;
-#endif
 	return (xID < MetaID(offsetId + 1) || (xID == MetaID(offsetId + 1) && yID < MetaYID(offsetId + 1))) && (xID > MetaID(offsetId) || (xID == MetaID(offsetId) && yID >= MetaYID(offsetId)));
 }
 
@@ -406,7 +389,7 @@ void LineHashIndex::getOffsetPair(size_t offsetID, unsigned& offsetBegin, unsign
 size_t LineHashIndex::save(MMapBuffer*& indexBuffer)
 //tablesize , (startID, lowerk , lowerb, upperk, upperb) * 4
 {
-	uchar* writeBuf;
+	char* writeBuf;
 	size_t offset;
 
 	if (indexBuffer == NULL)
@@ -452,7 +435,7 @@ size_t LineHashIndex::save(MMapBuffer*& indexBuffer)
 
 void LineHashIndex::updateLineIndex()
 {
-	uchar* base = lineHashIndexBase;
+	char* base = lineHashIndexBase;
 
 	*(ID*) base = tableSize;
 	base += sizeof(ID);
@@ -489,21 +472,21 @@ void LineHashIndex::updateChunkMetaData(int offsetId)
 		if (xyType == LineHashIndex::YBIGTHANX)
 		{
 			chunkMeta[offsetId].minIDx = x;
-			chunkMeta[offsetId].minIDy = y;
+			chunkMeta[offsetId].minIDy = x + y;
 		}
 		else if (xyType == LineHashIndex::XBIGTHANY)
 		{
-			chunkMeta[offsetId].minIDx = y;
+			chunkMeta[offsetId].minIDx = x + y;
 			chunkMeta[offsetId].minIDy = x;
 		}
 	}
 }
 
-LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, XYType xy_type, uchar*buffer,
+LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, XYType xy_type, char*buffer,
 		size_t& offset)
 {
 	LineHashIndex* index = new LineHashIndex(manager, index_type, xy_type);
-	uchar* base = buffer + offset;
+	char* base = buffer + offset;
 	index->lineHashIndexBase = base;
 
 	index->tableSize = *((ID*) base);
@@ -544,7 +527,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 		temp = index->startPtr + sizeof(MetaData);
 		Chunk::readYId(Chunk::readXId(temp, x), y);
 		index->chunkMeta.push_back(
-		{ x, y, sizeof(MetaData) });
+		{ x, x + y, sizeof(MetaData) });
 
 		reader = index->startPtr - sizeof(ChunkManagerMeta) + MemoryBuffer::pagesize;
 		while (reader < index->endPtr)
@@ -552,10 +535,15 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 			temp = reader + sizeof(MetaData);
 			Chunk::readYId(Chunk::readXId(temp, x), y);
 			index->chunkMeta.push_back(
-			{ x, y, reader - index->startPtr + sizeof(MetaData) });
+			{ x, x + y, reader - index->startPtr + sizeof(MetaData) });
 
 			reader = reader + MemoryBuffer::pagesize;
 		}
+		reader = index->endPtr;
+		reader = Chunk::skipBackward(reader, index->startPtr, 1);
+		Chunk::readYId(Chunk::readXId(reader, x), y);
+		index->chunkMeta.push_back(
+		{ x, x + y });
 	}
 	else if (index->xyType == LineHashIndex::XBIGTHANY)
 	{
@@ -571,7 +559,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 		temp = index->startPtr + sizeof(MetaData);
 		Chunk::readYId(Chunk::readXId(temp, x), y);
 		index->chunkMeta.push_back(
-		{ y, x, sizeof(MetaData) });
+		{ x + y, x, sizeof(MetaData) });
 
 		reader = index->startPtr + MemoryBuffer::pagesize;
 		while (reader < index->endPtr)
@@ -579,10 +567,16 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 			temp = reader + sizeof(MetaData);
 			Chunk::readYId(Chunk::readXId(temp, x), y);
 			index->chunkMeta.push_back(
-			{ y, x, reader - index->startPtr + sizeof(MetaData) });
+			{ x + y, x, reader - index->startPtr + sizeof(MetaData) });
 
 			reader = reader + MemoryBuffer::pagesize;
 		}
+
+		reader = index->endPtr;
+		reader = Chunk::skipBackward(reader, index->startPtr, 2);
+		Chunk::readYId(Chunk::readXId(reader, x), y);
+		index->chunkMeta.push_back(
+		{ x + y, x });
 	}
 	return index;
 }
