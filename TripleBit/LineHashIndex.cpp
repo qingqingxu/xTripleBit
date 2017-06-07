@@ -420,6 +420,7 @@ bool LineHashIndex::searchChunk(ID xID, ID yID, size_t& offsetID)
 	}
 
 	offsetID = searchChunkFrank(xID);
+	cout << "searchChunkFrank back" << endl;
 	if (offsetID == tableSize-2)
 	{
 		return false;
