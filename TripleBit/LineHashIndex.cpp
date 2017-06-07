@@ -389,7 +389,7 @@ void LineHashIndex::getOffsetPair(size_t offsetID, unsigned& offsetBegin, unsign
 size_t LineHashIndex::save(MMapBuffer*& indexBuffer)
 //tablesize , (startID, lowerk , lowerb, upperk, upperb) * 4
 {
-	char* writeBuf;
+	uchar* writeBuf;
 	size_t offset;
 
 	if (indexBuffer == NULL)
@@ -435,7 +435,7 @@ size_t LineHashIndex::save(MMapBuffer*& indexBuffer)
 
 void LineHashIndex::updateLineIndex()
 {
-	char* base = lineHashIndexBase;
+	uchar* base = lineHashIndexBase;
 
 	*(ID*) base = tableSize;
 	base += sizeof(ID);
@@ -482,11 +482,11 @@ void LineHashIndex::updateChunkMetaData(int offsetId)
 	}
 }
 
-LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, XYType xy_type, char*buffer,
+LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, XYType xy_type, uchar*buffer,
 		size_t& offset)
 {
 	LineHashIndex* index = new LineHashIndex(manager, index_type, xy_type);
-	char* base = buffer + offset;
+	uchar* base = buffer + offset;
 	index->lineHashIndexBase = base;
 
 	index->tableSize = *((ID*) base);
