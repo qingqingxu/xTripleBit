@@ -328,6 +328,7 @@ void LineHashIndex::insertEntries(ID minID, ID maxID)
 
 ID LineHashIndex::MetaID(size_t index)
 {
+	cout << index << "\t" << chunkMeta.size() << endl;
 	assert(index < chunkMeta.size());
 	return chunkMeta[index].minIDx;
 }
@@ -602,11 +603,6 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 
 			reader = reader + MemoryBuffer::pagesize;
 		}
-		/*reader = index->endPtr;
-		reader = Chunk::skipBackward(reader, index->startPtr, 1);
-		Chunk::readYId(Chunk::readXId(reader, x), y);
-		index->chunkMeta.push_back(
-		{ x, y });*/
 	}
 	else if (index->xyType == LineHashIndex::XBIGTHANY)
 	{
@@ -634,12 +630,6 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, 
 
 			reader = reader + MemoryBuffer::pagesize;
 		}
-
-		/*reader = index->endPtr;
-		reader = Chunk::skipBackward(reader, index->startPtr, 2);
-		Chunk::readYId(Chunk::readXId(reader, x), y);
-		index->chunkMeta.push_back(
-		{ y, x });*/
 	}
 	return index;
 }
