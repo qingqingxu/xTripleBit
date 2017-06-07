@@ -554,7 +554,7 @@ Status TwoConstantStatisticsBuffer::getStatis(unsigned& v1, unsigned v2)
 	if(::greater(pos->value1, pos->value2, v1, v2))
 		pos--;
 
-	cout << "fisrt  find: " << pos->value1 << "\t" << pos->value2 << endl;
+	cout << "fisrt  find: " << pos->value1 << "\t" << pos->value2 << "\t" << pos->count << endl;
 
 	unsigned start = pos->count; pos++;
 	unsigned end = pos->count; // count is usedspace
@@ -564,7 +564,7 @@ Status TwoConstantStatisticsBuffer::getStatis(unsigned& v1, unsigned v2)
 	const unsigned char* begin = (uchar*)buffer->getBuffer() + start, *limit = (uchar*)buffer->getBuffer() + end;
 	decode(begin, limit);//decode from bitmapbuffer, in order to get pos and posLimit
 	find(v1, v2);
-	cout << "second find: " << pos->value1 << "\t" << pos->value2 << endl;
+	cout << "second find: " << pos->value1 << "\t" << pos->value2 << "\t" << pos->count << endl;
 /*
 #ifdef MYDEBUG
 	if(find(v1, v2)){
