@@ -52,7 +52,7 @@ private:
 
 public:
 	//some useful thing about the chunkManager
-	uchar *startPtr, *endPtr;
+	const uchar *startPtr, *endPtr;
 	vector<chunkMetaData> chunkMeta;
 
 private:
