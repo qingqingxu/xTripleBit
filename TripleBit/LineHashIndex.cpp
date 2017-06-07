@@ -360,7 +360,7 @@ size_t LineHashIndex::searchChunkFrank(ID id)
 			if (mid == 0){
 				return mid;
 			}
-			mid--;
+			mid -= 2;
 		}
 		if (MetaID(mid) < id){
 			low = mid + 2;
