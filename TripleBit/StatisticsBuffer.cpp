@@ -467,7 +467,7 @@ static inline bool less(unsigned a1, unsigned a2, unsigned b1, unsigned b2) {
  * pos: the start address of the first triple;
  * posLimit: the end address of last triple;
  */
-bool TwoConstantStatisticsBuffer::find(unsigned value1, unsigned value2)
+bool TwoConstantStatisticsBuffer::findPriorityByValue1(unsigned value1, unsigned value2)
 {
 	//const Triple* l = pos, *r = posLimit;
 	int left = 0, right = posLimit - pos;
@@ -493,6 +493,32 @@ bool TwoConstantStatisticsBuffer::find(unsigned value1, unsigned value2)
 	}
 }
 
+
+bool TwoConstantStatisticsBuffer::findPriorityByValue2(unsigned value1, unsigned value2)
+{
+	//const Triple* l = pos, *r = posLimit;
+	int left = 0, right = posLimit - pos;
+	int middle;
+
+	while (left != right) {
+		middle = left + ((right - left) / 2);
+
+		if (::greater(value2, value1, pos[middle].value2, pos[middle].value1)) {
+			left = middle + 1;
+		} else if ((!middle) || ::greater(value2, value1, pos[middle - 1].value2, pos[middle -1].value1)) {
+			break;
+		} else {
+			right = middle;
+		}
+	}
+
+	if(left == right) {
+		return false;
+	} else {
+		pos = &pos[middle];// value1 and value2 is between middle-1 and middle
+		return true;
+	}
+}
 /*
  * find the last entry <= (value1, value2);
  * pos: the start address of the first triple;
@@ -550,7 +576,7 @@ Status TwoConstantStatisticsBuffer::getStatis(unsigned& v1, unsigned v2)
 */
 	cout << "v1: " << v1 << "\tv2: " << v2 << endl;
 	pos = index, posLimit = index + indexPos;
-	find(v1, v2); // get index location, that is pos
+	findPriorityByValue1(v1, v2); // get index location, that is pos
 	if(::greater(pos->value1, pos->value2, v1, v2))
 		pos--;
 
@@ -563,7 +589,7 @@ Status TwoConstantStatisticsBuffer::getStatis(unsigned& v1, unsigned v2)
 
 	const unsigned char* begin = (uchar*)buffer->getBuffer() + start, *limit = (uchar*)buffer->getBuffer() + end;
 	decode(begin, limit);//decode from bitmapbuffer, in order to get pos and posLimit
-	find(v1, v2);
+	findPriorityByValue2(v1, v2);
 	cout << "second find: " << pos->value1 << "\t" << pos->value2 << "\t" << pos->count << endl;
 /*
 #ifdef MYDEBUG

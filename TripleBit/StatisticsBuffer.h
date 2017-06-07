@@ -117,7 +117,8 @@ private:
 	/// decode a chunk
 	const uchar* decode(const uchar* begin, const uchar* end);
 	///
-	bool find(unsigned value1, unsigned value2);
+	bool findPriorityByValue1(unsigned value1, unsigned value2);
+	bool findPriorityByValue2(unsigned value1, unsigned value2);
 	int findPredicate(unsigned,Triple*,Triple*);
 	///
 	bool find_last(unsigned value1, unsigned value2);
