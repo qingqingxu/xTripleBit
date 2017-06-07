@@ -134,11 +134,6 @@ Status OneConstantStatisticsBuffer::addStatis(unsigned v1, unsigned v2, unsigned
 		buffer->resize(
 				STATISTICS_BUFFER_INCREMENT_PAGE_COUNT * MemoryBuffer::pagesize);
 		writer = (uchar*) buffer->getBuffer() + usedSpace;
-/*
-#ifdef MYDEBUG
-	cout << "OneConstantStatisticsBuffer: " << buffer->getSize() << endl;
-#endif
-*/
 	}
 
 	if (first || v1 >= nextHashValue) {
@@ -158,6 +153,13 @@ Status OneConstantStatisticsBuffer::addStatis(unsigned v1, unsigned v2, unsigned
 
 	writer = writeData(writer, v1);
 	writer = writeData(writer, v2);
+
+#ifdef MYDEBUG
+	ofstream out;
+	out.open("OneConstantStatisticsBuffer", ios::app);
+	out << v1 << "\t" << v2 << endl;
+	out.close();
+#endif
 
 	usedSpace = writer - (uchar*) buffer->getBuffer();
 
@@ -610,7 +612,7 @@ Status TwoConstantStatisticsBuffer::addStatis(unsigned v1, unsigned v2, unsigned
 {
 /*
 #ifdef MYDEBUG
-	cout << "OneConstantStatisticsBuffer: " << v1 << "\t" << v2 << "\t" << v3 << endl;
+	cout << "TwoConstantStatisticsBuffer: " << v1 << "\t" << v2 << "\t" << v3 << endl;
 #endif
 */
 
@@ -647,6 +649,14 @@ Status TwoConstantStatisticsBuffer::addStatis(unsigned v1, unsigned v2, unsigned
 	writer = writeData(writer, v1);
 	writer = writeData(writer, v2);
 	writer = writeData(writer, v3);
+
+
+#ifdef MYDEBUG
+	ofstream out;
+	out.open("TwoConstantStatisticsBuffer", ios::app);
+	out << v1 << "\t" << v2 << "\t" << v3 << endl;
+	out.close();
+#endif
 
 	lastId = v1;
 	lastPredicate = v2;
