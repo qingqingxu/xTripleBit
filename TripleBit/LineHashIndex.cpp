@@ -383,12 +383,12 @@ size_t LineHashIndex::searchChunk(ID xID, ID yID){
 		return offsetID-1;
 	}
 	while(offsetID < tableSize-2){
-		if(MetaID(offsetID+1) == xID){
-			if(MetaYID(offsetID+1) > yID){
+		if(MetaID(offsetID+2) == xID){
+			if(MetaYID(offsetID+2) > yID){
 				return offsetID;
 			}
 			else{
-				offsetID++;
+				offsetID += 2;
 			}
 		}
 		else{
