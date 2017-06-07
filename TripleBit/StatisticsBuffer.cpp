@@ -275,12 +275,14 @@ Status OneConstantStatisticsBuffer::save(MMapBuffer*& indexBuffer)
 
 	vector<unsigned>::iterator iter, limit;
 
+	for(iter = index.begin(), limit = index.end(); iter != limit; iter++) {
+		writer = writeData(writer, *iter);
+	}
 #ifdef MYDEBUG
 	ofstream out;
-	out.open("onestatistics", ios::app);
+	out.open("onestatistics");
 	for(iter = index.begin(), limit = index.end(); iter != limit; iter++) {
 		out << *iter << endl;
-		writer = writeData(writer, *iter);
 	}
 	out << "***********************************" << endl;
 	out.close();
@@ -427,20 +429,24 @@ const uchar* TwoConstantStatisticsBuffer::decode(const uchar* begin, const uchar
 		(*writer).value2 = value2;
 		(*writer).count = count;
 		++writer;
+/*
 #ifdef MYDEBUG
 		ofstream out;
 		out.open("findvalue", ios::app);
 		out << value1 << "\t" << value2 << "\t" << count << endl;
 		out.close();
 #endif
+*/
 	}
 
+/*
 #ifdef MYDEBUG
 		ofstream out;
 		out.open("findvalue", ios::app);
 		out << "####################################" << endl;
 		out.close();
 #endif
+*/
 
 	// Update the entries
 	pos=triples;
@@ -534,16 +540,21 @@ int TwoConstantStatisticsBuffer::findPredicate(unsigned value1,Triple*pos,Triple
 
 Status TwoConstantStatisticsBuffer::getStatis(unsigned& v1, unsigned v2)
 {
+/*
 #ifdef MYDEBUG
 		ofstream out;
 		out.open("findvalue", ios::app);
 		out << "v1: " << v1 << "\tv2: " << v2 << endl;
 		out.close();
 #endif
+*/
+	cout << "v1: " << v1 << "\tv2: " << v2 << endl;
 	pos = index, posLimit = index + indexPos;
 	find(v1, v2); // get index location, that is pos
 	if(::greater(pos->value1, pos->value2, v1, v2))
 		pos--;
+
+	cout << "fisrt  find: " << pos->value1 << "\t" << pos->value2 << endl;
 
 	unsigned start = pos->count; pos++;
 	unsigned end = pos->count; // count is usedspace
@@ -553,6 +564,7 @@ Status TwoConstantStatisticsBuffer::getStatis(unsigned& v1, unsigned v2)
 	const unsigned char* begin = (uchar*)buffer->getBuffer() + start, *limit = (uchar*)buffer->getBuffer() + end;
 	decode(begin, limit);//decode from bitmapbuffer, in order to get pos and posLimit
 	find(v1, v2);
+	cout << "second find: " << pos->value1 << "\t" << pos->value2 << endl;
 /*
 #ifdef MYDEBUG
 	if(find(v1, v2)){
@@ -634,12 +646,16 @@ Status TwoConstantStatisticsBuffer::save(MMapBuffer*& indexBuffer)
 
 	memcpy(writer, (char*)index, indexPos * sizeof(Triple));
 #ifdef MYDEBUG
+	ofstream out;
+	out.open("twostatistics");
 	for(uint i = 0; i < indexPos; i++)
 	{
-		cout<<index[i].value1<<" : "<<index[i].value2<<" : "<<index[i].count<<endl; // count is usedspace
+		out<<index[i].value1<<" : "<<index[i].value2<<" : "<<index[i].count<<endl; // count is usedspace
 	}
 
-	cout<<"indexPos: "<<indexPos<<endl;
+	out<<"indexPos: "<<indexPos<<endl;
+	out << "***********************" <<endl;
+	out.close();
 #endif
 	free(index);
 
