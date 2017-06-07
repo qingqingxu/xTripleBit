@@ -1704,6 +1704,7 @@ void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID, Enti
 		const uchar* startPtr, const int xyType) {
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID<< endl;
+	cout << subjectID << "\t" << minID << "\t" << maxID << "\t" << xyType << endl;
 #endif
 
 	if (minID == 0 && maxID == UINT_MAX) {
