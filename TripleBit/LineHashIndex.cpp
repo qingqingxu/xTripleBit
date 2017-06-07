@@ -366,7 +366,7 @@ size_t LineHashIndex::searchChunkFrank(ID id)
 			cout << mid << endl;
 		}
 		if (MetaID(mid) < id){
-			low = mid;
+			low = mid + 2;
 		}
 		else if (MetaID(mid) > id){
 			high = mid;
