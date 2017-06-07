@@ -344,7 +344,7 @@ size_t LineHashIndex::searchChunkFrank(ID id)
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << "tableSize： " << tableSize <<  endl;
 #endif
-	size_t low = 0, mid = 0, high = tableSize - 2;
+	size_t low = 0, mid = 0, high = tableSize - 1;
 
 	if (low == high){
 		return low;
@@ -352,6 +352,7 @@ size_t LineHashIndex::searchChunkFrank(ID id)
 	while (low < high)
 	{
 		mid = low + (high-low) / 2;
+		mid = (mid%2 == 0) ? mid : (mid - 1);
 		while (MetaID(mid) == id)
 		{
 			if (mid > 0 && MetaID(mid - 2) < id){
