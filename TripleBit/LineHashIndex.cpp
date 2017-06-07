@@ -328,15 +328,15 @@ void LineHashIndex::insertEntries(ID minID, ID maxID)
 
 ID LineHashIndex::MetaID(size_t index)
 {
-	cout << index << "\t" << chunkMeta.size() << endl;
-	assert(index < chunkMeta.size());
-	return chunkMeta[index].minIDx;
+	cout << index/2 << "\t" << chunkMeta.size() << endl;
+	assert(index/2 < chunkMeta.size());
+	return chunkMeta[index/2].minIDx;
 }
 
 ID LineHashIndex::MetaYID(size_t index)
 {
-	assert(index < chunkMeta.size());
-	return chunkMeta[index].minIDy;
+	assert(index/2 < chunkMeta.size());
+	return chunkMeta[index/2].minIDy;
 }
 
 size_t LineHashIndex::searchChunkFrank(ID id)
