@@ -177,9 +177,9 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 		if(metaData->usedSpace == sizeof(MetaData)){
 			maxID = minID;
 		}else{
-			reader = reader + (metaData->usedSpace - 4 * 2);// get this chunk last <x, y>
-			maxID = *(ID*)reader;
-			reader = reader + 4 * 2 - metaData->usedSpace;// return chunk startPtr
+			const uchar* endPtr = Chunk::skipBackward(reader, 1, true);// get this chunk last <x, y>
+			maxID = *(ID*)endPtr;
+			endPtr = NULL;
 		}
 #ifdef MYDEBUG
 	ofstream out;
@@ -208,9 +208,9 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 			if (metaData->usedSpace == sizeof(MetaData)) {
 				maxID = minID;
 			} else {
-				reader = reader + (metaData->usedSpace - 4 * 2);// get this chunk last <x, y>
-				maxID = *(ID*)reader;
-				reader = reader + 4 * 2 - metaData->usedSpace;// return chunk startPtr
+				const uchar* endPtr = Chunk::skipBackward(reader, 1, false);// get this chunk last <x, y>
+				maxID = *(ID*)endPtr;
+				endPtr = NULL;
 			}
 #ifdef MYDEBUG
 	ofstream out;
@@ -267,9 +267,9 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 			if (metaData->usedSpace == sizeof(MetaData)) {
 				maxID = minID;
 			} else {
-				reader = reader + (metaData->usedSpace - 4);// get this chunk last <x, y>
-				maxID = *(ID*)reader;
-				reader = reader + 4 - metaData->usedSpace;// return chunk startPtr
+				const uchar* endPtr = Chunk::skipBackward(reader, 1, false);// get this chunk last <x, y>
+				maxID = *(ID*)endPtr;
+				endPtr = NULL;
 			}
 #ifdef MYDEBUG
 	ofstream out;
@@ -312,7 +312,7 @@ Status LineHashIndex::buildIndex(unsigned chunkType)
 
 bool LineHashIndex::isBufferFull()
 {
-	return tableSize >= idTable->getSize() / 4;
+	return tableSize >= idTable->getSize() / sizeof(ID);
 }
 
 void LineHashIndex::insertEntries(ID minID, ID maxID)

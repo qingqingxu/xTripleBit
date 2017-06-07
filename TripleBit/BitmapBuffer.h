@@ -209,7 +209,7 @@ public:
 	static const uchar* skipId(const uchar* reader, unsigned char idNums);
 	/// Skip backward to s
 	static const uchar* skipBackward(const uchar* reader);
-	static const uchar* skipBackward(const uchar* reader, const uchar* begin, unsigned type);
+	static const uchar* skipBackward(const uchar* reader, unsigned step, bool isFirstPage);
 	static const uchar* skipForward(const uchar* reader);
 	ID getXMax(void) {
 		return xMax;

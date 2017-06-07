@@ -1060,90 +1060,21 @@ const uchar* Chunk::skipForward(const uchar* reader) {
 const uchar* Chunk::skipBackward(const uchar* reader) {
 	// skip backward to the last x,y;
 	while ((ID*)reader == 0) //last y
-		reader -= 4;
-	reader -= 4; //last x
+		reader -= sizeof(ID);
+	reader -= sizeof(ID); //last x
 	return reader;
 }
 
-const uchar* Chunk::skipBackward(const uchar* reader, const uchar* begin, unsigned type) {
-	//if is the begin of One Chunk
-
-	if (type == 1) {
-			if ((reader - begin - sizeof(MetaData) + sizeof(ChunkManagerMeta)) % MemoryBuffer::pagesize == 0 || (reader + 1 - begin - sizeof(MetaData) + sizeof(ChunkManagerMeta)) % MemoryBuffer::pagesize
-					== 0) {
-				if ((reader - begin - sizeof(MetaData) + sizeof(ChunkManagerMeta)) == MemoryBuffer::pagesize || (reader + 1 - begin - sizeof(MetaData) + sizeof(ChunkManagerMeta))
-						== MemoryBuffer::pagesize)
-				// if is the second Chunk
-				{
-					reader = begin;
-					MetaData* metaData = (MetaData*) reader;
-					reader = reader + metaData->usedSpace;
-					--reader;
-					return skipBackward(reader);
-				}
-				reader = begin - sizeof(ChunkManagerMeta) + MemoryBuffer::pagesize * ((reader - begin + sizeof(ChunkManagerMeta)) / MemoryBuffer::pagesize - 1);
-				MetaData* metaData = (MetaData*) reader;
-				reader = reader + metaData->usedSpace;
-				--reader;
-				return skipBackward(reader);
-			} else if (reader <= begin + sizeof(MetaData)) {
-				return begin - 1;
-			} else {
-				//if is not the begin of one Chunk
-				return skipBackward(reader);
-			}
-		}
-		if (type == 2) {
-			if ((reader - begin - sizeof(MetaData)) % MemoryBuffer::pagesize == 0 || (reader + 1 - begin - sizeof(MetaData)) % MemoryBuffer::pagesize == 0) {
-				reader = begin + MemoryBuffer::pagesize * ((reader - begin) / MemoryBuffer::pagesize - 1);
-				MetaData* metaData = (MetaData*) reader;
-				reader = reader + metaData->usedSpace;
-				--reader;
-				return skipBackward(reader);
-			} else if (reader <= begin + sizeof(MetaData)) {
-				return begin - 1;
-			} else {
-				//if is not the begin of one Chunk
-				return skipBackward(reader);
-			}
-		}
-	/*if (type == 1) {
-		if ((reader - begin - sizeof(MetaData) + sizeof(ChunkManagerMeta)) % MemoryBuffer::pagesize == 0 || (reader + 1 - begin - sizeof(MetaData) + sizeof(ChunkManagerMeta)) % MemoryBuffer::pagesize
-				== 0) {
-			if ((reader - begin - sizeof(MetaData) + sizeof(ChunkManagerMeta)) == MemoryBuffer::pagesize || (reader + 1 - begin - sizeof(MetaData) + sizeof(ChunkManagerMeta))
-					== MemoryBuffer::pagesize)
-			// if is the second Chunk
-			{
-				reader = begin;
-				MetaData* metaData = (MetaData*) reader;
-				reader = reader + metaData->usedSpace;
-				--reader;
-				return skipBackward(reader);
-			}
-			reader = begin - sizeof(ChunkManagerMeta) + MemoryBuffer::pagesize * ((reader - begin + sizeof(ChunkManagerMeta)) / MemoryBuffer::pagesize - 1);
-			MetaData* metaData = (MetaData*) reader;
-			reader = reader + metaData->usedSpace;
-			--reader;
-			return skipBackward(reader);
-		} else if (reader <= begin + sizeof(MetaData)) {
-			return begin - 1;
-		} else {
-			//if is not the begin of one Chunk
-			return skipBackward(reader);
-		}
+const uchar* Chunk::skipBackward(const uchar* reader, unsigned step, bool isFirstPage) {
+	//reader is metadata first address, return last x,y address
+	const uchar* endPtr = NULL;
+	if(isFirstPage){
+		endPtr = reader + (MemoryBuffer::pagesize - sizeof(ChunkManagerMeta));
+	}else{
+		endPtr = reader + MemoryBuffer::pagesize;
 	}
-	if (type == 2) {
-		if ((reader - begin - sizeof(MetaData)) % MemoryBuffer::pagesize == 0 || (reader + 1 - begin - sizeof(MetaData)) % MemoryBuffer::pagesize == 0) {
-			reader = begin + MemoryBuffer::pagesize * ((reader - begin) / MemoryBuffer::pagesize - 1);
-			MetaData* metaData = (MetaData*) reader;
-			reader = reader + metaData->usedSpace;
-			--reader;
-			return skipBackward(reader);
-		} else if (reader <= begin + sizeof(MetaData)) {
-			return begin - 1;
-		} else {
-			//if is not the begin of one Chunk
-			return skipBackward(reader);
-		}
-	}*/
+	while((*endPtr) == 0){
+		endPtr--;
+	}
+	return reader + sizeof(MetaData) + (endPtr - (reader + sizeof(MetaData)))/(sizeof(ID) * 2) * (sizeof(ID) * 2);
 }
