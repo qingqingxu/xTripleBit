@@ -906,6 +906,10 @@ void TripleBitWorkerQuery::getResult_join(ID key, std::vector<EntityIDBuffer*>& 
 
 Status TripleBitWorkerQuery::findEntitiesAndJoin(TripleBitQueryGraph::JoinVariableNodeID id,
 		vector<pair<TripleBitQueryGraph::TripleNodeID, TripleBitQueryGraph::JoinVariableNode::DimType> >& tpnodes, bool firstTime) {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << " JoinVariableNodeID: " << id << "\tfirstTime: " << firstTime << endl;
+#endif
+
 	size_t minSize; // minimum record size;
 	ID minSizeID; //the bufferer No. which contains the minimum records;
 	size_t size;
