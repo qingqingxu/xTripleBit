@@ -583,7 +583,9 @@ Status TripleBitWorkerQuery::singleVariableJoin() {
 					} else
 						cout << "not found" << endl;
 				}
+#ifdef PRINT_RESULT
 				cout << endl;
+#endif
 			}
 		} else {
 			generateResultPos(resultVar, _queryGraph->getProjection(), resultPos);
@@ -1115,7 +1117,6 @@ Status TripleBitWorkerQuery::acyclicJoin() {
 	EntityIDList[nodePatternIter->first] = buffer;
 
 	buffer = EntityIDList[nodePatternIter->first];
-	resultPtr->clear();
 	if (this->findEntitiesAndJoin(*joinNodeIter, node->appear_tpnodes, true) == NULL_RESULT) {
 #ifdef PRINT_RESULT
 		cout << "empty result" << endl;
