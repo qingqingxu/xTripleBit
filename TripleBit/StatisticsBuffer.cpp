@@ -13,7 +13,7 @@
 #include "URITable.h"
 #include "MemoryBuffer.h"
 
-#define MYDEBUG
+//#define MYDEBUG
 
 extern uchar* writeData(uchar* writer, uint data);
 extern const char* readData(const uchar* reader, uint& data);

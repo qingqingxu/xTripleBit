@@ -26,7 +26,7 @@
 #define BLOCK_SIZE 1024
 //#define PRINT_RESULT
 #define COLDCACHE
-#define MYDEBUG
+//#define MYDEBUG
 
 TripleBitWorkerQuery::TripleBitWorkerQuery(TripleBitRepository*& repo, ID workID) {
 	tripleBitRepo = repo;

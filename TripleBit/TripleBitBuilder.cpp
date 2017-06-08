@@ -19,7 +19,7 @@
 #include <pthread.h>
 #include <fstream>
 
-#define MYDEBUG
+//#define MYDEBUG
 
 static int getCharPos(const char* data, char ch)
 {

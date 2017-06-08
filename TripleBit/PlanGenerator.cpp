@@ -15,7 +15,7 @@
 using namespace std;
 
 //#define DEBUGPLAN
-#define MYDEBUG
+//#define MYDEBUG
 
 bool isUnused(const TripleBitQueryGraph::SubQuery& query,const TripleNode& node,unsigned val)
 // Check if a variable is unused outside its primary pattern

@@ -21,7 +21,7 @@
 #include "comm/TransQueueSW.h"
 #include "TripleBitWorkerQuery.h"
 
-#define MYDEBUG
+//#define MYDEBUG
 
 TripleBitWorker::TripleBitWorker(TripleBitRepository* repo, ID workID) {
 	tripleBitRepo = repo;

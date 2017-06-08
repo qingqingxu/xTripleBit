@@ -11,7 +11,7 @@
 #include "BitmapBuffer.h"
 
 #include <math.h>
-#define MYDEBUG
+//#define MYDEBUG
 /**
  * linear fit;
  * f(x)=kx + b;
