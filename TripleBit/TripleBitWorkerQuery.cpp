@@ -513,15 +513,13 @@ Status TripleBitWorkerQuery::singleVariableJoin() {
 	resultPtr->push_back(temp);
 #endif
 
+	resultPtr->clear();
 	if (projectNo == 1) {
 		for (i = 0; i < size; ++i) {
 			if (uriTable->getURIById(URI, p[i]) == OK) {
 #ifdef PRINT_RESULT
 				cout << URI << endl;
 #else
-				if(i < 5){
-					cout << p[i] << "\t" << URI << endl;
-				}
 				resultPtr->push_back(URI);
 #endif
 			} else {
