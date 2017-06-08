@@ -458,16 +458,6 @@ Status TripleBitWorkerQuery::singleVariableJoin() {
 		return OK;
 	}
 
-	ID* tmp = buffer->p;
-	int count = 0;
-	while(tmp!=NULL && *tmp != 0){
-		count ++;
-		cout << *tmp << endl;
-		tmp++;
-	}
-	cout << count << endl;
-
-
 	EntityIDList[nodePatternIter->first] = buffer;
 	nodePatternIter++;
 
@@ -529,7 +519,7 @@ Status TripleBitWorkerQuery::singleVariableJoin() {
 #ifdef PRINT_RESULT
 				cout << URI << endl;
 #else
-				resultPtr->push_back("NULL");
+				resultPtr->push_back(URI);
 #endif
 			} else {
 #ifdef PRINT_RESULT
