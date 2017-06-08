@@ -459,10 +459,13 @@ Status TripleBitWorkerQuery::singleVariableJoin() {
 	}
 
 	ID* tmp = buffer->p;
-	while(tmp!=NULL){
+	int count = 0;
+	while(tmp!=NULL && *tmp != 0){
+		count ++;
 		cout << *tmp << endl;
 		tmp++;
 	}
+	cout << count << endl;
 
 
 	EntityIDList[nodePatternIter->first] = buffer;
