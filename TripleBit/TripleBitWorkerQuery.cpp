@@ -1288,7 +1288,9 @@ Status TripleBitWorkerQuery::acyclicJoin() {
 						cout << "not found" << endl;
 					}
 				}
+#ifdef PRINT_RESULT
 				cout << endl;
+#endif
 			}
 		} else {
 			EntityIDBuffer* buf = bufferlist[0];
