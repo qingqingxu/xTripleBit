@@ -292,7 +292,7 @@ TripleBitRepository* TripleBitRepository::create(const string &path) {
 
 	cout << "load complete!" << endl;
 
-	repo->partitionNum = repo->bitmapPredicateImage->get_length() / ((sizeof(ID) + sizeof(SOType) + sizeof(size_t) * 2) * 2);
+	repo->partitionNum = repo->bitmapPredicateImage->get_length() / ((sizeof(ID) + sizeof(SOType) + sizeof(size_t) * 2) * 2);//numbers of predicate
 	repo->workerNum = WORKERNUM;
 	repo->indexForTT = new IndexForTT(WORKERNUM);
 
@@ -331,7 +331,7 @@ Status TripleBitRepository::sharedMemoryInit() {
 	//Init the transQueueSW shared Memory
 	sharedMemoryTransQueueSWInit();
 
-	//Init the tasksQueueWP shareed memory
+	//Init the tasksQueueWP shared memory
 	sharedMemoryTasksQueueWPInit();
 
 	//Init the resultWP shared memory
