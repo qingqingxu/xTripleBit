@@ -353,9 +353,6 @@ void PartitionMaster::executeQuery(SubTrans *subTransaction){
 	}
 
 	ID sourceWorkerID = subTransaction->sourceWorkerID;
-#ifdef MYDEBUG
-	cout << "xChunkCount: " << xChunkCount << "\txyChunkCount: " << xyChunkCount << endl;
-#endif
 	chunkCount = xChunkCount + xyChunkCount;
 	shared_ptr<subTaskPackage> taskPackage(
 			new subTaskPackage(chunkCount, subTransaction->operationType, sourceWorkerID, subTransaction->minID, subTransaction->maxID, 0, 0,
@@ -1733,8 +1730,10 @@ void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID, Enti
 			else if (x == subjectID) {
 				if (y < minID)
 					continue;
-				else if (y <= maxID)
+				else if (y <= maxID){
+					cout << y << endl;
 					retBuffer->insertID(y);
+				}
 				else
 					return;
 			} else
@@ -1753,8 +1752,10 @@ void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID, Enti
 				else if (x == subjectID) {
 					if (y < minID)
 						continue;
-					else if (y <= maxID)
+					else if (y <= maxID){
+						cout << y << endl;
 						retBuffer->insertID(y);
+					}
 					else
 						return;
 				} else
