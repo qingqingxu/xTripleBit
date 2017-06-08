@@ -1722,10 +1722,6 @@ void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID, Enti
 		MetaData *metaData = (MetaData*) chunkBegin;
 		reader = chunkBegin + sizeof(MetaData);
 		limit = chunkBegin + metaData->usedSpace;
-#ifdef MYDEBUG
-		ofstream out;
-		out.open("signalresult", ios::app);
-#endif
 		while (reader < limit) {
 			reader = Chunk::readYId(Chunk::readXId(reader, x), y);
 			if (x < subjectID)
@@ -1734,29 +1730,15 @@ void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID, Enti
 				if (y < minID)
 					continue;
 				else if (y <= maxID){
-#ifdef MYDEBUG
-					out << "y = " << y << endl;
-#endif
 					retBuffer->insertID(y);
 				}
 				else{
-#ifdef MYDEBUG
-					out.close();
-#endif
 					return;
 				}
 
 			} else{
-#ifdef MYDEBUG
-					out.close();
-#endif
 					return;
 			}
-		}
-		if(!metaData->haveNextPage){
-#ifdef MYDEBUG
-					out.close();
-#endif
 		}
 		while (metaData->haveNextPage) {
 			chunkBegin = reinterpret_cast<uchar*>(TempMMapBuffer::getInstance().getAddress()) + MemoryBuffer::pagesize * metaData->NextPageNo;
@@ -1772,21 +1754,12 @@ void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID, Enti
 					if (y < minID)
 						continue;
 					else if (y <= maxID){
-#ifdef MYDEBUG
-						cout << "y = " << y << endl;
-#endif
 						retBuffer->insertID(y);
 					}
 					else{
-#ifdef MYDEBUG
-					out.close();
-#endif
 					return;
 					}
 				} else{
-#ifdef MYDEBUG
-					out.close();
-#endif
 					return;
 				}
 			}
