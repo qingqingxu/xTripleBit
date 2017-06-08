@@ -92,20 +92,20 @@ Status TripleBitWorkerQuery::query(TripleBitQueryGraph* queryGraph, vector<strin
 
 Status TripleBitWorkerQuery::excuteQuery() {
 	if (_query->joinVariables.size() == 1) {
-#ifdef MYDEBUG
+//#ifdef MYDEBUG
 		cout << "execute singleVariableJoin" << endl;
-#endif
+//#endif
 		singleVariableJoin();
 	} else {
 		if (_query->joinGraph == TripleBitQueryGraph::ACYCLIC) {
-#ifdef MYDEBUG
+//#ifdef MYDEBUG
 			cout << "execute asyclicJoin" << endl;
-#endif
+//#endif
 			acyclicJoin();
 		} else if (_query->joinGraph == TripleBitQueryGraph::CYCLIC) {
-#ifdef MYDEBUG
+//#ifdef MYDEBUG
 			cout << "execute cyclicJoin" << endl;
-#endif
+//#endif
 			cyclicJoin();
 		}
 	}
