@@ -1731,7 +1731,7 @@ void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID, Enti
 				if (y < minID)
 					continue;
 				else if (y <= maxID){
-					cout << y << endl;
+					cout << "y = " << y << endl;
 					retBuffer->insertID(y);
 				}
 				else
@@ -1753,7 +1753,7 @@ void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID, Enti
 					if (y < minID)
 						continue;
 					else if (y <= maxID){
-						cout << y << endl;
+						cout << "y = " << y << endl;
 						retBuffer->insertID(y);
 					}
 					else
