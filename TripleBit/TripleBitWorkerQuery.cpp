@@ -1115,6 +1115,7 @@ Status TripleBitWorkerQuery::acyclicJoin() {
 	EntityIDList[nodePatternIter->first] = buffer;
 
 	buffer = EntityIDList[nodePatternIter->first];
+	resultPtr->clear();
 	if (this->findEntitiesAndJoin(*joinNodeIter, node->appear_tpnodes, true) == NULL_RESULT) {
 #ifdef PRINT_RESULT
 		cout << "empty result" << endl;
