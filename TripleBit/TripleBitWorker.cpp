@@ -101,7 +101,6 @@ Status TripleBitWorker::Execute(string& queryString) {
 		resultSet.clear();
 		workerQuery->query(queryGraph, resultSet, trans->transTime);
 
-		cout << "result set size: " << resultSet.size() << endl;
 		for(uint i = 0; i < resultSet.size(); i++){
 			if(i < 5 || i > resultSet.size() - 6){
 				cout << i << "\t" << resultSet[i] << endl;

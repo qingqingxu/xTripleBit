@@ -90,8 +90,184 @@ Status TripleBitWorkerQuery::query(TripleBitQueryGraph* queryGraph, vector<strin
 	}
 }
 
+/*void TripleBitWorkerQuery::displayAllTriples()
+{
+	ID predicateCount = preTable->getPredicateNo();
+	ID tripleCount = 0;
+	for(ID pid = 1;pid < predicateCount;pid++)tripleCount += bitmap->getChunkManager(pid, 0)->getTripleCount();
+	cout<<"The total tripleCount is : "<<tripleCount<<endl<<"Do you really want to display all (Y / N) ?"<<endl;
+	char displayFlag;
+	cin>>displayFlag;
+
+	if((displayFlag == 'y') || (displayFlag == 'Y')){
+		EntityIDBuffer *buffer = new EntityIDBuffer();
+		string URI1,URI2;
+		for(ID pid = 1;pid < predicateCount;pid++){
+			buffer->empty();
+			entityFinder->findSubjectIDAndObjectIDByPredicate(pid, buffer);
+			size_t bufSize = buffer->getSize();
+			if(bufSize == 0)continue;
+			ID *p = buffer->getBuffer();
+			preTable->getPredicateByID(URI1, pid);
+
+			for (size_t i = 0; i < bufSize; i++) {
+				uriTable->getURIById(URI2, p[i * 2]);
+				cout << URI2 << " ";
+				cout << URI1 << " ";
+				uriTable->getURIById(URI2, p[i * 2 + 1]);
+				cout << URI2 << endl;
+			}
+		}
+
+		delete buffer;
+	}
+}
+
+void TripleBitWorkerQuery::onePatternWithThreeVariables()
+{
+	if(_query->tripleNodes[0].scanOperation == TripleNode::FINDSPO){
+		displayAllTriples();
+	}else if(_query->tripleNodes[0].scanOperation == TripleNode::FINDSPBYNONE){
+		if(_queryGraph->getProjection().front() == _query->tripleNodes[0].subject){
+			unsigned predicateCount = preTable->getPredicateNo();
+			EntityIDBuffer *buffer = new EntityIDBuffer();
+			string URI1,URI2;
+			for(ID pid = 1;pid < predicateCount;pid++){
+				buffer->empty();
+				entityFinder->findSubjectIDByPredicate(pid, buffer, 0, UINT_MAX);
+				size_t bufSize = buffer->getSize();
+				ID *p = buffer->getBuffer();
+				preTable->getPredicateByID(URI2, pid);
+				for (size_t i = 0; i < bufSize; i++) {
+					uriTable->getURIById(URI1, p[i]);
+					cout<<URI1<<" "<<URI2<<endl;
+				}
+			}
+			delete buffer;
+		}else{
+			unsigned predicateCount = preTable->getPredicateNo();
+			EntityIDBuffer *buffer = new EntityIDBuffer();
+			string URI1,URI2;
+			for(ID pid = 1;pid < predicateCount;pid++){
+				buffer->empty();
+				entityFinder->findSubjectIDByPredicate(pid, buffer, 0, UINT_MAX);
+				size_t bufSize = buffer->getSize();
+				ID *p = buffer->getBuffer();
+				preTable->getPredicateByID(URI2, pid);
+				for (size_t i = 0; i < bufSize; i++) {
+					uriTable->getURIById(URI1, p[i]);
+					cout<<URI2<<" "<<URI1<<endl;
+				}
+			}
+			delete buffer;
+		}
+	}else if(_query->tripleNodes[0].scanOperation == TripleNode::FINDPOBYNONE){
+		if(_queryGraph->getProjection().front() == _query->tripleNodes[0].predicate){
+			unsigned predicateCount = preTable->getPredicateNo();
+			EntityIDBuffer *buffer = new EntityIDBuffer();
+			string URI1,URI2;
+			for(ID pid = 1;pid < predicateCount;pid++){
+				buffer->empty();
+				entityFinder->findObjectIDByPredicate(pid, buffer, 0, UINT_MAX);
+				size_t bufSize = buffer->getSize();
+				ID *p = buffer->getBuffer();
+				URI2 = preTable->getPredicateByID(pid);
+				for (size_t i = 0; i < bufSize; i++) {
+					UriTable->getURIById(URI1, p[i]);
+					cout<<URI2<<" "<<URI1<<endl;
+				}
+			}
+			delete buffer;
+		}else{
+			unsigned predicateCount = preTable->getPredicateNo();
+			EntityIDBuffer *buffer = new EntityIDBuffer();
+			string URI1,URI2;
+			for(ID pid = 1;pid < predicateCount;pid++){
+				buffer->empty();
+				entityFinder->findObjectIDByPredicate(pid, buffer, 0, UINT_MAX);
+				size_t bufSize = buffer->getSize();
+				ID *p = buffer->getBuffer();
+				preTable->getPredicateByID(URI2, pid);
+				for (size_t i = 0; i < bufSize; i++) {
+					uriTable->getURIById(URI1, p[i]);
+					cout<<URI1<<" "<<URI2<<endl;
+				}
+			}
+			delete buffer;
+		}
+	}else if(_query->tripleNodes[0].scanOperation == TripleNode::FINDSOBYNONE){
+		if(_queryGraph->getProjection().front() == _query->tripleNodes[0].subject){
+			unsigned predicateCount = preTable->getPredicateNo();
+			EntityIDBuffer *buffer = new EntityIDBuffer();
+			string URI1,URI2;
+			for(ID pid = 1;pid < predicateCount;pid++){
+				buffer->empty();
+				entityFinder->findSubjectIDAndObjectIDByPredicate(pid, buffer, 0, UINT_MAX);
+				size_t bufSize = buffer->getSize();
+				ID *p = buffer->getBuffer();
+				for (size_t i = 0; i < bufSize; i++) {
+					uriTable->getURIById(URI1, p[i*2]);
+					uriTable->getURIById(URI2, p[i*2+1]);
+					cout<<URI1<<" "<<URI2<<endl;
+				}
+			}
+			delete buffer;
+		}else{
+			unsigned predicateCount = preTable->getPredicateNo();
+			EntityIDBuffer *buffer = new EntityIDBuffer();
+			string URI1,URI2;
+			for(ID pid = 1;pid < predicateCount;pid++){
+				buffer->empty();
+				entityFinder->findObjectIDAndSubjectIDByPredicate(pid, buffer, 0, UINT_MAX);
+				size_t bufSize = buffer->getSize();
+				ID *p = buffer->getBuffer();
+				for (size_t i = 0; i < bufSize; i++) {
+					uriTable->getURIById(URI1, p[i*2]);
+					uriTable->getURIById(URI2, p[i*2+1]);
+					cout<<URI1<<" "<<URI2<<endl;
+				}
+			}
+			delete buffer;
+		}
+	}else if(_query->tripleNodes[0].scanOperation == TripleNode::FINDS){
+		EntityIDBuffer *buffer = new EntityIDBuffer();
+		entityFinder->findSubject(buffer, 0, INT_MAX);
+		size_t bufSize = buffer->getSize();
+		ID *p = buffer->getBuffer();
+		string URI;
+		for(size_t i = 0;i < bufSize;i++){
+			uriTable->getURIById(URI, p[i]);
+			cout<<URI<<endl;
+		}
+		delete buffer;
+	}else if(_query->tripleNodes[0].scanOperation == TripleNode::FINDP){
+		unsigned predicateCount = preTable->getPredicateNo();
+		string URI;
+		for(ID pid = 1;pid < predicateCount;pid++){
+			preTable->getPredicateByID(URI, pid);
+			cout<<URI<<endl;
+		}
+	}else if(_query->tripleNodes[0].scanOperation == TripleNode::FINDO){
+		EntityIDBuffer *buffer = new EntityIDBuffer();
+		entityFinder->findObject(buffer, 0, INT_MAX);
+		size_t bufSize = buffer->getSize();
+		ID *p = buffer->getBuffer();
+		string URI;
+		for(size_t i = 0;i < bufSize;i++){
+			uriTable->getURIById(URI, p[i]);
+			cout<<URI<<endl;
+		}
+		delete buffer;
+	}
+}*/
+
+
 Status TripleBitWorkerQuery::excuteQuery() {
-	if (_query->joinVariables.size() == 1) {
+	/*if(_query->tripleNodes.size() == 1 && _query->joinVariables.size() == 3){
+			//the query has only one pattern with three variables
+			onePatternWithThreeVariables();
+		}
+	else */if (_query->joinVariables.size() == 1) {
 //#ifdef MYDEBUG
 		cout << "execute singleVariableJoin" << endl;
 //#endif

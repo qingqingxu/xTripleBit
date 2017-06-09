@@ -27,7 +27,7 @@ public:
 	PredicateTable(const string dir);
 	virtual ~PredicateTable();
 	Status insertTable(const char* str, ID& id);
-	string getPrediacateByID(ID id);
+	Status getPredicateByID(string& URI, ID id);
 	Status getIDByPredicate(const char* str, ID& id);
 
 	size_t getSize() {

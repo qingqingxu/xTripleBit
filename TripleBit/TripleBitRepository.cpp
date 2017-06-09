@@ -163,11 +163,9 @@ bool TripleBitRepository::find_soid_by_string_update(SOID& soid, const string& s
 }
 
 bool TripleBitRepository::find_string_by_pid(string& str, PID& pid) {
-	str = preTable->getPrediacateByID(pid);
-
-	if (str.length() == 0)
-		return false;
-	return true;
+	if (preTable->getPredicateByID(str, pid) == OK)
+		return true;
+	return false;
 }
 
 bool TripleBitRepository::find_string_by_soid(string& str, SOID& soid) {

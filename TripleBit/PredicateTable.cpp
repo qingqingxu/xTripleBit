@@ -79,21 +79,21 @@ Status PredicateTable::insertTable(const char* str, ID& id)
 	return OK;
 }
 
-string PredicateTable::getPrediacateByID(ID id)
+Status PredicateTable::getPredicateByID(string& URI, ID id)
 {
-	searchStr.clear();
-	if(suffix_segment->findStringById(&suffix, id) == false)
-		return searchStr;
+	URI.clear();
+	if (suffix_segment->findStringById(&suffix, id) == false)
+		return URI_NOT_FOUND;
 	char temp[10];
 	memset(temp, 0, 10);
 	const char* ptr = suffix.str;
 
 	int i;
 #ifdef USE_C_STRING
-	for(i = 0; i < 10; i++) {
-		if(ptr[i] > 10)
+	for (i = 0; i < 10; i++) {
+		if (ptr[i] > 10)
 			break;
-		temp[i] = (ptr[i] - 1)+ '0';
+		temp[i] = (ptr[i] - 1) + '0';
 	}
 #else
 	for(i = 0; i < 10; i++) {
@@ -104,17 +104,17 @@ string PredicateTable::getPrediacateByID(ID id)
 #endif
 
 	ID prefixId = atoi(temp);
-	if(prefixId == 1)
-		searchStr.assign(suffix.str + 1, suffix.length - 1);
+	if (prefixId == 1)
+		URI.assign(suffix.str + 1, suffix.length - 1);
 	else {
-		if(prefix_segment->findStringById(&prefix, prefixId) == false)
-			return string("");
-		searchStr.assign(prefix.str,prefix.length);
-		searchStr.append("/");
-		searchStr.append(suffix.str + i, suffix.length - i);
+		if (prefix_segment->findStringById(&prefix, prefixId) == false)
+			return PREDICATE_NOT_FOUND;
+		URI.assign(prefix.str, prefix.length);
+		URI.append("/");
+		URI.append(suffix.str + i, suffix.length - i);
 	}
 
-	return searchStr;
+	return OK;
 }
 
 Status PredicateTable::getIDByPredicate(const char* str,ID& id)

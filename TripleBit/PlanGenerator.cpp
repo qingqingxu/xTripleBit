@@ -72,7 +72,7 @@ Status PlanGenerator::generatePlan(TripleBitQueryGraph& _graph)
 
 	// generate the selectivity for patterns and join variables;
 	for(vector<TripleNode>::iterator iter = query->tripleNodes.begin(), limit = query->tripleNodes.end(); iter != limit; iter++) {
-		getSelectivity(iter->tripleNodeID);
+		getSelectivity(iter->tripleNodeID);//get the signal pattern's selectivity
 #ifdef DEBUGPLAN
 		cout << "TripleNodeID: " << iter->tripleNodeID << " Selectivity: " << getSelectivity(iter->tripleNodeID) << endl;
 #endif
@@ -82,7 +82,7 @@ Status PlanGenerator::generatePlan(TripleBitQueryGraph& _graph)
 	map<TripleBitQueryGraph::JoinVariableNodeID,int> selectivityMap;
 	for(; joinVariableIter != query->joinVariableNodes.end(); joinVariableIter++)
 	{
-		generateSelectivity(*joinVariableIter,selectivityMap);
+		generateSelectivity(*joinVariableIter,selectivityMap);//get two join patterns's selectivity
 	}
 
 	TripleBitQueryGraph::JoinVariableNode::JoinType joinType;

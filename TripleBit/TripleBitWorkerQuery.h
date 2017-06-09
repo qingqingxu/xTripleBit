@@ -93,6 +93,8 @@ private:
 	Status singleVariableJoin();
 	Status acyclicJoin();
 	Status cyclicJoin();
+	void onePatternWithThreeVariables();
+	void displayAllTriples();
 	Status findEntitiesAndJoin(TripleBitQueryGraph::JoinVariableNodeID id,
 			vector<pair<TripleBitQueryGraph::TripleNodeID, TripleBitQueryGraph::JoinVariableNode::DimType> >& tpnodes,
 			bool firstTime);
