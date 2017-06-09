@@ -202,7 +202,7 @@ void SPARQLParser::parseDelete()
 // Parse the Delete
 {
 #ifdef MYDEBUG
-	cout << __FUNCTION__ << endl';
+	cout << __FUNCTION__ << endl;
 #endif
 	SPARQLLexer::Token token = lexer.getNext();
 
@@ -224,7 +224,7 @@ void SPARQLParser::parseDeleteData()
 // Parse the delete data
 {
 #ifdef MYDEBUG
-	cout << __FUNCTION__ << endl';
+	cout << __FUNCTION__ << endl;
 #endif
 	QueryOperation = SPARQLParser::DELETE_DATA;
 
@@ -244,7 +244,7 @@ void SPARQLParser::parseDeleteClause()
 // Parse the Delete Clause
 {
 #ifdef MYDEBUG
-	cout << __FUNCTION__ << endl';
+	cout << __FUNCTION__ << endl;
 #endif
 	patterns = PatternGroup();
 	parseGroupGraphPattern(patterns);
