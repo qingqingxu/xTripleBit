@@ -269,6 +269,9 @@ void SPARQLParser::parseDeleteClause()
 void SPARQLParser::parseUpdate()
 // Parse the Update
 {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 	QueryOperation = SPARQLParser::UPDATE;
 	if(lexer.getNext() != SPARQLLexer::LCurly)
 		throw ParserException(" '{' expected");
