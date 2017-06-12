@@ -41,8 +41,8 @@ static bool calculateLineKB(vector<LineHashIndex::Point>& a, double& k, double& 
 	return true;
 }
 
-LineHashIndex::LineHashIndex(ChunkManager& _chunkManager, IndexType index_type, XYType xy_type) :
-		chunkManager(_chunkManager), indexType(index_type), xyType(xy_type)
+LineHashIndex::LineHashIndex(ChunkManager& _chunkManager, IndexType index_type) :
+		chunkManager(_chunkManager), indexType(index_type))
 {
 	// TODO Auto-generated constructor stub
 	idTable = NULL;

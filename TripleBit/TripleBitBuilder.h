@@ -55,18 +55,27 @@ public:
 	Status startBuild();
 	static const char* skipIdIdId(const char* reader);
 	static int compareValue(const char* left, const char* right);
-	static int compare213(const char* left, const char* right);
-	static int compare231(const char* left, const char* right);
-	static int compare123(const char* left, const char* right);
-	static int compare321(const char* left, const char* right);
+	static int compare213(const char* left, const char* right);//n
+	static int compare231(const char* left, const char* right);//n
+	static int compare123(const char* left, const char* right);//n
+	static int compare321(const char* left, const char* right);//n
+
+	static int compare213(const uchar* left, const uchar* right);
+	static int compare231(const uchar* left, const uchar* right);
+	static int compare123(const uchar* left, const uchar* right);
+	static int compare321(const uchar* left, const uchar* right);
+
 	static inline void loadTriple(const char* data, ID& v1, ID& v2, ID& v3) {
 		TempFile::readId(TempFile::readId(TempFile::readId(data, v1), v2), v3);
 	}
 
-	static inline int cmpValue(ID l ,ID r) {
+	template<typename T>
+	static inline int cmpValue(T& l ,T& r) {
 		return (l < r) ? -1 : ((l > r) ? 1 : 0);
 	}
-	static inline int cmpTriples(ID l1, ID l2, ID l3, ID r1, ID r2, ID r3) {
+
+	template<typename T>
+	static inline int cmpTriples(T& l1, T& l2, T&  l3, T&  r1, T&  r2, T& r3){
 		int c = cmpValue(l1, r1);
 		if(c)
 			return c;
@@ -74,7 +83,6 @@ public:
 		if(c)
 			return c;
 		return cmpValue(l3, r3);
-
 	}
 	StatisticsBuffer* getStatBuffer(StatisticsBuffer::StatisticsType type) {
 		return statBuffer[static_cast<int>(type)];

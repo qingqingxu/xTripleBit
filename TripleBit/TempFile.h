@@ -56,25 +56,22 @@ public:
 	/// Discard the file
 	void discard();
 
-	/// Write a string
-	void writeString(unsigned len, const char* str);
-	/// Write a id
-	/// flag==0 subject
-	/// flag==1 object
-	/// flag==2 predicate
-	void writeId(ID id, unsigned char flag);
 	void writeId(ID id);
 	/// Raw write
-	void write(unsigned len, const char* data);
-
+	void write(unsigned len, const char* data);//n
+	template<typename T>
+	void write(const uchar* writer, T& data, DataType dataType = DataType::STRING);
+	template<typename T>
+	void writeTriple(const uchar* writer, T& subject, T& predicate, T& object, DataType objType = DataType::STRING);
 	/// Skip a predicate
-	static const char* skipId(const char* reader);
-	/// Skip a string
-	static const char* skipString(const char* reader);
+	static const char* skipId(const char* reader);//n
+	static const uchar* shipTriple(const uchar* reader);
 	/// Read an id
-	static const char* readId(const char* reader, ID& id);
-	/// Read a string
-	static const char* readString(const char* reader, unsigned& len, const char*& str);
+	static const char* readId(const char* reader, ID& id);//n
+	template<typename T>
+	static const uchar* read(const uchar* reader, T& data, DataType dataType = DataType::STRING);
+	template<typename T>
+	static const uchar* readTriple(const uchar* reader, T& subject, T& predicate, T& object);
 };
 
 //----------------------------------------------------------------------------

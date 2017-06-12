@@ -61,49 +61,6 @@ void TempFile::discard()
 	remove(fileName.c_str());
 }
 //---------------------------------------------------------------------------
-void TempFile::writeString(unsigned len, const char* str)
-// Write a string
-{
-	writeId(len);
-	write(len, str);
-}
-//---------------------------------------------------------------------------
-void TempFile::writeId(ID id, unsigned char flag)
-// Write a id
-{
-
-	while (id >= 128) {
-		unsigned char c = static_cast<unsigned char> (id | (flag<<8));
-		if (writePointer == bufferSize) {
-			out.write(writeBuffer, writePointer);
-			writePointer = 0;
-		}
-		writeBuffer[writePointer++] = c;
-		id >>= 7;
-	}
-	if (writePointer == bufferSize) {
-		out.write(writeBuffer, writePointer);
-		writePointer = 0;
-	}
-	writeBuffer[writePointer++] = static_cast<unsigned char> (id | (flag<<8));
-
-}
-//---------------------------------------------------------------------------
-void TempFile::writeId(ID id)
-// Write a id
-{
-	for(int i = 0 ; i < 4; i++) {
-		unsigned char c = static_cast<unsigned char> (id | 0);
-		if (writePointer == bufferSize) {
-			out.write(writeBuffer, writePointer);
-			writePointer = 0;
-		}
-		writeBuffer[writePointer++] = c;
-		id >>= 8;
-	}
-
-}
-//---------------------------------------------------------------------------
 void TempFile::write(unsigned len, const char* data)
 // Raw write
 {

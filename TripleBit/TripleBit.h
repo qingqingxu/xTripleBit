@@ -138,6 +138,20 @@ enum JoinShape{
 	CHAIN
 };
 
+enum OrderByType{
+	ORDERBYS,
+	ORDERBYO
+};
+
+enum DataType
+{
+	BOOL,
+	CHAR,
+	INT,
+	UNSIGNED_INT,
+	DOUBLE,
+	STRING
+};
 enum EntityType
 {
 	PREDICATE = 1 << 0,
@@ -145,6 +159,7 @@ enum EntityType
 	OBJECT = 1 << 2,
 	DEFAULT = -1
 };
+
 
 typedef long long int64;
 typedef unsigned char word;

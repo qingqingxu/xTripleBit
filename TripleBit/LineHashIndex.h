@@ -32,7 +32,6 @@ public:
 	};
 
 	enum IndexType { SUBJECT_INDEX, OBJECT_INDEX};
-	enum XYType {XBIGTHANY, YBIGTHANX};
 private:
 	MemoryBuffer* idTable;
 	ID* idTableEntries;
@@ -62,7 +61,7 @@ private:
 	ID MetaID(size_t index);
 	ID MetaYID(size_t index);
 public:
-	LineHashIndex(ChunkManager& _chunkManager, IndexType index_type, XYType xy_type);
+	LineHashIndex(ChunkManager& _chunkManager, IndexType index_type);
 	Status buildIndex(unsigned chunkType);
 	void getOffsetPair(size_t offsetID, unsigned& offsetBegin, unsigned& offsetEnd);
 	size_t searchChunk(ID xID, ID yID);

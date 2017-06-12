@@ -197,16 +197,16 @@ void PartitionMaster::executeQuery(SubTrans *subTransaction){
 	case TripleNode::FINDOSBYP: {
 		soType = 1;
 		xyType = 1;
-		xChunkIDMin = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(minID, minID + 1);
-		xChunkIDMax = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(maxID, UINT_MAX);
+		xChunkIDMin = partitionChunkManager[soType]->getChunkIndex()->searchChunk(minID, minID + 1);
+		xChunkIDMax = partitionChunkManager[soType]->getChunkIndex()->searchChunk(maxID, UINT_MAX);
 		assert(xChunkIDMin <= xChunkIDMax);
 		xChunkCount = xChunkIDMax - xChunkIDMin + 1;
 
 		xyType = 2;
 		minID = subTransaction->minID;
 		maxID = subTransaction->maxID;
-		xyChunkIDMin = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(minID, 1);
-		xyChunkIDMax = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(maxID, maxID - 1);
+		xyChunkIDMin = partitionChunkManager[soType]->getChunkIndex()->searchChunk(minID, 1);
+		xyChunkIDMax = partitionChunkManager[soType]->getChunkIndex()->searchChunk(maxID, maxID - 1);
 		assert(xyChunkIDMin <= xyChunkIDMax);
 		xyChunkCount = xyChunkIDMax - xyChunkIDMin + 1;
 
@@ -215,16 +215,16 @@ void PartitionMaster::executeQuery(SubTrans *subTransaction){
 	case TripleNode::FINDSOBYP: {
 		soType = 0;
 		xyType = 1;
-		xChunkIDMin = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(minID, minID + 1);
-		xChunkIDMax = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(maxID, UINT_MAX);
+		xChunkIDMin = partitionChunkManager[soType]->getChunkIndex()->searchChunk(minID, minID + 1);
+		xChunkIDMax = partitionChunkManager[soType]->getChunkIndex()->searchChunk(maxID, UINT_MAX);
 		assert(xChunkIDMin <= xChunkIDMax);
 		xChunkCount = xChunkIDMax - xChunkIDMin + 1;
 
 		xyType = 2;
 		minID = subTransaction->minID;
 		maxID = subTransaction->maxID;
-		xyChunkIDMin = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(minID, 1);
-		xyChunkIDMax = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(maxID, maxID - 1);
+		xyChunkIDMin = partitionChunkManager[soType]->getChunkIndex()->searchChunk(minID, 1);
+		xyChunkIDMax = partitionChunkManager[soType]->getChunkIndex()->searchChunk(maxID, maxID - 1);
 		assert(xyChunkIDMin <= xyChunkIDMax);
 		xyChunkCount = xyChunkIDMax - xyChunkIDMin + 1;
 
@@ -234,8 +234,8 @@ void PartitionMaster::executeQuery(SubTrans *subTransaction){
 		soType = 1;
 		if (minID > triple->object) {
 			xyType = 1;
-			if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(triple->object, minID, xChunkIDMin)) {
-				if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(triple->object, maxID, xChunkIDMax)) {
+			if (partitionChunkManager[soType]->getChunkIndex()->searchChunk(triple->object, minID, xChunkIDMin)) {
+				if (partitionChunkManager[soType]->getChunkIndex()->searchChunk(triple->object, maxID, xChunkIDMax)) {
 					assert(xChunkIDMax >= xChunkIDMin);
 					xChunkCount = xChunkIDMax - xChunkIDMin + 1;
 				}
@@ -243,8 +243,8 @@ void PartitionMaster::executeQuery(SubTrans *subTransaction){
 				xChunkCount = 0;
 		} else if (maxID < triple->object) {
 			xyType = 2;
-			if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(triple->object, minID, xyChunkIDMin)) {
-				if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(triple->object, maxID, xyChunkIDMax)) {
+			if (partitionChunkManager[soType]->getChunkIndex()->searchChunk(triple->object, minID, xyChunkIDMin)) {
+				if (partitionChunkManager[soType]->getChunkIndex()->searchChunk(triple->object, maxID, xyChunkIDMax)) {
 					assert(xyChunkIDMax >= xyChunkIDMin);
 					xyChunkCount = xyChunkIDMax - xyChunkIDMin + 1;
 				}
@@ -252,8 +252,8 @@ void PartitionMaster::executeQuery(SubTrans *subTransaction){
 				xyChunkCount = 0;
 		} else if (minID < triple->object && maxID > triple->object) {
 			xyType = 1;
-			if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(triple->object, triple->object + 1, xChunkIDMin)) {
-				if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(triple->object, maxID, xChunkIDMax)) {
+			if (partitionChunkManager[soType]->getChunkIndex()->searchChunk(triple->object, triple->object + 1, xChunkIDMin)) {
+				if (partitionChunkManager[soType]->getChunkIndex()->searchChunk(triple->object, maxID, xChunkIDMax)) {
 					assert(xChunkIDMax >= xChunkIDMin);
 					xChunkCount = xChunkIDMax - xChunkIDMin + 1;
 				}
@@ -261,8 +261,8 @@ void PartitionMaster::executeQuery(SubTrans *subTransaction){
 				xChunkCount = 0;
 
 			xyType = 2;
-			if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(triple->object, minID, xyChunkIDMin)) {
-				if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(triple->object, triple->object - 1, xyChunkIDMax)) {
+			if (partitionChunkManager[soType]->getChunkIndex()->searchChunk(triple->object, minID, xyChunkIDMin)) {
+				if (partitionChunkManager[soType]->getChunkIndex()->searchChunk(triple->object, triple->object - 1, xyChunkIDMax)) {
 					assert(xyChunkIDMax >= xyChunkIDMin);
 					xyChunkCount = xyChunkIDMax - xyChunkIDMin + 1;
 				}
@@ -275,32 +275,32 @@ void PartitionMaster::executeQuery(SubTrans *subTransaction){
 		soType = 0;
 		if (minID > triple->subject) {
 			xyType = 1;
-			if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(triple->subject, minID, xChunkIDMin)) {
-				xChunkIDMax = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(triple->subject, maxID);
+			if (partitionChunkManager[soType]->getChunkIndex()->searchChunk(triple->subject, minID, xChunkIDMin)) {
+				xChunkIDMax = partitionChunkManager[soType]->getChunkIndex()->searchChunk(triple->subject, maxID);
 				assert(xChunkIDMax >= xChunkIDMin);
 				xChunkCount = xChunkIDMax - xChunkIDMin + 1;
 			} else
 				xChunkCount = 0;
 		} else if (maxID < triple->subject) {
 			xyType = 2;
-			if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(triple->subject, minID, xyChunkIDMin)) {
-				xyChunkIDMax = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(triple->subject, maxID);
+			if (partitionChunkManager[soType]->getChunkIndex()->searchChunk(triple->subject, minID, xyChunkIDMin)) {
+				xyChunkIDMax = partitionChunkManager[soType]->getChunkIndex()->searchChunk(triple->subject, maxID);
 				assert(xyChunkIDMax >= xyChunkIDMin);
 				xyChunkCount = xyChunkIDMax - xyChunkIDMin + 1;
 			} else
 				xyChunkCount = 0;
 		} else if (minID < triple->subject && maxID > triple->subject) {
 			xyType = 1;
-			if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(triple->subject, triple->subject + 1, xChunkIDMin)) {
-				xChunkIDMax = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(triple->subject, maxID);
+			if (partitionChunkManager[soType]->getChunkIndex()->searchChunk(triple->subject, triple->subject + 1, xChunkIDMin)) {
+				xChunkIDMax = partitionChunkManager[soType]->getChunkIndex()->searchChunk(triple->subject, maxID);
 				assert(xChunkIDMax >= xChunkIDMin);
 				xChunkCount = xChunkIDMax - xChunkIDMin + 1;
 			} else
 				xChunkCount = 0;
 
 			xyType = 2;
-			if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(triple->subject, minID, xyChunkIDMin)) {
-				xyChunkIDMax = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(triple->subject, triple->subject - 1);
+			if (partitionChunkManager[soType]->getChunkIndex()->searchChunk(triple->subject, minID, xyChunkIDMin)) {
+				xyChunkIDMax = partitionChunkManager[soType]->getChunkIndex()->searchChunk(triple->subject, triple->subject - 1);
 				assert(xyChunkIDMax >= xyChunkIDMin);
 				xyChunkCount = xyChunkIDMax - xyChunkIDMin + 1;
 			} else
@@ -311,16 +311,16 @@ void PartitionMaster::executeQuery(SubTrans *subTransaction){
 	case TripleNode::FINDSBYP: {
 		soType = 0;
 		xyType = 1;
-		xChunkIDMin = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(minID, minID + 1);
-		xChunkIDMax = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(maxID, UINT_MAX);
+		xChunkIDMin = partitionChunkManager[soType]->getChunkIndex()->searchChunk(minID, minID + 1);
+		xChunkIDMax = partitionChunkManager[soType]->getChunkIndex()->searchChunk(maxID, UINT_MAX);
 		assert(xChunkIDMax >= xChunkIDMin);
 		xChunkCount = xChunkIDMax - xChunkIDMin + 1;
 
 		xyType = 2;
 		minID = subTransaction->minID;
 		maxID = subTransaction->maxID;
-		xyChunkIDMin = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(minID, 1);
-		xyChunkIDMax = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(maxID, maxID - 1);
+		xyChunkIDMin = partitionChunkManager[soType]->getChunkIndex()->searchChunk(minID, 1);
+		xyChunkIDMax = partitionChunkManager[soType]->getChunkIndex()->searchChunk(maxID, maxID - 1);
 		assert(xyChunkIDMax >= xyChunkIDMin);
 		xyChunkCount = xyChunkIDMax - xyChunkIDMin + 1;
 
@@ -329,16 +329,16 @@ void PartitionMaster::executeQuery(SubTrans *subTransaction){
 	case TripleNode::FINDOBYP: {
 		soType = 1;
 		xyType = 1;
-		xChunkIDMin = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(minID, minID + 1);
-		xChunkIDMax = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(maxID, UINT_MAX);
+		xChunkIDMin = partitionChunkManager[soType]->getChunkIndex()->searchChunk(minID, minID + 1);
+		xChunkIDMax = partitionChunkManager[soType]->getChunkIndex()->searchChunk(maxID, UINT_MAX);
 		assert(xChunkIDMax >= xChunkIDMin);
 		xChunkCount = xChunkIDMax - xChunkIDMin + 1;
 
 		xyType = 2;
 		minID = subTransaction->minID;
 		maxID = subTransaction->maxID;
-		xyChunkIDMin = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(minID, 1);
-		xyChunkIDMax = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(maxID, maxID - 1);
+		xyChunkIDMin = partitionChunkManager[soType]->getChunkIndex()->searchChunk(minID, 1);
+		xyChunkIDMax = partitionChunkManager[soType]->getChunkIndex()->searchChunk(maxID, maxID - 1);
 		assert(xyChunkIDMax >= xyChunkIDMin);
 		xyChunkCount = xyChunkIDMax - xyChunkIDMin + 1;
 
@@ -394,28 +394,28 @@ void PartitionMaster::executeInsertData(SubTrans* subTransaction) {
 	if (subjectID < objectID) {
 		soType = 0;
 		xyType = 1;
-		chunkID = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(subjectID, objectID);
+		chunkID = partitionChunkManager[soType]->getChunkIndex()->searchChunk(subjectID, objectID);
 		ChunkTask *chunkTask1 = new ChunkTask(subTransaction->operationType, subjectID, objectID, subTransaction->triple.scanOperation, taskPackage,
 				subTransaction->indexForTT);
 		taskEnQueue(chunkTask1, xChunkQueue[soType][chunkID]);
 
 		soType = 1;
 		xyType = 2;
-		chunkID = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(objectID, subjectID);
+		chunkID = partitionChunkManager[soType]->getChunkIndex()->searchChunk(objectID, subjectID);
 		ChunkTask *chunkTask2 = new ChunkTask(subTransaction->operationType, subjectID, objectID, subTransaction->triple.scanOperation, taskPackage,
 				subTransaction->indexForTT);
 		taskEnQueue(chunkTask2, xyChunkQueue[soType][chunkID]);
 	} else {
 		soType = 0;
 		xyType = 2;
-		chunkID = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(subjectID, objectID);
+		chunkID = partitionChunkManager[soType]->getChunkIndex()->searchChunk(subjectID, objectID);
 		ChunkTask *chunkTask1 = new ChunkTask(subTransaction->operationType, subjectID, objectID, subTransaction->triple.scanOperation, taskPackage,
 				subTransaction->indexForTT);
 		taskEnQueue(chunkTask1, xyChunkQueue[soType][chunkID]);
 
 		soType = 1;
 		xyType = 1;
-		chunkID = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(objectID, subjectID);
+		chunkID = partitionChunkManager[soType]->getChunkIndex()->searchChunk(objectID, subjectID);
 		ChunkTask *chunkTask2 = new ChunkTask(subTransaction->operationType, subjectID, objectID, subTransaction->triple.scanOperation, taskPackage,
 				subTransaction->indexForTT);
 		taskEnQueue(chunkTask2, xChunkQueue[soType][chunkID]);
@@ -444,16 +444,16 @@ void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
 	if (subTransaction->triple.constSubject) {
 		soType = 0;
 		xyType = 1;
-		if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(subjectID, subjectID + 1, xChunkIDMin)) {
-			xChunkIDMax = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(subjectID, UINT_MAX);
+		if (partitionChunkManager[soType]->getChunkIndex()->searchChunk(subjectID, subjectID + 1, xChunkIDMin)) {
+			xChunkIDMax = partitionChunkManager[soType]->getChunkIndex()->searchChunk(subjectID, UINT_MAX);
 			assert(xChunkIDMax >= xChunkIDMin);
 			xChunkCount = xChunkIDMax - xChunkIDMin + 1;
 		} else
 			xChunkCount = 0;
 
 		xyType = 2;
-		if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(subjectID, 0, xyChunkIDMin)) {
-			xyChunkIDMax = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(subjectID, subjectID - 1);
+		if (partitionChunkManager[soType]->getChunkIndex()->searchChunk(subjectID, 0, xyChunkIDMin)) {
+			xyChunkIDMax = partitionChunkManager[soType]->getChunkIndex()->searchChunk(subjectID, subjectID - 1);
 			assert(xyChunkIDMax >= xyChunkIDMin);
 			xyChunkCount = xyChunkIDMax - xyChunkIDMin + 1;
 		} else {
@@ -483,16 +483,16 @@ void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
 	} else {
 		soType = 1;
 		xyType = 1;
-		if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(objectID, objectID + 1, xChunkIDMin)) {
-			xChunkIDMax = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(objectID, UINT_MAX);
+		if (partitionChunkManager[soType]->getChunkIndex()->searchChunk(objectID, objectID + 1, xChunkIDMin)) {
+			xChunkIDMax = partitionChunkManager[soType]->getChunkIndex()->searchChunk(objectID, UINT_MAX);
 			assert(xChunkIDMax >= xChunkIDMin);
 			xChunkCount = xChunkIDMax - xChunkIDMin + 1;
 		} else
 			xChunkCount = 0;
 
 		xyType = 2;
-		if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(objectID, 0, xyChunkIDMin)) {
-			xyChunkIDMax = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(objectID, objectID - 1);
+		if (partitionChunkManager[soType]->getChunkIndex()->searchChunk(objectID, 0, xyChunkIDMin)) {
+			xyChunkIDMax = partitionChunkManager[soType]->getChunkIndex()->searchChunk(objectID, objectID - 1);
 			assert(xyChunkIDMax >= xyChunkIDMin);
 			xyChunkCount = xyChunkIDMax - xyChunkIDMin + 1;
 		} else
@@ -537,16 +537,16 @@ void PartitionMaster::executeUpdate(SubTrans *subTransfirst, SubTrans *subTranss
 	if (subTransfirst->triple.constSubject) {
 		soType = 0;
 		xyType = 1;
-		if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(subjectID, subjectID + 1, xChunkIDMin)) {
-			xChunkIDMax = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(subjectID, UINT_MAX);
+		if (partitionChunkManager[soType]->getChunkIndex()->searchChunk(subjectID, subjectID + 1, xChunkIDMin)) {
+			xChunkIDMax = partitionChunkManager[soType]->getChunkIndex()->searchChunk(subjectID, UINT_MAX);
 			assert(xChunkIDMax >= xChunkIDMin);
 			xChunkCount = xChunkIDMax - xChunkIDMin + 1;
 		} else
 			xChunkCount = 0;
 
 		xyType = 2;
-		if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(subjectID, 0, xyChunkIDMin)) {
-			xyChunkIDMax = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(subjectID, subjectID - 1);
+		if (partitionChunkManager[soType]->getChunkIndex()->searchChunk(subjectID, 0, xyChunkIDMin)) {
+			xyChunkIDMax = partitionChunkManager[soType]->getChunkIndex()->searchChunk(subjectID, subjectID - 1);
 			assert(xyChunkIDMax >= xyChunkIDMin);
 			xyChunkCount = xyChunkCount - xyChunkCount + 1;
 		} else{
@@ -575,16 +575,16 @@ void PartitionMaster::executeUpdate(SubTrans *subTransfirst, SubTrans *subTranss
 	} else {
 		soType = 1;
 		xyType = 1;
-		if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(objectID, objectID + 1, xChunkIDMin)) {
-			xChunkIDMax = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(objectID, UINT_MAX);
+		if (partitionChunkManager[soType]->getChunkIndex()->searchChunk(objectID, objectID + 1, xChunkIDMin)) {
+			xChunkIDMax = partitionChunkManager[soType]->getChunkIndex()->searchChunk(objectID, UINT_MAX);
 			assert(xChunkIDMax >= xChunkIDMin);
 			xChunkCount = xChunkIDMax - xChunkIDMin + 1;
 		} else
 			xChunkCount = 0;
 
 		xyType = 2;
-		if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(objectID, 0, xyChunkIDMin)) {
-			xyChunkIDMax = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(objectID, objectID - 1);
+		if (partitionChunkManager[soType]->getChunkIndex()->searchChunk(objectID, 0, xyChunkIDMin)) {
+			xyChunkIDMax = partitionChunkManager[soType]->getChunkIndex()->searchChunk(objectID, objectID - 1);
 			assert(xyChunkIDMax >= xyChunkIDMin);
 			xyChunkCount = xyChunkCount - xyChunkCount + 1;
 		} else
@@ -1089,7 +1089,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer, const uchar 
 		}
 	}
 
-	partitionChunkManager[soType]->getChunkIndex(xyType)->updateChunkMetaData(chunkID);
+	partitionChunkManager[soType]->getChunkIndex()->updateChunkMetaData(chunkID);
 	free(tempPage);
 	free(tempPage2);
 
