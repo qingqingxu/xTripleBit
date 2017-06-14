@@ -17,7 +17,7 @@
  * f(x)=kx + b;
  * used to calculate the parameter k and b;
  */
-static bool calculateLineKB(vector<LineHashIndex::Point>& a, double& k, double& b, int pointNo)
+bool LineHashIndex::calculateLineKB(vector<LineHashIndex::Point>& a, double& k, double& b, int pointNo)
 {
 	if (pointNo < 2)
 		return false;
@@ -25,13 +25,46 @@ static bool calculateLineKB(vector<LineHashIndex::Point>& a, double& k, double& 
 	double mX, mY, mXX, mXY;
 	mX = mY = mXX = mXY = 0;
 	int i;
-	for (i = 0; i < pointNo; i++)
-	{
-		mX += a[i].x;
-		mY += a[i].y;
-		mXX += a[i].x * a[i].x;
-		mXY += a[i].x * a[i].y;
+	switch (chunkManager.meta->xType) {
+	case DataType::BOOL:
+		for (i = 0; i < pointNo; i++) {
+			mX += a[i].x.var_bool;
+			mY += a[i].y;
+			mXX += a[i].x.var_bool * a[i].x.var_bool;
+			mXY += a[i].x.var_bool * a[i].y;
+		}
+		break;
+	case DataType::CHAR:
+		for (i = 0; i < pointNo; i++) {
+			mX += a[i].x.var_char;
+			mY += a[i].y;
+			mXX += a[i].x.var_char * a[i].x.var_char;
+			mXY += a[i].x.var_char * a[i].y;
+		}
+		break;
+	case DataType::STRING:
+		for (i = 0; i < pointNo; i++) {
+			mX += a[i].x.var_uint;
+			mY += a[i].y;
+			mXX += a[i].x.var_uint * a[i].x.var_uint;
+			mXY += a[i].x.var_uint * a[i].y;
+		}
+		break;
+	case DataType::INT:
+	case DataType::UNSIGNED_INT:
+	case DataType::DOUBLE:
+	case DataType::DATE:
+		for (i = 0; i < pointNo; i++) {
+			mX += a[i].x.var_double;
+			mY += a[i].y;
+			mXX += a[i].x.var_double * a[i].x.var_double;
+			mXY += a[i].x.var_double * a[i].y;
+		}
+		break;
+	default:
+		break;
 	}
+
 
 	if (mX * mX - mXX * pointNo == 0)
 		return false;
@@ -42,14 +75,33 @@ static bool calculateLineKB(vector<LineHashIndex::Point>& a, double& k, double& 
 }
 
 LineHashIndex::LineHashIndex(ChunkManager& _chunkManager, IndexType index_type) :
-		chunkManager(_chunkManager), indexType(index_type))
+		chunkManager(_chunkManager), indexType(index_type)
 {
-	// TODO Auto-generated constructor stub
 	idTable = NULL;
 	idTableEntries = NULL;
 	lineHashIndexBase = NULL;
-
-	startID[0] = startID[1] = startID[2] = startID[3] = UINT_MAX;
+	switch(chunkManager.meta->xType){
+	case DataType::BOOL:
+		startID[0].var_bool = startID[1].var_bool = startID[2].var_bool =
+				startID[3].var_bool = 1;
+		break;
+	case DataType::CHAR:
+		startID[0].var_char = startID[1].var_char = startID[2].var_char =
+				startID[3].var_char = CHAR_MAX;
+		break;
+	case DataType::INT:
+	case DataType::UNSIGNED_INT:
+	case DataType::DOUBLE:
+	case DataType::DATE:
+		startID[0].var_double = startID[1].var_double = startID[2].var_double =
+				startID[3].var_double = DBL_MAX;
+		break;
+	case DataType::STRING:
+	default:
+		startID[0].var_uint = startID[1].var_uint = startID[2].var_uint =
+				startID[3].var_uint = UINT_MAX;
+		break;
+	}
 }
 
 LineHashIndex::~LineHashIndex()
@@ -67,11 +119,11 @@ LineHashIndex::~LineHashIndex()
  * From startEntry to endEntry in idtableEntries build a line;
  * @param lineNo: the lineNo-th line to be build;
  */
-bool LineHashIndex::buildLine(int startEntry, int endEntry, int lineNo)
+bool LineHashIndex::buildLine(uint startEntry, uint endEntry, uint lineNo)
 {
 	vector<Point> vpt;
 	Point pt;
-	int i;
+	uint i;
 
 	//build lower limit line;
 	for (i = startEntry; i < endEntry; i++)
@@ -82,7 +134,7 @@ bool LineHashIndex::buildLine(int startEntry, int endEntry, int lineNo)
 	}
 
 	double ktemp, btemp;
-	int size = vpt.size();
+	size_t size = vpt.size();
 	if (calculateLineKB(vpt, ktemp, btemp, size) == false)
 		return false;
 
@@ -133,7 +185,7 @@ bool LineHashIndex::buildLine(int startEntry, int endEntry, int lineNo)
 static ID splitID[3] =
 { 255, 65535, 16777215 };
 
-Status LineHashIndex::buildIndex(unsigned chunkType) //建立索引 chunkType: 1: x>y ; 2: x<y
+Status LineHashIndex::buildIndex()
 {
 #ifdef MYDEBUG
 	ofstream out;
@@ -144,102 +196,170 @@ Status LineHashIndex::buildIndex(unsigned chunkType) //建立索引 chunkType: 1
 	if (idTable == NULL)
 	{
 		idTable = new MemoryBuffer(HASH_CAPACITY);
-		idTableEntries = (ID*) idTable->getBuffer();
+		switch (chunkManager.meta->xType) {
+		case DataType::BOOL:
+			idTableEntries->var_bool = (bool*) idTable->getBuffer();
+			break;
+		case DataType::CHAR:
+			idTableEntries->var_char = (char*) idTable->getBuffer();
+			break;
+		case DataType::INT:
+		case DataType::UNSIGNED_INT:
+		case DataType::DOUBLE:
+		case DataType::DATE:
+			idTableEntries->var_double = (double*) idTable->getBuffer();
+			break;
+		case DataType::STRING:
+		default:
+			idTableEntries->var_uint = (ID*) idTable->getBuffer();
+			break;
+		}
 		tableSize = 0;
 	}
 
 	const uchar* begin, *limit, *reader;
-	ID minID;
 
-	int lineNo = 0;
-	int startEntry = 0, endEntry = 0;
+	uint lineNo = 0;
+	uint startEntry = 0, endEntry = 0;
 
-	if (chunkType == 1)
-	{
-		reader = chunkManager.getStartPtr(1);
-		limit = chunkManager.getEndPtr(1);
-		begin = reader;
-		if (begin == limit){
-			return OK;
-		}
+	varType min;
+	reader = chunkManager.getStartPtr;
+	limit = chunkManager.getEndPtr;
+	begin = reader;
+	if (begin == limit) {
+		return OK;
+	}
 
-		MetaData* metaData = (MetaData*) reader;
-		minID = metaData->minID;
-		insertEntries(minID);
+	MetaData* metaData = (MetaData*) reader;
+	bool isFisrtChunk = true;
+	reader = reader + (int) (MemoryBuffer::pagesize - sizeof(ChunkManagerMeta));
 
-		reader = reader + (int) (MemoryBuffer::pagesize - sizeof(ChunkManagerMeta));
-
-		bool isFisrtChunk = true;
-
-		while (reader < limit)
-		{
+	switch (chunkManager.meta->xType) {
+	case DataType::BOOL:
+		min.var_bool = metaData->minBool;
+		insertEntries(min.var_bool);
+		while (reader < limit) {
 			isFisrtChunk = false;
 			metaData = (MetaData*) reader;
-			minID = metaData->minID;
-			insertEntries(minID);
+			min.var_bool = metaData->minBool;
+			insertEntries(min);
 
-			if (minID > splitID[lineNo])
-			{
+			if ((uint) min.var_bool > splitID[lineNo]) {
 				startEntry = endEntry;
 				endEntry = tableSize;
-				if (buildLine(startEntry, endEntry, lineNo) == true)
-				{
+				if (buildLine(startEntry, endEntry, lineNo) == true) {
 					++lineNo;
 				}
 			}
 			reader = reader + (int) MemoryBuffer::pagesize;
 		}
 
-		const uchar* endPtr = Chunk::skipBackward(reader, 1, isFisrtChunk);// get this chunk last <x, y>
-		minID = *(ID*)endPtr;
-		endPtr = NULL;
-		insertEntries(minID);
-
-		startEntry = endEntry;
-		endEntry = tableSize;
-		if (buildLine(startEntry, endEntry, lineNo) == true) {
-			++lineNo;
-		}
-	}
-
-	if (chunkType == 2)
-	{
-		reader = chunkManager.getStartPtr(2);
-		limit = chunkManager.getEndPtr(2);
-		begin = reader;
-		if (begin == limit){
-			return OK;
+		const uchar* endPtr = Chunk::skipBackward(reader, isFisrtChunk,
+				chunkManager.meta->objType); // get this chunk last <x, y>
+		if (endPtr != NULL) {
+			min.var_bool = *(bool*) endPtr;
+			endPtr = NULL;
 		}
 
-		while (reader < limit)
-		{
-			MetaData* metaData = (MetaData*) reader;
-			minID = metaData->minID;
-			insertEntries(minID);
+		insertEntries(min.var_bool);
+		break;
+	case DataType::CHAR:
+		min.var_char = metaData->minChar;
+		insertEntries(min.var_char);
+		while (reader < limit) {
+			isFisrtChunk = false;
+			metaData = (MetaData*) reader;
+			min.var_char = metaData->minChar;
+			insertEntries(min);
 
-			if (minID > splitID[lineNo])
-			{
+			if ((uint) min.var_char > splitID[lineNo]) {
 				startEntry = endEntry;
 				endEntry = tableSize;
-				if (buildLine(startEntry, endEntry, lineNo) == true)
-				{
+				if (buildLine(startEntry, endEntry, lineNo) == true) {
 					++lineNo;
 				}
 			}
 			reader = reader + (int) MemoryBuffer::pagesize;
 		}
 
-		const uchar* endPtr = Chunk::skipBackward(reader, 1, false);// get this chunk last <x, y>, not have chunkmanagermeta, 1：a byte, so third parameter is false
-		minID = *(ID*)(endPtr + 4); //chunkType == 2 , y为s
-		endPtr = NULL;
-		insertEntries(minID);
-
-		startEntry = endEntry;
-		endEntry = tableSize;
-		if (buildLine(startEntry, endEntry, lineNo) == true) {
-			++lineNo;
+		const uchar* endPtr = Chunk::skipBackward(reader, isFisrtChunk,
+				chunkManager.meta->objType); // get this chunk last <x, y>
+		if (endPtr != NULL) {
+			min.var_char = *(char*) endPtr;
+			endPtr = NULL;
 		}
+
+		insertEntries(min.var_char);
+		break;
+	case DataType::INT:
+	case DataType::UNSIGNED_INT:
+	case DataType::DOUBLE:
+	case DataType::DATE:
+		min.var_double = metaData->minDouble;
+		insertEntries(min.var_double);
+		while (reader < limit) {
+			isFisrtChunk = false;
+			metaData = (MetaData*) reader;
+			min.var_double = metaData->minDouble;
+			insertEntries(min);
+
+			if (min.var_double > splitID[lineNo]) {
+				startEntry = endEntry;
+				endEntry = tableSize;
+				if (buildLine(startEntry, endEntry, lineNo) == true) {
+					++lineNo;
+				}
+			}
+			reader = reader + (int) MemoryBuffer::pagesize;
+		}
+
+		const uchar* endPtr = Chunk::skipBackward(reader, isFisrtChunk,
+				chunkManager.meta->objType); // get this chunk last <x, y>
+		if (endPtr != NULL) {
+			min.var_double = *(double*) endPtr;
+			endPtr = NULL;
+		}
+
+		insertEntries(min.var_double);
+		break;
+
+	case DataType::STRING:
+	default:
+		min.var_uint = metaData->minID;
+		insertEntries(min.var_uint);
+		while (reader < limit) {
+			isFisrtChunk = false;
+			metaData = (MetaData*) reader;
+			min.var_uint = metaData->minID;
+			insertEntries(min);
+
+			if (min.var_uint > splitID[lineNo]) {
+				startEntry = endEntry;
+				endEntry = tableSize;
+				if (buildLine(startEntry, endEntry, lineNo) == true) {
+					++lineNo;
+				}
+			}
+			reader = reader + (int) MemoryBuffer::pagesize;
+		}
+
+		const uchar* endPtr = Chunk::skipBackward(reader, isFisrtChunk,
+				chunkManager.meta->objType); // get this chunk last <x, y>
+		if (endPtr != NULL) {
+			min.var_uint = *(ID*) endPtr;
+			endPtr = NULL;
+		}
+
+		insertEntries(min.var_uint);
+		break;
 	}
+
+	startEntry = endEntry;
+	endEntry = tableSize;
+	if (buildLine(startEntry, endEntry, lineNo) == true) {
+		++lineNo;
+	}
+
 	return OK;
 }
 
@@ -248,80 +368,189 @@ bool LineHashIndex::isBufferFull()
 	return tableSize >= idTable->getSize() / 4;
 }
 
-void LineHashIndex::insertEntries(ID id)
-{
-	if (isBufferFull())
-	{
-		idTable->resize(HASH_CAPACITY);
-		idTableEntries = (ID*) idTable->get_address();
-	}
-	idTableEntries[tableSize] = id;
+template<typename T>
+void LineHashIndex::insertEntries(T id) {
+	switch (chunkManager.meta->xType) {
+	case DataType::BOOL:
+		if (isBufferFull()) {
+			idTable->resize(HASH_CAPACITY);
+			idTableEntries->var_bool = (bool*) idTable->get_address();
+		}
+		idTableEntries[tableSize].var_bool = id;
+		tableSize++;
+		break;
+	case DataType::CHAR:
+		if (isBufferFull()) {
+			idTableEntries->var_char = (char*) idTable->get_address();
+		}
+		idTableEntries[tableSize].var_char = id;
+		tableSize++;
+		break;
 
-	tableSize++;
+	case DataType::INT:
+	case DataType::UNSIGNED_INT:
+	case DataType::DOUBLE:
+	case DataType::DATE:
+		if (isBufferFull()) {
+			idTableEntries->var_double = (double*) idTable->get_address();
+		}
+		idTableEntries[tableSize].var_double = id;
+		tableSize++;
+		break;
+	case DataType::STRING:
+	default:
+		if (isBufferFull()) {
+			idTableEntries->var_uint = (ID*) idTable->get_address();
+		}
+		idTableEntries[tableSize].var_uint = id;
+		tableSize++;
+		break;
+	}
 }
 
-ID LineHashIndex::MetaID(size_t index)
-{
+varType LineHashIndex::MetaID(size_t index) {
 	assert(index < chunkMeta.size());
 	return chunkMeta[index].minIDx;
 }
 
-ID LineHashIndex::MetaYID(size_t index)
-{
+varType LineHashIndex::MetaYID(size_t index) {
 	assert(index < chunkMeta.size());
 	return chunkMeta[index].minIDy;
+
 }
 
-size_t LineHashIndex::searchChunkFrank(ID id)
+template<typename T>
+size_t LineHashIndex::searchChunkFrank(T id)
 {
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << "\ttableSize： " << tableSize <<  endl;
 #endif
 	size_t low = 0, mid = 0, high = tableSize - 1;
 
-	if (low == high){
+	if (low == high) {
 		return low;
 	}
-	while (low < high)
-	{
-		mid = low + (high-low) / 2;
-		while (MetaID(mid) == id)
-		{
-			if (mid > 0 && MetaID(mid - 1) < id){
-				return mid - 1;
+
+	switch (chunkManager.meta->xType) {
+	case DataType::BOOL:
+		while (low < high) {
+			mid = low + (high - low) / 2;
+			while (MetaID(mid).var_bool == id) {
+				if (mid > 0 && MetaID(mid - 1).var_bool < id) {
+					return mid - 1;
+				}
+				if (mid == 0) {
+					return mid;
+				}
+				mid--;
 			}
-			if (mid == 0){
-				return mid;
+			if (MetaID(mid).var_bool < id) {
+				low = mid + 1;
+			} else if (MetaID(mid).var_bool > id) {
+				high = mid;
 			}
-			mid--;
 		}
-		if (MetaID(mid) < id){
-			low = mid + 1;
+		if (low > 0 && MetaID(low).var_bool >= id) {
+			return low - 1;
+		} else {
+			return low;
 		}
-		else if (MetaID(mid) > id){
-			high = mid;
+		break;
+	case DataType::CHAR:
+		while (low < high) {
+			mid = low + (high - low) / 2;
+			while (MetaID(mid).var_char == id) {
+				if (mid > 0 && MetaID(mid - 1).var_char < id) {
+					return mid - 1;
+				}
+				if (mid == 0) {
+					return mid;
+				}
+				mid--;
+			}
+			if (MetaID(mid).var_char < id) {
+				low = mid + 1;
+			} else if (MetaID(mid).var_char > id) {
+				high = mid;
+			}
 		}
+		if (low > 0 && MetaID(low).var_char >= id) {
+			return low - 1;
+		} else {
+			return low;
+		}
+		break;
+	case DataType::INT:
+	case DataType::UNSIGNED_INT:
+	case DataType::DOUBLE:
+	case DataType::DATE:
+
+		while (low < high) {
+			mid = low + (high - low) / 2;
+			while (MetaID(mid).var_double == id) {
+				if (mid > 0 && MetaID(mid - 1).var_double < id) {
+					return mid - 1;
+				}
+				if (mid == 0) {
+					return mid;
+				}
+				mid--;
+			}
+			if (MetaID(mid).var_double < id) {
+				low = mid + 1;
+			} else if (MetaID(mid).var_double > id) {
+				high = mid;
+			}
+		}
+		if (low > 0 && MetaID(low).var_double >= id) {
+			return low - 1;
+		} else {
+			return low;
+		}
+		break;
+	case DataType::STRING:
+	default:
+		while (low < high) {
+			mid = low + (high - low) / 2;
+			while (MetaID(mid).var_uint == id) {
+				if (mid > 0 && MetaID(mid - 1).var_uint < id) {
+					return mid - 1;
+				}
+				if (mid == 0) {
+					return mid;
+				}
+				mid--;
+			}
+			if (MetaID(mid).var_uint < id) {
+				low = mid + 1;
+			} else if (MetaID(mid).var_uint > id) {
+				high = mid;
+			}
+		}
+		if (low > 0 && MetaID(low).var_uint >= id) {
+			return low - 1;
+		} else {
+			return low;
+		}
+		break;
 	}
-	if (low > 0 && MetaID(low) >= id){
-		return low - 1;
-	}
-	else{
-		return low;
-	}
+
+
 }
 
-size_t LineHashIndex::searchChunk(ID xID, ID yID){
-	if(MetaID(0) > xID || tableSize == 0){
+template<typename T>
+size_t LineHashIndex::searchChunk(T x, T y){
+	if(MetaID(0) > x || tableSize == 0){
 		return 0;
 	}
 
-	size_t offsetID = searchChunkFrank(xID);
+	size_t offsetID = searchChunkFrank(x);
 	if(offsetID == tableSize-1){
 		return offsetID-1;
 	}
 	while(offsetID < tableSize-2){
-		if(MetaID(offsetID+1) == xID){
-			if(MetaYID(offsetID+1) > yID){
+		if(MetaID(offsetID+1) == x){
+			if(MetaYID(offsetID+1) > y){
 				return offsetID;
 			}
 			else{
@@ -335,15 +564,16 @@ size_t LineHashIndex::searchChunk(ID xID, ID yID){
 	return offsetID;
 }
 
-bool LineHashIndex::searchChunk(ID xID, ID yID, size_t& offsetID)
+template<typename T>
+bool LineHashIndex::searchChunk(T x, T y, size_t& offsetID)
 //return the  exactly which chunk the triple(xID, yID) is in
 {
-	if(MetaID(0) > xID || tableSize == 0){
+	if(MetaID(0) > x || tableSize == 0){
 		offsetID = 0;
 		return false;
 	}
 
-	offsetID = searchChunkFrank(xID);
+	offsetID = searchChunkFrank(x);
 	if (offsetID == tableSize-1)
 	{
 		return false;
@@ -351,9 +581,9 @@ bool LineHashIndex::searchChunk(ID xID, ID yID, size_t& offsetID)
 
 	while (offsetID < tableSize - 2)
 	{
-		if (MetaID(offsetID + 1) == xID)
+		if (MetaID(offsetID + 1) == x)
 		{
-			if (MetaYID(offsetID + 1) > yID)
+			if (MetaYID(offsetID + 1) > y)
 			{
 				return true;
 			}
@@ -370,9 +600,10 @@ bool LineHashIndex::searchChunk(ID xID, ID yID, size_t& offsetID)
 	return true;
 }
 
-bool LineHashIndex::isQualify(size_t offsetId, ID xID, ID yID)
+template<typename T>
+bool LineHashIndex::isQualify(size_t offsetId, T x, T y)
 {
-	return (xID < MetaID(offsetId + 1) || (xID == MetaID(offsetId + 1) && yID < MetaYID(offsetId + 1))) && (xID > MetaID(offsetId) || (xID == MetaID(offsetId) && yID >= MetaYID(offsetId)));
+	return (x < MetaID(offsetId + 1) || (x == MetaID(offsetId + 1) && y < MetaYID(offsetId + 1))) && (x > MetaID(offsetId) || (x == MetaID(offsetId) && y >= MetaYID(offsetId)));
 }
 
 void LineHashIndex::getOffsetPair(size_t offsetID, unsigned& offsetBegin, unsigned& offsetEnd)
@@ -437,14 +668,42 @@ void LineHashIndex::updateLineIndex()
 {
 	uchar* base = lineHashIndexBase;
 
-	*(ID*) base = tableSize;
-	base += sizeof(ID);
+	*(size_t*) base = tableSize;
+	base += sizeof(size_t);
+
+	switch (chunkManager.meta->xType) {
+	case DataType::BOOL:
+		for (int i = 0; i < 4; ++i) {
+			*(bool*) base = startID[i];
+			base += sizeof(bool);
+		}
+		break;
+	case DataType::CHAR:
+		for (int i = 0; i < 4; ++i) {
+			*(char*) base = startID[i];
+			base += sizeof(char);
+		}
+		break;
+	case DataType::INT:
+	case DataType::UNSIGNED_INT:
+	case DataType::DOUBLE:
+	case DataType::DATE:
+		for (int i = 0; i < 4; ++i) {
+			*(double*) base = startID[i];
+			base += sizeof(double);
+		}
+		break;
+	case DataType::STRING:
+	default:
+		for (int i = 0; i < 4; ++i) {
+			*(uint*) base = startID[i];
+			base += sizeof(uint);
+		}
+		break;
+	}
 
 	for (int i = 0; i < 4; ++i)
 	{
-		*(ID*) base = startID[i];
-		base += sizeof(ID);
-
 		*(double*) base = lowerk[i];
 		base += sizeof(double);
 		*(double*) base = lowerb[i];
@@ -460,122 +719,389 @@ void LineHashIndex::updateLineIndex()
 	idTable = NULL;
 }
 
-void LineHashIndex::updateChunkMetaData(int offsetId)
+void LineHashIndex::updateChunkMetaData(uint offsetId)
 {
 	if (offsetId == 0)
 	{
 		const uchar* reader = NULL;
-		register ID x = 0, y = 0;
 
+		varType x,y;
 		reader = startPtr + chunkMeta[offsetId].offsetBegin;
-		reader = Chunk::readYId(Chunk::readXId(reader, x), y);
-		if (xyType == LineHashIndex::YBIGTHANX)
-		{
-			chunkMeta[offsetId].minIDx = x;
-			chunkMeta[offsetId].minIDy = y;
+		switch (chunkManager.meta->xType) {
+		case DataType::BOOL:
+			reader = Chunk::read(
+					Chunk::read(reader, x.var_bool, chunkManager.meta->xType),
+					y.var_uint, chunkManager.meta->yType);
+			break;
+		case DataType::CHAR:
+			reader = Chunk::read(
+					Chunk::read(reader, x.var_char, chunkManager.meta->xType),
+					y.var_uint, chunkManager.meta->yType);
+			break;
+		case DataType::INT:
+		case DataType::UNSIGNED_INT:
+		case DataType::DOUBLE:
+		case DataType::DATE:
+			reader = Chunk::read(
+					Chunk::read(reader, x.var_double, chunkManager.meta->xType),
+					y.var_uint, chunkManager.meta->yType);
+			break;
+		case DataType::STRING:
+		default:
+			switch (chunkManager.meta->yType) {
+			case DataType::BOOL:
+				reader = Chunk::read(
+						Chunk::read(reader, x.var_uint,
+								chunkManager.meta->xType), y.var_bool,
+						chunkManager.meta->yType);
+				break;
+			case DataType::CHAR:
+				reader = Chunk::read(
+						Chunk::read(reader, x.var_uint,
+								chunkManager.meta->xType), y.var_char,
+						chunkManager.meta->yType);
+				break;
+			case DataType::INT:
+			case DataType::UNSIGNED_INT:
+			case DataType::DOUBLE:
+			case DataType::DATE:
+				reader = Chunk::read(
+						Chunk::read(reader, x.var_uint,
+								chunkManager.meta->xType), y.var_double,
+						chunkManager.meta->yType);
+				break;
+			case DataType::STRING:
+			default:
+			}
+			reader = Chunk::read(
+					Chunk::read(reader, x.var_uint, chunkManager.meta->xType),
+					y.var_uint, chunkManager.meta->yType);
+			break;
 		}
-		else if (xyType == LineHashIndex::XBIGTHANY)
-		{
-			chunkMeta[offsetId].minIDx = y;
-			chunkMeta[offsetId].minIDy = x;
-		}
+
+		chunkMeta[offsetId].minIDx = x;
+		chunkMeta[offsetId].minIDy = y;
 	}
 }
 
-LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, XYType xy_type, uchar*buffer,
+LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, uchar*buffer,
 		size_t& offset)
 {
-	LineHashIndex* index = new LineHashIndex(manager, index_type, xy_type);
+	LineHashIndex* index = new LineHashIndex(manager, index_type);
 	uchar* base = buffer + offset;
 	index->lineHashIndexBase = base;
 
-	index->tableSize = *((ID*) base);
-	base = base + sizeof(ID);
+	index->tableSize = *((size_t*) base);
+	base = base + sizeof(size_t);
 
-	for (int i = 0; i < 4; ++i)
-	{
-		index->startID[i] = *(ID*) base;
-		base = base + sizeof(ID);
 
-		index->lowerk[i] = *(double*) base;
-		base = base + sizeof(double);
-		index->lowerb[i] = *(double*) base;
-		base = base + sizeof(double);
-
-		index->upperk[i] = *(double*) base;
-		base = base + sizeof(double);
-		index->upperb[i] = *(double*) base;
-		base = base + sizeof(double);
-	}
-	offset = offset + sizeof(ID) + 16 * sizeof(double) + 4 * sizeof(ID);
 
 	//get something useful for the index
 	const uchar* reader;
 	const uchar* temp;
-	register ID x, y;
-	if (index->xyType == LineHashIndex::YBIGTHANX)
-	{
-		index->startPtr = index->chunkManager.getStartPtr(1);
-		index->endPtr = index->chunkManager.getEndPtr(1);
-		if (index->startPtr == index->endPtr)
-		{
-			index->chunkMeta.push_back(
-			{ 0, 0, sizeof(MetaData) });
+	varType x, y;
+
+	switch (chunkManager.meta->xType) {
+	case DataType::BOOL:
+		for (int i = 0; i < 4; ++i) {
+			index->startID[i].var_bool = *(bool*) base;
+			base = base + sizeof(bool);
+
+			index->lowerk[i] = *(double*) base;
+			base = base + sizeof(double);
+			index->lowerb[i] = *(double*) base;
+			base = base + sizeof(double);
+
+			index->upperk[i] = *(double*) base;
+			base = base + sizeof(double);
+			index->upperb[i] = *(double*) base;
+			base = base + sizeof(double);
+		}
+		offset = offset + sizeof(size_t) + 16 * sizeof(double)
+				+ 4 * sizeof(bool);
+		index->startPtr = index->chunkManager.getStartPtr;
+		index->endPtr = index->chunkManager.getEndPtr;
+		if (index->startPtr == index->endPtr) {
+			x.var_bool = 0;
+			y.var_uint = 0;
+			index->chunkMeta.push_back( { x, y, sizeof(MetaData) });
 			return index;
 		}
 
 		temp = index->startPtr + sizeof(MetaData);
-		Chunk::readYId(Chunk::readXId(temp, x), y);
-		index->chunkMeta.push_back(
-		{ x, y, sizeof(MetaData) });
+		Chunk::read(Chunk::read(temp, x.var_bool, chunkManager.meta->xType),
+				y.var_uint, chunkManager.meta->yType);
+		index->chunkMeta.push_back( { x, y, sizeof(MetaData) });
 
-		reader = index->startPtr - sizeof(ChunkManagerMeta) + MemoryBuffer::pagesize;
-		while (reader < index->endPtr)
-		{
+		reader = index->startPtr - sizeof(ChunkManagerMeta)
+				+ MemoryBuffer::pagesize;
+		while (reader < index->endPtr) {
 			temp = reader + sizeof(MetaData);
-			Chunk::readYId(Chunk::readXId(temp, x), y);
+			Chunk::read(Chunk::read(temp, x.var_bool, chunkManager.meta->xType),
+					y.var_uint, chunkManager.meta->yType);
 			index->chunkMeta.push_back(
-			{ x, y, reader - index->startPtr + sizeof(MetaData) });
+					{ x, y, reader - index->startPtr + sizeof(MetaData) });
 
 			reader = reader + MemoryBuffer::pagesize;
 		}
-		reader = Chunk::skipBackward(reader, index->endPtr, 1);
-		Chunk::readYId(Chunk::readXId(reader, x), y);
-		index->chunkMeta.push_back(
-		{ x, y });
-	}
-	else if (index->xyType == LineHashIndex::XBIGTHANY)
-	{
-		index->startPtr = index->chunkManager.getStartPtr(2);
-		index->endPtr = index->chunkManager.getEndPtr(2);
-		if (index->startPtr == index->endPtr)
-		{
-			index->chunkMeta.push_back(
-			{ 0, 0, sizeof(MetaData) });
+		reader = Chunk::skipBackward(reader, index->endPtr,
+				chunkManager.meta->objType);
+		Chunk::read(Chunk::read(temp, x.var_bool, chunkManager.meta->xType),
+				y.var_uint, chunkManager.meta->yType);
+		index->chunkMeta.push_back( { x, y });
+		break;
+	case DataType::CHAR:
+		for (int i = 0; i < 4; ++i) {
+			index->startID[i].var_char = *(char*) base;
+			base = base + sizeof(char);
+
+			index->lowerk[i] = *(double*) base;
+			base = base + sizeof(double);
+			index->lowerb[i] = *(double*) base;
+			base = base + sizeof(double);
+
+			index->upperk[i] = *(double*) base;
+			base = base + sizeof(double);
+			index->upperb[i] = *(double*) base;
+			base = base + sizeof(double);
+		}
+		offset = offset + sizeof(size_t) + 16 * sizeof(double)
+				+ 4 * sizeof(char);
+		index->startPtr = index->chunkManager.getStartPtr;
+		index->endPtr = index->chunkManager.getEndPtr;
+		if (index->startPtr == index->endPtr) {
+			x.var_char = CHAR_MIN;
+			y.var_uint = 0;
+			index->chunkMeta.push_back( { x, y, sizeof(MetaData) });
 			return index;
 		}
 
 		temp = index->startPtr + sizeof(MetaData);
-		Chunk::readYId(Chunk::readXId(temp, x), y);
-		index->chunkMeta.push_back(
-		{ y, x, sizeof(MetaData) });
+		Chunk::read(Chunk::read(temp, x.var_char, chunkManager.meta->xType),
+				y.var_uint, chunkManager.meta->yType);
+		index->chunkMeta.push_back( { x, y, sizeof(MetaData) });
 
-		reader = index->startPtr + MemoryBuffer::pagesize;
-		while (reader < index->endPtr)
-		{
+		reader = index->startPtr - sizeof(ChunkManagerMeta)
+				+ MemoryBuffer::pagesize;
+		while (reader < index->endPtr) {
 			temp = reader + sizeof(MetaData);
-			Chunk::readYId(Chunk::readXId(temp, x), y);
+			Chunk::read(Chunk::read(temp, x.var_char, chunkManager.meta->xType),
+					y.var_uint, chunkManager.meta->yType);
 			index->chunkMeta.push_back(
-			{ y, x, reader - index->startPtr + sizeof(MetaData) });
+					{ x, y, reader - index->startPtr + sizeof(MetaData) });
 
 			reader = reader + MemoryBuffer::pagesize;
 		}
+		reader = Chunk::skipBackward(reader, index->endPtr,
+				chunkManager.meta->objType);
+		Chunk::read(Chunk::read(temp, x.var_char, chunkManager.meta->xType),
+				y.var_uint, chunkManager.meta->yType);
+		index->chunkMeta.push_back( { x, y });
+		break;
+	case DataType::INT:
+	case DataType::UNSIGNED_INT:
+	case DataType::DOUBLE:
+	case DataType::DATE:
+		for (int i = 0; i < 4; ++i) {
+			index->startID[i].var_double = *(double*) base;
+			base = base + sizeof(double);
 
-		reader = Chunk::skipBackward(reader, index->endPtr, 1);
-		Chunk::readYId(Chunk::readXId(reader, x), y);
-		index->chunkMeta.push_back(
-		{ y, x });
+			index->lowerk[i] = *(double*) base;
+			base = base + sizeof(double);
+			index->lowerb[i] = *(double*) base;
+			base = base + sizeof(double);
+
+			index->upperk[i] = *(double*) base;
+			base = base + sizeof(double);
+			index->upperb[i] = *(double*) base;
+			base = base + sizeof(double);
+		}
+		offset = offset + sizeof(size_t) + 16 * sizeof(double)
+				+ 4 * sizeof(double);
+		index->startPtr = index->chunkManager.getStartPtr;
+		index->endPtr = index->chunkManager.getEndPtr;
+		if (index->startPtr == index->endPtr) {
+			x.var_double = DBL_MIN;
+			y.var_uint = 0;
+			index->chunkMeta.push_back( { x, y, sizeof(MetaData) });
+			return index;
+		}
+
+		temp = index->startPtr + sizeof(MetaData);
+		Chunk::read(Chunk::read(temp, x.var_double, chunkManager.meta->xType),
+				y.var_uint, chunkManager.meta->yType);
+		index->chunkMeta.push_back( { x, y, sizeof(MetaData) });
+
+		reader = index->startPtr - sizeof(ChunkManagerMeta)
+				+ MemoryBuffer::pagesize;
+		while (reader < index->endPtr) {
+			temp = reader + sizeof(MetaData);
+			Chunk::read(
+					Chunk::read(temp, x.var_double, chunkManager.meta->xType),
+					y.var_uint, chunkManager.meta->yType);
+			index->chunkMeta.push_back(
+					{ x, y, reader - index->startPtr + sizeof(MetaData) });
+
+			reader = reader + MemoryBuffer::pagesize;
+		}
+		reader = Chunk::skipBackward(reader, index->endPtr,
+				chunkManager.meta->objType);
+		Chunk::read(Chunk::read(temp, x.var_double, chunkManager.meta->xType),
+				y.var_uint, chunkManager.meta->yType);
+		index->chunkMeta.push_back( { x, y });
+		break;
+	case DataType::STRING:
+	default:
+		for (int i = 0; i < 4; ++i) {
+			index->startID[i].var_double = *(uint*) base;
+			base = base + sizeof(uint);
+
+			index->lowerk[i] = *(double*) base;
+			base = base + sizeof(double);
+			index->lowerb[i] = *(double*) base;
+			base = base + sizeof(double);
+
+			index->upperk[i] = *(double*) base;
+			base = base + sizeof(double);
+			index->upperb[i] = *(double*) base;
+			base = base + sizeof(double);
+		}
+		offset = offset + sizeof(size_t) + 16 * sizeof(double)
+				+ 4 * sizeof(uint);
+		index->startPtr = index->chunkManager.getStartPtr;
+		index->endPtr = index->chunkManager.getEndPtr;
+
+		switch (chunkManager.meta->yType) {
+		case DataType::BOOL:
+			if (index->startPtr == index->endPtr) {
+				x.var_uint = 0;
+				y.var_bool = 0;
+				index->chunkMeta.push_back( { x, y, sizeof(MetaData) });
+				return index;
+			}
+
+			temp = index->startPtr + sizeof(MetaData);
+			Chunk::read(Chunk::read(temp, x.var_uint, chunkManager.meta->xType),
+					y.var_bool, chunkManager.meta->yType);
+			index->chunkMeta.push_back( { x, y, sizeof(MetaData) });
+
+			reader = index->startPtr - sizeof(ChunkManagerMeta)
+					+ MemoryBuffer::pagesize;
+			while (reader < index->endPtr) {
+				temp = reader + sizeof(MetaData);
+				Chunk::read(
+						Chunk::read(temp, x.var_uint, chunkManager.meta->xType),
+						y.var_bool, chunkManager.meta->yType);
+				index->chunkMeta.push_back(
+						{ x, y, reader - index->startPtr + sizeof(MetaData) });
+
+				reader = reader + MemoryBuffer::pagesize;
+			}
+			reader = Chunk::skipBackward(reader, index->endPtr,
+					chunkManager.meta->objType);
+			Chunk::read(Chunk::read(temp, x.var_uint, chunkManager.meta->xType),
+					y.var_bool, chunkManager.meta->yType);
+			index->chunkMeta.push_back( { x, y });
+			break;
+		case DataType::CHAR:
+			if (index->startPtr == index->endPtr) {
+				x.var_uint = 0;
+				y.var_char = CHAR_MIN;
+				index->chunkMeta.push_back( { x, y, sizeof(MetaData) });
+				return index;
+			}
+
+			temp = index->startPtr + sizeof(MetaData);
+			Chunk::read(Chunk::read(temp, x.var_uint, chunkManager.meta->xType),
+					y.var_char, chunkManager.meta->yType);
+			index->chunkMeta.push_back( { x, y, sizeof(MetaData) });
+
+			reader = index->startPtr - sizeof(ChunkManagerMeta)
+					+ MemoryBuffer::pagesize;
+			while (reader < index->endPtr) {
+				temp = reader + sizeof(MetaData);
+				Chunk::read(
+						Chunk::read(temp, x.var_uint, chunkManager.meta->xType),
+						y.var_char, chunkManager.meta->yType);
+				index->chunkMeta.push_back(
+						{ x, y, reader - index->startPtr + sizeof(MetaData) });
+
+				reader = reader + MemoryBuffer::pagesize;
+			}
+			reader = Chunk::skipBackward(reader, index->endPtr,
+					chunkManager.meta->objType);
+			Chunk::read(Chunk::read(temp, x.var_uint, chunkManager.meta->xType),
+					y.var_char, chunkManager.meta->yType);
+			index->chunkMeta.push_back( { x, y });
+			break;
+		case DataType::INT:
+		case DataType::UNSIGNED_INT:
+		case DataType::DOUBLE:
+		case DataType::DATE:
+			if (index->startPtr == index->endPtr) {
+				x.var_uint = 0;
+				y.var_double = DBL_MIN;
+				index->chunkMeta.push_back( { x, y, sizeof(MetaData) });
+				return index;
+			}
+
+			temp = index->startPtr + sizeof(MetaData);
+			Chunk::read(Chunk::read(temp, x.var_uint, chunkManager.meta->xType),
+					y.var_double, chunkManager.meta->yType);
+			index->chunkMeta.push_back( { x, y, sizeof(MetaData) });
+
+			reader = index->startPtr - sizeof(ChunkManagerMeta)
+					+ MemoryBuffer::pagesize;
+			while (reader < index->endPtr) {
+				temp = reader + sizeof(MetaData);
+				Chunk::read(
+						Chunk::read(temp, x.var_uint, chunkManager.meta->xType),
+						y.var_double, chunkManager.meta->yType);
+				index->chunkMeta.push_back(
+						{ x, y, reader - index->startPtr + sizeof(MetaData) });
+
+				reader = reader + MemoryBuffer::pagesize;
+			}
+			reader = Chunk::skipBackward(reader, index->endPtr,
+					chunkManager.meta->objType);
+			Chunk::read(Chunk::read(temp, x.var_uint, chunkManager.meta->xType),
+					y.var_double, chunkManager.meta->yType);
+			index->chunkMeta.push_back( { x, y });
+			break;
+		case DataType::STRING:
+		default:
+			if (index->startPtr == index->endPtr) {
+				x.var_uint = 0;
+				y.var_uint = 0;
+				index->chunkMeta.push_back( { x, y, sizeof(MetaData) });
+				return index;
+			}
+
+			temp = index->startPtr + sizeof(MetaData);
+			Chunk::read(Chunk::read(temp, x.var_uint, chunkManager.meta->xType),
+					y.var_uint, chunkManager.meta->yType);
+			index->chunkMeta.push_back( { x, y, sizeof(MetaData) });
+
+			reader = index->startPtr - sizeof(ChunkManagerMeta)
+					+ MemoryBuffer::pagesize;
+			while (reader < index->endPtr) {
+				temp = reader + sizeof(MetaData);
+				Chunk::read(
+						Chunk::read(temp, x.var_uint, chunkManager.meta->xType),
+						y.var_uint, chunkManager.meta->yType);
+				index->chunkMeta.push_back(
+						{ x, y, reader - index->startPtr + sizeof(MetaData) });
+
+				reader = reader + MemoryBuffer::pagesize;
+			}
+			reader = Chunk::skipBackward(reader, index->endPtr,
+					chunkManager.meta->objType);
+			Chunk::read(Chunk::read(temp, x.var_uint, chunkManager.meta->xType),
+					y.var_uint, chunkManager.meta->yType);
+			index->chunkMeta.push_back( { x, y });
+			break;
+		}
+		break;
 	}
 	return index;
 }
-

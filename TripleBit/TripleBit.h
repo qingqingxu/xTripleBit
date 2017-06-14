@@ -15,6 +15,7 @@
 #include <sys/time.h>
 #include <stack>
 #include <tr1/memory>
+#include <float.h>
 
 using namespace std;
 
@@ -33,6 +34,16 @@ using namespace std;
 #define TOTAL_TIME
 //#define TTDEBUG
 //#define PRINT_BUFFERSIZE
+
+extern map<ID, DataType> predicateObjTypes;
+
+union varType {
+	bool var_bool;
+	char var_char;
+	int var_int;
+	uint var_uint;
+	double var_double;
+};
 
 template<class T> string toStr(T tmp)
 {

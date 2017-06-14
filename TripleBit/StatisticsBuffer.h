@@ -16,7 +16,7 @@ class MMapBuffer;
 
 class StatisticsBuffer {
 public:
-	enum StatisticsType { SUBJECT_STATIS, OBJECT_STATIS, SUBJECTPREDICATE_STATIS, OBJECTPREDICATE_STATIS };
+	enum StatisticsType { SUBJECTPREDICATE_STATIS, OBJECTPREDICATE_STATIS };
 	StatisticsBuffer();
 	virtual ~StatisticsBuffer();
 	/// add a statistics record;
@@ -29,51 +29,6 @@ public:
 	//virtual StatisticsBuffer* load(ifstream& file) = 0;
 protected:
 	const unsigned HEADSPACE;
-};
-
-class OneConstantStatisticsBuffer : public StatisticsBuffer {
-public:
-	struct Triple {
-		ID value1;
-		unsigned count;
-	};
-
-private:
-	StatisticsType type;
-	MMapBuffer* buffer;
-	const uchar* reader;
-	uchar* writer;
-
-	/// index for query;
-	vector<unsigned> index;
-	unsigned indexSize;
-	unsigned nextHashValue;
-	unsigned lastId;
-	unsigned usedSpace;
-
-	const unsigned ID_HASH;
-
-	Triple* triples, *pos, *posLimit;
-	bool first;
-public:
-	OneConstantStatisticsBuffer(const string path, StatisticsType type);
-	virtual ~OneConstantStatisticsBuffer();
-	Status addStatis(unsigned v1, unsigned v2, unsigned v3 = 0);
-	Status getStatis(unsigned& v1, unsigned v2 = 0);
-	Status save(MMapBuffer*& indexBuffer);
-	static OneConstantStatisticsBuffer* load(StatisticsType type, const string path, uchar*& indexBuffer);
-	/// get the subject or object ids from minID to maxID;
-	Status getIDs(EntityIDBuffer* entBuffer, ID minID, ID maxID);
-	unsigned int getEntityCount();
-private:
-	/// read a id from buffer;
-	const char* readId(unsigned& id, const char* ptr, bool isID);
-	/// judge the buffer is full;
-	bool isPtrFull(unsigned len);
-
-	const unsigned char* decode(const unsigned char* begin, const unsigned char* end);
-	bool find(unsigned value);
-	bool find_last(unsigned value);
 };
 
 class TwoConstantStatisticsBuffer : public StatisticsBuffer {

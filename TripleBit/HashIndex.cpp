@@ -160,7 +160,7 @@ Status HashIndex::getOffsetByID(ID id, unsigned& offset, unsigned typeID)
 	int low = 0, high = 0, mid = 0, lastmid = 0;
 	ID x,y;
 
-	if(chunkManager.getTripleCount(typeID) == 0)
+	if(chunkManager.getTripleCount() == 0)
 		return NOT_FOUND;
 
 	if (typeID == 1) {
@@ -172,8 +172,8 @@ Status HashIndex::getOffsetByID(ID id, unsigned& offset, unsigned typeID)
 			high = offset = pEnd - 1;
 			return OK;
 		}
-		reader = chunkManager.getStartPtr(1) + low;
-		beginPtr = chunkManager.getStartPtr(1);
+		reader = chunkManager.getStartPtr() + low;
+		beginPtr = chunkManager.getStartPtr();
 		Chunk::readXId(reader, x);
 
 		if ( x == id ) {
@@ -230,74 +230,6 @@ Status HashIndex::getOffsetByID(ID id, unsigned& offset, unsigned typeID)
 		}
 	}
 
-	if (typeID == 2) {
-		if(pBegin != 0) {
-			low = pBegin - 1;
-			high = pEnd;
-		} else {
-			low = 0;
-			high = offset = pEnd - 1;
-			return OK;
-		}
-		reader = chunkManager.getStartPtr(2) + low;
-		beginPtr = chunkManager.getStartPtr(2);
-
-		reader = Chunk::readXId(reader, x);
-		reader = Chunk::readYId(reader, y);
-		if ( x + y == id ) {
-			offset = low;
-			return OK;
-		}
-
-		if(x + y > id)
-			return OK;
-
-		while(low <= high) {
-			x = 0;
-			mid = low + (high - low) / 2;//(low + high) / 2;
-			reader = Chunk::skipBackward(beginPtr + mid);
-			lastmid = mid = reader - beginPtr;
-			reader = Chunk::readXId(reader, x);
-			reader = Chunk::readYId(reader, y);
-			if(x + y == id){
-				while(mid >= (int)MemoryBuffer::pagesize) {
-					x = 0; y = 0;
-					lastmid = mid;
-					mid = mid - MemoryBuffer::pagesize;
-					reader = Chunk::skipBackward(beginPtr + mid);
-					mid = beginPtr - reader;
-					if (mid <= 0) {
-						offset = 0;
-						return OK;
-					}
-					Chunk::readYId(Chunk::readXId(reader, x), y);
-					if (x + y < id)
-						break;
-				}
-
-				if(mid < (int)MemoryBuffer::pagesize)
-					mid = 0;
-				while( mid <= lastmid) {
-					x = y = 0;
-					reader = Chunk::readYId(Chunk::readXId(beginPtr + mid, x), y);
-					if( x + y >= id) {
-						offset = mid;
-						return OK;
-					}
-
-					mid = reader - beginPtr;
-					if(mid == lastmid) {
-						offset = mid;
-						return OK;
-					}
-				}
-			} else if ( x + y > id ) {
-				high = mid - 1;
-			} else {
-				low = mid + 1;
-			}
-		}
-	}
 	if(mid <= 0)
 		offset = 0;
 	else //if not found, offset is the first id which is bigger than the given id.

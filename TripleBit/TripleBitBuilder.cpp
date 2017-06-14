@@ -41,10 +41,8 @@ TripleBitBuilder::TripleBitBuilder(string _dir) : dir(_dir) {
 	uriTable = new URITable(dir);
 	bitmap = new BitmapBuffer(dir);
 
-	statBuffer[0] = new OneConstantStatisticsBuffer(string(dir + "/subject_statis"), StatisticsBuffer::SUBJECT_STATIS);			//subject statistics buffer;
-	statBuffer[1] = new OneConstantStatisticsBuffer(string(dir + "/object_statis"), StatisticsBuffer::OBJECT_STATIS);			//object statistics buffer;
-	statBuffer[2] = new TwoConstantStatisticsBuffer(string(dir + "/subjectpredicate_statis"), StatisticsBuffer::SUBJECTPREDICATE_STATIS);	//subject-predicate statistics buffer;
-	statBuffer[3] = new TwoConstantStatisticsBuffer(string(dir + "/objectpredicate_statis"), StatisticsBuffer::OBJECTPREDICATE_STATIS);	//object-predicate statistics buffer;
+	statBuffer[0] = new TwoConstantStatisticsBuffer(string(dir + "/subjectpredicate_statis"), StatisticsBuffer::SUBJECTPREDICATE_STATIS);	//subject-predicate statistics buffer;
+	statBuffer[1] = new TwoConstantStatisticsBuffer(string(dir + "/objectpredicate_statis"), StatisticsBuffer::OBJECTPREDICATE_STATIS);	//object-predicate statistics buffer;
 
 	staReifTable = new StatementReificationTable();
 }
@@ -79,7 +77,7 @@ TripleBitBuilder::~TripleBitBuilder() {
 		bitmap = NULL;
 	}
 
-	for(int i = 0; i < 4; i++)
+	for(int i = 0; i < 2; i++)
 	{
 		if(statBuffer[i] != NULL)
 			delete statBuffer[i];
@@ -103,19 +101,6 @@ bool TripleBitBuilder::isStatementReification(const char* object) {
 	return false;
 }
 
-bool TripleBitBuilder::generateXY(ID& subjectID, ID& objectID)
-{
-	if(subjectID > objectID)
-	{
-		ID temp = subjectID;
-		subjectID = objectID;
-		objectID = temp;
-		return true;
-	}else{
-		return false;
-	}
-}
-
 void TripleBitBuilder::NTriplesParse(const char* subject,  const char* predicate, const char* object, TempFile& facts) {
 	ID subjectID, objectID, predicateID;
 
@@ -130,9 +115,7 @@ void TripleBitBuilder::NTriplesParse(const char* subject,  const char* predicate
 		if (uriTable->getIdByURI(object, objectID) == URI_NOT_FOUND)
 			uriTable->insertTable(object, objectID);
 
-		facts.writeId(subjectID);
-		facts.writeId(predicateID);
-		facts.writeId(objectID);
+		facts.writeTriple(subjectID, predicateID, objectID, predicateObjTypes[predicateID]);
 	} else {
 //		statementFile << subject << " : " << predicate << " : " << object << endl;
 	}
@@ -165,11 +148,13 @@ bool TripleBitBuilder::N3Parse(istream& in, const char* name, TempFile& rawFacts
 	return true;
 }
 
-const char* TripleBitBuilder::skipIdIdId(const char* reader) {
-	return TempFile::skipId(TempFile::skipId(TempFile::skipId(reader)));
+const uchar* TripleBitBuilder::skipIdIdId(const uchar* reader) {
+	uint predicate;
+	const uchar* temp = TempFile::skipId(TempFile::skipId(reader, DataType::STRING), DataType::STRING);
+	return TempFile::skipId(temp, predicateObjTypes[predicate]);
 }
 
-int TripleBitBuilder::compare213(const char* left, const char* right) {
+int TripleBitBuilder::compare213(const uchar* left, const uchar* right) {
 	ID l1, l2, l3, r1, r2, r3;
 	loadTriple(left, l1, l2, l3);
 	loadTriple(right, r1, r2, r3);
@@ -177,7 +162,7 @@ int TripleBitBuilder::compare213(const char* left, const char* right) {
 	return cmpTriples(l2, l1, l3, r2, r1, r3);
 }
 
-int TripleBitBuilder::compare231(const char* left, const char* right) {
+int TripleBitBuilder::compare231(const uchar* left, const uchar* right) {
 	ID l1, l2, l3, r1, r2, r3;
 	loadTriple(left, l1, l2, l3);
 	loadTriple(right, r1, r2, r3);
@@ -185,7 +170,7 @@ int TripleBitBuilder::compare231(const char* left, const char* right) {
 	return cmpTriples(l2, l3, l1, r2, r3, r1);
 }
 
-int TripleBitBuilder::compare123(const char* left, const char* right) {
+int TripleBitBuilder::compare123(const uchar* left, const uchar* right) {
 	ID l1, l2, l3, r1, r2, r3;
 	loadTriple(left, l1, l2, l3);
 	loadTriple(right, r1, r2, r3);
@@ -193,7 +178,7 @@ int TripleBitBuilder::compare123(const char* left, const char* right) {
 	return cmpTriples(l1, l2, l3, r1, r2, r3);
 }
 
-int TripleBitBuilder::compare321(const char* left, const char* right) {
+int TripleBitBuilder::compare321(const uchar* left, const uchar* right) {
 	ID l1, l2, l3, r1, r2, r3;
 	loadTriple(left, l1, l2, l3);
 	loadTriple(right, r1, r2, r3);
@@ -218,10 +203,11 @@ void print(TempFile& infile, char* outfile){
 
 Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 	cout<<"Sort by Subject"<<endl;
-	ID subjectID, objectID, predicateID;
 
-	ID lastSubject = 0, lastObject = 0, lastPredicate = 0;
-	unsigned count0 = 0, count1 = 0;
+	varType subject, object, lastSubject, lastObject;
+	ID predicateID, lastPredicate = 0;
+
+	unsigned count1 = 0;
 	TempFile sortedBySubject("./SortByS"), sortedByObject("./SortByO");
 	Sorter::sort(rawFacts, sortedBySubject, skipIdIdId, compare213);
 #ifdef MYDEBUG
@@ -233,41 +219,37 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 		sortedBySubject.close();
 		MemoryMappedFile mappedIn;
 		assert(mappedIn.open(sortedBySubject.getFile().c_str()));
-		const char* reader = mappedIn.getBegin(), *limit = mappedIn.getEnd();
+		const uchar* reader = mappedIn.getBegin(), *limit = mappedIn.getEnd();
 
-		loadTriple(reader, subjectID, predicateID, objectID);
-		lastSubject = subjectID; lastPredicate = predicateID; lastObject = objectID;
+		loadTriple(reader, subject, predicateID, object);
+		lastSubject = subject; lastPredicate = predicateID; lastObject = object;
 		reader = skipIdIdId(reader);
-		bool v = generateXY(subjectID, objectID);//s > o:swap(s, o), return true; s < o: return false
-		bitmap->insertTriple(predicateID, subjectID, objectID, v, 0); //0 sort by s; 1 sort by o
-		count0 = count1 = 1;
+		bitmap->insertTriple(predicateID, subject, object, OrderByType::ORDERBYS);
+		count1 = 1;
 		
 		while (reader < limit) {
-			loadTriple(reader, subjectID, predicateID, objectID);
-			if(lastSubject == subjectID && lastPredicate == predicateID && lastObject == objectID) {
+			loadTriple(reader, subject, predicateID, object);
+			if(lastSubject == subject && lastPredicate == predicateID && lastObject == object) {
 				reader = skipIdIdId(reader);
 				continue;
 			}
 
-			if ( subjectID != lastSubject ) {
-				((OneConstantStatisticsBuffer*)statBuffer[0])->addStatis(lastSubject, count0);
-				statBuffer[2]->addStatis(lastSubject, lastPredicate, count1);
+			if ( subject.var_uint != lastSubject.var_uint ) {
+				statBuffer[0]->addStatis(lastSubject, lastPredicate, count1);
 				lastPredicate = predicateID;
-				lastSubject = subjectID;
-				count0 = count1 = 1;
+				lastSubject = subject;
+				count1 = 1;
 			} else if ( predicateID != lastPredicate ) {
-				statBuffer[2]->addStatis(lastSubject, lastPredicate, count1);
+				statBuffer[0]->addStatis(lastSubject, lastPredicate, count1);
 				lastPredicate = predicateID;
-				count0++; count1 = 1;
+				count1 = 1;
 			}else {
-				count0++; count1++;
-				lastObject = objectID;
+				count1++;
+				lastObject = object;
 			}
 			
 			reader = reader + 12;
-			v = generateXY(subjectID, objectID);
-			//0 indicate the triple is sorted by subjects' id;
-			bitmap->insertTriple(predicateID, subjectID, objectID, v, 0);
+			bitmap->insertTriple(predicateID, subject, object, OrderByType::ORDERBYS);
 		}
 		mappedIn.close();
 	}
@@ -286,40 +268,37 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 		sortedByObject.close();
 		MemoryMappedFile mappedIn;
 		assert(mappedIn.open(sortedByObject.getFile().c_str()));
-		const char* reader = mappedIn.getBegin(), *limit = mappedIn.getEnd();
+		const uchar* reader = mappedIn.getBegin(), *limit = mappedIn.getEnd();
 
-		loadTriple(reader, subjectID, predicateID, objectID);
-		lastSubject = subjectID; lastPredicate = predicateID; lastObject = objectID;
+		loadTriple(reader, subject, predicateID, object);
+		lastSubject = subject; lastPredicate = predicateID; lastObject = object;
 		reader = skipIdIdId(reader);
-		bool v = generateXY(objectID, subjectID);
-		bitmap->insertTriple(predicateID, objectID, subjectID, v, 1);
-		count0 = count1 = 1;
+		bitmap->insertTriple(predicateID, object, subject, OrderByType::ORDERBYO);
+		count1 = 1;
 
 		while (reader < limit) {
-			loadTriple(reader, subjectID, predicateID, objectID);
-			 if(lastSubject == subjectID && lastPredicate == predicateID && lastObject == objectID) {
+			loadTriple(reader, subject, predicateID, object);
+			 if(lastSubject == subject && lastPredicate == predicateID && lastObject == object) {
 				reader = skipIdIdId(reader);
 				continue;
 			}
 
-			if ( objectID != lastObject ) {
-				((OneConstantStatisticsBuffer*)statBuffer[1])->addStatis(lastObject, count0);
-				statBuffer[3]->addStatis(lastObject, lastPredicate, count1);
+			if ( object != lastObject ) {
+				statBuffer[1]->addStatis(lastObject, lastPredicate, count1);
 				lastPredicate = predicateID;
-				lastObject = objectID;
-				count0 = count1 = 1;
+				lastObject = object;
+				count1 = 1;
 			} else if ( predicateID != lastPredicate ) {
-				statBuffer[3]->addStatis(lastObject, lastPredicate, count1);
+				statBuffer[1]->addStatis(lastObject, lastPredicate, count1);
 				lastPredicate = predicateID;
-				count0++; count1 = 1;
+				count1 = 1;
 			} else {
-				lastSubject = subjectID;
-				count0++; count1++;
+				lastSubject = subject;
+				count1++;
 			}
 			reader = skipIdIdId(reader);
-			v = generateXY(objectID, subjectID);
 			// 1 indicate the triple is sorted by objects' id;
-			bitmap->insertTriple(predicateID, objectID, subjectID, v, 1);
+			bitmap->insertTriple(predicateID, object, subject, OrderByType::ORDERBYO);
 		}
 		mappedIn.close();
 	}

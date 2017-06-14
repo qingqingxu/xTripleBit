@@ -15,7 +15,7 @@ typedef unsigned __int64 uint64_t;
 class TempFile {
 private:
 	/// The next id
-	static unsigned id;
+	static uint id;
 
 	/// The base file name
 	std::string baseName;
@@ -25,11 +25,11 @@ private:
 	std::ofstream out;
 
 	/// The buffer size
-	static const unsigned bufferSize = 16384;
+	static const uint bufferSize = 16384;
 	/// The write buffer
 	char writeBuffer[bufferSize];
 	/// The write pointer
-	unsigned writePointer;
+	uint writePointer;
 
 	/// Construct a new suffix
 	static std::string newSuffix();
@@ -56,22 +56,17 @@ public:
 	/// Discard the file
 	void discard();
 
-	void writeId(ID id);
-	/// Raw write
-	void write(unsigned len, const char* data);//n
+
 	template<typename T>
-	void write(const uchar* writer, T& data, DataType dataType = DataType::STRING);
+	void write(T data, DataType dataType = DataType::STRING);
 	template<typename T>
-	void writeTriple(const uchar* writer, T& subject, T& predicate, T& object, DataType objType = DataType::STRING);
-	/// Skip a predicate
-	static const char* skipId(const char* reader);//n
-	static const uchar* shipTriple(const uchar* reader);
-	/// Read an id
-	static const char* readId(const char* reader, ID& id);//n
-	template<typename T>
-	static const uchar* read(const uchar* reader, T& data, DataType dataType = DataType::STRING);
+	void writeTriple(T subject, T predicate, T object, DataType objType = DataType::STRING);
+	void write(unsigned len, const char* data);
+	static const uchar* readID(const uchar* reader, ID& data);
+	static const uchar* read(const uchar* reader, varType& data, DataType dataType = DataType::STRING);
 	template<typename T>
 	static const uchar* readTriple(const uchar* reader, T& subject, T& predicate, T& object);
+	static const uchar* skipId(const uchar* reader, DataType dataType = DataType::STRING);
 };
 
 //----------------------------------------------------------------------------

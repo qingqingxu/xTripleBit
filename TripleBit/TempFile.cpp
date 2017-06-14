@@ -60,6 +60,106 @@ void TempFile::discard()
 	close();
 	remove(fileName.c_str());
 }
+
+template<typename T>
+void TempFile::write(T data, DataType dataType){
+	switch(dataType){
+	case DataType::BOOL:
+		if (writePointer + sizeof(bool) > bufferSize) {
+			out.write(writeBuffer, writePointer);
+			writePointer = 0;
+		}
+		*(bool*) (writeBuffer + writePointer) = data;
+		writePointer += sizeof(bool);
+		break;
+	case DataType::CHAR:
+		if (writePointer + sizeof(char) > bufferSize) {
+			out.write(writeBuffer, writePointer);
+			writePointer = 0;
+		}
+		*(char*) (writeBuffer + writePointer) = data;
+		writePointer += sizeof(char);
+		break;
+	case DataType::INT:
+	case DataType::UNSIGNED_INT:
+	case DataType::DATE:
+	case DataType::DOUBLE:
+		if (writePointer + sizeof(double) > bufferSize) {
+			out.write(writeBuffer, writePointer);
+			writePointer = 0;
+		}
+		*(double*) (writeBuffer + writePointer) = data;
+		writePointer += sizeof(double);
+		break;
+	case DataType::STRING:
+	default:
+		if (writePointer + sizeof(ID) > bufferSize) {
+			out.write(writeBuffer, writePointer);
+			writePointer = 0;
+		}
+		*(ID*) (writeBuffer + writePointer) = data;
+		writePointer += sizeof(ID);
+		break;
+	}
+}
+
+template<typename T>
+void TempFile::writeTriple(T subject, T predicate, T object, DataType objType =
+		DataType::STRING) {
+	if (writePointer + sizeof(ID) > bufferSize) {
+		out.write(writeBuffer, writePointer);
+		writePointer = 0;
+	}
+	*(ID*) (writeBuffer + writePointer) = subject;
+	writePointer += sizeof(ID);
+	if (writePointer + sizeof(ID) > bufferSize) {
+		out.write(writeBuffer, writePointer);
+		writePointer = 0;
+	}
+	*(ID*) (writeBuffer + writePointer) = predicate;
+	writePointer += sizeof(ID);
+	write(object, objType);
+}
+
+const uchar* TempFile::readID(const uchar* reader, ID& data){
+	data = *reinterpret_cast<ID*>(reader);
+	reader += sizeof(ID);
+	return reader;
+}
+
+const uchar* TempFile::read(const uchar* reader, varType& data, DataType dataType = DataType::STRING){
+	switch(dataType){
+		case DataType::BOOL:
+			data = *reinterpret_cast<bool*>(reader);
+			reader += sizeof(bool);
+			break;
+		case DataType::CHAR:
+			data = *reinterpret_cast<char*>(reader);
+			reader += sizeof(char);
+			break;
+		case DataType::INT:
+		case DataType::UNSIGNED_INT:
+		case DataType::DATE:
+		case DataType::DOUBLE:
+			data = *reinterpret_cast<double*>(reader);
+			reader += sizeof(double);
+			break;
+		case DataType::STRING:
+		default:
+			data = *reinterpret_cast<ID*>(reader);
+			reader += sizeof(ID);
+			break;
+		}
+	return reader;
+}
+
+template<typename T>
+const uchar* TempFile::readTriple(const uchar* reader, T& subject, T& predicate, T& object){
+	reader = read(read(reader, subject, DataType::STRING), predicate, DataType::STRING);
+	return read(reader, object, predicateObjTypes[predicate]);
+}
+
+
 //---------------------------------------------------------------------------
 void TempFile::write(unsigned len, const char* data)
 // Raw write
@@ -86,24 +186,23 @@ void TempFile::write(unsigned len, const char* data)
 	writePointer += len;
 }
 //---------------------------------------------------------------------------
-const char* TempFile::skipId(const char* reader)
+const uchar* TempFile::skipId(const uchar* reader, DataType dataType = DataType::STRING)
 // Skip an id
 {
-	return reader + 4;
-}
-
-//---------------------------------------------------------------------------
-const char* TempFile::readId(const char* reader, ID& id)
-// Read an id
-{
-	id = 0;
-	unsigned shift = 0;
-	for(int i = 0; i < 4; i++) {
-		unsigned char c = *reinterpret_cast<const unsigned char*> (reader++);
-		id |= static_cast<ID> (c) << shift;
-		shift += 8;
+	switch(dataType){
+	case DataType::BOOL:
+		return reader + sizeof(bool);
+	case DataType::CHAR:
+		return reader + sizeof(char);
+	case DataType::INT:
+	case DataType::UNSIGNED_INT:
+	case DataType::DATE:
+	case DataType::DOUBLE:
+		return reader + sizeof(double);
+	case DataType::STRING:
+	default:
+		return reader + sizeof(ID);
 	}
-	return reader;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

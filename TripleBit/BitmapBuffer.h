@@ -24,7 +24,6 @@ class ChunkManager;
 class BitmapBuffer {
 public:
 	map<ID, ChunkManager*> predicate_managers[2];//基于subject和object排序的每个predicate对应的ChunkManager
-	map<ID, DataType> predicateObjTypes;
 	const string dir;//位图矩阵存储的路径
 	MMapBuffer *tempByS, *tempByO;//存储以subject或object排序的ID编码后三元组信息
 	size_t usedPageByS, usedPageByO;//以subject或object排序存储三元组已使用的Chunk数量
@@ -35,14 +34,11 @@ public:
 	//加载predicate对应的ChunkManager信息与对应的索引信息
 	static BitmapBuffer* load(MMapBuffer* bitmapImage, MMapBuffer*& bitmapIndexImage, MMapBuffer* bitmapPredicateImage);
 	//插入一条predicate信息，创建以subject和以object排序的ChunkManager，并确认predicate对应object数据类型
-	template<typename T>
-	Status insertPredicate(T& predicate, OrderByType soType, DataType objType = DataType::STRING);
+	Status insertPredicate(ID predicateID, OrderByType soType, DataType objType = DataType::STRING);
 	//插入一条三元组信息，根据object数据类型确定插入object所占字节
-	template<typename T>
-	Status insertTriple(T& predicate, T& subject, T& object, DataType objType = DataType::STRING);
+	Status insertTriple(ID predicateID, varType& subject, varType& object, OrderByType soType, DataType objType = DataType::STRING);
 	//根据predicate与SO排序方式获取对应的ChunkManager
-	template<typename T>
-	ChunkManager* getChunkManager(T& predicate, OrderByType soType);
+	ChunkManager* getChunkManager(ID predicateID, OrderByType soType);
 	//获取数据库中所有三元组总数
 	size_t getTripleCount();
 	//根据SO排序类型增大临时文件一个Chunk大小，并修改临时文件中ChunkManagerMeta的尾指针地址，返回添加Chunk的初始地址
@@ -52,11 +48,6 @@ public:
 	//将临时文件数据存储到数据库三元组存储文件BitmapBuffer中，建立谓词相关信息
 	void save();
 
-
-	/// insert a predicate given specified sorting type and predicate id
-	Status insertPredicate(ID predicateID, unsigned char typeID);//n
-	/// insert a triple;
-	Status insertTriple(ID predicateID, ID xID, ID yID, bool isBigger, unsigned char typeID);//n
 	void endUpdate(MMapBuffer *bitmapPredicateImage, MMapBuffer *bitmapOld);
 
 };
@@ -66,7 +57,7 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////
 struct ChunkManagerMeta
 {
-	unsigned pid;//predicate id
+	uint pid;//predicate id
 	OrderByType soType;// SO排序类型
 	size_t length;//已申请的Chunk空间
 	size_t usedSpace;//数据区已使用空间，包括MetaData头部信息，不包含ChunkManagerMeta存储空间
@@ -106,22 +97,16 @@ public:
 
 public:
 	ChunkManager(){}
-	template<typename T>
-	ChunkManager(T predicate, OrderByType soType, DataType objType, BitmapBuffer* _bitmapBuffer);
+	ChunkManager(ID predicateID, OrderByType soType, DataType objType, BitmapBuffer* _bitmapBuffer);
 	~ChunkManager();
-	//加载ChunkManager相关信息
-	template<typename T>
-	static ChunkManager* load(T& predicate, OrderByType soType, uchar* buffer, size_t& offset);
 	//为Chunk建立索引信息
 	Status buildChunkIndex();
 	//更新Chunk索引信息
 	Status updateChunkIndex();
-	//在chunk中插入数据x，y
-	template<typename T>
-	void insertXY(T& x, T& y);
-	//向指定位置写入数据x，y，写完后指针仍指向原地址
-	template<typename T>
-	void writeXY(const uchar* reader, T& x, T& y);
+	//在chunk中插入数据x，y, x表示subjectID， y表示object
+	void insertXY(varType& x, varType& y);
+	//向指定位置写入数据x，y，写完后指针仍指向原地址, x表示subjectID， y表示object
+	void writeXY(const uchar* reader, varType& x, varType& y);
 	//获取新的Chunk
 	Status resize();
 	//判断添加len长度数据后Chunk是否溢出
@@ -140,38 +125,21 @@ public:
 	int getTripleCount() {
 		return meta->tripleCount;
 	}
-	template<typename T>
-	T getPredicate() const {
+	ID getPredicateID() const {
 		return meta->pid;
 	}
-
-	int getTripleCount(uchar type) {
-			return meta->tripleCount[type - 1];
+	uchar* getStartPtr() {
+		return meta->startPtr;
 	}
-	unsigned int getPredicateID() const {//n
-		return meta->pid;
+	uchar* getEndPtr() {
+		return meta->endPtr;
 	}
+	uint getLen(DataType dataType = DataType::STRING);
 
+	static void setMetaDataMin(MetaData *metaData, varType& x, varType& y);
+	//加载ChunkManager相关信息
+	static ChunkManager* load(ID predicateID, OrderByType soType, uchar* buffer, size_t& offset);
 
-
-	size_t getChunkNumber(uchar type);
-
-	void insertXY(unsigned x, unsigned y, unsigned len, uchar type);//n
-
-	uchar* getStartPtr(uchar type) {
-		return meta->startPtr[type -1];
-	}
-
-	uchar* getEndPtr(uchar type) {
-		return meta->endPtr[type -1];
-	}
-
-	Status buildChunkIndex();
-	Status updateChunkIndex();
-	static ChunkManager* load(unsigned pid, unsigned type, uchar* buffer, size_t& offset);//n
-private:
-	template<typename T>
-	void setMetaDataMin(MetaData *metaData, T t);
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -182,41 +150,24 @@ class Chunk {
 public:
 	Chunk();
 	~Chunk();
-	//在指定位置根据数据类型写入数据，返回写后数据位置
-	template<typename T>
-	static void write(uchar*& writer, T& data, DataType dataType = DataType::STRING);
-	//在指定位置根据数据类型读取数据，返回读取后数据位置
-	template<typename T>
-	static const uchar* read(const uchar* reader, T& data, DataType dataType = DataType::STRING);
+
+	//在指定位置写入ID数据，默认返回写后数据位置
+	static void writeID(const uchar*& writer, ID data, bool isUpdateAdress = true);
+	//在指定位置根据数据类型写入数据，默认返回写后数据位置
+	static void write(const uchar*& writer, varType& data, DataType dataType = DataType::STRING, bool isUpdateAdress = true);
+	//在指定位置读取ID数据，默认返回读取后数据位置
+	static const uchar* readID(const uchar* reader, ID& data, bool isUpdateAdress = true);
+	//在指定位置根据数据类型读取数据，默认返回读取后数据位置
+	static const uchar* read(const uchar* reader, varType& data, DataType dataType = DataType::STRING, bool isUpdateAdress = true);
 	//根据数据类型删除在指定位置数据，返回删除后位置，删除将该位置0
-	template<typename T>
 	static uchar* deleteData(uchar* reader, DataType dataType = DataType::STRING);
 	/// Skip a s or o
-	static const uchar* skipId(const uchar* reader, DataType dataType = DataType::STRING);
-	//根据object数据类型向前跳过一对x-y值
-	static const uchar* skipForward(const uchar* reader, DataType objType);
-	//根据object数据类型向前跳过一对x-y值
-	static const uchar* skipBackward(const uchar* reader, const uchar* endPtr);
-
-
-
-
-	/// Read a subject id
-	static const uchar* readXId(const uchar* reader, register ID& id);
-	/// Read an object id
-	static const uchar* readYId(const uchar* reader, register ID& id);
-
-	/// Delete a subject id (just set the id to 0)
-	static uchar* deleteXId(uchar* reader);
-	/// Delete a object id (just set the id to 0)
-	static uchar* deleteYId(uchar* reader);
-	/// Skip a s or o
-	static const uchar* skipId(const uchar* reader, unsigned char idNums);
-	/// Skip backward to s
-	static const uchar* skipBackward(const uchar* reader);
-	static const uchar* skipBackward(const uchar* reader, const uchar* endPtr, uint step);
-	static const uchar* skipBackward(const uchar* reader, uint step, bool isFirstPage);
-
-
+	static const uchar* skipData(const uchar* reader, DataType dataType = DataType::STRING);
+	//根据object数据类型从reader位置向前跳至第一对x-y值
+	static const uchar* skipForward(const uchar* reader, const uchar* endPtr, DataType objType);
+	//根据object数据类型从Chunk末尾位置向后跳至最后一对x-y值, reader为MetaData位置
+	static const uchar* skipBackward(const uchar* reader, bool isFirstPage = false, DataType objType = DataType::STRING);
+	//根据object数据类型在endPtr位置向后跳至最后一对x-y值, reader为MetaData位置
+	static const uchar* skipBackward(const uchar* reader, const uchar* endPtr, DataType objType = DataType::STRING);
 };
 #endif /* CHUNKMANAGER_H_ */

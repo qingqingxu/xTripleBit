@@ -45,37 +45,31 @@ private:
 	vector<string> predicates;
 	string dir;
 	/// statistics buffer;
-	StatisticsBuffer* statBuffer[4];
+	StatisticsBuffer* statBuffer[2];
 	StatementReificationTable* staReifTable;
 	FindColumns* columnFinder;
+
 public:
 	TripleBitBuilder();
 	TripleBitBuilder(const string dir);
-	Status initBuild();
-	Status startBuild();
-	static const char* skipIdIdId(const char* reader);
-	static int compareValue(const char* left, const char* right);
-	static int compare213(const char* left, const char* right);//n
-	static int compare231(const char* left, const char* right);//n
-	static int compare123(const char* left, const char* right);//n
-	static int compare321(const char* left, const char* right);//n
-
+	static const uchar* skipIdIdId(const uchar* reader);
 	static int compare213(const uchar* left, const uchar* right);
 	static int compare231(const uchar* left, const uchar* right);
 	static int compare123(const uchar* left, const uchar* right);
 	static int compare321(const uchar* left, const uchar* right);
 
-	static inline void loadTriple(const char* data, ID& v1, ID& v2, ID& v3) {
-		TempFile::readId(TempFile::readId(TempFile::readId(data, v1), v2), v3);
+	static inline void loadTriple(const uchar* data, varType& v1, ID& v2, varType& v3) {
+		const uchar* temp = TempFile::readID(TempFile::read(data, v1), v2);
+		TempFile::read(temp, v3, predicateObjTypes[v2]);
 	}
 
 	template<typename T>
-	static inline int cmpValue(T& l ,T& r) {
+	static inline int cmpValue(T l ,T r) {
 		return (l < r) ? -1 : ((l > r) ? 1 : 0);
 	}
 
 	template<typename T>
-	static inline int cmpTriples(T& l1, T& l2, T&  l3, T&  r1, T&  r2, T& r3){
+	static inline int cmpTriples(T l1, T l2, T l3, T r1, T r2, T r3){
 		int c = cmpValue(l1, r1);
 		if(c)
 			return c;
@@ -93,7 +87,6 @@ public:
 	bool N3Parse(istream& in, const char* name, TempFile&);
 	Status importFromMySQL(string db, string server, string username, string password);
 	void NTriplesParse(const char* subject, const char* predicate, const char* object, TempFile&);
-	bool generateXY(ID& subjectID, ID& objectID);
 	Status buildIndex();
 	Status endBuild();
 	

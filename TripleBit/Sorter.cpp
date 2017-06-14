@@ -61,7 +61,7 @@ static char* spool(char* ofs, TempFile& out, const vector<Range>& items, bool el
 //---------------------------------------------------------------------------
 }
 //---------------------------------------------------------------------------
-void Sorter::sort(TempFile& in, TempFile& out, const char* (*skip)(const char*), int(*compare)(const char*, const char*), bool eliminateDuplicates)
+void Sorter::sort(TempFile& in, TempFile& out, const uchar* (*skip)(const uchar*), int(*compare)(const uchar*, const uchar*), bool eliminateDuplicates)
 // Sort a temporary file
 {
 	// Open the input

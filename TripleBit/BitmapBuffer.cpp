@@ -15,29 +15,33 @@
 //#define MYDEBUG
 
 BitmapBuffer::BitmapBuffer(const string _dir) :
-	dir(_dir) {
+		dir(_dir) {
 	// TODO Auto-generated constructor stub
 	string filename(dir);
 	filename.append("/tempByS");
-	tempByS = new MMapBuffer(filename.c_str(), INIT_PAGE_COUNT * MemoryBuffer::pagesize);
+	tempByS = new MMapBuffer(filename.c_str(),
+			INIT_PAGE_COUNT * MemoryBuffer::pagesize);
 
 	filename.assign(dir.begin(), dir.end());
 	filename.append("/tempByS");
-	tempByO = new MMapBuffer(filename.c_str(), INIT_PAGE_COUNT * MemoryBuffer::pagesize);
+	tempByO = new MMapBuffer(filename.c_str(),
+			INIT_PAGE_COUNT * MemoryBuffer::pagesize);
 
 	usedPageByS = usedPageByO = 0;
 }
 
 BitmapBuffer::~BitmapBuffer() {
 	// TODO Auto-generated destructor stub
-	for (map<ID, ChunkManager*>::iterator iter = predicate_managers[0].begin(); iter != predicate_managers[0].end(); iter++) {
+	for (map<ID, ChunkManager*>::iterator iter = predicate_managers[0].begin();
+			iter != predicate_managers[0].end(); iter++) {
 		if (iter->second != 0) {
 			delete iter->second;
 			iter->second = NULL;
 		}
 	}
 
-	for (map<ID, ChunkManager*>::iterator iter = predicate_managers[1].begin(); iter != predicate_managers[1].end(); iter++) {
+	for (map<ID, ChunkManager*>::iterator iter = predicate_managers[1].begin();
+			iter != predicate_managers[1].end(); iter++) {
 		if (iter->second != 0) {
 			delete iter->second;
 			iter->second = NULL;
@@ -45,26 +49,30 @@ BitmapBuffer::~BitmapBuffer() {
 	}
 }
 
-template<typename T>
-Status insertPredicate(T& predicate, OrderByType soType, DataType objType = DataType::STRING){
-	predicate_managers[soType][predicate] = new ChunkManager(predicate, soType, this);
+Status BitmapBuffer::insertPredicate(ID predicateID, OrderByType soType,
+		DataType objType = DataType::STRING) {
+	predicate_managers[soType][predicateID] = new ChunkManager(predicateID,
+			predicateObjTypes[predicateID], soType, this);
 }
 
-Status BitmapBuffer::insertPredicate(ID id, unsigned char type) {
-	predicate_managers[type][id] = new ChunkManager(id, type, this);
+Status BitmapBuffer::insertTriple(ID predicateID, varType& subject, varType& object,
+		OrderByType soType, DataType objType = DataType::STRING) {
+	getChunkManager(predicateID, soType)->insertXY(subject, object);
 	return OK;
 }
 
 size_t BitmapBuffer::getTripleCount() {
 	size_t tripleCount = 0;
 	map<ID, ChunkManager*>::iterator begin, limit;
-	for (begin = predicate_managers[0].begin(), limit = predicate_managers[0].end(); begin != limit; begin++) {
+	for (begin = predicate_managers[0].begin(), limit =
+			predicate_managers[0].end(); begin != limit; begin++) {
 		tripleCount = tripleCount + begin->second->getTripleCount();
 	}
 	cout << "triple count: " << tripleCount << endl;
 
 	tripleCount = 0;
-	for (begin = predicate_managers[1].begin(), limit = predicate_managers[1].end(); begin != limit; begin++) {
+	for (begin = predicate_managers[1].begin(), limit =
+			predicate_managers[1].end(); begin != limit; begin++) {
 		tripleCount = tripleCount + begin->second->getTripleCount();
 	}
 	cout << "triple count: " << tripleCount << endl;
@@ -76,33 +84,14 @@ size_t BitmapBuffer::getTripleCount() {
  *	@param id: the chunk manager id ( predicate id );
  *       type: the predicate_manager type;
  */
-template<typename T>
-ChunkManager* BitmapBuffer::getChunkManager(T& predicate, OrderByType soType) {
+ChunkManager* BitmapBuffer::getChunkManager(ID predicateID,
+		OrderByType soType) {
 	//there is no predicate_managers[id]
-	if (!predicate_managers[soType].count(predicate)) {
+	if (!predicate_managers[soType].count(predicateID)) {
 		//the first time to insert
-		insertPredicate(predicate, soType);
+		insertPredicate(predicateID, soType);
 	}
-	return predicate_managers[soType][predicate];
-}
-
-
-
-/*
- *	@param f: 0 for triple being sorted by subject; 1 for triple being sorted by object
- *         flag: indicate whether x is bigger than y;
- */
-Status BitmapBuffer::insertTriple(ID predicateId, ID xId, ID yId, bool flag, OrderByType soType) {
-	unsigned char len = 4 * 2;
-
-	if (flag == false) { //s < o
-		getChunkManager(predicateId, soType)->insertXY(xId, yId);
-	} else { // s > o, xId: o, yId: s
-		getChunkManager(predicateId, soType)->insertXY(xId, yId);
-	}
-
-	//	cout<<getChunkManager(1, 0)->meta->length[0]<<" "<<getChunkManager(1, 0)->meta->tripleCount[0]<<endl;
-	return OK;
+	return predicate_managers[soType][predicateID];
 }
 
 void BitmapBuffer::flush() {
@@ -110,7 +99,7 @@ void BitmapBuffer::flush() {
 	tempByO->flush();
 }
 
-uchar* BitmapBuffer::getPage(OrderByType soType, size_t& pageNo){
+uchar* BitmapBuffer::getPage(OrderByType soType, size_t& pageNo) {
 	uchar* newPageStartPtr;
 	bool tempresize = false;
 
@@ -120,15 +109,17 @@ uchar* BitmapBuffer::getPage(OrderByType soType, size_t& pageNo){
 			tempresize = true;
 		}
 		pageNo = usedPageByS;
-		newPageStartPtr = tempByS->get_address() + usedPageByS * MemoryBuffer::pagesize;
+		newPageStartPtr = tempByS->get_address()
+				+ usedPageByS * MemoryBuffer::pagesize;
 		usedPageByS++;
-	} else if(soType == OrderByType::ORDERBYO) {
+	} else if (soType == OrderByType::ORDERBYO) {
 		if (usedPageByO * MemoryBuffer::pagesize >= tempByO->getSize()) {
 			tempByO->resize(INCREMENT_PAGE_COUNT * MemoryBuffer::pagesize);
 			tempresize = true;
 		}
 		pageNo = usedPageByO;
-		newPageStartPtr = tempByO->get_address() + usedPageByO * MemoryBuffer::pagesize;
+		newPageStartPtr = tempByO->get_address()
+				+ usedPageByO * MemoryBuffer::pagesize;
 		usedPageByO++;
 	}
 
@@ -201,7 +192,9 @@ void BitmapBuffer::save() {
 	string predicateFile(filename);
 	predicateFile.append("_predicate");
 
-	MMapBuffer *predicateBuffer = new MMapBuffer(predicateFile.c_str(), predicate_managers[0].size() * (sizeof(ID) + sizeof(SOType) + sizeof(size_t) * 2) * 2);
+	MMapBuffer *predicateBuffer = new MMapBuffer(predicateFile.c_str(),
+			predicate_managers[0].size()
+					* (sizeof(ID) + sizeof(SOType) + sizeof(size_t) * 2) * 2);
 	uchar *predicateWriter = predicateBuffer->get_address();
 	uchar *bufferWriter = NULL;
 
@@ -212,11 +205,14 @@ void BitmapBuffer::save() {
 
 	predicateWriter = predicateBuffer->get_address();
 	bufferWriter = buffer->get_address();
-	vector<size_t>::iterator pageNoIter = iter->second->usedPages.begin(), limit = iter->second->usedPages.end();
+	vector<size_t>::iterator pageNoIter = iter->second->usedPages.begin(),
+			limit = iter->second->usedPages.end();
 
 	for (; pageNoIter != limit; pageNoIter++) {
 		size_t pageNo = *pageNoIter;
-		memcpy(bufferWriter, tempByS->get_address() + pageNo * MemoryBuffer::pagesize, MemoryBuffer::pagesize);
+		memcpy(bufferWriter,
+				tempByS->get_address() + pageNo * MemoryBuffer::pagesize,
+				MemoryBuffer::pagesize);
 		bufferWriter = bufferWriter + MemoryBuffer::pagesize;
 	}
 
@@ -241,7 +237,9 @@ void BitmapBuffer::save() {
 
 		for (; pageNoIter != limit; pageNoIter++) {
 			size_t pageNo = *pageNoIter;
-			memcpy(startPos, tempByS->get_address() + pageNo * MemoryBuffer::pagesize, MemoryBuffer::pagesize);
+			memcpy(startPos,
+					tempByS->get_address() + pageNo * MemoryBuffer::pagesize,
+					MemoryBuffer::pagesize);
 			startPos += MemoryBuffer::pagesize;
 		}
 
@@ -253,7 +251,9 @@ void BitmapBuffer::save() {
 		predicateWriter += sizeof(size_t) * 2;
 		offset += iter->second->meta->length;
 
-		assert(iter->second->usedPages.size() * MemoryBuffer::pagesize == iter->second->meta->length);
+		assert(
+				iter->second->usedPages.size() * MemoryBuffer::pagesize
+						== iter->second->meta->length);
 	}
 
 	buffer->flush();
@@ -268,7 +268,9 @@ void BitmapBuffer::save() {
 		limit = iter->second->usedPages.end();
 		for (; pageNoIter != limit; pageNoIter++) {
 			size_t pageNo = *pageNoIter;
-			memcpy(startPos, tempByO->get_address() + pageNo * MemoryBuffer::pagesize, MemoryBuffer::pagesize);
+			memcpy(startPos,
+					tempByO->get_address() + pageNo * MemoryBuffer::pagesize,
+					MemoryBuffer::pagesize);
 			startPos += MemoryBuffer::pagesize;
 		}
 
@@ -280,7 +282,10 @@ void BitmapBuffer::save() {
 		predicateWriter += sizeof(size_t) * 2;
 		offset += iter->second->meta->length;
 
-		assert(iter->second->meta->length == iter->second->usedPages.size() * MemoryBuffer::pagesize);
+		assert(
+				iter->second->meta->length
+						== iter->second->usedPages.size()
+								* MemoryBuffer::pagesize);
 	}
 	buffer->flush();
 	predicateBuffer->flush();
@@ -289,56 +294,68 @@ void BitmapBuffer::save() {
 
 	//update bitmap point address
 	ID id;
-	for (iter = predicate_managers[0].begin(); iter != predicate_managers[0].end(); iter++) {
-		id = *((ID*) predicateWriter);
+	for (iter = predicate_managers[0].begin();
+			iter != predicate_managers[0].end(); iter++) {
+		id = *reinterpret_cast<ID*>(predicateWriter);
 		assert(iter->first == id);
 		predicateWriter += sizeof(ID) + sizeof(SOType);
-		offset = *((size_t*) predicateWriter);
+		offset = *reinterpret_cast<size_t*>(predicateWriter);
 		predicateWriter += sizeof(size_t) * 2;
 
 		uchar *base = buffer->get_address() + offset;
 		iter->second->meta = (ChunkManagerMeta*) base;
 		iter->second->meta->startPtr = base + sizeof(ChunkManagerMeta);
-		iter->second->meta->endPtr = iter->second->meta->startPtr + iter->second->meta->usedSpace;
+		iter->second->meta->endPtr = iter->second->meta->startPtr
+				+ iter->second->meta->usedSpace;
 
 		//why only update last metadata
-		if (iter->second->meta->usedSpace + sizeof(ChunkManagerMeta) <= MemoryBuffer::pagesize) {
+		if (iter->second->meta->usedSpace + sizeof(ChunkManagerMeta)
+				<= MemoryBuffer::pagesize) {
 			MetaData *metaData = (MetaData*) iter->second->meta->startPtr;
 			metaData->usedSpace = iter->second->meta->usedSpace;
 		} else {
-			size_t usedLastPage = (iter->second->meta->usedSpace + sizeof(ChunkManagerMeta)) % MemoryBuffer::pagesize;
+			size_t usedLastPage = (iter->second->meta->usedSpace
+					+ sizeof(ChunkManagerMeta)) % MemoryBuffer::pagesize;
 			if (usedLastPage == 0) {
-				MetaData *metaData = (MetaData*) (iter->second->meta->endPtr - MemoryBuffer::pagesize);
+				MetaData *metaData = (MetaData*) (iter->second->meta->endPtr
+						- MemoryBuffer::pagesize);
 				metaData->usedSpace = MemoryBuffer::pagesize;
 			} else if (usedLastPage > 0) {
-				MetaData *metaData = (MetaData*) (iter->second->meta->endPtr - usedLastPage);
+				MetaData *metaData = (MetaData*) (iter->second->meta->endPtr
+						- usedLastPage);
 				metaData->usedSpace = usedLastPage;
 			}
 		}
 	}
 
-	for (iter = predicate_managers[1].begin(); iter != predicate_managers[1].end(); iter++) {
-		id = *((ID*) predicateWriter);
+	for (iter = predicate_managers[1].begin();
+			iter != predicate_managers[1].end(); iter++) {
+		id = *reinterpret_cast<ID*>(predicateWriter);
 		assert(iter->first == id);
 		predicateWriter = predicateWriter + sizeof(ID) + sizeof(SOType);
-		offset = *((size_t*) predicateWriter);
+		offset = *reinterpret_cast<size_t*>(predicateWriter);
 		predicateWriter = predicateWriter + sizeof(size_t) * 2;
 
 		uchar *base = buffer->get_address() + offset;
 		iter->second->meta = (ChunkManagerMeta*) base;
 		iter->second->meta->startPtr = base + sizeof(ChunkManagerMeta);
-		iter->second->meta->endPtr = iter->second->meta->startPtr + iter->second->meta->usedSpace;
+		iter->second->meta->endPtr = iter->second->meta->startPtr
+				+ iter->second->meta->usedSpace;
 
-		if (iter->second->meta->usedSpace + sizeof(ChunkManagerMeta) <= MemoryBuffer::pagesize) {
+		if (iter->second->meta->usedSpace + sizeof(ChunkManagerMeta)
+				<= MemoryBuffer::pagesize) {
 			MetaData *metaData = (MetaData*) (iter->second->meta->startPtr);
 			metaData->usedSpace = iter->second->meta->usedSpace;
 		} else {
-			size_t usedLastPage = (iter->second->meta->usedSpace + sizeof(ChunkManagerMeta)) % MemoryBuffer::pagesize;
+			size_t usedLastPage = (iter->second->meta->usedSpace
+					+ sizeof(ChunkManagerMeta)) % MemoryBuffer::pagesize;
 			if (usedLastPage == 0) {
-				MetaData *metaData = (MetaData*) (iter->second->meta->endPtr - MemoryBuffer::pagesize);
+				MetaData *metaData = (MetaData*) (iter->second->meta->endPtr
+						- MemoryBuffer::pagesize);
 				metaData->usedSpace = MemoryBuffer::pagesize;
 			} else if (usedLastPage > 0) {
-				MetaData *metaData = (MetaData*) (iter->second->meta->endPtr - usedLastPage);
+				MetaData *metaData = (MetaData*) (iter->second->meta->endPtr
+						- usedLastPage);
 				metaData->usedSpace = usedLastPage;
 			}
 		}
@@ -352,7 +369,8 @@ void BitmapBuffer::save() {
 	cout<<"build hash index for subject"<<endl;
 	cout << "predicate size: " << predicate_managers[0].size() << endl;
 #endif
-	for (map<ID, ChunkManager*>::iterator iter = predicate_managers[0].begin(); iter != predicate_managers[0].end(); iter++) {
+	for (map<ID, ChunkManager*>::iterator iter = predicate_managers[0].begin();
+			iter != predicate_managers[0].end(); iter++) {
 		if (iter->second) {
 #ifdef MYDEBUG
 			ofstream out;
@@ -361,8 +379,10 @@ void BitmapBuffer::save() {
 			out.close();
 #endif
 			iter->second->buildChunkIndex();
+			LineHashIndex<uint> index = iter->second->getChunkIndex();
 			offset = iter->second->getChunkIndex()->save(bitmapIndex);
-			predicateWriter = predicateWriter + sizeof(ID) + sizeof(SOType) + sizeof(size_t);
+			predicateWriter = predicateWriter + sizeof(ID) + sizeof(SOType)
+					+ sizeof(size_t);
 			*((size_t*) predicateWriter) = offset;
 			predicateWriter = predicateWriter + sizeof(size_t);
 		}
@@ -372,7 +392,8 @@ void BitmapBuffer::save() {
 	cout<<"build hash index for object"<<endl;
 	cout << "predicate size: " << predicate_managers[1].size() << endl;
 #endif
-	for (map<ID, ChunkManager*>::iterator iter = predicate_managers[1].begin(); iter != predicate_managers[1].end(); iter++) {
+	for (map<ID, ChunkManager*>::iterator iter = predicate_managers[1].begin();
+			iter != predicate_managers[1].end(); iter++) {
 		if (iter->second) {
 #ifdef MYDEBUG
 			ofstream out;
@@ -382,7 +403,8 @@ void BitmapBuffer::save() {
 #endif
 			iter->second->buildChunkIndex();
 			offset = iter->second->getChunkIndex()->save(bitmapIndex);
-			predicateWriter = predicateWriter + sizeof(ID) + sizeof(SOType) + sizeof(size_t);
+			predicateWriter = predicateWriter + sizeof(ID) + sizeof(SOType)
+					+ sizeof(size_t);
 			*((size_t*) predicateWriter) = offset;
 			predicateWriter = predicateWriter + sizeof(size_t);
 		}
@@ -393,7 +415,8 @@ void BitmapBuffer::save() {
 	delete predicateBuffer;
 }
 
-BitmapBuffer *BitmapBuffer::load(MMapBuffer* bitmapImage, MMapBuffer*& bitmapIndexImage, MMapBuffer* bitmapPredicateImage) {
+BitmapBuffer *BitmapBuffer::load(MMapBuffer* bitmapImage,
+		MMapBuffer*& bitmapIndexImage, MMapBuffer* bitmapPredicateImage) {
 	BitmapBuffer *buffer = new BitmapBuffer();
 	uchar *predicateReader = bitmapPredicateImage->get_address();
 
@@ -403,23 +426,27 @@ BitmapBuffer *BitmapBuffer::load(MMapBuffer* bitmapImage, MMapBuffer*& bitmapInd
 	size_t sizePredicateBuffer = bitmapPredicateImage->get_length();
 
 	while (predicateOffset < sizePredicateBuffer) {
-		id = *((ID*) predicateReader);
+		id = *reinterpret_cast<ID*>(predicateReader);
 		predicateReader += sizeof(ID);
-		soType = *((SOType*) predicateReader);
+		soType = *reinterpret_cast<SOType*>(predicateReader);
 		predicateReader += sizeof(SOType);
-		offset = *((size_t*) predicateReader);
+		offset = *reinterpret_cast<size_t*>(predicateReader);
 		predicateReader += sizeof(size_t);
-		indexOffset = *((size_t*) predicateReader);
+		indexOffset = *reinterpret_cast<size_t*>(predicateReader);
 		predicateReader += sizeof(size_t);
-		if (soType == 0) {
-			ChunkManager *manager = ChunkManager::load(id, 0, bitmapImage->get_address(), offset);
-			manager->chunkIndex[0] = LineHashIndex::load(*manager, LineHashIndex::SUBJECT_INDEX, LineHashIndex::YBIGTHANX, bitmapIndexImage->get_address(), indexOffset);
-			manager->chunkIndex[1] = LineHashIndex::load(*manager, LineHashIndex::SUBJECT_INDEX, LineHashIndex::XBIGTHANY, bitmapIndexImage->get_address(), indexOffset);
+		if (soType == OrderByType::ORDERBYS) {
+			ChunkManager *manager = ChunkManager::load(id,
+					OrderByType::ORDERBYS, bitmapImage->get_address(), offset);
+			manager->chunkIndex = LineHashIndex::load(*manager,
+					LineHashIndex::SUBJECT_INDEX,
+					bitmapIndexImage->get_address(), indexOffset);
 			buffer->predicate_managers[0][id] = manager;
-		} else if (soType == 1) {
-			ChunkManager *manager = ChunkManager::load(id, 1, bitmapImage->get_address(), offset);
-			manager->chunkIndex[0] = LineHashIndex::load(*manager, LineHashIndex::OBJECT_INDEX, LineHashIndex::YBIGTHANX, bitmapIndexImage->get_address(), indexOffset);
-			manager->chunkIndex[1] = LineHashIndex::load(*manager, LineHashIndex::OBJECT_INDEX, LineHashIndex::XBIGTHANY, bitmapIndexImage->get_address(), indexOffset);
+		} else if (soType == OrderByType::ORDERBYO) {
+			ChunkManager *manager = ChunkManager::load(id,
+					OrderByType::ORDERBYO, bitmapImage->get_address(), offset);
+			manager->chunkIndex = LineHashIndex::load(*manager,
+					LineHashIndex::OBJECT_INDEX,
+					bitmapIndexImage->get_address(), indexOffset);
 			buffer->predicate_managers[1][id] = manager;
 		}
 		predicateOffset += sizeof(ID) + sizeof(SOType) + sizeof(size_t) * 2;
@@ -428,11 +455,13 @@ BitmapBuffer *BitmapBuffer::load(MMapBuffer* bitmapImage, MMapBuffer*& bitmapInd
 	return buffer;
 }
 
-void BitmapBuffer::endUpdate(MMapBuffer *bitmapPredicateImage, MMapBuffer *bitmapOld) {
+void BitmapBuffer::endUpdate(MMapBuffer *bitmapPredicateImage,
+		MMapBuffer *bitmapOld) {
 	uchar *predicateReader = bitmapPredicateImage->get_address();
 
 	int offsetId = 0, tableSize = 0;
-	uchar *startPtr, *bufferWriter, *chunkBegin, *chunkManagerBegin, *bufferWriterBegin, *bufferWriterEnd;
+	uchar *startPtr, *bufferWriter, *chunkBegin, *chunkManagerBegin,
+			*bufferWriterBegin, *bufferWriterEnd;
 	MetaData *metaData = NULL, *metaDataNew = NULL;
 	size_t offsetPage = 0, lastoffsetPage = 0;
 
@@ -442,43 +471,48 @@ void BitmapBuffer::endUpdate(MMapBuffer *bitmapPredicateImage, MMapBuffer *bitma
 	size_t sizePredicateBuffer = bitmapPredicateImage->get_length();
 
 	string bitmapName = dir + "/BitmapBuffer_Temp";
-	MMapBuffer *buffer = new MMapBuffer(bitmapName.c_str(), MemoryBuffer::pagesize);
+	MMapBuffer *buffer = new MMapBuffer(bitmapName.c_str(),
+			MemoryBuffer::pagesize);
 
 	while (predicateOffset < sizePredicateBuffer) {
-		bufferWriter = buffer->get_address() + offsetPage * MemoryBuffer::pagesize;
+		bufferWriter = buffer->get_address()
+				+ offsetPage * MemoryBuffer::pagesize;
 		lastoffsetPage = offsetPage;
 		bufferWriterBegin = bufferWriter;
 
-		id = *((ID*) predicateReader);
+		id = *reinterpret_cast<ID*>(predicateReader);
 		predicateReader += sizeof(ID);
-		soType = *((SOType*) predicateReader);
+		soType = *reinterpret_cast<SOType*>(predicateReader);
 		predicateReader += sizeof(SOType);
-		offset = *((size_t*) predicateReader);
-		*((size_t*) predicateReader) = bufferWriterBegin - buffer->get_address();
+		offset = *reinterpret_cast<size_t*>(predicateReader);
+		*((size_t*) predicateReader) = bufferWriterBegin
+				- buffer->get_address();
 		predicateReader += sizeof(size_t);
 		predicateReader += sizeof(size_t); //skip the indexoffset
 
-		//the part of xyType0
-		startPtr = predicate_managers[soType][id]->getStartPtr(1);
+		startPtr = predicate_managers[soType][id]->getStartPtr;
 		offsetId = 0;
-		tableSize = predicate_managers[soType][id]->getChunkNumber(1);
+		tableSize = predicate_managers[soType][id]->getChunkNumber();
 		metaData = (MetaData*) startPtr;
 
 		chunkBegin = startPtr - sizeof(ChunkManagerMeta);
 		chunkManagerBegin = chunkBegin;
 		memcpy(bufferWriter, chunkBegin, MemoryBuffer::pagesize);
 		offsetPage++;
-		metaDataNew = (MetaData*) (bufferWriterBegin + sizeof(ChunkManagerMeta));
+		metaDataNew =
+				(MetaData*) (bufferWriterBegin + sizeof(ChunkManagerMeta));
 		metaDataNew->haveNextPage = false;
 		metaDataNew->NextPageNo = 0;
 
 		while (metaData->haveNextPage) {
-			chunkBegin = TempMMapBuffer::getInstance().getAddress() + metaData->NextPageNo * MemoryBuffer::pagesize;
+			chunkBegin = TempMMapBuffer::getInstance().getAddress()
+					+ metaData->NextPageNo * MemoryBuffer::pagesize;
 			metaData = (MetaData*) chunkBegin;
 			if (metaData->usedSpace == sizeof(MetaData))
 				break;
 			buffer->resize(MemoryBuffer::pagesize);
-			bufferWriter = buffer->get_address() + offsetPage * MemoryBuffer::pagesize;
+			bufferWriter = buffer->get_address()
+					+ offsetPage * MemoryBuffer::pagesize;
 			memcpy(bufferWriter, chunkBegin, MemoryBuffer::pagesize);
 			offsetPage++;
 			metaDataNew = (MetaData*) bufferWriter;
@@ -488,7 +522,8 @@ void BitmapBuffer::endUpdate(MMapBuffer *bitmapPredicateImage, MMapBuffer *bitma
 		offsetId++;
 		while (offsetId < tableSize) {
 			buffer->resize(MemoryBuffer::pagesize);
-			bufferWriter = buffer->get_address() + offsetPage * MemoryBuffer::pagesize;
+			bufferWriter = buffer->get_address()
+					+ offsetPage * MemoryBuffer::pagesize;
 			chunkBegin = chunkManagerBegin + offsetId * MemoryBuffer::pagesize;
 			metaData = (MetaData*) chunkBegin;
 			memcpy(bufferWriter, chunkBegin, MemoryBuffer::pagesize);
@@ -497,12 +532,14 @@ void BitmapBuffer::endUpdate(MMapBuffer *bitmapPredicateImage, MMapBuffer *bitma
 			metaDataNew->haveNextPage = false;
 			metaDataNew->NextPageNo = 0;
 			while (metaData->haveNextPage) {
-				chunkBegin = TempMMapBuffer::getInstance().getAddress() + metaData->NextPageNo * MemoryBuffer::pagesize;
+				chunkBegin = TempMMapBuffer::getInstance().getAddress()
+						+ metaData->NextPageNo * MemoryBuffer::pagesize;
 				metaData = (MetaData*) chunkBegin;
 				if (metaData->usedSpace == sizeof(MetaData))
 					break;
 				buffer->resize(MemoryBuffer::pagesize);
-				bufferWriter = buffer->get_address() + offsetPage * MemoryBuffer::pagesize;
+				bufferWriter = buffer->get_address()
+						+ offsetPage * MemoryBuffer::pagesize;
 				memcpy(bufferWriter, chunkBegin, MemoryBuffer::pagesize);
 				offsetPage++;
 				metaDataNew = (MetaData*) bufferWriter;
@@ -512,87 +549,28 @@ void BitmapBuffer::endUpdate(MMapBuffer *bitmapPredicateImage, MMapBuffer *bitma
 			offsetId++;
 		}
 
-		bufferWriterEnd = buffer->get_address() + offsetPage * MemoryBuffer::pagesize;
-		bufferWriterBegin = buffer->get_address() + lastoffsetPage * MemoryBuffer::pagesize;
+		bufferWriterEnd = buffer->get_address()
+				+ offsetPage * MemoryBuffer::pagesize;
+		bufferWriterBegin = buffer->get_address()
+				+ lastoffsetPage * MemoryBuffer::pagesize;
 		if (offsetPage == lastoffsetPage + 1) {
 			ChunkManagerMeta *meta = (ChunkManagerMeta*) (bufferWriterBegin);
-			MetaData *metaDataTemp = (MetaData*) (bufferWriterBegin + sizeof(ChunkManagerMeta));
+			MetaData *metaDataTemp = (MetaData*) (bufferWriterBegin
+					+ sizeof(ChunkManagerMeta));
 			meta->usedSpace[0] = metaDataTemp->usedSpace;
 			meta->length[0] = MemoryBuffer::pagesize;
 		} else {
 			ChunkManagerMeta *meta = (ChunkManagerMeta*) (bufferWriterBegin);
-			MetaData *metaDataTemp = (MetaData*) (bufferWriterEnd - MemoryBuffer::pagesize);
-			meta->usedSpace[0] = bufferWriterEnd - bufferWriterBegin - sizeof(ChunkManagerMeta) - MemoryBuffer::pagesize + metaDataTemp->usedSpace;
+			MetaData *metaDataTemp = (MetaData*) (bufferWriterEnd
+					- MemoryBuffer::pagesize);
+			meta->usedSpace[0] = bufferWriterEnd - bufferWriterBegin
+					- sizeof(ChunkManagerMeta) - MemoryBuffer::pagesize
+					+ metaDataTemp->usedSpace;
 			meta->length[0] = bufferWriterEnd - bufferWriterBegin;
 			assert(meta->length[0] % MemoryBuffer::pagesize == 0);
 		}
 		buffer->flush();
 
-		//the part of xyType1
-		buffer->resize(MemoryBuffer::pagesize);
-		bufferWriter = buffer->get_address() + offsetPage * MemoryBuffer::pagesize;
-		startPtr = predicate_managers[soType][id]->getStartPtr(2);
-		offsetId = 0;
-		tableSize = predicate_managers[soType][id]->getChunkNumber(2);
-		metaData = (MetaData*) startPtr;
-
-		chunkManagerBegin = chunkBegin = startPtr;
-		memcpy(bufferWriter, chunkBegin, MemoryBuffer::pagesize);
-		offsetPage++;
-		metaDataNew = (MetaData*) bufferWriter;
-		metaDataNew->haveNextPage = false;
-		metaDataNew->NextPageNo = 0;
-
-		while (metaData->haveNextPage) {
-			chunkBegin = TempMMapBuffer::getInstance().getAddress() + metaData->NextPageNo * MemoryBuffer::pagesize;
-			metaData = (MetaData*) chunkBegin;
-			if (metaData->usedSpace == sizeof(MetaData))
-				break;
-			buffer->resize(MemoryBuffer::pagesize);
-			bufferWriter = buffer->get_address() + offsetPage * MemoryBuffer::pagesize;
-			memcpy(bufferWriter, chunkBegin, MemoryBuffer::pagesize);
-			offsetPage++;
-			metaDataNew = (MetaData*) bufferWriter;
-			metaDataNew->haveNextPage = false;
-			metaDataNew->NextPageNo = 0;
-		}
-		offsetId++;
-		while (offsetId < tableSize) {
-			buffer->resize(MemoryBuffer::pagesize);
-			bufferWriter = buffer->get_address() + offsetPage * MemoryBuffer::pagesize;
-			chunkBegin = chunkManagerBegin + offsetId * MemoryBuffer::pagesize;
-			metaData = (MetaData*) chunkBegin;
-			memcpy(bufferWriter, chunkBegin, MemoryBuffer::pagesize);
-			offsetPage++;
-			metaDataNew = (MetaData*) bufferWriter;
-			metaDataNew->haveNextPage = false;
-			metaDataNew->NextPageNo = 0;
-			while (metaData->haveNextPage) {
-				chunkBegin = TempMMapBuffer::getInstance().getAddress() + metaData->NextPageNo * MemoryBuffer::pagesize;
-				metaData = (MetaData*) chunkBegin;
-				if (metaData->usedSpace == sizeof(MetaData))
-					break;
-				buffer->resize(MemoryBuffer::pagesize);
-				bufferWriter = buffer->get_address() + offsetPage * MemoryBuffer::pagesize;
-				memcpy(bufferWriter, chunkBegin, MemoryBuffer::pagesize);
-				offsetPage++;
-				metaDataNew = (MetaData*) bufferWriter;
-				metaDataNew->haveNextPage = false;
-				metaDataNew->NextPageNo = 0;
-			}
-			offsetId++;
-		}
-
-		bufferWriterEnd = buffer->get_address() + offsetPage * MemoryBuffer::pagesize;
-		bufferWriterBegin = buffer->get_address() + lastoffsetPage * MemoryBuffer::pagesize;
-		if (1) {
-			ChunkManagerMeta *meta = (ChunkManagerMeta*) (bufferWriterBegin);
-			MetaData *metaDataTemp = (MetaData*) (bufferWriterEnd - MemoryBuffer::pagesize);
-			meta->length[1] = bufferWriterEnd - bufferWriterBegin - meta->length[0];
-			meta->usedSpace[1] = meta->length[1] - MemoryBuffer::pagesize + metaDataTemp->usedSpace;
-			//not update the startPtr, endPtr
-		}
-		buffer->flush();
 		//not update the LineHashIndex
 		predicateOffset += sizeof(ID) + sizeof(SOType) + sizeof(size_t) * 2;
 	}
@@ -600,11 +578,11 @@ void BitmapBuffer::endUpdate(MMapBuffer *bitmapPredicateImage, MMapBuffer *bitma
 	predicateOffset = 0;
 	predicateReader = bitmapPredicateImage->get_address();
 	while (predicateOffset < sizePredicateBuffer) {
-		id = *((ID*) predicateReader);
+		id = *reinterpret_cast<ID*>(predicateReader);
 		predicateReader += sizeof(ID);
-		soType = *((SOType*) predicateReader);
+		soType = *reinterpret_cast<SOType*>(predicateReader);
 		predicateReader += sizeof(SOType);
-		offset = *((size_t*) predicateReader);
+		offset = *reinterpret_cast<size_t*>(predicateReader);
 		predicateReader += sizeof(size_t);
 		predicateReader += sizeof(size_t);
 
@@ -649,9 +627,9 @@ void getTempFilename(string& filename, unsigned pid, unsigned _type) {
 	filename.append(temp);
 }
 
-template<typename T>
-ChunkManager::ChunkManager(T predicate, OrderByType soType, DataType objType, BitmapBuffer* _bitmapBuffer) :
-	bitmapBuffer(_bitmapBuffer) {
+ChunkManager::ChunkManager(ID predicateID, OrderByType soType, DataType objType,
+		BitmapBuffer* _bitmapBuffer) :
+		bitmapBuffer(_bitmapBuffer) {
 	usedPages.resize(0);
 	size_t pageNo = 0;
 	meta = NULL;
@@ -660,24 +638,25 @@ ChunkManager::ChunkManager(T predicate, OrderByType soType, DataType objType, Bi
 
 	meta = (ChunkManagerMeta*) lastChunkStartPtr;
 	memset((char*) meta, 0, sizeof(ChunkManagerMeta));
-	meta->endPtr = meta->startPtr = lastChunkStartPtr + sizeof(ChunkManagerMeta);
+	meta->endPtr = meta->startPtr = lastChunkStartPtr
+			+ sizeof(ChunkManagerMeta);
 	meta->length = usedPages.size() * MemoryBuffer::pagesize;
 	meta->usedSpace = 0;
 	meta->tripleCount = 0;
-	meta->pid = predicate;
+	meta->pid = predicateID;
 	meta->soType = soType;
 	meta->objType = objType;
-	if(soType == OrderByType::ORDERBYS){
-		meta->xType = DataType::STRING;//s
-		meta->yType = bitmapBuffer->predicateObjTypes[predicate];//o
-	}else if(soType == OrderByType::ORDERBYS){
-		meta->xType = bitmapBuffer->predicateObjTypes[predicate];//o
-		meta->yType = DataType::STRING;//s
+	if (soType == OrderByType::ORDERBYS) {
+		meta->xType = DataType::STRING; //s
+		meta->yType = predicateObjTypes[predicateID]; //o
+	} else if (soType == OrderByType::ORDERBYS) {
+		meta->xType = predicateObjTypes[predicateID]; //o
+		meta->yType = DataType::STRING; //s
 	}
 
 	if (meta->soType == OrderByType::ORDERBYS) {
 		chunkIndex = new LineHashIndex(*this, LineHashIndex::SUBJECT_INDEX);
-	} else if(meta->soType == OrderByType::ORDERBYO){
+	} else if (meta->soType == OrderByType::ORDERBYO) {
 		chunkIndex = new LineHashIndex(*this, LineHashIndex::OBJECT_INDEX);
 	}
 }
@@ -689,10 +668,134 @@ ChunkManager::~ChunkManager() {
 	chunkIndex = NULL;
 }
 
-template<typename T>
-static ChunkManager* ChunkManager::load(T& predicate, OrderByType soType, uchar* buffer, size_t& offset){
+void ChunkManager::writeXY(const uchar* reader, varType& x, varType& y) {
+	Chunk::write(reader, x, meta->xType);
+	Chunk::write(reader, y, meta->yType);
+}
+
+void ChunkManager::insertXY(varType& x, varType& y) {
+	uint len = getLen(meta->xType) + getLen(meta->yType);
+	if (isChunkOverFlow(len) == true) {
+		if (meta->length == MemoryBuffer::pagesize) {
+			MetaData *metaData = (MetaData*) (meta->endPtr - meta->usedSpace);
+			metaData->usedSpace = meta->usedSpace;
+		} else {
+			size_t usedPage =
+					MemoryBuffer::pagesize
+							- (meta->length - meta->usedSpace
+									- sizeof(ChunkManagerMeta));
+			MetaData *metaData = (MetaData*) (meta->endPtr - usedPage);
+			metaData->usedSpace = usedPage; // every chunk usedspace, include metadata
+		}
+		resize (type);
+		MetaData *metaData = (MetaData*) (meta->endPtr);
+		setMetaDataMin(metaData, x, y);
+		metaData->haveNextPage = false;
+		metaData->NextPageNo = 0;
+		metaData->usedSpace = 0;
+
+		writeXY(meta->endPtr + sizeof(MetaData), x, y);
+		meta->endPtr = meta->endPtr + sizeof(MetaData) + len;
+		meta->usedSpace = meta->length - MemoryBuffer::pagesize
+				- sizeof(ChunkManagerMeta) + sizeof(MetaData) + len; // indicate one chunk spare will not save
+		tripleCountAdd();
+	} else if (meta->usedSpace == 0) {
+		MetaData *metaData = (MetaData*) (meta->startPtr);
+		memset((char*) metaData, 0, sizeof(MetaData));
+		setMetaDataMin(metaData, x, y);
+		metaData->haveNextPage = false;
+		metaData->NextPageNo = 0;
+		metaData->usedSpace = 0;
+
+		writeXY(meta->endPtr + sizeof(MetaData), x, y);
+		meta->endPtr = meta->endPtr + sizeof(MetaData) + len;
+		meta->usedSpace = sizeof(MetaData) + len;
+		tripleCountAdd();
+	} else {
+		writeXY(meta->endPtr, x, y);
+		meta->endPtr = meta->endPtr + len;
+		meta->usedSpace = meta->usedSpace + len;
+		tripleCountAdd();
+	}
+}
+
+Status ChunkManager::resize() {
+	// TODO
+	size_t pageNo = 0;
+	lastChunkStartPtr = bitmapBuffer->getPage(meta->soType, pageNo);
+	usedPages.push_back(pageNo);
+	meta->length = usedPages.size() * MemoryBuffer::pagesize;
+	meta->endPtr = lastChunkStartPtr;
+	return OK;
+}
+
+/// build the hash index for query;
+Status ChunkManager::buildChunkIndex() {
+	chunkIndex->buildIndex();
+	return OK;
+}
+
+/// update the hash index for Query
+Status ChunkManager::updateChunkIndex() {
+	chunkIndex->updateLineIndex();
+
+	return OK;
+}
+
+bool ChunkManager::isChunkOverFlow(uint len) {
+	return sizeof(ChunkManagerMeta) + meta->usedSpace + len >= meta->length;
+}
+
+uint ChunkManager::getLen(DataType dataType){
+	switch(dataType){
+	case DataType::BOOL:
+		return sizeof(bool);
+	case DataType::CHAR:
+		return sizeof(char);
+	case DataType::INT:
+	case DataType::UNSIGNED_INT:
+	case DataType::DATE:
+	case DataType::DOUBLE:
+		return sizeof(double);
+	case DataType::STRING:
+	default:
+		return sizeof(ID);
+	}
+}
+
+size_t ChunkManager::getChunkNumber() {
+	return (meta->length) / (MemoryBuffer::pagesize);
+}
+
+void ChunkManager::setMetaDataMin(MetaData *metaData, varType& x, varType& y) {
+	if (meta->soType == OrderByType::ORDERBYS) {
+		metaData->minID = x.var_uint;
+	} else if (meta->soType == OrderByType::ORDERBYO) {
+		switch (meta->objType) {
+		case DataType::BOOL:
+			metaData->minBool = y.var_bool;
+			break;
+		case DataType::CHAR:
+			metaData->minChar = y.var_char;
+			break;
+		case DataType::INT:
+		case DataType::DATE:
+		case DataType::UNSIGNED_INT:
+		case DataType::DOUBLE:
+			metaData->minDouble = y.var_double;
+			break;
+		case DataType::STRING:
+		default:
+			metaData->minID = y.var_uint;
+			break;
+		}
+	}
+}
+
+ChunkManager* ChunkManager::load(ID predicateID, OrderByType soType,
+		uchar* buffer, size_t& offset) {
 	ChunkManagerMeta * meta = (ChunkManagerMeta*) (buffer + offset);
-	if (meta->pid != predicate || meta->soType != soType) {
+	if (meta->pid != predicateID || meta->soType != soType) {
 		MessageEngine::showMessage("load chunkmanager error: check meta info",
 				MessageEngine::ERROR);
 		cout << meta->pid << ": " << meta->soType << endl;
@@ -709,170 +812,115 @@ static ChunkManager* ChunkManager::load(T& predicate, OrderByType soType, uchar*
 	return manager;
 }
 
-template<typename T>
-void ChunkManager::writeXY(const uchar* reader, T& x, T& y){
-	*((T*) reader) = x;
-	reader += sizeof(T);
-	*((T*) reader) = y;
-	reader -= sizeof(T);//go back
-}
-
-template<typename T>
-void ChunkManager::insertXY(T& x, T& y){
-	uint len = sizeof(x) + sizeof(y);
-	if (isChunkOverFlow(len) == true) {
-			if (meta->length == MemoryBuffer::pagesize) {
-				MetaData *metaData = (MetaData*) (meta->endPtr
-						- meta->usedSpace);
-				metaData->usedSpace = meta->usedSpace;
-			} else {
-				size_t usedPage = MemoryBuffer::pagesize
-						- (meta->length - meta->usedSpace
-								- sizeof(ChunkManagerMeta));
-				MetaData *metaData = (MetaData*) (meta->endPtr - usedPage);
-				metaData->usedSpace = usedPage; // every chunk usedspace, include metadata
-			}
-			resize (type);
-			MetaData *metaData = (MetaData*) (meta->endPtr);
-			setMetaDataMin(metaData, x);
-			metaData->haveNextPage = false;
-			metaData->NextPageNo = 0;
-			metaData->usedSpace = 0;
-
-			writeXY(meta->endPtr + sizeof(MetaData), x, y);
-			meta->endPtr = meta->endPtr + sizeof(MetaData) + len;
-			meta->usedSpace = meta->length - MemoryBuffer::pagesize
-					- sizeof(ChunkManagerMeta) + sizeof(MetaData) + len; // indicate one chunk spare will not save
-			tripleCountAdd();
-	} else if (meta->usedSpace == 0) {
-		MetaData *metaData = (MetaData*) (meta->startPtr);
-		memset((char*) metaData, 0, sizeof(MetaData));
-		setMetaDataMin(metaData, x);
-		metaData->haveNextPage = false;
-		metaData->NextPageNo = 0;
-		metaData->usedSpace = 0;
-
-		writeXY(meta->endPtr + sizeof(MetaData), x, y);
-		meta->endPtr = meta->endPtr + sizeof(MetaData)
-				+ len;
-		meta->usedSpace = sizeof(MetaData) + len;
-		tripleCountAdd ();
-	} else {
-		writeXY(meta->endPtr, x, y);
-		meta->endPtr = meta->endPtr + len;
-		meta->usedSpace = meta->usedSpace + len;
-		tripleCountAdd ();
-	}
-}
-
-Status ChunkManager::resize() {
-	// TODO
-	size_t pageNo = 0;
-	lastChunkStartPtr = bitmapBuffer->getPage(meta->soType, pageNo);
-	usedPages.push_back(pageNo);
-	meta->length = usedPages.size() * MemoryBuffer::pagesize;
-	meta->endPtr = lastChunkStartPtr;
-	return OK;
-}
-
-/// build the hash index for query;
-Status ChunkManager::buildChunkIndex() {
-	chunkIndex->buildIndex(1);
-
-	return OK;
-}
-
-/// update the hash index for Query
-Status ChunkManager::updateChunkIndex() {
-	chunkIndex->updateLineIndex();
-
-	return OK;
-}
-
-bool ChunkManager::isChunkOverFlow(uint len) {
-	return sizeof(ChunkManagerMeta) + meta->usedSpace + len >= meta->length;
-}
-
-size_t ChunkManager::getChunkNumber() {
-	return (meta->length) / (MemoryBuffer::pagesize);
-}
-
-template<typename T>
-void ChunkManager::setMetaDataMin(MetaData *metaData, T t){
-	switch(meta->objType){
-	case DataType::BOOL:
-		metaData->minBool = t;
-		break;
-	case DataType::CHAR:
-		metaData->minChar = t;
-		break;
-	case DataType::INT:
-	case DataType::DATE:
-	case DataType::UNSIGNED_INT:
-	case DataType::DOUBLE:
-		metaData->minDouble = t;
-		break;
-	case DataType::STRING:
-		metaData->minID = t;
-		break;
-	default:
-		break;
-	}
-}
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 Chunk::~Chunk() {
 	// TODO Auto-generated destructor stub
 }
 
-template<typename T>
-void Chunk::write(uchar*& writer, T& data, DataType dataType){
-	switch (dataType) {
-	case DataType::BOOL:
-		*(bool*) writer = data;
-		writer += sizeof(bool);
-		break;
-	case DataType::CHAR:
-		*(char*) writer = data;
-		writer += sizeof(char);
-		break;
-	case DataType::INT:
-	case DataType::DATE:
-	case DataType::UNSIGNED_INT:
-	case DataType::DOUBLE:
-		*(double*) writer = data;
-		writer += sizeof(double);
-		break;
-	case DataType::STRING:
-		*(ID*) writer = data;
+void Chunk::writeID(const uchar*& writer, ID data, bool isUpdateAdress){
+	*(ID*) writer = data;
+	if(isUpdateAdress){
 		writer += sizeof(ID);
+	}
+}
+
+void Chunk::write(const uchar*& writer, varType& data, DataType dataType,
+		bool isUpdateAdress) {
+	switch (dataType) {
+	case DataType::BOOL:
+		*(bool*) writer = data.var_bool;
+		if (isUpdateAdress) {
+			writer += sizeof(bool);
+		}
+		break;
+	case DataType::CHAR:
+		*(char*) writer = data.var_char;
+		if (isUpdateAdress) {
+			writer += sizeof(char);
+		}
+		break;
+	case DataType::INT:
+	case DataType::DATE:
+	case DataType::UNSIGNED_INT:
+	case DataType::DOUBLE:
+		*(double*) writer = data.var_double;
+		if (isUpdateAdress) {
+			writer += sizeof(double);
+		}
+		break;
+	case DataType::STRING:
+		*(ID*) writer = data.var_uint;
+		if (isUpdateAdress) {
+			writer += sizeof(ID);
+		}
 		break;
 	default:
 		break;
 	}
-	return writer;
 }
 
-template<typename T>
-const uchar* Chunk::read(const uchar* reader, T& data, DataType dataType){
+const uchar* readID(const uchar* reader, ID& data, bool isUpdateAdress){
+	data = *reinterpret_cast<ID*>(reader);
+	if(isUpdateAdress){
+		reader += sizeof(ID);
+	}
+	return reader;
+}
+
+const uchar* Chunk::read(const uchar* reader, varType& data, DataType dataType,
+		bool isUpdateAdress) {
 	switch (dataType) {
 	case DataType::BOOL:
-		data = *(bool*) reader;
+		data.var_bool = *reinterpret_cast<bool*>(reader);
+		if (isUpdateAdress) {
+			reader += sizeof(bool);
+		}
+		break;
+	case DataType::CHAR:
+		data.var_char = *reinterpret_cast<char*>(reader);
+		if (isUpdateAdress) {
+			reader += sizeof(char);
+		}
+		break;
+	case DataType::INT:
+	case DataType::DATE:
+	case DataType::UNSIGNED_INT:
+	case DataType::DOUBLE:
+		data.var_double = *reinterpret_cast<double*>(reader);
+		if (isUpdateAdress) {
+			reader += sizeof(double);
+		}
+		break;
+	case DataType::STRING:
+	default:
+		data.var_uint = *reinterpret_cast<ID*>(reader);
+		if (isUpdateAdress) {
+			reader += sizeof(ID);
+		}
+		break;
+	}
+	return reader;
+}
+
+uchar* Chunk::deleteData(uchar* reader, DataType dataType) {
+	switch (dataType) {
+	case DataType::BOOL:
+		*(bool*) reader = false;
 		reader += sizeof(bool);
 		break;
 	case DataType::CHAR:
-		data = *(char*) reader;
+		*(char*) reader = 0;
 		reader += sizeof(char);
 		break;
 	case DataType::INT:
 	case DataType::DATE:
 	case DataType::UNSIGNED_INT:
 	case DataType::DOUBLE:
-		data = *(double*) reader;
+		*(double*) reader = 0;
 		reader += sizeof(double);
 		break;
 	case DataType::STRING:
-		data = *(ID*) reader;
+		*(ID*) reader = 0;
 		reader += sizeof(ID);
 		break;
 	default:
@@ -881,26 +929,22 @@ const uchar* Chunk::read(const uchar* reader, T& data, DataType dataType){
 	return reader;
 }
 
-template<typename T>
-uchar* Chunk::deleteData(uchar* reader, DataType dataType){
+const uchar* Chunk::skipData(const uchar* reader, DataType dataType =
+		DataType::STRING) {
 	switch (dataType) {
 	case DataType::BOOL:
-		*(bool* )reader = false;
 		reader += sizeof(bool);
 		break;
 	case DataType::CHAR:
-		*(char* )reader = 0;
 		reader += sizeof(char);
 		break;
 	case DataType::INT:
 	case DataType::DATE:
 	case DataType::UNSIGNED_INT:
 	case DataType::DOUBLE:
-		*(double* )reader = 0;
 		reader += sizeof(double);
 		break;
 	case DataType::STRING:
-		*(ID* )reader = 0;
 		reader += sizeof(ID);
 		break;
 	default:
@@ -909,73 +953,98 @@ uchar* Chunk::deleteData(uchar* reader, DataType dataType){
 	return reader;
 }
 
-
-
-
-const uchar* Chunk::readXId(const uchar* reader, register ID& id) {
-	id = *(ID*)reader;
-	reader += 4;
-	return reader;
-}
-
-const uchar* Chunk::readYId(const uchar* reader, register ID& id) {
-	// Read an y id
-	id = *(ID*)reader;
-	reader += 4;
-	return reader;
-}
-
-uchar* Chunk::deleteXId(uchar* reader)
-/// Delete a subject id (just set the id to 0)
-{
-	*(ID*)reader = 0;
-	reader += 4;
-	return reader;
-}
-
-uchar* Chunk::deleteYId(uchar* reader)
-/// Delete an object id (just set the id to 0)
-{
-	*(ID*)reader = 0;
-	reader += 4;
-	return reader;
-}
-
-const uchar* Chunk::skipId(const uchar* reader, uchar idNums) {
-	// Skip an id
-	for(int i = 0; i < idNums; i++){
-		reader += 4;
+const uchar* Chunk::skipForward(const uchar* reader, const uchar* endPtr,
+		DataType objType) {
+	const char* tempReader = reader;
+	while (tempReader < endPtr) {
+		if (*tempReader != 0) {
+			int xyLen = sizeof(ID) * 2; //x y均为string的id
+			switch (objType) {
+			case DataType::BOOL:
+				xyLen = sizeof(ID) + sizeof(bool);
+				break;
+			case DataType::CHAR:
+				xyLen = sizeof(ID) + sizeof(char);
+				break;
+			case DataType::INT:
+			case DataType::DATE:
+			case DataType::UNSIGNED_INT:
+			case DataType::DOUBLE:
+				xyLen = sizeof(ID) + sizeof(double);
+				break;
+			case DataType::STRING:
+			default:
+				break;
+			}
+			return reader + (tempReader - reader) / xyLen * xyLen;
+		}
+		tempReader++;
 	}
-
-	return reader;
+	return NULL;
 }
 
-
-const uchar* Chunk::skipBackward(const uchar* reader) {
-	// skip backward to the last x,y;
-	while ((ID*)reader == 0) //last y
-		reader -= sizeof(ID);
-	reader -= sizeof(ID); //last x
-	return reader;
-}
-
-const uchar* Chunk::skipBackward(const uchar* reader, const uchar* endPtr, unsigned step){
-	while((*endPtr) == 0){
-		endPtr--;
-	}
-	return reader + sizeof(MetaData) + (endPtr - (reader + sizeof(MetaData)))/(sizeof(ID) * 2) * (sizeof(ID) * 2);
-}
-
-const uchar* Chunk::skipBackward(const uchar* reader, unsigned step, bool isFirstPage) {
-	//reader is metadata first address, return last x,y address
+const uchar* Chunk::skipBackward(const uchar* reader, bool isFirstPage,
+		DataType objType) {
 	const uchar* endPtr = NULL;
-	if(isFirstPage){
+	if (isFirstPage) {
 		endPtr = reader + (MemoryBuffer::pagesize - sizeof(ChunkManagerMeta));
-	}else{
+	} else {
 		endPtr = reader + MemoryBuffer::pagesize;
 	}
-	while((*endPtr) == 0){
-		endPtr--;
+	while (reader + sizeof(MetaData) < endPtr) {
+		if (*(--endPtr) != 0) {
+			int xyLen = sizeof(ID) * 2; //x y均为string的id
+			switch (objType) {
+			case DataType::BOOL:
+				xyLen = sizeof(ID) + sizeof(bool);
+				break;
+			case DataType::CHAR:
+				xyLen = sizeof(ID) + sizeof(char);
+				break;
+			case DataType::INT:
+			case DataType::DATE:
+			case DataType::UNSIGNED_INT:
+			case DataType::DOUBLE:
+				xyLen = sizeof(ID) + sizeof(double);
+				break;
+			case DataType::STRING:
+			default:
+				break;
+			}
+			return reader + sizeof(MetaData)
+					+ (endPtr - (reader + sizeof(MetaData))) / xyLen * xyLen;
+		}
 	}
-	return reader + sizeof(MetaData) + (endPtr - (reader + sizeof(MetaData)))/(sizeof(ID) * 2) * (sizeof(ID) * 2);
+	return NULL;
+}
+
+const uchar* Chunk::skipBackward(const uchar* reader, const uchar* endPtr,
+		DataType objType) {
+	const char* tempEndPtr = endPtr;
+	while (reader < tempEndPtr) {
+		if (*(--tempEndPtr) != 0) {
+			int xyLen = sizeof(ID) * 2; //x y均为string的id
+			switch (objType) {
+			case DataType::BOOL:
+				xyLen = sizeof(ID) + sizeof(bool);
+				break;
+			case DataType::CHAR:
+				xyLen = sizeof(ID) + sizeof(char);
+				break;
+			case DataType::INT:
+			case DataType::DATE:
+			case DataType::UNSIGNED_INT:
+			case DataType::DOUBLE:
+				xyLen = sizeof(ID) + sizeof(double);
+				break;
+			case DataType::STRING:
+			default:
+				break;
+			}
+			return reader + sizeof(MetaData)
+					+ (tempEndPtr - (reader + sizeof(MetaData))) / xyLen * xyLen;
+		}
+	}
+
+	return NULL;
 }
