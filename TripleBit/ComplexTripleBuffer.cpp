@@ -69,9 +69,9 @@ Status NodeEdgeBuffer::addNodeEdge(T stValue, const vector<ID>& edges,
 		first = false;
 	}
 
-	if (stType == NODEEDGETYPE::STARTEDGE) {
+	if (stType == STARTEDGE) {
 
-	} else if (stType == NODEEDGETYPE::TARGETEDGE) {
+	} else if (stType == TARGETEDGE) {
 		writer = writeData(writer, objType); //OP统计信息O前需加objType
 	}
 	writer = writeData(writer, stValue);
@@ -150,7 +150,7 @@ Status NodeEdgeBuffer::save(MMapBuffer*& indexBuffer) {
 
 	return OK;
 }
-static NodeEdgeBuffer* NodeEdgeBuffer::load(NODEEDGETYPE stType,
+NodeEdgeBuffer* NodeEdgeBuffer::load(NODEEDGETYPE stType,
 		const string path, uchar*& indexBuffer) {
 	NodeEdgeBuffer* stBuffer = new NodeEdgeBuffer(path, stType);
 
