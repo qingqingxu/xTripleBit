@@ -58,7 +58,7 @@ LineHashIndex::~LineHashIndex() {
 	startPtr = NULL;
 	endPtr = NULL;
 	chunkMeta.clear();
-	chunkMeta.shrink_to_fit();
+	//chunkMeta.shrink_to_fit();
 }
 
 /**
