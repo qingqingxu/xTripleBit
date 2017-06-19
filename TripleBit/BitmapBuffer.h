@@ -36,7 +36,7 @@ public:
 	//插入一条predicate信息，创建以subject和以object排序的ChunkManager，并确认predicate对应object数据类型
 	Status insertPredicate(ID predicateID, OrderByType soType);
 	//插入一条三元组信息，根据object数据类型确定插入object所占字节
-	Status insertTriple(ID predicateID, ID subjectID, double object, OrderByType soType, char objType = DataType::STRING);
+	Status insertTriple(ID predicateID, ID subjectID, double object, OrderByType soType, char objType = STRING);
 	//根据predicate与SO排序方式获取对应的ChunkManager
 	ChunkManager* getChunkManager(ID predicateID, OrderByType soType);
 	//获取数据库中所有三元组总数
@@ -98,11 +98,11 @@ public:
 	//更新Chunk索引信息
 	Status updateChunkIndex();
 	//在chunk中插入数据x，y, x表示subjectID， y表示object
-	void insertXY(ID x, double y, char objType = DataType::STRING);
+	void insertXY(ID x, double y, char objType = STRING);
 	//向指定位置写入数据x，y，写完后指针仍指向原地址, x表示subjectID， y表示object
-	void writeXY(const uchar* reader, ID x, double y, char objType = DataType::STRING);
+	void writeXY(const uchar* reader, ID x, double y, char objType = STRING);
 	//根据数据类型删除在指定位置数据，返回删除后位置，删除将该位置0
-	static uchar* deleteTriple(uchar* reader, char objType = DataType::STRING);
+	static uchar* deleteTriple(uchar* reader, char objType = STRING);
 	//获取新的Chunk
 	Status resize(size_t& pageNo);
 	//判断添加len长度数据后Chunk是否溢出
