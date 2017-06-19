@@ -176,7 +176,7 @@ bool TripleBitRepository::find_string_by_soid(string& str, SOID& soid) {
 }
 
 int TripleBitRepository::get_predicate_count(PID pid) {
-	return bitmapBuffer->getChunkManager(pid, OrderByType::ORDERBYS)->getTripleCount();
+	return bitmapBuffer->getChunkManager(pid, ORDERBYS)->getTripleCount();
 }
 
 bool TripleBitRepository::lookup(const string& str, ID& id) {
@@ -274,9 +274,9 @@ TripleBitRepository* TripleBitRepository::create(const string &path) {
 	uchar* indexBuffer = indexBufferFile->get_address();
 
 	string statFilename = path + "/subjectpredicate_statis";
-	repo->subPredicateStat = StatisticsBuffer::load(StatisticsType::SUBJECTPREDICATE_STATIS, statFilename, indexBuffer);
+	repo->subPredicateStat = StatisticsBuffer::load(SUBJECTPREDICATE_STATIS, statFilename, indexBuffer);
 	statFilename = path + "/objectpredicate_statis";
-	repo->objPredicateStat = StatisticsBuffer::load(StatisticsType::OBJECTPREDICATE_STATIS, statFilename, indexBuffer);
+	repo->objPredicateStat = StatisticsBuffer::load(OBJECTPREDICATE_STATIS, statFilename, indexBuffer);
 
 #ifdef DEBUG
 	cout<<"subject count: "<<((OneConstantStatisticsBuffer*)repo->subjectStat)->getEntityCount()<<endl;

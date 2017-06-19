@@ -43,10 +43,10 @@ TripleBitBuilder::TripleBitBuilder(string _dir) :
 
 	spStatisBuffer = new StatisticsBuffer(
 			string(dir + "/subjectpredicate_statis"),
-			StatisticsType::SUBJECTPREDICATE_STATIS); //subject-predicate statistics buffer;
+			SUBJECTPREDICATE_STATIS); //subject-predicate statistics buffer;
 	opStatisBuffer = new StatisticsBuffer(
 			string(dir + "/objectpredicate_statis"),
-			StatisticsType::OBJECTPREDICATE_STATIS); //object-predicate statistics buffer;
+			OBJECTPREDICATE_STATIS); //object-predicate statistics buffer;
 
 	staReifTable = new StatementReificationTable();
 }
@@ -127,29 +127,29 @@ void TripleBitBuilder::NTriplesParse(const char* subject, const char* predicate,
 		}
 
 		switch (objType) {
-		case DataType::BOOL:
+		case BOOL:
 			tempObject = object.var_bool;
 			break;
-		case DataType::CHAR:
+		case CHAR:
 			tempObject = object.var_char;
 			break;
-		case DataType::INT:
+		case INT:
 			tempObject = object.var_int;
 			break;
-		case DataType::FLOAT:
+		case FLOAT:
 			tempObject = object.var_float;
 			break;
-		case DataType::UNSIGNED_INT:
+		case UNSIGNED_INT:
 			tempObject = object.var_uint;
 			break;
-		case DataType::DATE:
-		case DataType::DOUBLE:
+		case DATE:
+		case DOUBLE:
 			tempObject = object.var_double;
 			break;
-		case DataType::LONGLONG:
+		case LONGLONG:
 			tempObject = object.var_longlong;
 			break;
-		case DataType::STRING:
+		case STRING:
 			if (uriTable->getIdByURI(object.var_string, objectID)
 					== URI_NOT_FOUND) {
 				uriTable->insertTable(object.var_string, objectID);
@@ -175,7 +175,7 @@ bool TripleBitBuilder::N3Parse(istream& in, const char* name,
 	try {
 		string subject, predicate;
 		varType object;
-		char objType = DataType::NONE;
+		char objType = NONE;
 		while (true) {
 			try {
 				if (!parser.parse(subject, predicate, object, objType))
@@ -188,7 +188,7 @@ bool TripleBitBuilder::N3Parse(istream& in, const char* name,
 			//Construct IDs
 			//and write the triples
 			if (subject.length() && predicate.length()
-					&& objType != DataType::NONE)
+					&& objType != NONE)
 				NTriplesParse((char*) subject.c_str(),
 						(char*) predicate.c_str(), object, objType, rawFacts);
 
@@ -286,7 +286,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 		lastObject = object;
 		reader = skipIdIdId(reader);
 		bitmap->insertTriple(predicateID, subjectID, object,
-				OrderByType::ORDERBYS, objType);
+				ORDERBYS, objType);
 		count1 = 1;
 
 		while (reader < limit) {
@@ -315,7 +315,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 
 			reader = reader + 12;
 			bitmap->insertTriple(predicateID, subjectID, object,
-					OrderByType::ORDERBYS, objType);
+					ORDERBYS, objType);
 		}
 		mappedIn.close();
 	}
@@ -342,7 +342,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 		lastObject = object;
 		reader = skipIdIdId(reader);
 		bitmap->insertTriple(predicateID, object, subjectID,
-				OrderByType::ORDERBYO, objType);
+				ORDERBYO, objType);
 		count1 = 1;
 
 		while (reader < limit) {
@@ -371,7 +371,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 			reader = skipIdIdId(reader);
 			// 1 indicate the triple is sorted by objects' id;
 			bitmap->insertTriple(predicateID, object, subjectID,
-					OrderByType::ORDERBYO, objType);
+					ORDERBYO, objType);
 		}
 		mappedIn.close();
 	}

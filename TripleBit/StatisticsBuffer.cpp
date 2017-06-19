@@ -44,7 +44,7 @@ StatisticsBuffer::~StatisticsBuffer() {
 
 template<typename T>
 Status StatisticsBuffer::addStatis(T soValue, ID predicateID, size_t count,
-		char objType = DataType::STRING) {
+		char objType) {
 	unsigned len = sizeof(T) + sizeof(ID) + sizeof(sizeof(size_t));
 
 	if (first || usedSpace + len > buffer->getSize()) {
@@ -76,9 +76,9 @@ Status StatisticsBuffer::addStatis(T soValue, ID predicateID, size_t count,
 		first = false;
 	}
 
-	if (statType == StatisticsType::SUBJECTPREDICATE_STATIS) {
+	if (statType == SUBJECTPREDICATE_STATIS) {
 
-	} else if (statType == StatisticsType::OBJECTPREDICATE_STATIS) {
+	} else if (statType == OBJECTPREDICATE_STATIS) {
 		writer = writeData(writer, objType); //OP统计信息O前需加objType
 	}
 	writer = writeData(writer, soValue);
@@ -97,7 +97,7 @@ Status StatisticsBuffer::addStatis(T soValue, ID predicateID, size_t count,
 void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end, double soValue, ID predicateID, size_t& count, char objType) {
 	ID tempPredicateID;
 	size_t tempCount;
-	if (statType == StatisticsType::SUBJECTPREDICATE_STATIS) {
+	if (statType == SUBJECTPREDICATE_STATIS) {
 		ID subjectID;
 		while (begin + sizeof(ID) < end) {
 			begin = readData(begin, subjectID);
@@ -116,7 +116,7 @@ void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end, double
 				break;
 			}
 		}
-	} else if (statType == StatisticsType::OBJECTPREDICATE_STATIS) {
+	} else if (statType == OBJECTPREDICATE_STATIS) {
 		char tempObjType;
 		double tempObject;
 		uint moveByteNum;
@@ -155,7 +155,7 @@ void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end, double
 void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end, double soValue, size_t& count, char objType){
 	ID predicateID;
 	size_t tempCount = 0;
-		if (statType == StatisticsType::SUBJECTPREDICATE_STATIS) {
+		if (statType == SUBJECTPREDICATE_STATIS) {
 			ID subjectID;
 			while (begin + sizeof(ID) < end) {
 				begin = readData(begin, subjectID);
@@ -175,7 +175,7 @@ void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end, double
 					break;
 				}
 			}
-		} else if (statType == StatisticsType::OBJECTPREDICATE_STATIS) {
+		} else if (statType == OBJECTPREDICATE_STATIS) {
 			char tempObjType;
 			double object;
 			uint moveByteNum;

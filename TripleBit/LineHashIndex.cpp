@@ -390,14 +390,14 @@ void LineHashIndex::updateChunkMetaData(uint offsetId) {
 		double object;
 		char objType;
 		reader = startPtr + chunkMeta[offsetId].offsetBegin;
-		if (chunkManager.meta->soType == OrderByType::ORDERBYS) {
+		if (chunkManager.meta->soType == ORDERBYS) {
 			reader = Chunk::readID(reader, subjectID);
-			reader = Chunk::read(reader, objType, DataType::CHAR);
+			reader = Chunk::read(reader, objType, CHAR);
 			reader = Chunk::read(reader, object, objType);
 			chunkMeta[offsetId].minx = subjectID;
 			chunkMeta[offsetId].miny = object;
-		} else if (chunkManager.meta->soType == OrderByType::ORDERBYO) {
-			reader = Chunk::read(reader, objType, DataType::CHAR);
+		} else if (chunkManager.meta->soType == ORDERBYO) {
+			reader = Chunk::read(reader, objType, CHAR);
 			reader = Chunk::read(reader, object, objType);
 			reader = Chunk::readID(reader, subjectID);
 			chunkMeta[offsetId].minx = object;
@@ -439,7 +439,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type,
 	register char objType;
 	index->startPtr = index->chunkManager.getStartPtr;
 	index->endPtr = index->chunkManager.getEndPtr;
-	if (chunkManager.meta->soType == OrderByType::ORDERBYS) {
+	if (chunkManager.meta->soType == ORDERBYS) {
 		if (index->startPtr == index->endPtr) {
 			index->chunkMeta.push_back( { 0, DBL_MIN, sizeof(MetaData) });
 			return index;
@@ -449,7 +449,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type,
 
 		Chunk::read(
 				Chunk::read(Chunk::readID(temp, subjectID), objType,
-						DataType::CHAR), object, objType);
+						CHAR), object, objType);
 		index->chunkMeta.push_back( { subjectID, object, sizeof(MetaData) });
 
 		reader = index->startPtr - sizeof(ChunkManagerMeta)
@@ -458,7 +458,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type,
 			temp = reader + sizeof(MetaData);
 			Chunk::read(
 					Chunk::read(Chunk::readID(temp, subjectID), objType,
-							DataType::CHAR), object, objType);
+							CHAR), object, objType);
 			index->chunkMeta.push_back(
 					{ subjectID, object, reader - index->startPtr
 							+ sizeof(MetaData) });
@@ -466,14 +466,14 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type,
 			reader = reader + MemoryBuffer::pagesize;
 		}
 		reader = Chunk::skipBackward(reader, index->endPtr,
-				OrderByType::ORDERBYS);
+				ORDERBYS);
 		if (reader != index->endPtr) {
 			Chunk::read(
 					Chunk::read(Chunk::readID(temp, subjectID), objType,
-							DataType::CHAR), object, objType);
+							CHAR), object, objType);
 			index->chunkMeta.push_back( { subjectID, object });
 		}
-	} else if (chunkManager.meta->soType == OrderByType::ORDERBYO) {
+	} else if (chunkManager.meta->soType == ORDERBYO) {
 		if (index->startPtr == index->endPtr) {
 			index->chunkMeta.push_back( { DBL_MIN, 0, sizeof(MetaData) });
 			return index;
@@ -482,7 +482,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type,
 		temp = index->startPtr + sizeof(MetaData);
 
 		Chunk::readID(
-				Chunk::read(Chunk::read(temp, objType, DataType::CHAR), object,
+				Chunk::read(Chunk::read(temp, objType, CHAR), object,
 						objType), subjectID);
 		index->chunkMeta.push_back( { object, subjectID, sizeof(MetaData) });
 
@@ -491,7 +491,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type,
 		while (reader < index->endPtr) {
 			temp = reader + sizeof(MetaData);
 			Chunk::readID(
-					Chunk::read(Chunk::read(temp, objType, DataType::CHAR),
+					Chunk::read(Chunk::read(temp, objType, CHAR),
 							object, objType), subjectID);
 			index->chunkMeta.push_back(
 					{ object, subjectID, reader - index->startPtr
@@ -500,10 +500,10 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type,
 			reader = reader + MemoryBuffer::pagesize;
 		}
 		reader = Chunk::skipBackward(reader, index->endPtr,
-				OrderByType::ORDERBYS);
+				ORDERBYS);
 		if (reader != index->endPtr) {
 			Chunk::readID(
-					Chunk::read(Chunk::read(temp, objType, DataType::CHAR),
+					Chunk::read(Chunk::read(temp, objType, CHAR),
 							object, objType), subjectID);
 			index->chunkMeta.push_back( { object, subjectID });
 		}

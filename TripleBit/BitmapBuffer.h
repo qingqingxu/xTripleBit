@@ -34,7 +34,7 @@ public:
 	//加载predicate对应的ChunkManager信息与对应的索引信息
 	static BitmapBuffer* load(MMapBuffer* bitmapImage, MMapBuffer*& bitmapIndexImage, MMapBuffer* bitmapPredicateImage);
 	//插入一条predicate信息，创建以subject和以object排序的ChunkManager，并确认predicate对应object数据类型
-	Status insertPredicate(ID predicateID, OrderByType soType, DataType objType = DataType::STRING);
+	Status insertPredicate(ID predicateID, OrderByType soType);
 	//插入一条三元组信息，根据object数据类型确定插入object所占字节
 	Status insertTriple(ID predicateID, ID subjectID, double object, OrderByType soType, char objType = DataType::STRING);
 	//根据predicate与SO排序方式获取对应的ChunkManager
@@ -162,7 +162,7 @@ public:
 	//根据objType判定是否有数据存储、已删除、无数据,若有数据或数据已删除则返回数据类型或已删除数据类型, 并将修改reader指向地址为该条数据object后面的地址
 	static Status getObjTypeStatus(const uchar*& reader, uint& moveByteNum);
 	/// Skip a s or o
-	static const uchar* skipData(const uchar* reader, DataType dataType = DataType::STRING);
+	static const uchar* skipData(const uchar* reader, char dataType = STRING);
 	//根据object数据类型从reader位置向前跳至第一对x-y值
 	static const uchar* skipForward(const uchar* reader, const uchar* endPtr, OrderByType soType);
 	//根据object数据类型在endPtr位置向后跳至最后一对x-y值, reader为MetaData位置

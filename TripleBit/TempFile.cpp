@@ -84,7 +84,7 @@ void TempFile::write(double data, char dataType) {
 }
 
 void TempFile::writeTriple(ID subjectID, ID predicateID, double object,
-		char objType = DataType::STRING) {
+		char objType) {
 	if (writePointer + sizeof(ID) > bufferSize) {//s
 		out.write(writeBuffer, writePointer);
 		writePointer = 0;
@@ -126,21 +126,21 @@ const uchar* TempFile::readTriple(const uchar* reader, ID& subjectID,
 uint TempFile::getLen(char dataType) {
 	int len;
 	switch (dataType) {
-	case DataType::BOOL:
-	case DataType::CHAR:
+	case BOOL:
+	case CHAR:
 		len = sizeof(char);
 		break;
-	case DataType::INT:
-	case DataType::FLOAT:
+	case INT:
+	case FLOAT:
 		len = sizeof(float);
 		break;
-	case DataType::DATE:
-	case DataType::DOUBLE:
-	case DataType::LONGLONG:
+	case DATE:
+	case DOUBLE:
+	case LONGLONG:
 		len = sizeof(double);
 		break;
-	case DataType::UNSIGNED_INT:
-	case DataType::STRING:
+	case UNSIGNED_INT:
+	case STRING:
 	default:
 		len = sizeof(uint);
 		break;
