@@ -46,16 +46,6 @@ union varType {
 	string var_string;
 };
 
-enum StatisticsType {
-	SUBJECTPREDICATE_STATIS,
-	OBJECTPREDICATE_STATIS
-};
-
-enum NODEEDGETYPE{
-	STARTEDGE,
-	TARGETEDGE
-};
-
 template<class T> string toStr(T tmp)
 {
 	stringstream ss;
@@ -167,6 +157,7 @@ enum JoinShape{
 	CHAIN
 };
 
+namespace{
 enum OrderByType{
 	ORDERBYS,
 	ORDERBYO
@@ -194,6 +185,18 @@ enum DataType
 	STRING,
 	STRING_DELETE
 };
+
+enum StatisticsType {
+	SUBJECTPREDICATE_STATIS,
+	OBJECTPREDICATE_STATIS
+};
+
+enum NODEEDGETYPE{
+	STARTEDGE,
+	TARGETEDGE
+};
+}
+
 enum EntityType
 {
 	PREDICATE = 1 << 0,
