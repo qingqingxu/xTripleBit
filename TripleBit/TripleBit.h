@@ -157,7 +157,7 @@ enum JoinShape{
 	CHAIN
 };
 
-namespace{
+namespace {
 enum OrderByType{
 	ORDERBYS,
 	ORDERBYO
