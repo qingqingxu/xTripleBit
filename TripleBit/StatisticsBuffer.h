@@ -41,8 +41,7 @@ public:
 	template<typename T>
 	Status addStatis(T soValue, ID predicateID, size_t count, char objType = STRING);
 	//获取一条SP或OP的统计信息
-	template<typename T>
-	Status getStatis(T soValue, ID predicateID, size_t& count, char objType = STRING);
+	Status getStatis(double soValue, ID predicateID, size_t& count, char objType = STRING);
 	//根据SP（OP）统计信息获取S（O）出现的次数
 	template<typename T>
 	Status getStatisBySO(T soValue, size_t& count, char objType = STRING);

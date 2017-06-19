@@ -269,8 +269,7 @@ bool StatisticsBuffer::findLocation(double soValue) {
 	}
 }
 
-template<typename T>
-Status StatisticsBuffer::getStatis(T soValue, ID predicateID,
+Status StatisticsBuffer::getStatis(double soValue, ID predicateID,
 		size_t& count, char objType) {
 	pos = index, posLimit = index + indexPos;
 	findLocation(predicateID, soValue); // get index location, that is pos
