@@ -8,8 +8,6 @@
 #ifndef STATISTICSBUFFER_H_
 #define STATISTICSBUFFER_H_
 
-class HashIndex;
-class EntityIDBuffer;
 class MMapBuffer;
 
 #include "TripleBit.h"
