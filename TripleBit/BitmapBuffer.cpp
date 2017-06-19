@@ -855,7 +855,7 @@ void Chunk::write(const uchar*& writer, T data, char dataType,
 }
 
 const uchar* readID(const uchar* reader, ID& data, bool isUpdateAdress) {
-	data = *reinterpret_cast<uint*>(reader);
+	data = *(ID*)reader;
 	if (isUpdateAdress) {
 		reader += sizeof(ID);
 	}
