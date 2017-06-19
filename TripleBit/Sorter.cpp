@@ -13,10 +13,10 @@ namespace {
 //---------------------------------------------------------------------------
 /// A memory range
 struct Range {
-	const char* from, *to;
+	const uchar* from, *to;
 
 	/// Constructor
-	Range(const char* from, const char* to) :
+	Range(const uchar* from, const uchar* to) :
 		from(from), to(to) {
 	}
 
@@ -29,7 +29,7 @@ struct Range {
 /// Sort wrapper that colls the comparison function
 struct CompareSorter {
 	/// Comparison function
-	typedef int (*func)(const char*, const char*);
+	typedef int (*func)(const uchar*, const uchar*);
 
 	/// Comparison function
 	const func compare;
@@ -77,9 +77,9 @@ void Sorter::sort(TempFile& in, TempFile& out, const uchar* (*skip)(const uchar*
 	while (reader < limit) {
 		// Collect items
 		vector<Range> items;
-		const char* maxReader = reader + memoryLimit;
+		const uchar* maxReader = reader + memoryLimit;
 		while (reader < limit) {
-			const char* start = reader;
+			const uchar* start = reader;
 			reader = skip(reader);
 			items.push_back(Range(start, reader));
 
