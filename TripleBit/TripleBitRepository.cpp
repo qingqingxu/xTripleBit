@@ -176,10 +176,7 @@ bool TripleBitRepository::find_string_by_soid(string& str, SOID& soid) {
 }
 
 int TripleBitRepository::get_predicate_count(PID pid) {
-	int count1 = bitmapBuffer->getChunkManager(pid, 0)->getTripleCount();
-	int count2 = bitmapBuffer->getChunkManager(pid, 1)->getTripleCount();
-
-	return count1 + count2;
+	return bitmapBuffer->getChunkManager(pid, OrderByType::ORDERBYS)->getTripleCount();
 }
 
 bool TripleBitRepository::lookup(const string& str, ID& id) {
@@ -188,31 +185,35 @@ bool TripleBitRepository::lookup(const string& str, ID& id) {
 
 	return true;
 }
-int TripleBitRepository::get_object_count(ID objectID) {
-	((OneConstantStatisticsBuffer*) objectStat)->getStatis(objectID);
-	return objectID;
+int TripleBitRepository::get_object_count(double object, char objType) {
+	size_t count;
+	objectStat->getStatisBySO(object, count, objType);
+	return count;
 }
 
 int TripleBitRepository::get_subject_count(ID subjectID) {
-	((OneConstantStatisticsBuffer*) subjectStat)->getStatis(subjectID);
-	return subjectID;
+	size_t count;
+	subPredicateStat->getStatisBySO(subjectID, count);
+	return count;
 }
 
 int TripleBitRepository::get_subject_predicate_count(ID subjectID, ID predicateID) {
-	subPredicateStat->getStatis(subjectID, predicateID);
-	return subjectID;
+	size_t count;
+	subPredicateStat->getStatis(subjectID, predicateID, count);
+	return count;
 }
 
-int TripleBitRepository::get_object_predicate_count(ID objectID, ID predicateID) {
-	objPredicateStat->getStatis(objectID, predicateID);
-	return objectID;
+int TripleBitRepository::get_object_predicate_count(double object, ID predicateID, char objType) {
+	size_t count;
+	objPredicateStat->getStatis(object, predicateID, count, objType);
+	return count;
 }
 
-int TripleBitRepository::get_subject_object_count(ID subjectID, ID objectID) {
+int TripleBitRepository::get_subject_object_count(ID subjectID, double object, char objType) {
 	return 1;
 }
 
-Status TripleBitRepository::getSubjectByObjectPredicate(ID oid, ID pid) {
+Status TripleBitRepository::getSubjectByObjectPredicate(double object, ID pid, char objType) {
 	pos = 0;
 	return OK;
 }
@@ -272,14 +273,10 @@ TripleBitRepository* TripleBitRepository::create(const string &path) {
 	MMapBuffer* indexBufferFile = MMapBuffer::create(filename.c_str(), 0);
 	uchar* indexBuffer = indexBufferFile->get_address();
 
-	string statFilename = path + "/subject_statis";
-	repo->subjectStat = OneConstantStatisticsBuffer::load(StatisticsBuffer::SUBJECT_STATIS, statFilename, indexBuffer);
-	statFilename = path + "/object_statis";
-	repo->objectStat = OneConstantStatisticsBuffer::load(StatisticsBuffer::OBJECT_STATIS, statFilename, indexBuffer);
-	statFilename = path + "/subjectpredicate_statis";
-	repo->subPredicateStat = TwoConstantStatisticsBuffer::load(StatisticsBuffer::SUBJECTPREDICATE_STATIS, statFilename, indexBuffer);
+	string statFilename = path + "/subjectpredicate_statis";
+	repo->subPredicateStat = StatisticsBuffer::load(StatisticsType::SUBJECTPREDICATE_STATIS, statFilename, indexBuffer);
 	statFilename = path + "/objectpredicate_statis";
-	repo->objPredicateStat = TwoConstantStatisticsBuffer::load(StatisticsBuffer::OBJECTPREDICATE_STATIS, statFilename, indexBuffer);
+	repo->objPredicateStat = StatisticsBuffer::load(StatisticsType::OBJECTPREDICATE_STATIS, statFilename, indexBuffer);
 
 #ifdef DEBUG
 	cout<<"subject count: "<<((OneConstantStatisticsBuffer*)repo->subjectStat)->getEntityCount()<<endl;

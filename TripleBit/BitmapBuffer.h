@@ -36,13 +36,13 @@ public:
 	//插入一条predicate信息，创建以subject和以object排序的ChunkManager，并确认predicate对应object数据类型
 	Status insertPredicate(ID predicateID, OrderByType soType, DataType objType = DataType::STRING);
 	//插入一条三元组信息，根据object数据类型确定插入object所占字节
-	Status insertTriple(ID predicateID, varType& subject, varType& object, OrderByType soType, DataType objType = DataType::STRING);
+	Status insertTriple(ID predicateID, ID subjectID, double object, OrderByType soType, char objType = DataType::STRING);
 	//根据predicate与SO排序方式获取对应的ChunkManager
 	ChunkManager* getChunkManager(ID predicateID, OrderByType soType);
 	//获取数据库中所有三元组总数
 	size_t getTripleCount();
 	//根据SO排序类型增大临时文件一个Chunk大小，并修改临时文件中ChunkManagerMeta的尾指针地址，返回添加Chunk的初始地址
-	uchar* getPage(OrderByType soType, size_t& pageNo);
+	uchar* getPage(bool soType, size_t& pageNo);
 	//将缓冲区文件写入文件中
 	void flush();
 	//将临时文件数据存储到数据库三元组存储文件BitmapBuffer中，建立谓词相关信息
@@ -58,12 +58,10 @@ public:
 struct ChunkManagerMeta
 {
 	uint pid;//predicate id
-	OrderByType soType;// SO排序类型
+	bool soType;// SO排序类型,false:s;true:o
 	size_t length;//已申请的Chunk空间
 	size_t usedSpace;//数据区已使用空间，包括MetaData头部信息，不包含ChunkManagerMeta存储空间
 	DataType objType;//predicate对应的object数据类型
-	DataType xType;//存储x值对应数据类型
-	DataType yType;//存储y值对应数据类型
 	int tripleCount;//该ChunkManager中triple的总数
 	uchar* startPtr;//该ChunkManager中数据区的起始位置，即每个Chunk中MetaData的位置
 	uchar* endPtr;//该ChunkManager中数据区的结束位置
@@ -71,13 +69,9 @@ struct ChunkManagerMeta
 
 struct MetaData
 {
-	bool minBool, maxBool;//以S（O）排序的Chunk中以S（O）的最小值与最大值
-	char minChar, maxChar;
-	ID minID, maxID;
-	double minDouble, maxDouble;
+	size_t pageNo;
+	double min, max;//以S（O）排序的Chunk中以S（O）的最小值与最大值
 	size_t usedSpace;//Chunk已使用空间大小
-	bool haveNextPage;//该Chunk是否还有后续Chunk
-	ulonglong nextChunkDiff; //下一Chunk地址距离当前Chunk到距离  ?
 	size_t NextPageNo;//下一个Chunk的Chunk号
 };
 
@@ -97,18 +91,20 @@ public:
 
 public:
 	ChunkManager(){}
-	ChunkManager(ID predicateID, OrderByType soType, DataType objType, BitmapBuffer* _bitmapBuffer);
+	ChunkManager(ID predicateID, OrderByType soType, BitmapBuffer* _bitmapBuffer);
 	~ChunkManager();
 	//为Chunk建立索引信息
 	Status buildChunkIndex();
 	//更新Chunk索引信息
 	Status updateChunkIndex();
 	//在chunk中插入数据x，y, x表示subjectID， y表示object
-	void insertXY(varType& x, varType& y);
+	void insertXY(ID x, double y, char objType = DataType::STRING);
 	//向指定位置写入数据x，y，写完后指针仍指向原地址, x表示subjectID， y表示object
-	void writeXY(const uchar* reader, varType& x, varType& y);
+	void writeXY(const uchar* reader, ID x, double y, char objType = DataType::STRING);
+	//根据数据类型删除在指定位置数据，返回删除后位置，删除将该位置0
+	static uchar* deleteTriple(uchar* reader, char objType = DataType::STRING);
 	//获取新的Chunk
-	Status resize();
+	Status resize(size_t& pageNo);
 	//判断添加len长度数据后Chunk是否溢出
 	bool isChunkOverFlow(uint len);
 	//获取Chunk总数
@@ -134,11 +130,9 @@ public:
 	uchar* getEndPtr() {
 		return meta->endPtr;
 	}
-	uint getLen(DataType dataType = DataType::STRING);
-
-	static void setMetaDataMin(MetaData *metaData, varType& x, varType& y);
+	static void setMetaDataMin(MetaData *metaData, ID x, double y);
 	//加载ChunkManager相关信息
-	static ChunkManager* load(ID predicateID, OrderByType soType, uchar* buffer, size_t& offset);
+	static ChunkManager* load(ID predicateID, bool soType, uchar* buffer, size_t& offset);
 
 };
 
@@ -154,20 +148,24 @@ public:
 	//在指定位置写入ID数据，默认返回写后数据位置
 	static void writeID(const uchar*& writer, ID data, bool isUpdateAdress = true);
 	//在指定位置根据数据类型写入数据，默认返回写后数据位置
-	static void write(const uchar*& writer, varType& data, DataType dataType = DataType::STRING, bool isUpdateAdress = true);
+	template<typename T>
+	static void write(const uchar*& writer, T data, char dataType = DataType::STRING, bool isUpdateAdress = true);
 	//在指定位置读取ID数据，默认返回读取后数据位置
 	static const uchar* readID(const uchar* reader, ID& data, bool isUpdateAdress = true);
 	//在指定位置根据数据类型读取数据，默认返回读取后数据位置
-	static const uchar* read(const uchar* reader, varType& data, DataType dataType = DataType::STRING, bool isUpdateAdress = true);
+	template<typename T>
+	static const uchar* read(const uchar* reader, T& data, char dataType = DataType::STRING);
 	//根据数据类型删除在指定位置数据，返回删除后位置，删除将该位置0
-	static uchar* deleteData(uchar* reader, DataType dataType = DataType::STRING);
+	static uchar* deleteData(uchar* reader, char objType = DataType::STRING);
+	///根据object数据类型获取一对数据的字节长度
+	static uint getLen(char dataType = DataType::STRING);
+	//根据objType判定是否有数据存储、已删除、无数据,若有数据或数据已删除则返回数据类型或已删除数据类型, 并将修改reader指向地址为该条数据object后面的地址
+	static Status getObjTypeStatus(const uchar*& reader, uint& moveByteNum);
 	/// Skip a s or o
 	static const uchar* skipData(const uchar* reader, DataType dataType = DataType::STRING);
 	//根据object数据类型从reader位置向前跳至第一对x-y值
-	static const uchar* skipForward(const uchar* reader, const uchar* endPtr, DataType objType);
-	//根据object数据类型从Chunk末尾位置向后跳至最后一对x-y值, reader为MetaData位置
-	static const uchar* skipBackward(const uchar* reader, bool isFirstPage = false, DataType objType = DataType::STRING);
+	static const uchar* skipForward(const uchar* reader, const uchar* endPtr, OrderByType soType);
 	//根据object数据类型在endPtr位置向后跳至最后一对x-y值, reader为MetaData位置
-	static const uchar* skipBackward(const uchar* reader, const uchar* endPtr, DataType objType = DataType::STRING);
+	static const uchar* skipBackward(const uchar* reader, const uchar* endPtr, OrderByType soType);
 };
 #endif /* CHUNKMANAGER_H_ */

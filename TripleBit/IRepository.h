@@ -37,13 +37,13 @@ public:
 	//Get some statistics information
 	virtual int	get_predicate_count(PID pid) = 0;
 	virtual int get_subject_count(ID subjectID) = 0;
-	virtual int get_object_count(ID objectID) = 0;
+	virtual int get_object_count(double object, char objType = DataType::STRING) = 0;
 	virtual int get_subject_predicate_count(ID subjectID, ID predicateID) = 0;
-	virtual int get_object_predicate_count(ID objectID, ID predicateID) = 0;
-	virtual int get_subject_object_count(ID subjectID, ID objectID) = 0;
+	virtual int get_object_predicate_count(double object, ID predicateID, char objType = DataType::STRING) = 0;
+	virtual int get_subject_object_count(ID subjectID, double object, char objType = DataType::STRING) = 0;
 
 	//scan the database;
-	virtual Status getSubjectByObjectPredicate(ID oid, ID pod) = 0;
+	virtual Status getSubjectByObjectPredicate(double object, ID pod, char objType = DataType::STRING) = 0;
 	virtual ID next() = 0;
 
 	//Get the id by string;

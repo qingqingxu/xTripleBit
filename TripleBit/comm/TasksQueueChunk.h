@@ -41,7 +41,7 @@ private:
 	const uchar* chunkBegin;
 	ID chunkID;
 	int xyType;
-	int soType;
+	bool soType;
 
 private:
 	NodeChunkQueue* head;
@@ -52,7 +52,7 @@ private:
 	TasksQueueChunk();
 public:
 	TasksQueueChunk(const uchar* chunk_Begin, ID& chunk_ID, int xy_Type,
-			int so_Type) :
+			bool so_Type) :
 			chunkBegin(chunk_Begin), chunkID(chunk_ID), xyType(xy_Type), soType(
 					so_Type) {
 		NodeChunkQueue* nodeChunkQueue = new NodeChunkQueue();
@@ -94,7 +94,7 @@ public:
 	const int getXYType() {
 		return xyType;
 	}
-	const int getSOType() {
+	const bool getSOType() {
 		return soType;
 	}
 

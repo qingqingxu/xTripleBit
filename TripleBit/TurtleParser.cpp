@@ -501,13 +501,14 @@ void TurtleParser::parseSubject(Lexer::Token token,std::string& subject)
    }
 }
 //---------------------------------------------------------------------------
-void TurtleParser::parseObject(std::string& object)
+void TurtleParser::parseObject(string& object, char &objType)
    // Parse an object
 {
    Lexer::Token token=lexer.next(object);
    switch (token) {
       case Lexer::URI:
          // URI
+    	  cout << "URI: " << object << endl;
          return;
       case Lexer::Colon:
          // Qualified name with empty prefix?
@@ -530,7 +531,19 @@ void TurtleParser::parseObject(std::string& object)
          lexer.unget(token,object);
          parseBlank(object);
          return;
-      case Lexer::Integer: case Lexer::Decimal: case Lexer::Double: case Lexer::A: case Lexer::True: case Lexer::False:
+      case Lexer::Integer:
+    	 cout << "Integer: " << object << endl;
+    	 return;
+      case Lexer::Decimal:
+    	  cout << "Decimal: " << object << endl;
+    	      	 return;
+      case Lexer::Double:
+    	  case Lexer::A:
+    		  return;
+    		  case Lexer::True:
+    			  case Lexer::False:
+    				  cout << "Bool: " << object << endl;
+    				      	 return;
          // Literal
          return;
       case Lexer::String:
@@ -569,7 +582,7 @@ void TurtleParser::parseObject(std::string& object)
    }
 }
 //---------------------------------------------------------------------------
-void TurtleParser::parsePredicateObjectList(const string& subject,string& predicate,string& object)
+void TurtleParser::parsePredicateObjectList(const string& subject, string& predicate, varType& object, char& objType)
    // Parse a predicate object list
 {
    // Parse the first predicate
@@ -583,7 +596,7 @@ void TurtleParser::parsePredicateObjectList(const string& subject,string& predic
    }
 
    // Parse the object
-   parseObject(object);
+   parseObject(object, objType);
 
    // Additional objects?
    token=lexer.next();
@@ -622,16 +635,16 @@ void TurtleParser::parsePredicateObjectList(const string& subject,string& predic
    lexer.ungetIgnored(token);
 }
 //---------------------------------------------------------------------------
-void TurtleParser::parseTriple(Lexer::Token token,std::string& subject,std::string& predicate,std::string& object)
+void TurtleParser::parseTriple(Lexer::Token token, string& subject, string& predicate, varType& object, char& objType)
    // Parse a triple
 {
    parseSubject(token,subject);
-   parsePredicateObjectList(subject,predicate,object);
+   parsePredicateObjectList(subject,predicate,object, objType);
    if (lexer.next()!=Lexer::Dot)
       parseError("'.' expected after triple");
 }
 //---------------------------------------------------------------------------
-bool TurtleParser::parse(std::string& subject,std::string& predicate,std::string& object)
+bool TurtleParser::parse(string& subject,string& predicate, varType& object, char& objType)
    // Read the next triple
 {
    // Some triples left?
@@ -660,7 +673,7 @@ bool TurtleParser::parse(std::string& subject,std::string& predicate,std::string
    }
 
    // No, parse a triple
-   parseTriple(token,subject,predicate,object);
+   parseTriple(token,subject,predicate, object, objType);
    return true;
 }
 //---------------------------------------------------------------------------

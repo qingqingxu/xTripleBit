@@ -121,13 +121,13 @@ class TurtleParser
    /// Parse a subject
    void parseSubject(Lexer::Token token,std::string& subject);
    /// Parse an object
-   void parseObject(std::string& object);
+   void parseObject(varType& object, char &objType);
    /// Parse a predicate object list
-   void parsePredicateObjectList(const std::string& subject,std::string& predicate,std::string& object);
+   void parsePredicateObjectList(const string& subject, string& predicate, varType& object, char& objType);
    /// Parse a directive
    void parseDirective();
    /// Parse a new triple
-   void parseTriple(Lexer::Token token,std::string& subject,std::string& predicate,std::string& object);
+   void parseTriple(Lexer::Token token, string& subject, string& predicate, varType& object, char& objType);
 
    public:
    /// Constructor
@@ -136,7 +136,7 @@ class TurtleParser
    ~TurtleParser();
 
    /// Read the next triple
-   bool parse(std::string& subject,std::string& predicate,std::string& object);
+   bool parse(string& subject, string& predicate, varType& object, char& objType);
 };
 //---------------------------------------------------------------------------
 #endif

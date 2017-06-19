@@ -45,7 +45,7 @@ private:
 	vector<string> predicates;
 	string dir;
 	/// statistics buffer;
-	StatisticsBuffer* statBuffer[2];
+	StatisticsBuffer *spStatisBuffer, *opStatisBuffer;
 	StatementReificationTable* staReifTable;
 	FindColumns* columnFinder;
 
@@ -58,9 +58,9 @@ public:
 	static int compare123(const uchar* left, const uchar* right);
 	static int compare321(const uchar* left, const uchar* right);
 
-	static inline void loadTriple(const uchar* data, varType& v1, ID& v2, varType& v3) {
-		const uchar* temp = TempFile::readID(TempFile::read(data, v1), v2);
-		TempFile::read(temp, v3, predicateObjTypes[v2]);
+	static inline void loadTriple(const uchar* data, ID& v1, ID& v2, double& v3, char& objType) {
+		const uchar* temp = TempFile::readID(TempFile::readID(data, v1), v2);
+		TempFile::read(temp, v3, objType);
 	}
 
 	template<typename T>
@@ -68,25 +68,24 @@ public:
 		return (l < r) ? -1 : ((l > r) ? 1 : 0);
 	}
 
-	template<typename T>
-	static inline int cmpTriples(T l1, T l2, T l3, T r1, T r2, T r3){
+	template<typename T1, typename T2, typename T3>
+	static inline int cmpTriples(T1 l1, T2 l2, T3 l3, T1 r1, T2 r2, T3 r3){
 		int c = cmpValue(l1, r1);
 		if(c)
 			return c;
 		c = cmpValue(l2, r2);
 		if(c)
 			return c;
-		return cmpValue(l3, r3);
-	}
-	StatisticsBuffer* getStatBuffer(StatisticsBuffer::StatisticsType type) {
-		return statBuffer[static_cast<int>(type)];
+		c = cmpValue(l3, r3);
+		if(c)
+			return c;
 	}
 
 	Status resolveTriples(TempFile& rawFacts, TempFile& facts);
 	Status startBuildN3(string fileName);
-	bool N3Parse(istream& in, const char* name, TempFile&);
+	bool N3Parse(istream& in, const char* name, TempFile& rawFacts);
 	Status importFromMySQL(string db, string server, string username, string password);
-	void NTriplesParse(const char* subject, const char* predicate, const char* object, TempFile&);
+	void NTriplesParse(const char* subject, const char* predicate, varType& object, char objType, TempFile&);
 	Status buildIndex();
 	Status endBuild();
 	

@@ -14,71 +14,51 @@ class MMapBuffer;
 
 #include "TripleBit.h"
 
-class StatisticsBuffer {
-public:
-	enum StatisticsType { SUBJECTPREDICATE_STATIS, OBJECTPREDICATE_STATIS };
-	StatisticsBuffer();
-	virtual ~StatisticsBuffer();
-	/// add a statistics record;
-	virtual Status addStatis(unsigned v1, unsigned v2, unsigned v3) = 0;
-	/// get a statistics record;
-	virtual Status getStatis(unsigned& v1, unsigned v2) = 0;
-	/// save the statistics record to file;
-	//virtual Status save(ofstream& file) = 0;
-	/// load the statistics record from file;
-	//virtual StatisticsBuffer* load(ifstream& file) = 0;
-protected:
-	const unsigned HEADSPACE;
-};
+//SP、OP统信息类，存储结构：s-p-spcount、o-p-opcount
 
-class TwoConstantStatisticsBuffer : public StatisticsBuffer {
+class StatisticsBuffer{
 public:
 	struct Triple{
-		ID value1;
-		ID value2;
-		ID count;
+		double soValue;
+		ID predicateID;
+		uint count;
 	};
-
 private:
-	StatisticsType type;
+	StatisticsType statType;
 	MMapBuffer* buffer;
-	const unsigned char* reader;
-	unsigned char* writer;
+	uchar* writer;
 
 	Triple* index;
 
-	unsigned lastId, lastPredicate;
-	unsigned usedSpace;
-	unsigned currentChunkNo;
-	unsigned indexPos, indexSize;
+	uint usedSpace;
+	uint indexPos, indexSize;
 
 	Triple triples[3 * 4096];
 	Triple* pos, *posLimit;
 	bool first;
 public:
-	TwoConstantStatisticsBuffer(const string path, StatisticsType type);
-	virtual ~TwoConstantStatisticsBuffer();
-	/// add a statistics record;
-	Status addStatis(unsigned v1, unsigned v2, unsigned v3);
-	/// get a statistics record;
-	Status getStatis(unsigned& v1, unsigned v2);
-	/// get the buffer position by a id, used in query
-	Status getPredicatesByID(unsigned id, EntityIDBuffer* buffer, ID minID, ID maxID);
-	/// save the statistics buffer;
+	StatisticsBuffer(const string path, StatisticsType statType);
+	~StatisticsBuffer();
+	//插入一条SP或OP的统计信息,加入OP统计信息需指定objType
+	template<typename T>
+	Status addStatis(T soValue, ID predicateID, size_t count, char objType = DataType::STRING);
+	//获取一条SP或OP的统计信息
+	template<typename T>
+	Status getStatis(T soValue, ID predicateID, size_t& count, char objType = DataType::STRING);
+	//根据SP（OP）统计信息获取S（O）出现的次数
+	template<typename T>
+	Status getStatisBySO(T soValue, size_t& count, char objType = DataType::STRING);
+	//定位SP或OP初始位置,pos: the start address of the first triple;posLimit: the end address of last triple;
+	bool findLocation(ID predicateID, double soValue);
+	//定位S或O初始位置,pos: the start address of the first triple;posLimit: the end address of last triple;
+	bool findLocation(double soValue);
+	//建立统计信息的索引
 	Status save(MMapBuffer*& indexBuffer);
-	/// load the statistics buffer;
-	static TwoConstantStatisticsBuffer* load(StatisticsType type, const string path, uchar*& indxBuffer);
+	//加载统计信息的索引
+	static StatisticsBuffer* load(StatisticsType statType, const string path, uchar*& indxBuffer);
 private:
-	/// decode a chunk
-	const uchar* decode(const uchar* begin, const uchar* end);
-	///
-	bool findPriorityByValue1(unsigned value1, unsigned value2);
-	bool findPriorityByValue2(unsigned value1, unsigned value2);
-	int findPredicate(unsigned,Triple*,Triple*);
-	///
-	bool find_last(unsigned value1, unsigned value2);
-	bool find(unsigned,Triple* &,Triple* &);
-	const uchar* decode(const uchar* begin, const uchar* end,Triple*,Triple*& ,Triple*&);
-
+	/// decode a statistics chunk
+	void decodeStatis(const uchar* begin, const uchar* end, double soValue, ID predicateID, size_t& count, char objType = DataType::STRING);
+	void decodeStatis(const uchar* begin, const uchar* end, double soValue, size_t & count, char objType = DataType::STRING);
 };
 #endif /* STATISTICSBUFFER_H_ */

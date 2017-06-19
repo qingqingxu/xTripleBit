@@ -56,17 +56,16 @@ public:
 	/// Discard the file
 	void discard();
 
-
-	template<typename T>
-	void write(T data, DataType dataType = DataType::STRING);
-	template<typename T>
-	void writeTriple(T subject, T predicate, T object, DataType objType = DataType::STRING);
+	void writeID(ID id);
+	void write(double data, char dataType = DataType::STRING);
+	void writeTriple(ID subjectID, ID predicateID, double object, char objType = DataType::STRING);
 	void write(unsigned len, const char* data);
 	static const uchar* readID(const uchar* reader, ID& data);
-	static const uchar* read(const uchar* reader, varType& data, DataType dataType = DataType::STRING);
-	template<typename T>
-	static const uchar* readTriple(const uchar* reader, T& subject, T& predicate, T& object);
-	static const uchar* skipId(const uchar* reader, DataType dataType = DataType::STRING);
+	static const uchar* read(const uchar* reader, double& data, char& dataType = DataType::STRING);
+	static const uchar* readTriple(const uchar* reader, ID& subjectID, ID& predicateID, double& object, char& objType = DataType::STRING);
+	static uint getLen(char dataType = DataType::STRING);
+	static const uchar* skipId(const uchar* reader);
+	static const uchar* skipObject(const uchar* reader);
 };
 
 //----------------------------------------------------------------------------

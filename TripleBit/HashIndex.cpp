@@ -268,16 +268,18 @@ unsigned HashIndex::next(ID id)
 	return hashTableEntries[firstHash];
 }
 
-uchar* writeData(uchar* writer, uint data)
+template<typename T>
+const uchar* writeData(uchar* writer, T data)
 {
-	memcpy(writer, &data, 4);
-	return writer+4;
+	memcpy(writer, &data, sizeof(T));
+	return writer + sizeof(T);
 }
 
-const uchar* readData(const uchar* reader, uint& data)
+template<typename T>
+const uchar* readData(const uchar* reader, T& data)
 {
-	memcpy(&data, reader, 4);
-	return reader+4;
+	memcpy(&data, reader, sizeof(T));
+	return reader + sizeof(T);
 }
 
 void HashIndex::save(MMapBuffer*& buffer)

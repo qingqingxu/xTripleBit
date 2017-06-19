@@ -35,14 +35,25 @@ using namespace std;
 //#define TTDEBUG
 //#define PRINT_BUFFERSIZE
 
-extern map<ID, DataType> predicateObjTypes;
-
 union varType {
-	bool var_bool;
+	char var_bool;
 	char var_char;
 	int var_int;
 	uint var_uint;
+	longlong var_longlong;
+	float var_float;
 	double var_double;
+	string var_string;
+};
+
+enum StatisticsType {
+	SUBJECTPREDICATE_STATIS,
+	OBJECTPREDICATE_STATIS
+};
+
+enum NODEEDGETYPE{
+	STARTEDGE,
+	TARGETEDGE
 };
 
 template<class T> string toStr(T tmp)
@@ -82,6 +93,10 @@ const unsigned int TEMPMMAPBUFFER_INIT_PAGE = 1000;
 const unsigned int TEMPBUFFER_INIT_PAGE_COUNT = 1;
 const unsigned int TEMPMMAP_INIT_PAGE_COUNT = 1;
 const unsigned int INCREMENT_TEMPMMAP_PAGE_COUNT = 1;
+
+//complex buffer settings
+const unsigned int COMPLEX_BUFFER_INIT_PAGE_COUNT = 1;
+const unsigned int COMPLEX_BUFFER_INCREMENT_PAGE_COUNT = 1;
 
 //hash index
 const unsigned int HASH_RANGE = 200;
@@ -140,7 +155,10 @@ enum Status {
 	BUFFER_MODIFIED,
 	NULL_RESULT,
 	TOO_MUCH,
-	ERR
+	ERR,
+	DATA_EXSIT,
+	DATA_DELETE,
+	DATA_NONE,
 };
 
 //join shape of patterns within a join variable.
@@ -156,12 +174,25 @@ enum OrderByType{
 
 enum DataType
 {
+	NONE,
 	BOOL,
+	BOOL_DELETE,
 	CHAR,
+	CHAR_DELETE,
 	INT,
+	INT_DELETE,
 	UNSIGNED_INT,
+	UNSIGNED_INT_DELETE,
+	FLOAT,
+	FLOAT_DELETE,
+	DATE,
+	DATE_DELETE,
+	LONGLONG,
+	LONGLONG_DELETE,
 	DOUBLE,
-	STRING
+	DOUBLE_DELETE,
+	STRING,
+	STRING_DELETE
 };
 enum EntityType
 {
@@ -178,7 +209,7 @@ typedef word* word_prt;
 typedef word_prt bitVector_ptr;
 typedef unsigned int ID;
 typedef unsigned int TripleNodeID;
-typedef unsigned SOType;
+typedef bool SOType;
 typedef unsigned int SOID;
 typedef unsigned int PID;
 typedef bool status;

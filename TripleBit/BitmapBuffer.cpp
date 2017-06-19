@@ -51,13 +51,13 @@ BitmapBuffer::~BitmapBuffer() {
 
 Status BitmapBuffer::insertPredicate(ID predicateID, OrderByType soType,
 		DataType objType = DataType::STRING) {
-	predicate_managers[soType][predicateID] = new ChunkManager(predicateID,
-			predicateObjTypes[predicateID], soType, this);
+	predicate_managers[soType][predicateID] = new ChunkManager(predicateID, soType, this);
 }
 
-Status BitmapBuffer::insertTriple(ID predicateID, varType& subject, varType& object,
-		OrderByType soType, DataType objType = DataType::STRING) {
-	getChunkManager(predicateID, soType)->insertXY(subject, object);
+Status BitmapBuffer::insertTriple(ID predicateID, ID subjectID,
+		double object, OrderByType soType,
+		char objType = DataType::STRING) {
+	getChunkManager(predicateID, soType)->insertXY(subjectID, object, objType);
 	return OK;
 }
 
@@ -99,7 +99,7 @@ void BitmapBuffer::flush() {
 	tempByO->flush();
 }
 
-uchar* BitmapBuffer::getPage(OrderByType soType, size_t& pageNo) {
+uchar* BitmapBuffer::getPage(bool soType, size_t& pageNo) {
 	uchar* newPageStartPtr;
 	bool tempresize = false;
 
@@ -501,10 +501,9 @@ void BitmapBuffer::endUpdate(MMapBuffer *bitmapPredicateImage,
 		offsetPage++;
 		metaDataNew =
 				(MetaData*) (bufferWriterBegin + sizeof(ChunkManagerMeta));
-		metaDataNew->haveNextPage = false;
 		metaDataNew->NextPageNo = 0;
 
-		while (metaData->haveNextPage) {
+		while (metaData->NextPageNo != 0) {
 			chunkBegin = TempMMapBuffer::getInstance().getAddress()
 					+ metaData->NextPageNo * MemoryBuffer::pagesize;
 			metaData = (MetaData*) chunkBegin;
@@ -516,7 +515,6 @@ void BitmapBuffer::endUpdate(MMapBuffer *bitmapPredicateImage,
 			memcpy(bufferWriter, chunkBegin, MemoryBuffer::pagesize);
 			offsetPage++;
 			metaDataNew = (MetaData*) bufferWriter;
-			metaDataNew->haveNextPage = false;
 			metaDataNew->NextPageNo = 0;
 		}
 		offsetId++;
@@ -529,9 +527,8 @@ void BitmapBuffer::endUpdate(MMapBuffer *bitmapPredicateImage,
 			memcpy(bufferWriter, chunkBegin, MemoryBuffer::pagesize);
 			offsetPage++;
 			metaDataNew = (MetaData*) bufferWriter;
-			metaDataNew->haveNextPage = false;
 			metaDataNew->NextPageNo = 0;
-			while (metaData->haveNextPage) {
+			while (metaData->NextPageNo != 0) {
 				chunkBegin = TempMMapBuffer::getInstance().getAddress()
 						+ metaData->NextPageNo * MemoryBuffer::pagesize;
 				metaData = (MetaData*) chunkBegin;
@@ -543,7 +540,6 @@ void BitmapBuffer::endUpdate(MMapBuffer *bitmapPredicateImage,
 				memcpy(bufferWriter, chunkBegin, MemoryBuffer::pagesize);
 				offsetPage++;
 				metaDataNew = (MetaData*) bufferWriter;
-				metaDataNew->haveNextPage = false;
 				metaDataNew->NextPageNo = 0;
 			}
 			offsetId++;
@@ -627,7 +623,7 @@ void getTempFilename(string& filename, unsigned pid, unsigned _type) {
 	filename.append(temp);
 }
 
-ChunkManager::ChunkManager(ID predicateID, OrderByType soType, DataType objType,
+ChunkManager::ChunkManager(ID predicateID, OrderByType soType,
 		BitmapBuffer* _bitmapBuffer) :
 		bitmapBuffer(_bitmapBuffer) {
 	usedPages.resize(0);
@@ -645,14 +641,6 @@ ChunkManager::ChunkManager(ID predicateID, OrderByType soType, DataType objType,
 	meta->tripleCount = 0;
 	meta->pid = predicateID;
 	meta->soType = soType;
-	meta->objType = objType;
-	if (soType == OrderByType::ORDERBYS) {
-		meta->xType = DataType::STRING; //s
-		meta->yType = predicateObjTypes[predicateID]; //o
-	} else if (soType == OrderByType::ORDERBYS) {
-		meta->xType = predicateObjTypes[predicateID]; //o
-		meta->yType = DataType::STRING; //s
-	}
 
 	if (meta->soType == OrderByType::ORDERBYS) {
 		chunkIndex = new LineHashIndex(*this, LineHashIndex::SUBJECT_INDEX);
@@ -668,13 +656,33 @@ ChunkManager::~ChunkManager() {
 	chunkIndex = NULL;
 }
 
-void ChunkManager::writeXY(const uchar* reader, varType& x, varType& y) {
-	Chunk::write(reader, x, meta->xType);
-	Chunk::write(reader, y, meta->yType);
+void ChunkManager::writeXY(const uchar* reader, ID x, double y, char objType = DataType::STRING) {
+	if(meta->soType == OrderByType::ORDERBYS){
+		Chunk::writeID(reader, x);
+		Chunk::write(reader, objType, DataType::CHAR);
+		Chunk::write(reader, y, objType);
+	}else if(meta->soType == OrderByType::ORDERBYO){
+		Chunk::write(reader, objType, DataType::CHAR);
+		Chunk::write(reader, y, objType);
+		Chunk::writeID(reader, x);
+	}
 }
 
-void ChunkManager::insertXY(varType& x, varType& y) {
-	uint len = getLen(meta->xType) + getLen(meta->yType);
+uchar* ChunkManager::deleteTriple(uchar* reader, char objType){
+	if(meta->soType == OrderByType::ORDERBYS){
+		*(ID*) reader = 0;//s
+		reader += sizeof(ID);
+		return Chunk::deleteData(reader, objType);//o
+	}else if(meta->soType == OrderByType::ORDERBYO){
+		reader = Chunk::deleteData(reader, objType);//o
+		*(ID*) reader = 0;//s
+		reader += sizeof(ID);
+		return reader;
+	}
+}
+
+void ChunkManager::insertXY(ID x, double y, char objType = DataType::STRING) {
+	uint len = sizeof(ID) + Chunk::getLen(objType);
 	if (isChunkOverFlow(len) == true) {
 		if (meta->length == MemoryBuffer::pagesize) {
 			MetaData *metaData = (MetaData*) (meta->endPtr - meta->usedSpace);
@@ -687,15 +695,16 @@ void ChunkManager::insertXY(varType& x, varType& y) {
 			MetaData *metaData = (MetaData*) (meta->endPtr - usedPage);
 			metaData->usedSpace = usedPage; // every chunk usedspace, include metadata
 		}
-		resize (type);
+		size_t pageNo;
+		resize(pageNo);
 		MetaData *metaData = (MetaData*) (meta->endPtr);
 		setMetaDataMin(metaData, x, y);
-		metaData->haveNextPage = false;
+		metaData->pageNo = pageNo;
 		metaData->NextPageNo = 0;
 		metaData->usedSpace = 0;
 
-		writeXY(meta->endPtr + sizeof(MetaData), x, y);
-		meta->endPtr = meta->endPtr + sizeof(MetaData) + len;
+		writeXY(meta->endPtr + sizeof(MetaData), x, y, objType);
+		//meta->endPtr = meta->endPtr + sizeof(MetaData) + len;
 		meta->usedSpace = meta->length - MemoryBuffer::pagesize
 				- sizeof(ChunkManagerMeta) + sizeof(MetaData) + len; // indicate one chunk spare will not save
 		tripleCountAdd();
@@ -703,25 +712,23 @@ void ChunkManager::insertXY(varType& x, varType& y) {
 		MetaData *metaData = (MetaData*) (meta->startPtr);
 		memset((char*) metaData, 0, sizeof(MetaData));
 		setMetaDataMin(metaData, x, y);
-		metaData->haveNextPage = false;
-		metaData->NextPageNo = 0;
+		metaData->NextPageNo = usedPages.back();
 		metaData->usedSpace = 0;
 
-		writeXY(meta->endPtr + sizeof(MetaData), x, y);
-		meta->endPtr = meta->endPtr + sizeof(MetaData) + len;
+		writeXY(meta->endPtr + sizeof(MetaData), x, y, objType);
+		//meta->endPtr = meta->endPtr + sizeof(MetaData) + len;
 		meta->usedSpace = sizeof(MetaData) + len;
 		tripleCountAdd();
 	} else {
-		writeXY(meta->endPtr, x, y);
-		meta->endPtr = meta->endPtr + len;
+		writeXY(meta->endPtr, x, y, objType);
+		//meta->endPtr = meta->endPtr + len;
 		meta->usedSpace = meta->usedSpace + len;
 		tripleCountAdd();
 	}
 }
 
-Status ChunkManager::resize() {
+Status ChunkManager::resize(size_t &pageNo) {
 	// TODO
-	size_t pageNo = 0;
 	lastChunkStartPtr = bitmapBuffer->getPage(meta->soType, pageNo);
 	usedPages.push_back(pageNo);
 	meta->length = usedPages.size() * MemoryBuffer::pagesize;
@@ -746,20 +753,11 @@ bool ChunkManager::isChunkOverFlow(uint len) {
 	return sizeof(ChunkManagerMeta) + meta->usedSpace + len >= meta->length;
 }
 
-uint ChunkManager::getLen(DataType dataType){
-	switch(dataType){
-	case DataType::BOOL:
-		return sizeof(bool);
-	case DataType::CHAR:
-		return sizeof(char);
-	case DataType::INT:
-	case DataType::UNSIGNED_INT:
-	case DataType::DATE:
-	case DataType::DOUBLE:
-		return sizeof(double);
-	case DataType::STRING:
-	default:
-		return sizeof(ID);
+void ChunkManager::setMetaDataMin(MetaData *metaData, ID x, double y) {
+	if (meta->soType == OrderByType::ORDERBYS) {
+		metaData->min = x;
+	} else if (meta->soType == OrderByType::ORDERBYO) {
+		metaData->min = y;
 	}
 }
 
@@ -767,32 +765,7 @@ size_t ChunkManager::getChunkNumber() {
 	return (meta->length) / (MemoryBuffer::pagesize);
 }
 
-void ChunkManager::setMetaDataMin(MetaData *metaData, varType& x, varType& y) {
-	if (meta->soType == OrderByType::ORDERBYS) {
-		metaData->minID = x.var_uint;
-	} else if (meta->soType == OrderByType::ORDERBYO) {
-		switch (meta->objType) {
-		case DataType::BOOL:
-			metaData->minBool = y.var_bool;
-			break;
-		case DataType::CHAR:
-			metaData->minChar = y.var_char;
-			break;
-		case DataType::INT:
-		case DataType::DATE:
-		case DataType::UNSIGNED_INT:
-		case DataType::DOUBLE:
-			metaData->minDouble = y.var_double;
-			break;
-		case DataType::STRING:
-		default:
-			metaData->minID = y.var_uint;
-			break;
-		}
-	}
-}
-
-ChunkManager* ChunkManager::load(ID predicateID, OrderByType soType,
+ChunkManager* ChunkManager::load(ID predicateID, bool soType,
 		uchar* buffer, size_t& offset) {
 	ChunkManagerMeta * meta = (ChunkManagerMeta*) (buffer + offset);
 	if (meta->pid != predicateID || meta->soType != soType) {
@@ -817,234 +790,283 @@ Chunk::~Chunk() {
 	// TODO Auto-generated destructor stub
 }
 
-void Chunk::writeID(const uchar*& writer, ID data, bool isUpdateAdress){
+void Chunk::writeID(const uchar*& writer, ID data, bool isUpdateAdress) {
 	*(ID*) writer = data;
-	if(isUpdateAdress){
+	if (isUpdateAdress) {
 		writer += sizeof(ID);
 	}
 }
 
-void Chunk::write(const uchar*& writer, varType& data, DataType dataType,
+template<typename T>
+void Chunk::write(const uchar*& writer, T data, char dataType,
 		bool isUpdateAdress) {
 	switch (dataType) {
 	case DataType::BOOL:
-		*(bool*) writer = data.var_bool;
-		if (isUpdateAdress) {
-			writer += sizeof(bool);
-		}
-		break;
 	case DataType::CHAR:
-		*(char*) writer = data.var_char;
+		char c = (char)data;
+		*(char*) writer = c;
 		if (isUpdateAdress) {
 			writer += sizeof(char);
 		}
 		break;
 	case DataType::INT:
+		int i = (int)data;
+		*(int*) writer = i;
+		if (isUpdateAdress) {
+			writer += sizeof(int);
+		}
+		break;
+	case DataType::FLOAT:
+		float f = (float)data;
+		*(float*) writer = f;
+		if (isUpdateAdress) {
+			writer += sizeof(float);
+		}
+		break;
+	case DataType::LONGLONG:
+		longlong ll = (longlong)data;
+				*(longlong*) writer = ll;
+				if (isUpdateAdress) {
+					writer += sizeof(longlong);
+				}
+				break;
 	case DataType::DATE:
-	case DataType::UNSIGNED_INT:
 	case DataType::DOUBLE:
-		*(double*) writer = data.var_double;
+		double d = data;
+		*(double*) writer = d;
 		if (isUpdateAdress) {
 			writer += sizeof(double);
 		}
 		break;
+	case DataType::UNSIGNED_INT:
 	case DataType::STRING:
-		*(ID*) writer = data.var_uint;
-		if (isUpdateAdress) {
-			writer += sizeof(ID);
-		}
-		break;
 	default:
+		uint ui = (uint)data;
+		*(uint*) writer = ui;
+		if (isUpdateAdress) {
+			writer += sizeof(uint);
+		}
+
 		break;
 	}
 }
 
-const uchar* readID(const uchar* reader, ID& data, bool isUpdateAdress){
+const uchar* readID(const uchar* reader, ID& data, bool isUpdateAdress) {
 	data = *reinterpret_cast<ID*>(reader);
-	if(isUpdateAdress){
+	if (isUpdateAdress) {
 		reader += sizeof(ID);
 	}
 	return reader;
 }
 
-const uchar* Chunk::read(const uchar* reader, varType& data, DataType dataType,
-		bool isUpdateAdress) {
+template<typename T>
+const uchar* Chunk::read(const uchar* reader, T& data, char dataType) {
 	switch (dataType) {
 	case DataType::BOOL:
-		data.var_bool = *reinterpret_cast<bool*>(reader);
-		if (isUpdateAdress) {
-			reader += sizeof(bool);
-		}
-		break;
 	case DataType::CHAR:
-		data.var_char = *reinterpret_cast<char*>(reader);
-		if (isUpdateAdress) {
+		data = *reinterpret_cast<char*>(reader);
 			reader += sizeof(char);
-		}
 		break;
 	case DataType::INT:
-	case DataType::DATE:
-	case DataType::UNSIGNED_INT:
-	case DataType::DOUBLE:
-		data.var_double = *reinterpret_cast<double*>(reader);
-		if (isUpdateAdress) {
-			reader += sizeof(double);
-		}
+		data = *reinterpret_cast<int*>(reader);
+			reader += sizeof(int);
 		break;
+	case DataType::FLOAT:
+		data = *reinterpret_cast<float*>(reader);
+			reader += sizeof(float);
+		break;
+	case DataType::LONGLONG:
+		data = *reinterpret_cast<longlong*>(reader);
+					reader += sizeof(longlong);
+				break;
+	case DataType::DATE:
+	case DataType::DOUBLE:
+		data = *reinterpret_cast<double*>(reader);
+			reader += sizeof(double);
+		break;
+	case DataType::UNSIGNED_INT:
 	case DataType::STRING:
 	default:
-		data.var_uint = *reinterpret_cast<ID*>(reader);
-		if (isUpdateAdress) {
-			reader += sizeof(ID);
-		}
+		data = *reinterpret_cast<uint*>(reader);
+			reader += sizeof(uint);
 		break;
 	}
 	return reader;
 }
 
-uchar* Chunk::deleteData(uchar* reader, DataType dataType) {
+//删除object将数据类型字节改成对应数据类型删除类型
+uchar* Chunk::deleteData(uchar* reader, char dataType) {
 	switch (dataType) {
 	case DataType::BOOL:
-		*(bool*) reader = false;
-		reader += sizeof(bool);
-		break;
 	case DataType::CHAR:
+		*(char*) reader = DataType::CHAR_DELETE;
+		reader += sizeof(char);
 		*(char*) reader = 0;
 		reader += sizeof(char);
 		break;
 	case DataType::INT:
+		*(char*) reader = DataType::INT_DELETE;
+		reader += sizeof(int);
+		*(int*) reader = 0;
+		reader += sizeof(int);
+		break;
+	case DataType::FLOAT:
+		*(char*) reader = DataType::FLOAT_DELETE;
+		reader += sizeof(float);
+		*(float*) reader = 0;
+		reader += sizeof(float);
+		break;
+	case DataType::LONGLONG:
+		*(char*) reader = DataType::LONGLONG_DELETE;
+				reader += sizeof(char);
+				*(longlong*) reader = 0;
+				reader += sizeof(longlong);
+				break;
 	case DataType::DATE:
-	case DataType::UNSIGNED_INT:
 	case DataType::DOUBLE:
+		*(char*) reader = DataType::DOUBLE_DELETE;
+		reader += sizeof(double);
 		*(double*) reader = 0;
 		reader += sizeof(double);
 		break;
+	case DataType::UNSIGNED_INT:
 	case DataType::STRING:
-		*(ID*) reader = 0;
-		reader += sizeof(ID);
-		break;
 	default:
+		*(char*) reader = DataType::UNSIGNED_INT_DELETE;
+		reader += sizeof(uint);
+		*(uint*) reader = 0;
+		reader += sizeof(uint);
 		break;
 	}
 	return reader;
+}
+
+uint Chunk::getLen(char dataType) {
+	int len;
+	switch (dataType) {
+	case DataType::BOOL:
+	case DataType::CHAR:
+		len = sizeof(char);
+		break;
+	case DataType::DATE:
+	case DataType::DOUBLE:
+	case DataType::LONGLONG:
+		len = sizeof(double);
+		break;
+	case DataType::INT:
+	case DataType::FLOAT:
+	case DataType::UNSIGNED_INT:
+	case DataType::STRING:
+	default:
+		len = sizeof(uint);
+		break;
+	}
+	return len;
 }
 
 const uchar* Chunk::skipData(const uchar* reader, DataType dataType =
 		DataType::STRING) {
-	switch (dataType) {
+	return reader + getLen(dataType);
+}
+
+Status Chunk::getObjTypeStatus(const uchar*& reader, uint& moveByteNum){
+	char objType = *(char*)reader;
+	switch(objType){
+	case DataType::NONE:
+		return DATA_NONE;
 	case DataType::BOOL:
-		reader += sizeof(bool);
-		break;
 	case DataType::CHAR:
-		reader += sizeof(char);
-		break;
-	case DataType::INT:
+		reader += sizeof(char) + sizeof(char);
+		return DATA_EXSIT;
+	case DataType::BOOL_DELETE:
+	case DataType::CHAR_DELETE:
+		reader += sizeof(char) + sizeof(char);
+		return DATA_DELETE;
+	case DataType::LONGLONG:
+		reader += sizeof(char) + sizeof(longlong);
+		return DATA_EXSIT;
+	case DataType::LONGLONG_DELETE:
+		reader += sizeof(char) + sizeof(longlong);
+		return DATA_DELETE;
 	case DataType::DATE:
-	case DataType::UNSIGNED_INT:
 	case DataType::DOUBLE:
-		reader += sizeof(double);
-		break;
+		reader += sizeof(char) + sizeof(double);
+		return DATA_EXSIT;
+	case DataType::DATE_DELETE:
+	case DataType::DOUBLE_DELETE:
+		reader += sizeof(char) + sizeof(double);
+		return DATA_DELETE;
+	case DataType::FLOAT_DELETE:
+	case DataType::INT_DELETE:
+	case DataType::UNSIGNED_INT_DELETE:
+	case DataType::STRING_DELETE:
+		reader += sizeof(char) + sizeof(uint);
+		return DATA_DELETE;
+	case DataType::FLOAT:
+	case DataType::INT:
+	case DataType::UNSIGNED_INT:
 	case DataType::STRING:
-		reader += sizeof(ID);
-		break;
 	default:
-		break;
+		reader += sizeof(char) + sizeof(uint);
+		return DATA_EXSIT;
 	}
-	return reader;
 }
 
+//若无下一对xy，则返回endPtr表示该Chunk无下一对xy
 const uchar* Chunk::skipForward(const uchar* reader, const uchar* endPtr,
-		DataType objType) {
+		OrderByType soType) {
 	const char* tempReader = reader;
-	while (tempReader < endPtr) {
-		if (*tempReader != 0) {
-			int xyLen = sizeof(ID) * 2; //x y均为string的id
-			switch (objType) {
-			case DataType::BOOL:
-				xyLen = sizeof(ID) + sizeof(bool);
-				break;
-			case DataType::CHAR:
-				xyLen = sizeof(ID) + sizeof(char);
-				break;
-			case DataType::INT:
-			case DataType::DATE:
-			case DataType::UNSIGNED_INT:
-			case DataType::DOUBLE:
-				xyLen = sizeof(ID) + sizeof(double);
-				break;
-			case DataType::STRING:
-			default:
-				break;
+	if(soType == OrderByType::ORDERBYS){
+		while(reader + sizeof(ID) < endPtr && (*(ID*)reader == 0)){
+			reader += sizeof(ID);
+			if(reader + sizeof(char) < endPtr && *(char*)reader != DataType::NONE){
+				char objType = *(char*)reader;
+				reader += sizeof(char);
+				if(reader + getLen(objType) >= endPtr){
+					return endPtr;
+				}
+			}else {
+				return endPtr;
 			}
-			return reader + (tempReader - reader) / xyLen * xyLen;
 		}
-		tempReader++;
+		if(reader + sizeof(ID) >= endPtr){
+			return endPtr;
+		}else if(*(ID*)reader != 0){
+			return reader;
+		}
+	}else if(soType == OrderByType::ORDERBYO){
+		uint moveByteNum;
+		int status;
+		while(reader + sizeof(char) < endPtr && (*(char*)reader != DataType::NONE)){
+			status = getObjTypeStatus(reader, moveByteNum);
+			if(status == DATA_NONE){
+				return endPtr;
+			}else if(status == DATA_EXSIT){
+				if(reader += sizeof(ID) <= endPtr){
+					return reader - moveByteNum;
+				}else{
+					return endPtr;
+				}
+			}else if(status == DATA_DELETE){
+				reader += sizeof(ID);
+			}
+		}
+		return endPtr;
 	}
-	return NULL;
+	return endPtr;
 }
 
-const uchar* Chunk::skipBackward(const uchar* reader, bool isFirstPage,
-		DataType objType) {
-	const uchar* endPtr = NULL;
-	if (isFirstPage) {
-		endPtr = reader + (MemoryBuffer::pagesize - sizeof(ChunkManagerMeta));
-	} else {
-		endPtr = reader + MemoryBuffer::pagesize;
+const uchar* skipBackward(const uchar* reader, const uchar* endPtr, OrderByType soType){
+	const uchar* temp = reader + sizeof(MetaData);
+	reader = temp;
+	uint len = 0;
+	while(reader < endPtr){
+		len = reader - temp;
+		reader = Chunk::skipForward(temp, endPtr, soType);
 	}
-	while (reader + sizeof(MetaData) < endPtr) {
-		if (*(--endPtr) != 0) {
-			int xyLen = sizeof(ID) * 2; //x y均为string的id
-			switch (objType) {
-			case DataType::BOOL:
-				xyLen = sizeof(ID) + sizeof(bool);
-				break;
-			case DataType::CHAR:
-				xyLen = sizeof(ID) + sizeof(char);
-				break;
-			case DataType::INT:
-			case DataType::DATE:
-			case DataType::UNSIGNED_INT:
-			case DataType::DOUBLE:
-				xyLen = sizeof(ID) + sizeof(double);
-				break;
-			case DataType::STRING:
-			default:
-				break;
-			}
-			return reader + sizeof(MetaData)
-					+ (endPtr - (reader + sizeof(MetaData))) / xyLen * xyLen;
-		}
+	if(len){
+		return temp - len;
 	}
-	return NULL;
+	return endPtr;
 }
 
-const uchar* Chunk::skipBackward(const uchar* reader, const uchar* endPtr,
-		DataType objType) {
-	const char* tempEndPtr = endPtr;
-	while (reader < tempEndPtr) {
-		if (*(--tempEndPtr) != 0) {
-			int xyLen = sizeof(ID) * 2; //x y均为string的id
-			switch (objType) {
-			case DataType::BOOL:
-				xyLen = sizeof(ID) + sizeof(bool);
-				break;
-			case DataType::CHAR:
-				xyLen = sizeof(ID) + sizeof(char);
-				break;
-			case DataType::INT:
-			case DataType::DATE:
-			case DataType::UNSIGNED_INT:
-			case DataType::DOUBLE:
-				xyLen = sizeof(ID) + sizeof(double);
-				break;
-			case DataType::STRING:
-			default:
-				break;
-			}
-			return reader + sizeof(MetaData)
-					+ (tempEndPtr - (reader + sizeof(MetaData))) / xyLen * xyLen;
-		}
-	}
-
-	return NULL;
-}
