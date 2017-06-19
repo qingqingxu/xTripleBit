@@ -57,13 +57,13 @@ public:
 	void discard();
 
 	void writeID(ID id);
-	void write(double data, char dataType = DataType::STRING);
-	void writeTriple(ID subjectID, ID predicateID, double object, char objType = DataType::STRING);
+	void write(double data, char dataType = STRING);
+	void writeTriple(ID subjectID, ID predicateID, double object, char objType = STRING);
 	void write(unsigned len, const char* data);
 	static const uchar* readID(const uchar* reader, ID& data);
-	static const uchar* read(const uchar* reader, double& data, char& dataType = DataType::STRING);
-	static const uchar* readTriple(const uchar* reader, ID& subjectID, ID& predicateID, double& object, char& objType = DataType::STRING);
-	static uint getLen(char dataType = DataType::STRING);
+	static const uchar* read(const uchar* reader, double& data, char& dataType = STRING);
+	static const uchar* readTriple(const uchar* reader, ID& subjectID, ID& predicateID, double& object, char& objType = STRING);
+	static uint getLen(char dataType = STRING);
 	static const uchar* skipId(const uchar* reader);
 	static const uchar* skipObject(const uchar* reader);
 };

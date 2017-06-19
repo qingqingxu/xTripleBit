@@ -51,11 +51,12 @@ BitmapBuffer::~BitmapBuffer() {
 
 Status BitmapBuffer::insertPredicate(ID predicateID, OrderByType soType) {
 	predicate_managers[soType][predicateID] = new ChunkManager(predicateID, soType, this);
+	return OK;
 }
 
 Status BitmapBuffer::insertTriple(ID predicateID, ID subjectID,
 		double object, OrderByType soType,
-		char objType = STRING) {
+		char objType) {
 	getChunkManager(predicateID, soType)->insertXY(subjectID, object, objType);
 	return OK;
 }
@@ -378,7 +379,7 @@ void BitmapBuffer::save() {
 			out.close();
 #endif
 			iter->second->buildChunkIndex();
-			LineHashIndex<uint> index = iter->second->getChunkIndex();
+			LineHashIndex* index = iter->second->getChunkIndex();
 			offset = iter->second->getChunkIndex()->save(bitmapIndex);
 			predicateWriter = predicateWriter + sizeof(ID) + sizeof(SOType)
 					+ sizeof(size_t);

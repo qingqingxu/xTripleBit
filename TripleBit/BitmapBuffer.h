@@ -149,16 +149,16 @@ public:
 	static void writeID(const uchar*& writer, ID data, bool isUpdateAdress = true);
 	//在指定位置根据数据类型写入数据，默认返回写后数据位置
 	template<typename T>
-	static void write(const uchar*& writer, T data, char dataType = DataType::STRING, bool isUpdateAdress = true);
+	static void write(const uchar*& writer, T data, char dataType = STRING, bool isUpdateAdress = true);
 	//在指定位置读取ID数据，默认返回读取后数据位置
 	static const uchar* readID(const uchar* reader, ID& data, bool isUpdateAdress = true);
 	//在指定位置根据数据类型读取数据，默认返回读取后数据位置
 	template<typename T>
-	static const uchar* read(const uchar* reader, T& data, char dataType = DataType::STRING);
+	static const uchar* read(const uchar* reader, T& data, char dataType = STRING);
 	//根据数据类型删除在指定位置数据，返回删除后位置，删除将该位置0
-	static uchar* deleteData(uchar* reader, char objType = DataType::STRING);
+	static uchar* deleteData(uchar* reader, char objType = STRING);
 	///根据object数据类型获取一对数据的字节长度
-	static uint getLen(char dataType = DataType::STRING);
+	static uint getLen(char dataType = STRING);
 	//根据objType判定是否有数据存储、已删除、无数据,若有数据或数据已删除则返回数据类型或已删除数据类型, 并将修改reader指向地址为该条数据object后面的地址
 	static Status getObjTypeStatus(const uchar*& reader, uint& moveByteNum);
 	/// Skip a s or o
