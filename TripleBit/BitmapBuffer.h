@@ -102,7 +102,7 @@ public:
 	//向指定位置写入数据x，y，写完后指针仍指向原地址, x表示subjectID， y表示object
 	void writeXY(const uchar* reader, ID x, double y, char objType = STRING);
 	//根据数据类型删除在指定位置数据，返回删除后位置，删除将该位置0
-	static uchar* deleteTriple(uchar* reader, char objType = STRING);
+	uchar* deleteTriple(uchar* reader, char objType = STRING);
 	//获取新的Chunk
 	Status resize(size_t& pageNo);
 	//判断添加len长度数据后Chunk是否溢出
@@ -130,7 +130,7 @@ public:
 	uchar* getEndPtr() {
 		return meta->endPtr;
 	}
-	static void setMetaDataMin(MetaData *metaData, ID x, double y);
+	void setMetaDataMin(MetaData *metaData, ID x, double y);
 	//加载ChunkManager相关信息
 	static ChunkManager* load(ID predicateID, bool soType, uchar* buffer, size_t& offset);
 
