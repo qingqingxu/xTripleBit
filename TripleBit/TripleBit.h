@@ -35,17 +35,6 @@ using namespace std;
 //#define TTDEBUG
 //#define PRINT_BUFFERSIZE
 
-union varType {
-	char var_bool;
-	char var_char;
-	int var_int;
-	uint var_uint;
-	longlong var_longlong;
-	float var_float;
-	double var_double;
-	string var_string;
-};
-
 template<class T> string toStr(T tmp)
 {
 	stringstream ss;
@@ -261,6 +250,18 @@ inline void Type_2_Length(unsigned char type, unsigned char& xLen, unsigned char
 	xLen = (type - 1) / 4 + 1;
 	yLen = (type - 1) % 4 + 1;
 }
+
+union varType {
+	char var_bool;
+	char var_char;
+	int var_int;
+	uint var_uint;
+	longlong var_longlong;
+	float var_float;
+	double var_double;
+	char* var_string;
+};
+
 
 struct LengthString {
 	const char * str;

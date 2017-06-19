@@ -150,9 +150,9 @@ void TripleBitBuilder::NTriplesParse(const char* subject, const char* predicate,
 			tempObject = object.var_longlong;
 			break;
 		case DataType::STRING:
-			if (uriTable->getIdByURI(object.var_string.c_str(), objectID)
+			if (uriTable->getIdByURI(object.var_string, objectID)
 					== URI_NOT_FOUND) {
-				uriTable->insertTable(object.var_string.c_str(), objectID);
+				uriTable->insertTable(object.var_string, objectID);
 				tempObject = objectID;
 
 				break;
