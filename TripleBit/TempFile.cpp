@@ -68,7 +68,7 @@ void TempFile::writeID(ID id) {
 		out.write(writeBuffer, writePointer);
 		writePointer = 0;
 	}
-	*(ID*) (writeBuffer + writePointer) = ID;
+	*(ID*)(writeBuffer + writePointer) = ID;
 	writePointer += sizeof(ID);
 }
 
