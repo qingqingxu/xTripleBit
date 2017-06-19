@@ -41,13 +41,13 @@ public:
 	~StatisticsBuffer();
 	//插入一条SP或OP的统计信息,加入OP统计信息需指定objType
 	template<typename T>
-	Status addStatis(T soValue, ID predicateID, size_t count, char objType = DataType::STRING);
+	Status addStatis(T soValue, ID predicateID, size_t count, char objType = STRING);
 	//获取一条SP或OP的统计信息
 	template<typename T>
-	Status getStatis(T soValue, ID predicateID, size_t& count, char objType = DataType::STRING);
+	Status getStatis(T soValue, ID predicateID, size_t& count, char objType = STRING);
 	//根据SP（OP）统计信息获取S（O）出现的次数
 	template<typename T>
-	Status getStatisBySO(T soValue, size_t& count, char objType = DataType::STRING);
+	Status getStatisBySO(T soValue, size_t& count, char objType = STRING);
 	//定位SP或OP初始位置,pos: the start address of the first triple;posLimit: the end address of last triple;
 	bool findLocation(ID predicateID, double soValue);
 	//定位S或O初始位置,pos: the start address of the first triple;posLimit: the end address of last triple;
@@ -58,7 +58,7 @@ public:
 	static StatisticsBuffer* load(StatisticsType statType, const string path, uchar*& indxBuffer);
 private:
 	/// decode a statistics chunk
-	void decodeStatis(const uchar* begin, const uchar* end, double soValue, ID predicateID, size_t& count, char objType = DataType::STRING);
-	void decodeStatis(const uchar* begin, const uchar* end, double soValue, size_t & count, char objType = DataType::STRING);
+	void decodeStatis(const uchar* begin, const uchar* end, double soValue, ID predicateID, size_t& count, char objType = STRING);
+	void decodeStatis(const uchar* begin, const uchar* end, double soValue, size_t & count, char objType = STRING);
 };
 #endif /* STATISTICSBUFFER_H_ */
