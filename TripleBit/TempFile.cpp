@@ -103,16 +103,16 @@ void TempFile::writeTriple(ID subjectID, ID predicateID, double object,
 }
 
 const uchar* TempFile::readID(const uchar* reader, ID& data) {
-	data = *reinterpret_cast<ID*>(reader);
+	data = *(ID*)reader;
 	reader += sizeof(ID);
 	return reader;
 }
 
 const uchar* TempFile::read(const uchar* reader, double& data,
 		char& dataType) {
-	data = *reinterpret_cast<double*>(reader);
+	data = *(double*)reader;
 	reader += sizeof(double);
-	dataType = *reinterpret_cast<char*>(reader);
+	dataType = *(char*)reader;
 	reader += sizeof(char);
 	return reader;
 }
@@ -173,7 +173,7 @@ void TempFile::write(unsigned len, const uchar* data)
 	if (writePointer + len > bufferSize) {
 		assert(writePointer == 0);
 		unsigned chunks = len / bufferSize;
-		out.write(data, chunks * bufferSize);
+		out.write((const char*)data, chunks * bufferSize);
 		len -= chunks * bufferSize;
 		data += chunks * bufferSize;
 	}
@@ -235,7 +235,7 @@ MemoryMappedFile::~MemoryMappedFile()
 	close();
 }
 //----------------------------------------------------------------------------
-bool MemoryMappedFile::open(const uchar* name)
+bool MemoryMappedFile::open(const char* name)
 // Open
 		{
 	if (!name)

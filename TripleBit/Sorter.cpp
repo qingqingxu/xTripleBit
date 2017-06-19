@@ -67,7 +67,7 @@ void Sorter::sort(TempFile& in, TempFile& out, const uchar* (*skip)(const uchar*
 	// Open the input
 	in.close();
 	MemoryMappedFile mappedIn;
-	assert(mappedIn.open((const uchar*)in.getFile().c_str()));
+	assert(mappedIn.open(in.getFile().c_str()));
 	const uchar* reader = mappedIn.getBegin(), *limit = mappedIn.getEnd();
 
 	// Produce runs
@@ -109,7 +109,7 @@ void Sorter::sort(TempFile& in, TempFile& out, const uchar* (*skip)(const uchar*
 	if (!runs.empty()) {
 		// Map the ranges
 		MemoryMappedFile tempIn;
-		assert(tempIn.open((const uchar*)intermediate.getFile().c_str()));
+		assert(tempIn.open(intermediate.getFile().c_str()));
 		for (vector<Range>::iterator iter = runs.begin(), limit = runs.end(); iter != limit; ++iter) {
 			(*iter).from = tempIn.getBegin() + ((*iter).from - static_cast<uchar*> (0));
 			(*iter).to = tempIn.getBegin() + ((*iter).to - static_cast<uchar*> (0));

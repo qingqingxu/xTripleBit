@@ -90,7 +90,7 @@ class MemoryMappedFile
    ~MemoryMappedFile();
 
    /// Open
-   bool open(const uchar* name);
+   bool open(const char* name);
    /// Close
    void close();
 
