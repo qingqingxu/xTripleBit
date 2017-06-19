@@ -10,7 +10,6 @@
 
 #include "TripleBit.h"
 #include "ThreadPool.h"
-#include "EntityIDBuffer.h"
 
 class TempBuffer {
 public:
