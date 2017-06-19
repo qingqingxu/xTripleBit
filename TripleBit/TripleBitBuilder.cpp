@@ -167,287 +167,288 @@ void TripleBitBuilder::NTriplesParse(const char* subject, const char* predicate,
 
 }
 
-/*bool TripleBitBuilder::N3Parse(istream& in, const char* name, TempFile& rawFacts){
- return true;
- }*/
-/*bool TripleBitBuilder::N3Parse(istream& in, const char* name,
- TempFile& rawFacts) {
- cerr << "Parsing " << name << "..." << endl;
+bool TripleBitBuilder::N3Parse(istream& in, const char* name,
+		TempFile& rawFacts) {
+	cerr << "Parsing " << name << "..." << endl;
 
- TurtleParser parser(in);
- try {
- string subject, predicate;
- varType object;
- char objType = DataType::NONE;
- while (true) {
- try {
- if (!parser.parse(subject, predicate, object))
- break;
- } catch (const TurtleParser::Exception& e) {
- while (in.get() != '\n')
- ;
- continue;
- }
- //Construct IDs
- //and write the triples
- if (subject.length() && predicate.length() && objType != DataType::NONE)
- NTriplesParse((char*) subject.c_str(),
- (char*) predicate.c_str(), object, objType,
- rawFacts);
+	TurtleParser parser(in);
+	try {
+		string subject, predicate;
+		varType object;
+		char objType = DataType::NONE;
+		while (true) {
+			try {
+				if (!parser.parse(subject, predicate, object, objType))
+					break;
+			} catch (const TurtleParser::Exception& e) {
+				while (in.get() != '\n')
+					;
+				continue;
+			}
+			//Construct IDs
+			//and write the triples
+			if (subject.length() && predicate.length()
+					&& objType != DataType::NONE)
+				NTriplesParse((char*) subject.c_str(),
+						(char*) predicate.c_str(), object, objType, rawFacts);
 
- }
- } catch (const TurtleParser::Exception&) {
- return false;
- }
- return true;
- }*/
+		}
+	} catch (const TurtleParser::Exception&) {
+		return false;
+	}
+	return true;
+}
 
-/*const uchar* TripleBitBuilder::skipIdIdId(const uchar* reader) {
- return TempFile::skipObject(TempFile::skipId(TempFile::skipId(reader)));
- }
+const uchar* TripleBitBuilder::skipIdIdId(const uchar* reader) {
+	return TempFile::skipObject(TempFile::skipId(TempFile::skipId(reader)));
+}
 
- int TripleBitBuilder::compare213(const uchar* left, const uchar* right) {
- ID l1, l2, r1, r2;
- double l3, r3;
- char l4, r4;
- loadTriple(left, l1, l2, l3, l4);
- loadTriple(right, r1, r2, r3, r4);
+int TripleBitBuilder::compare213(const uchar* left, const uchar* right) {
+	ID l1, l2, r1, r2;
+	double l3, r3;
+	char l4, r4;
+	loadTriple(left, l1, l2, l3, l4);
+	loadTriple(right, r1, r2, r3, r4);
 
- return cmpTriples(l2, l1, l3, r2, r1, r3);
- }
+	return cmpTriples(l2, l1, l3, r2, r1, r3);
+}
 
- int TripleBitBuilder::compare231(const uchar* left, const uchar* right) {
- ID l1, l2, r1, r2;
- double l3, r3;
- char l4, r4;
- loadTriple(left, l1, l2, l3, l4);
- loadTriple(right, r1, r2, r3, r4);
+int TripleBitBuilder::compare231(const uchar* left, const uchar* right) {
+	ID l1, l2, r1, r2;
+	double l3, r3;
+	char l4, r4;
+	loadTriple(left, l1, l2, l3, l4);
+	loadTriple(right, r1, r2, r3, r4);
 
- return cmpTriples(l2, l3, l1, r2, r3, r1);
- }
+	return cmpTriples(l2, l3, l1, r2, r3, r1);
+}
 
- int TripleBitBuilder::compare123(const uchar* left, const uchar* right) {
- ID l1, l2, r1, r2;
- double l3, r3;
- char l4, r4;
- loadTriple(left, l1, l2, l3, l4);
- loadTriple(right, r1, r2, r3, r4);
+int TripleBitBuilder::compare123(const uchar* left, const uchar* right) {
+	ID l1, l2, r1, r2;
+	double l3, r3;
+	char l4, r4;
+	loadTriple(left, l1, l2, l3, l4);
+	loadTriple(right, r1, r2, r3, r4);
 
- return cmpTriples(l1, l2, l3, r1, r2, r3);
- }
+	return cmpTriples(l1, l2, l3, r1, r2, r3);
+}
 
- int TripleBitBuilder::compare321(const uchar* left, const uchar* right) {
- ID l1, l2, r1, r2;
- double l3, r3;
- char l4, r4;
- loadTriple(left, l1, l2, l3, l4);
- loadTriple(right, r1, r2, r3, r4);
+int TripleBitBuilder::compare321(const uchar* left, const uchar* right) {
+	ID l1, l2, r1, r2;
+	double l3, r3;
+	char l4, r4;
+	loadTriple(left, l1, l2, l3, l4);
+	loadTriple(right, r1, r2, r3, r4);
 
- return cmpTriples(l3, l2, l1, r3, r2, r1);
- }
+	return cmpTriples(l3, l2, l1, r3, r2, r1);
+}
 
- void print(TempFile& infile, char* outfile) {
- MemoryMappedFile mappedIn;
- assert(mappedIn.open(infile.getFile().c_str()));
- const char* reader = mappedIn.getBegin(), *limit = mappedIn.getEnd();
+void print(TempFile& infile, char* outfile) {
+	MemoryMappedFile mappedIn;
+	assert(mappedIn.open(infile.getFile().c_str()));
+	const char* reader = mappedIn.getBegin(), *limit = mappedIn.getEnd();
 
- // Produce tempfile
- ofstream out(outfile);
- while (reader < limit) {
- out << *(ID*) reader << "\t" << *(ID*) (reader + 4) << "\t"
- << *(double*) (reader + 8) << *(char*) (reader + 12) << endl;
- reader += 13;
- }
- mappedIn.close();
- out.close();
- }
+	// Produce tempfile
+	ofstream out(outfile);
+	while (reader < limit) {
+		out << *(ID*) reader << "\t" << *(ID*) (reader + 4) << "\t"
+				<< *(double*) (reader + 8) << *(char*) (reader + 12) << endl;
+		reader += 13;
+	}
+	mappedIn.close();
+	out.close();
+}
 
- Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
- cout << "Sort by Subject" << endl;
+Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
+	cout << "Sort by Subject" << endl;
 
- ID subjectID, lastSubjectID = 0, predicateID, lastPredicateID = 0;
- double object, lastObject;
- char objType;
+	ID subjectID, lastSubjectID = 0, predicateID, lastPredicateID = 0;
+	double object, lastObject;
+	char objType;
 
- size_t count1 = 0;
- TempFile sortedBySubject("./SortByS"), sortedByObject("./SortByO");
- Sorter::sort(rawFacts, sortedBySubject, skipIdIdId, compare213);
- #ifdef MYDEBUG
- print(sortedBySubject, "sortedBySubject_temp");
- #endif
- Sorter::sort(rawFacts, sortedBySubject, skipIdIdId, compare123);
- {
- //insert into chunk
- sortedBySubject.close();
- MemoryMappedFile mappedIn;
- assert(mappedIn.open(sortedBySubject.getFile().c_str()));
- const uchar* reader = mappedIn.getBegin(), *limit = mappedIn.getEnd();
+	size_t count1 = 0;
+	TempFile sortedBySubject("./SortByS"), sortedByObject("./SortByO");
+	Sorter::sort(rawFacts, sortedBySubject, skipIdIdId, compare213);
+#ifdef MYDEBUG
+	print(sortedBySubject, "sortedBySubject_temp");
+#endif
+	Sorter::sort(rawFacts, sortedBySubject, skipIdIdId, compare123);
+	{
+		//insert into chunk
+		sortedBySubject.close();
+		MemoryMappedFile mappedIn;
+		assert(mappedIn.open(sortedBySubject.getFile().c_str()));
+		const uchar* reader = mappedIn.getBegin(), *limit = mappedIn.getEnd();
 
- loadTriple(reader, subjectID, predicateID, object, objType);
- lastSubjectID = subjectID;
- lastPredicateID = predicateID;
- lastObject = object;
- reader = skipIdIdId(reader);
- bitmap->insertTriple(predicateID, subjectID, object,
- OrderByType::ORDERBYS, objType);
- count1 = 1;
+		loadTriple(reader, subjectID, predicateID, object, objType);
+		lastSubjectID = subjectID;
+		lastPredicateID = predicateID;
+		lastObject = object;
+		reader = skipIdIdId(reader);
+		bitmap->insertTriple(predicateID, subjectID, object,
+				OrderByType::ORDERBYS, objType);
+		count1 = 1;
 
- while (reader < limit) {
- loadTriple(reader, subjectID, predicateID, object, objType);
- if (lastSubjectID == subjectID && lastPredicateID == predicateID
- && lastObject == object) {
- reader = skipIdIdId(reader);
- continue;
- }
+		while (reader < limit) {
+			loadTriple(reader, subjectID, predicateID, object, objType);
+			if (lastSubjectID == subjectID && lastPredicateID == predicateID
+					&& lastObject == object) {
+				reader = skipIdIdId(reader);
+				continue;
+			}
 
- if (subjectID != lastSubjectID) {
- spStatisBuffer->addStatis(lastSubjectID, lastPredicateID, count1);
- lastPredicateID = predicateID;
- lastSubjectID = subjectID;
- count1 = 1;
- } else if (predicateID != lastPredicateID) {
- spStatisBuffer->addStatis(lastSubjectID, lastPredicateID, count1);
- lastPredicateID = predicateID;
- count1 = 1;
- } else {
- count1++;
- lastObject = object;
- }
+			if (subjectID != lastSubjectID) {
+				spStatisBuffer->addStatis(lastSubjectID, lastPredicateID,
+						count1);
+				lastPredicateID = predicateID;
+				lastSubjectID = subjectID;
+				count1 = 1;
+			} else if (predicateID != lastPredicateID) {
+				spStatisBuffer->addStatis(lastSubjectID, lastPredicateID,
+						count1);
+				lastPredicateID = predicateID;
+				count1 = 1;
+			} else {
+				count1++;
+				lastObject = object;
+			}
 
- reader = reader + 12;
- bitmap->insertTriple(predicateID, subjectID, object,
- OrderByType::ORDERBYS, objType);
- }
- mappedIn.close();
- }
+			reader = reader + 12;
+			bitmap->insertTriple(predicateID, subjectID, object,
+					OrderByType::ORDERBYS, objType);
+		}
+		mappedIn.close();
+	}
 
- bitmap->flush();
+	bitmap->flush();
 
- //sort
- cerr << "Sort by Object" << endl;
- Sorter::sort(rawFacts, sortedByObject, skipIdIdId, compare231);
- #ifdef MYDEBUG
- print(sortedByObject, "sortedByObject_temp");
- #endif
- Sorter::sort(rawFacts, sortedByObject, skipIdIdId, compare321);
- {
- //insert into chunk
- sortedByObject.close();
- MemoryMappedFile mappedIn;
- assert(mappedIn.open(sortedByObject.getFile().c_str()));
- const uchar* reader = mappedIn.getBegin(), *limit = mappedIn.getEnd();
+	//sort
+	cerr << "Sort by Object" << endl;
+	Sorter::sort(rawFacts, sortedByObject, skipIdIdId, compare231);
+#ifdef MYDEBUG
+	print(sortedByObject, "sortedByObject_temp");
+#endif
+	Sorter::sort(rawFacts, sortedByObject, skipIdIdId, compare321);
+	{
+		//insert into chunk
+		sortedByObject.close();
+		MemoryMappedFile mappedIn;
+		assert(mappedIn.open(sortedByObject.getFile().c_str()));
+		const uchar* reader = mappedIn.getBegin(), *limit = mappedIn.getEnd();
 
- loadTriple(reader, subjectID, predicateID, object, objType);
- lastSubjectID = subjectID;
- lastPredicateID = predicateID;
- lastObject = object;
- reader = skipIdIdId(reader);
- bitmap->insertTriple(predicateID, object, subjectID,
- OrderByType::ORDERBYO, objType);
- count1 = 1;
+		loadTriple(reader, subjectID, predicateID, object, objType);
+		lastSubjectID = subjectID;
+		lastPredicateID = predicateID;
+		lastObject = object;
+		reader = skipIdIdId(reader);
+		bitmap->insertTriple(predicateID, object, subjectID,
+				OrderByType::ORDERBYO, objType);
+		count1 = 1;
 
- while (reader < limit) {
- loadTriple(reader, subjectID, predicateID, object, objType);
- if (lastSubjectID == subjectID && lastPredicateID == predicateID
- && lastObject == object) {
- reader = skipIdIdId(reader);
- continue;
- }
+		while (reader < limit) {
+			loadTriple(reader, subjectID, predicateID, object, objType);
+			if (lastSubjectID == subjectID && lastPredicateID == predicateID
+					&& lastObject == object) {
+				reader = skipIdIdId(reader);
+				continue;
+			}
 
- if (object != lastObject) {
- opStatisBuffer->addStatis(lastObject, lastPredicateID, count1, objType);
- lastPredicateID = predicateID;
- lastObject = object;
- count1 = 1;
- } else if (predicateID != lastPredicateID) {
- opStatisBuffer->addStatis(lastObject, lastPredicateID, count1, objType);
- lastPredicateID = predicateID;
- count1 = 1;
- } else {
- lastSubjectID = subjectID;
- count1++;
- }
- reader = skipIdIdId(reader);
- // 1 indicate the triple is sorted by objects' id;
- bitmap->insertTriple(predicateID, object, subjectID,
- OrderByType::ORDERBYO, objType);
- }
- mappedIn.close();
- }
+			if (object != lastObject) {
+				opStatisBuffer->addStatis(lastObject, lastPredicateID, count1,
+						objType);
+				lastPredicateID = predicateID;
+				lastObject = object;
+				count1 = 1;
+			} else if (predicateID != lastPredicateID) {
+				opStatisBuffer->addStatis(lastObject, lastPredicateID, count1,
+						objType);
+				lastPredicateID = predicateID;
+				count1 = 1;
+			} else {
+				lastSubjectID = subjectID;
+				count1++;
+			}
+			reader = skipIdIdId(reader);
+			// 1 indicate the triple is sorted by objects' id;
+			bitmap->insertTriple(predicateID, object, subjectID,
+					OrderByType::ORDERBYO, objType);
+		}
+		mappedIn.close();
+	}
 
- bitmap->flush();
- rawFacts.discard();
- sortedByObject.discard();
- sortedBySubject.discard();
+	bitmap->flush();
+	rawFacts.discard();
+	sortedByObject.discard();
+	sortedBySubject.discard();
 
- return OK;
- }
+	return OK;
+}
 
- Status TripleBitBuilder::startBuildN3(string fileName) {
- TempFile rawFacts("./test");
+Status TripleBitBuilder::startBuildN3(string fileName) {
+	TempFile rawFacts("./test");
 
- ifstream in((char*) fileName.c_str());
- if (!in.is_open()) {
- cerr << "Unable to open " << fileName << endl;
- return ERROR;
- }
- if (!N3Parse(in, fileName.c_str(), rawFacts)) {
- in.close();
- return ERROR;
- }
+	ifstream in((char*) fileName.c_str());
+	if (!in.is_open()) {
+		cerr << "Unable to open " << fileName << endl;
+		return ERROR;
+	}
+	if (!N3Parse(in, fileName.c_str(), rawFacts)) {
+		in.close();
+		return ERROR;
+	}
 
- in.close();
- delete uriTable;
- uriTable = NULL;
- delete preTable;
- preTable = NULL;
- delete staReifTable;
- staReifTable = NULL;
+	in.close();
+	delete uriTable;
+	uriTable = NULL;
+	delete preTable;
+	preTable = NULL;
+	delete staReifTable;
+	staReifTable = NULL;
 
- rawFacts.flush();
- cout << "over" << endl;
+	rawFacts.flush();
+	cout << "over" << endl;
 
- //sort by s,o
- TempFile facts(fileName);
- resolveTriples(rawFacts, facts);
- facts.discard();
- return OK;
- }
+	//sort by s,o
+	TempFile facts(fileName);
+	resolveTriples(rawFacts, facts);
+	facts.discard();
+	return OK;
+}
 
- Status TripleBitBuilder::buildIndex() {
- // build hash index;
- MMapBuffer* bitmapIndex;
- cout << "build hash index for subject" << endl;
- for (map<ID, ChunkManager*>::iterator iter =
- bitmap->predicate_managers[0].begin();
- iter != bitmap->predicate_managers[0].end(); iter++) {
- if (iter->second != NULL) {
- iter->second->buildChunkIndex();
- iter->second->getChunkIndex()->save(bitmapIndex);
- }
- }
+Status TripleBitBuilder::buildIndex() {
+	// build hash index;
+	MMapBuffer* bitmapIndex;
+	cout << "build hash index for subject" << endl;
+	for (map<ID, ChunkManager*>::iterator iter =
+			bitmap->predicate_managers[0].begin();
+			iter != bitmap->predicate_managers[0].end(); iter++) {
+		if (iter->second != NULL) {
+			iter->second->buildChunkIndex();
+			iter->second->getChunkIndex()->save(bitmapIndex);
+		}
+	}
 
- cout << "build hash index for object" << endl;
- for (map<ID, ChunkManager*>::iterator iter =
- bitmap->predicate_managers[1].begin();
- iter != bitmap->predicate_managers[1].end(); iter++) {
- if (iter->second != NULL) {
- iter->second->buildChunkIndex();
- iter->second->getChunkIndex()->save(bitmapIndex);
- }
- }
+	cout << "build hash index for object" << endl;
+	for (map<ID, ChunkManager*>::iterator iter =
+			bitmap->predicate_managers[1].begin();
+			iter != bitmap->predicate_managers[1].end(); iter++) {
+		if (iter->second != NULL) {
+			iter->second->buildChunkIndex();
+			iter->second->getChunkIndex()->save(bitmapIndex);
+		}
+	}
 
- return OK;
- }
+	return OK;
+}
 
- Status TripleBitBuilder::endBuild() {
- bitmap->save();
+Status TripleBitBuilder::endBuild() {
+	bitmap->save();
 
- ofstream ofile(string(dir + "/statIndex").c_str());
- MMapBuffer* indexBuffer = NULL;
- spStatisBuffer->save(indexBuffer);
- opStatisBuffer->save(indexBuffer);
+	ofstream ofile(string(dir + "/statIndex").c_str());
+	MMapBuffer* indexBuffer = NULL;
+	spStatisBuffer->save(indexBuffer);
+	opStatisBuffer->save(indexBuffer);
 
- delete indexBuffer;
- return OK;
- }*/
+	delete indexBuffer;
+	return OK;
+}
