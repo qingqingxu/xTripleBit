@@ -235,7 +235,7 @@ MemoryMappedFile::~MemoryMappedFile()
 	close();
 }
 //----------------------------------------------------------------------------
-bool MemoryMappedFile::open(const char* name)
+bool MemoryMappedFile::open(const uchar* name)
 // Open
 		{
 	if (!name)
@@ -271,7 +271,7 @@ bool MemoryMappedFile::open(const char* name)
 		::close(file);
 		return false;
 	}
-	begin=static_cast<char*>(mapping);
+	begin=static_cast<uchar*>(mapping);
 	end=begin+size;
 #endif
 	data = new Data();
@@ -286,7 +286,7 @@ void MemoryMappedFile::close()
 {
 	if (data) {
 #ifdef CONFIG_WINDOWS
-		UnmapViewOfFile(const_cast<char*>(begin));
+		UnmapViewOfFile(const_cast<uchar*>(begin));
 		CloseHandle(data->mapping);
 		CloseHandle(data->file);
 #else
@@ -300,7 +300,7 @@ void MemoryMappedFile::close()
 }
 unsigned sumOfItAll;
 //----------------------------------------------------------------------------
-void MemoryMappedFile::prefetch(const char* start, const char* end)
+void MemoryMappedFile::prefetch(const uchar* start, const uchar* end)
 // Ask the operating system to prefetch a part of the file
 		{
 	if ((end < start) || (!data))

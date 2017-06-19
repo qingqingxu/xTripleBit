@@ -246,7 +246,7 @@ int TripleBitBuilder::compare321(const uchar* left, const uchar* right) {
 void print(TempFile& infile, char* outfile) {
 	MemoryMappedFile mappedIn;
 	assert(mappedIn.open(infile.getFile().c_str()));
-	const char* reader = mappedIn.getBegin(), *limit = mappedIn.getEnd();
+	const uchar* reader = mappedIn.getBegin(), *limit = mappedIn.getEnd();
 
 	// Produce tempfile
 	ofstream out(outfile);

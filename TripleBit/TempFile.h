@@ -90,17 +90,17 @@ class MemoryMappedFile
    ~MemoryMappedFile();
 
    /// Open
-   bool open(const char* name);
+   bool open(const uchar* name);
    /// Close
    void close();
 
    /// Get the begin
-   const char* getBegin() const { return begin; }
+   const uchar* getBegin() const { return begin; }
    /// Get the end
-   const char* getEnd() const { return end; }
+   const uchar* getEnd() const { return end; }
 
    /// Ask the operating system to prefetch a part of the file
-   void prefetch(const char* start,const char* end);
+   void prefetch(const uchar* start,const uchar* end);
 };
 //---------------------------------------------------------------------------
 #endif
