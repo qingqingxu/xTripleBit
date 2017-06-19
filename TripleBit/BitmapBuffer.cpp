@@ -797,31 +797,37 @@ void Chunk::writeID(const uchar*& writer, ID data, bool isUpdateAdress) {
 template<typename T>
 void Chunk::write(const uchar*& writer, T data, char dataType,
 		bool isUpdateAdress) {
+	char c;
+	int i;
+	float f;
+	longlong ll;
+	double d;
+	uint ui;
 	switch (dataType) {
 	case BOOL:
 	case CHAR:
-		char c = (char)data;
+		c = (char)data;
 		*(char*) writer = c;
 		if (isUpdateAdress) {
 			writer += sizeof(char);
 		}
 		break;
 	case INT:
-		int i = (int)data;
+		i = (int)data;
 		*(int*) writer = i;
 		if (isUpdateAdress) {
 			writer += sizeof(int);
 		}
 		break;
 	case FLOAT:
-		float f = (float)data;
+		f = (float)data;
 		*(float*) writer = f;
 		if (isUpdateAdress) {
 			writer += sizeof(float);
 		}
 		break;
 	case LONGLONG:
-		longlong ll = (longlong)data;
+		ll = (longlong)data;
 				*(longlong*) writer = ll;
 				if (isUpdateAdress) {
 					writer += sizeof(longlong);
@@ -829,7 +835,7 @@ void Chunk::write(const uchar*& writer, T data, char dataType,
 				break;
 	case DATE:
 	case DOUBLE:
-		double d = data;
+		 d = data;
 		*(double*) writer = d;
 		if (isUpdateAdress) {
 			writer += sizeof(double);
@@ -838,7 +844,7 @@ void Chunk::write(const uchar*& writer, T data, char dataType,
 	case UNSIGNED_INT:
 	case STRING:
 	default:
-		uint ui = (uint)data;
+		 ui = (uint)data;
 		*(uint*) writer = ui;
 		if (isUpdateAdress) {
 			writer += sizeof(uint);
