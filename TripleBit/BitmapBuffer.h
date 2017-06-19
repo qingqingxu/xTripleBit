@@ -14,7 +14,6 @@ class Chunk;
 class ChunkManager;
 
 #include "TripleBit.h"
-#include "HashIndex.h"
 #include "LineHashIndex.h"
 #include "ThreadPool.h"
 
