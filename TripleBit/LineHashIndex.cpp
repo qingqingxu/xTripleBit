@@ -439,7 +439,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type,
 	register char objType;
 	index->startPtr = index->chunkManager.getStartPtr();
 	index->endPtr = index->chunkManager.getEndPtr();
-	if (chunkManager.getChunkManagerMeta()->soType == ORDERBYS) {
+	if (index_type == SUBJECT_INDEX) {
 		if (index->startPtr == index->endPtr) {
 			index->chunkMeta.push_back( { 0, DBL_MIN, sizeof(MetaData) });
 			return index;
@@ -473,7 +473,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type,
 							CHAR), object, objType);
 			index->chunkMeta.push_back( { subjectID, object });
 		}
-	} else if (chunkManager.getChunkManagerMeta()->soType == ORDERBYO) {
+	} else if (index_type == OBJECT_INDEX) {
 		if (index->startPtr == index->endPtr) {
 			index->chunkMeta.push_back( { DBL_MIN, 0, sizeof(MetaData) });
 			return index;
