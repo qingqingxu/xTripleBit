@@ -141,10 +141,10 @@ Status LineHashIndex::buildIndex() {
 	const uchar* begin, *limit, *reader;
 
 	int lineNo = 0;
-	int startEntry = 0, endEntry = 0;
+	size_t startEntry = 0, endEntry = 0;
 
-	reader = chunkManager.getStartPtr;
-	limit = chunkManager.getEndPtr;
+	reader = chunkManager.getStartPtr();
+	limit = chunkManager.getEndPtr();
 	begin = reader;
 	if (begin == limit) {
 		return OK;
@@ -390,13 +390,13 @@ void LineHashIndex::updateChunkMetaData(uint offsetId) {
 		double object;
 		char objType;
 		reader = startPtr + chunkMeta[offsetId].offsetBegin;
-		if (chunkManager.meta->soType == ORDERBYS) {
+		if (chunkManager.getChunkManagerMeta()->soType == ORDERBYS) {
 			reader = Chunk::readID(reader, subjectID);
 			reader = Chunk::read(reader, objType, CHAR);
 			reader = Chunk::read(reader, object, objType);
 			chunkMeta[offsetId].minx = subjectID;
 			chunkMeta[offsetId].miny = object;
-		} else if (chunkManager.meta->soType == ORDERBYO) {
+		} else if (chunkManager.getChunkManagerMeta()->soType == ORDERBYO) {
 			reader = Chunk::read(reader, objType, CHAR);
 			reader = Chunk::read(reader, object, objType);
 			reader = Chunk::readID(reader, subjectID);
@@ -437,9 +437,9 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type,
 	register ID subjectID;
 	register double object;
 	register char objType;
-	index->startPtr = index->chunkManager.getStartPtr;
-	index->endPtr = index->chunkManager.getEndPtr;
-	if (chunkManager.meta->soType == ORDERBYS) {
+	index->startPtr = index->chunkManager.getStartPtr();
+	index->endPtr = index->chunkManager.getEndPtr();
+	if (chunkManager.getChunkManagerMeta()->soType == ORDERBYS) {
 		if (index->startPtr == index->endPtr) {
 			index->chunkMeta.push_back( { 0, DBL_MIN, sizeof(MetaData) });
 			return index;
@@ -473,7 +473,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type,
 							CHAR), object, objType);
 			index->chunkMeta.push_back( { subjectID, object });
 		}
-	} else if (chunkManager.meta->soType == ORDERBYO) {
+	} else if (chunkManager.getChunkManagerMeta()->soType == ORDERBYO) {
 		if (index->startPtr == index->endPtr) {
 			index->chunkMeta.push_back( { DBL_MIN, 0, sizeof(MetaData) });
 			return index;

@@ -114,6 +114,10 @@ public:
 		return OK;
 	}
 
+	ChunkManagerMeta* getChunkManagerMeta(){
+		return meta;
+	}
+
 	LineHashIndex* getChunkIndex() {
 		return chunkIndex;
 	}
