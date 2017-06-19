@@ -39,7 +39,7 @@ public:
 private:
 	MemoryBuffer* idTable;
 	TableEntries* idTableEntries;
-	ChunkManager* chunkManager;
+	ChunkManager& chunkManager;
 	IndexType indexType;
 	size_t tableSize;   //chunk number plus 1,because the end edge
 	uchar* lineHashIndexBase; //used to do update
