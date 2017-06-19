@@ -79,9 +79,9 @@ class MemoryMappedFile
    /// os dependen tdata
    Data* data;
    /// Begin of the file
-   const char* begin;
+   const uchar* begin;
    /// End of the file
-   const char* end;
+   const uchar* end;
 
    public:
    /// Constructor
