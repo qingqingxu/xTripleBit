@@ -6,6 +6,10 @@
  */
 
 #include "ComplexTripleBuffer.h"
+#include "MMapBuffer.h"
+#include "MemoryBuffer.h"
+#include "BitmapBuffer.h"
+
 template<typename T>
 extern uchar* writeData(uchar* writer, T data);
 template<typename T>
@@ -165,7 +169,7 @@ void NodeEdgeBuffer::decodeBuffer(const uchar* begin, const uchar* end,
 		double stValue, vector<ID>& edges, char objType) {
 	ID edgeID;
 	size_t count;
-	if (stType == NODEEDGETYPE::STARTEDGE) {
+	if (stType == STARTEDGE) {
 		ID subjectID;
 		while (begin + sizeof(ID) < end) {
 			begin = readData(begin, subjectID);
@@ -190,7 +194,7 @@ void NodeEdgeBuffer::decodeBuffer(const uchar* begin, const uchar* end,
 				break;
 			}
 		}
-	} else if (stType == NODEEDGETYPE::TARGETEDGE) {
+	} else if (stType == TARGETEDGE) {
 		char tempObjType;
 		double tempObject;
 		uint moveByteNum;
@@ -343,7 +347,7 @@ Status EdgeStartTargetBuffer::save(MMapBuffer*& indexBuffer) {
 
 		return OK;
 }
-static EdgeStartTargetBuffer* EdgeStartTargetBuffer::load(const string path,
+EdgeStartTargetBuffer* EdgeStartTargetBuffer::load(const string path,
 		uchar*& indexBuffer) {
 	EdgeStartTargetBuffer* stBuffer = new EdgeStartTargetBuffer(path);
 
