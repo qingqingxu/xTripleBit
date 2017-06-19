@@ -64,12 +64,12 @@ void TempFile::discard()
 }
 
 void TempFile::writeID(ID id) {
-	if (writePointer + sizeof(ID) > bufferSize) {
+	/*if (writePointer + sizeof(ID) > bufferSize) {
 		out.write(writeBuffer, writePointer);
 		writePointer = 0;
 	}
 	*((ID*)(writeBuffer + writePointer)) = ID;
-	writePointer += sizeof(ID);
+	writePointer += sizeof(ID);*/
 }
 
 void TempFile::write(double data, char dataType) {
