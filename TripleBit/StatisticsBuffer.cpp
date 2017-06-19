@@ -225,11 +225,11 @@ bool StatisticsBuffer::findLocation(ID predicateID, double soValue) {
 	while (left != right) {
 		middle = left + ((right - left) / 2);
 
-		if (::greater(predicateID, soValue, pos[middle].predicateID,
+		if (greater(predicateID, soValue, pos[middle].predicateID,
 				pos[middle].soValue)) {
 			left = middle + 1;
 		} else if ((!middle)
-				|| ::greater(predicateID, soValue, pos[middle - 1].predicateID,
+				|| greater(predicateID, soValue, pos[middle - 1].predicateID,
 						pos[middle - 1].soValue)) {
 			break;
 		} else {
@@ -273,7 +273,7 @@ Status StatisticsBuffer::getStatis(double soValue, ID predicateID,
 		size_t& count, char objType) {
 	pos = index, posLimit = index + indexPos;
 	findLocation(predicateID, soValue); // get index location, that is pos
-	if (::greater(pos->predicateID, pos->soValue, predicateID, soValue))
+	if (greater(pos->predicateID, pos->soValue, predicateID, soValue))
 		pos--;
 
 	uint start = pos->count;
