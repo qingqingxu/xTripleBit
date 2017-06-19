@@ -1017,7 +1017,6 @@ Status Chunk::getObjTypeStatus(const uchar*& reader, uint& moveByteNum){
 //若无下一对xy，则返回endPtr表示该Chunk无下一对xy
 const uchar* Chunk::skipForward(const uchar* reader, const uchar* endPtr,
 		OrderByType soType) {
-	const char* tempReader = reader;
 	if(soType == ORDERBYS){
 		while(reader + sizeof(ID) < endPtr && (*(ID*)reader == 0)){
 			reader += sizeof(ID);
@@ -1044,7 +1043,7 @@ const uchar* Chunk::skipForward(const uchar* reader, const uchar* endPtr,
 			if(status == DATA_NONE){
 				return endPtr;
 			}else if(status == DATA_EXSIT){
-				if(reader += sizeof(ID) <= endPtr){
+				if((reader += sizeof(ID)) <= endPtr){
 					return reader - moveByteNum;
 				}else{
 					return endPtr;
