@@ -45,7 +45,7 @@ struct CompareSorter {
 	}
 };
 //---------------------------------------------------------------------------
-static char* spool(char* ofs, TempFile& out, const vector<Range>& items, bool eliminateDuplicates)
+static uchar* spool(uchar* ofs, TempFile& out, const vector<Range>& items, bool eliminateDuplicates)
 // Spool items to disk
 {
 	Range last(0, 0);
@@ -68,12 +68,12 @@ void Sorter::sort(TempFile& in, TempFile& out, const uchar* (*skip)(const uchar*
 	in.close();
 	MemoryMappedFile mappedIn;
 	assert(mappedIn.open(in.getFile().c_str()));
-	const char* reader = mappedIn.getBegin(), *limit = mappedIn.getEnd();
+	const uchar* reader = mappedIn.getBegin(), *limit = mappedIn.getEnd();
 
 	// Produce runs
 	vector<Range> runs;
 	TempFile intermediate(out.getBaseFile());
-	char* ofs = 0;
+	uchar* ofs = 0;
 	while (reader < limit) {
 		// Collect items
 		vector<Range> items;
@@ -98,7 +98,7 @@ void Sorter::sort(TempFile& in, TempFile& out, const uchar* (*skip)(const uchar*
 		}
 
 		// No, spool to intermediate file
-		char* newOfs = spool(ofs, intermediate, items, eliminateDuplicates);
+		uchar* newOfs = spool(ofs, intermediate, items, eliminateDuplicates);
 		runs.push_back(Range(ofs, newOfs));
 		ofs = newOfs;
 	}
@@ -111,8 +111,8 @@ void Sorter::sort(TempFile& in, TempFile& out, const uchar* (*skip)(const uchar*
 		MemoryMappedFile tempIn;
 		assert(tempIn.open(intermediate.getFile().c_str()));
 		for (vector<Range>::iterator iter = runs.begin(), limit = runs.end(); iter != limit; ++iter) {
-			(*iter).from = tempIn.getBegin() + ((*iter).from - static_cast<char*> (0));
-			(*iter).to = tempIn.getBegin() + ((*iter).to - static_cast<char*> (0));
+			(*iter).from = tempIn.getBegin() + ((*iter).from - static_cast<uchar*> (0));
+			(*iter).to = tempIn.getBegin() + ((*iter).to - static_cast<uchar*> (0));
 		}
 
 		// Sort the run heads

@@ -157,7 +157,7 @@ const uchar* TempFile::skipObject(const uchar* reader){
 }
 
 //---------------------------------------------------------------------------
-void TempFile::write(unsigned len, const char* data)
+void TempFile::write(unsigned len, const uchar* data)
 // Raw write
 		{
 	// Fill the buffer
