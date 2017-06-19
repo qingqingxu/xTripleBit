@@ -157,7 +157,6 @@ enum JoinShape{
 	CHAIN
 };
 
-namespace {
 enum OrderByType{
 	ORDERBYS,
 	ORDERBYO
@@ -195,7 +194,6 @@ enum NODEEDGETYPE{
 	STARTEDGE,
 	TARGETEDGE
 };
-}
 
 enum EntityType
 {
