@@ -210,7 +210,7 @@ void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end, double
 		}
 }
 
-static inline bool greater(ID a1, double a2, ID b1, double b2) {
+static inline bool greaterCouple(ID a1, double a2, ID b1, double b2) {
 	return (a1 > b1) || ((a1 == b1) && (a2 > b2));
 }
 
@@ -225,11 +225,11 @@ bool StatisticsBuffer::findLocation(ID predicateID, double soValue) {
 	while (left != right) {
 		middle = left + ((right - left) / 2);
 
-		if (greater(predicateID, soValue, pos[middle].predicateID,
+		if (greaterCouple(predicateID, soValue, pos[middle].predicateID,
 				pos[middle].soValue)) {
 			left = middle + 1;
 		} else if ((!middle)
-				|| greater(predicateID, soValue, pos[middle - 1].predicateID,
+				|| greaterCouple(predicateID, soValue, pos[middle - 1].predicateID,
 						pos[middle - 1].soValue)) {
 			break;
 		} else {
@@ -273,11 +273,11 @@ Status StatisticsBuffer::getStatis(double soValue, ID predicateID,
 		size_t& count, char objType) {
 	pos = index, posLimit = index + indexPos;
 	findLocation(predicateID, soValue); // get index location, that is pos
-	if (greater(pos->predicateID, pos->soValue, predicateID, soValue))
+	if (greaterCouple(pos->predicateID, pos->soValue, predicateID, soValue))
 		pos--;
 
 	uint start = pos->count;
-	while(pos <= posLimit && !greater(pos->predicateID, pos->soValue, predicateID, soValue)){
+	while(pos <= posLimit && !greaterCouple(pos->predicateID, pos->soValue, predicateID, soValue)){
 		pos++;
 	}
 	uint end = pos->count; // count is usedspace
