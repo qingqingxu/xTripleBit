@@ -661,38 +661,38 @@ void ChunkManager::writeXY(const uchar* reader, ID x, double y, char objType) {
 #ifdef MYDEBUG
 	ofstream out;
 	out.open("writexy_ORDERBYS", ios::app);
-	out << meta->pid << "\t" << meta->soType << "\tx: "  << reader << "\tobjType: ";
+	out << meta->pid << "\t" << meta->soType << "\tx: "  << (int*)reader << "\tobjType: ";
 #endif
 		Chunk::writeID(reader, x);
 #ifdef MYDEBUG
-		out << reader << "\ty: ";
+		out << (int*)reader << "\ty: ";
 #endif
 		Chunk::write(reader, objType, CHAR);
 #ifdef MYDEBUG
-		out << reader << "\tend: ";
+		out << (int*)reader << "\tend: ";
 #endif
 		Chunk::write(reader, y, objType);
 #ifdef MYDEBUG
-		out << reader << endl;
+		out << (int*)reader << endl;
 		out.close();
 #endif
 	}else if(meta->soType == ORDERBYO){
 #ifdef MYDEBUG
 	ofstream out;
 	out.open("writexy_ORDERBYO", ios::app);
-	out << meta->pid << "\t" << meta->soType << "\tobjType: "  << reader << "\ty: ";
+	out << meta->pid << "\t" << meta->soType << "\tobjType: "  << (int*)reader << "\ty: ";
 #endif
 		Chunk::write(reader, objType, CHAR);
 #ifdef MYDEBUG
-		out << reader << "\tx: ";
+		out << (int*)reader << "\tx: ";
 #endif
 		Chunk::write(reader, y, objType);
 #ifdef MYDEBUG
-		out << reader << "\tend: ";
+		out << (int*)reader << "\tend: ";
 #endif
 		Chunk::writeID(reader, x);
 #ifdef MYDEBUG
-		out << reader << endl;
+		out << (int*)reader << endl;
 		out.close();
 #endif
 	}
