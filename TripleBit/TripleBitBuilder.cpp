@@ -176,6 +176,7 @@ void TripleBitBuilder::NTriplesParse(const char* subject, const char* predicate,
 			tempObject = (double) object[0];
 			break;
 		case INT:
+		{
 			longlong ll = atoll(object.c_str());
 					if(ll >= INT_MIN && ll <= INT_MAX){
 						objType = INT;
@@ -186,6 +187,7 @@ void TripleBitBuilder::NTriplesParse(const char* subject, const char* predicate,
 					}
 					tempObject = (double) ll;
 					break;
+		}
 		case DOUBLE:
 			tempObject = atof(object);
 			if (tempObject == HUGE_VAL) {
