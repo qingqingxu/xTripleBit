@@ -23,7 +23,6 @@ class TempFile;
 class StatisticsBuffer;
 
 #include "TripleBit.h"
-#include "StatisticsBuffer.cpp"
 
 #include <fstream>
 #include <pthread.h>
@@ -33,6 +32,7 @@ class StatisticsBuffer;
 #include "TurtleParser.hpp"
 #include "ThreadPool.h"
 #include "TempFile.h"
+#include "StatisticsBuffer.h"
 
 using namespace std;
 
