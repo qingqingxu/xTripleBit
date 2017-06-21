@@ -108,20 +108,20 @@ bool TripleBitBuilder::isStatementReification(const char* object) {
 	return false;
 }
 
-string strim(string &s) {
+/*string strim(string &s) {
 	if (s.empty()) {
 		return s;
 	}
 	s.erase(0, s.find_first_not_of(" "));
 	s.erase(s.find_last_not_of(" ") + 1);
 	return s;
-}
+}*/
 
 bool lexDate(string &str, double& date) {
 	if (str.empty()) {
 		return false;
 	}
-	strim(str);
+	TurtleParser::strim(str);
 	if (str.empty() || str.length() != 19) {
 		return false;
 	}

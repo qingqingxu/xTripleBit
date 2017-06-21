@@ -141,6 +141,15 @@ class TurtleParser
 
    /// Read the next triple
    bool parse(std::string& subject,std::string& predicate,std::string& object, char& objType);
+
+   inline static string strim(string &s) {
+   	if (s.empty()) {
+   		return s;
+   	}
+   	s.erase(0, s.find_first_not_of(" "));
+   	s.erase(s.find_last_not_of(" ") + 1);
+   	return s;
+   }
 };
 //---------------------------------------------------------------------------
 #endif
