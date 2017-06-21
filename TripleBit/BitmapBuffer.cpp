@@ -771,9 +771,6 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		}else{
 			metaData = (MetaData*)(meta->endPtr - (MemoryBuffer::pagesize - (meta->length - ((meta->endPtr - meta->startPtr) + sizeof(ChunkManagerMeta)))));
 		}
-#ifdef MYDEBUG
-	cout << "-----------metaData->usedSpace: " << (int*)meta->startPtr << "\t" << (int*)(meta->endPtr - (MemoryBuffer::pagesize - (meta->length - ((meta->endPtr - meta->startPtr) + sizeof(ChunkManagerMeta))))) << endl;
-#endif
 		if(meta->soType == ORDERBYS){
 			if(x > metaData->max){
 #ifdef MYDEBUG
@@ -824,6 +821,9 @@ void ChunkManager::setMetaDataMin(MetaData *metaData, ID x, double y) {
 	if (meta->soType == ORDERBYS) {
 		metaData->min = x;
 		metaData->max = x;
+#ifdef MYDEBUG
+		cout << __FUNCTION__ << "\tx: " << metaData->min << "\t" << metaData->max << endl;
+#endif
 	} else if (meta->soType == ORDERBYO) {
 		metaData->min = y;
 		metaData->max = y;
