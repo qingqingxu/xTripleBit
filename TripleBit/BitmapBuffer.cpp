@@ -658,13 +658,43 @@ ChunkManager::~ChunkManager() {
 
 void ChunkManager::writeXY(const uchar* reader, ID x, double y, char objType) {
 	if(meta->soType == ORDERBYS){
+#ifdef MYDEBUG
+	ofstream out;
+	out.open("writexy_ORDERBYS", ios::app);
+	out << meta->pid << "\t" << meta->soType << "\tx: "  << reader << "\tobjType: ";
+#endif
 		Chunk::writeID(reader, x);
+#ifdef MYDEBUG
+		out << reader << "\ty: ";
+#endif
 		Chunk::write(reader, objType, CHAR);
+#ifdef MYDEBUG
+		out << reader << "\tend: ";
+#endif
 		Chunk::write(reader, y, objType);
+#ifdef MYDEBUG
+		out << reader << endl;
+		out.close();
+#endif
 	}else if(meta->soType == ORDERBYO){
+#ifdef MYDEBUG
+	ofstream out;
+	out.open("writexy_ORDERBYO", ios::app);
+	out << meta->pid << "\t" << meta->soType << "\tobjType: "  << reader << "\ty: ";
+#endif
 		Chunk::write(reader, objType, CHAR);
+#ifdef MYDEBUG
+		out << reader << "\tx: ";
+#endif
 		Chunk::write(reader, y, objType);
+#ifdef MYDEBUG
+		out << reader << "\tend: ";
+#endif
 		Chunk::writeID(reader, x);
+#ifdef MYDEBUG
+		out << reader << endl;
+		out.close();
+#endif
 	}
 }
 
