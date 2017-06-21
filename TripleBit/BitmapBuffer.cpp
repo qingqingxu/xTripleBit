@@ -713,9 +713,11 @@ uchar* ChunkManager::deleteTriple(uchar* reader, char objType){
 }
 
 void ChunkManager::insertXY(ID x, double y, char objType) {
+/*
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << "\t" << x << "\t" << y << "\t" << (objType == STRING) << endl;
 #endif
+*/
 	uint len = sizeof(ID) + Chunk::getLen(objType);
 	if (isChunkOverFlow(len) == true) {
 		isFirstPage = false;
