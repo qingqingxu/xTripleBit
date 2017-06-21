@@ -82,6 +82,7 @@ private:
 	LineHashIndex* chunkIndex; //以S（O）排序存储的每个predicate存储块的索引信息
 	uchar* lastChunkStartPtr; //以S（O）排序存储的每个predicate存储块最后一个Chunk的起始位置
 	vector<size_t> usedPages; //ChunkManager所占用的页号集合
+	bool isFirstPage;
 public:
 	friend class BuildSortTask;
 	friend class BuildMergeTask;
