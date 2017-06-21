@@ -676,6 +676,7 @@ uchar* ChunkManager::deleteTriple(uchar* reader, char objType){
 		reader += sizeof(ID);
 		return reader;
 	}
+	return reader;//无操作
 }
 
 void ChunkManager::insertXY(ID x, double y, char objType) {
@@ -1048,7 +1049,7 @@ const uchar* Chunk::skipForward(const uchar* reader, const uchar* endPtr,
 			return reader;
 		}
 	}else if(soType == ORDERBYO){
-		uint moveByteNum;
+		uint moveByteNum = 0;
 		int status;
 		while(reader + sizeof(char) < endPtr && (*(char*)reader != NONE)){
 			status = getObjTypeStatus(reader, moveByteNum);

@@ -76,9 +76,7 @@ public:
 		c = cmpValue(l2, r2);
 		if(c)
 			return c;
-		c = cmpValue(l3, r3);
-		if(c)
-			return c;
+		return cmpValue(l3, r3);
 	}
 
 	Status resolveTriples(TempFile& rawFacts, TempFile& facts);

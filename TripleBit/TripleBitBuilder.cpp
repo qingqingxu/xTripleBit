@@ -13,7 +13,6 @@
 #include "TripleBit.h"
 #include "URITable.h"
 #include "Sorter.h"
-#include "StatisticsBuffer.h"
 
 #include <string.h>
 #include <pthread.h>
