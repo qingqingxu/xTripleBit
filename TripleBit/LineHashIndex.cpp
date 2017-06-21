@@ -447,20 +447,18 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type,
 
 		temp = index->startPtr + sizeof(MetaData);
 
-		const uchar* tempReader = Chunk::read(Chunk::readID(temp, subjectID), objType,
-				CHAR);
-		Chunk::read(tempReader
-				, object, objType);
+		Chunk::read(
+				Chunk::read(Chunk::readID(temp, subjectID), objType,
+						CHAR), object, objType);
 		index->chunkMeta.push_back( { subjectID, object, sizeof(MetaData) });
 
 		reader = index->startPtr - sizeof(ChunkManagerMeta)
 				+ MemoryBuffer::pagesize;
 		while (reader < index->endPtr) {
 			temp = reader + sizeof(MetaData);
-			tempReader = Chunk::read(Chunk::readID(temp, subjectID), objType,
-							CHAR);
-					Chunk::read(tempReader
-							, object, objType);
+			Chunk::read(
+					Chunk::read(Chunk::readID(temp, subjectID), objType,
+							CHAR), object, objType);
 			index->chunkMeta.push_back(
 					{ subjectID, object, reader - index->startPtr
 							+ sizeof(MetaData) });
@@ -470,10 +468,9 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type,
 		reader = Chunk::skipBackward(reader, index->endPtr,
 				ORDERBYS);
 		if (reader != index->endPtr) {
-			tempReader = Chunk::read(Chunk::readID(temp, subjectID), objType,
-							CHAR);
-					Chunk::read(tempReader
-							, object, objType);
+			Chunk::read(
+					Chunk::read(Chunk::readID(temp, subjectID), objType,
+							CHAR), object, objType);
 			index->chunkMeta.push_back( { subjectID, object });
 		}
 	} else if (index_type == OBJECT_INDEX) {
@@ -483,9 +480,9 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type,
 		}
 
 		temp = index->startPtr + sizeof(MetaData);
-		const uchar* tempReader = Chunk::read(temp, objType, CHAR);
+
 		Chunk::readID(
-				Chunk::read(tempReader, object,
+				Chunk::read(Chunk::read(temp, objType, CHAR), object,
 						objType), subjectID);
 		index->chunkMeta.push_back( { object, subjectID, sizeof(MetaData) });
 
@@ -493,10 +490,9 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type,
 				+ MemoryBuffer::pagesize;
 		while (reader < index->endPtr) {
 			temp = reader + sizeof(MetaData);
-			tempReader = Chunk::read(temp, objType, CHAR);
-					Chunk::readID(
-							Chunk::read(tempReader, object,
-									objType), subjectID);
+			Chunk::readID(
+					Chunk::read(Chunk::read(temp, objType, CHAR),
+							object, objType), subjectID);
 			index->chunkMeta.push_back(
 					{ object, subjectID, reader - index->startPtr
 							+ sizeof(MetaData) });
@@ -506,10 +502,9 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type,
 		reader = Chunk::skipBackward(reader, index->endPtr,
 				ORDERBYS);
 		if (reader != index->endPtr) {
-			tempReader = Chunk::read(temp, objType, CHAR);
-					Chunk::readID(
-							Chunk::read(tempReader, object,
-									objType), subjectID);
+			Chunk::readID(
+					Chunk::read(Chunk::read(temp, objType, CHAR),
+							object, objType), subjectID);
 			index->chunkMeta.push_back( { object, subjectID });
 		}
 	}
