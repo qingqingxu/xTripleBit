@@ -1069,7 +1069,7 @@ const uchar* Chunk::skipForward(const uchar* reader, const uchar* endPtr,
 	return endPtr;
 }
 
-const uchar* skipBackward(const uchar* reader, const uchar* endPtr, OrderByType soType){
+const uchar* Chunk::skipBackward(const uchar* reader, const uchar* endPtr, OrderByType soType){
 	const uchar* temp = reader + sizeof(MetaData);
 	reader = temp;
 	uint len = 0;
