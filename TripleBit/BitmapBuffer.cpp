@@ -718,6 +718,9 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 #endif
 	uint len = sizeof(ID) + Chunk::getLen(objType);
 	if (isChunkOverFlow(len) == true) {
+#ifdef MYDEBUG
+	cout << "-----------isChunkOverFlow" << endl;
+#endif
 		if (meta->length == MemoryBuffer::pagesize) {
 			MetaData *metaData = (MetaData*) (meta->endPtr - meta->usedSpace);
 			metaData->usedSpace = meta->usedSpace;
@@ -743,6 +746,9 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 				- sizeof(ChunkManagerMeta) + sizeof(MetaData) + len; // indicate one chunk spare will not save
 		tripleCountAdd();
 	} else if (meta->usedSpace == 0) {
+#ifdef MYDEBUG
+	cout << "-----------meta->usedSpace == 0" << endl;
+#endif
 		MetaData *metaData = (MetaData*) (meta->startPtr);
 		memset((char*) metaData, 0, sizeof(MetaData));
 		setMetaDataMin(metaData, x, y);
@@ -754,9 +760,16 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		meta->usedSpace = sizeof(MetaData) + len;
 		tripleCountAdd();
 	} else {
+#ifdef MYDEBUG
+	cout << "-----------meta->usedSpace != 0 and not isChunkOverFlow" << endl;
+#endif
 		MetaData *metaData = (MetaData*)(meta->endPtr - (MemoryBuffer::pagesize - (meta->length - ((meta->endPtr - meta->startPtr) + sizeof(ChunkManagerMeta)))));
 		if(meta->soType == ORDERBYS){
 			if(x > metaData->max){
+#ifdef MYDEBUG
+	cout << "-----------metaData->min: " << metaData->min << endl;
+	cout << "-----------metaData->max: " << metaData->max << endl;
+#endif
 				metaData->max = x;
 			}
 		}else if(meta->soType == ORDERBYO){
