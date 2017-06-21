@@ -673,14 +673,14 @@ void ChunkManager::writeXY(const uchar* reader, ID x, double y, char objType) {
 #endif
 		Chunk::write(reader, y, objType);
 #ifdef MYDEBUG
-		out << (int*)reader << endl;
+		out << (double*)reader << endl;
 		out.close();
 #endif
 	}else if(meta->soType == ORDERBYO){
 #ifdef MYDEBUG
 	ofstream out;
 	out.open("writexy_ORDERBYO", ios::app);
-	out << meta->pid << "\t" << meta->soType << "\tobjType: "  << (int*)reader << "\ty: ";
+	out << meta->pid << "\t" << meta->soType << "\tobjType: "  << (double*)reader << "\ty: ";
 #endif
 		Chunk::write(reader, objType, CHAR);
 #ifdef MYDEBUG
