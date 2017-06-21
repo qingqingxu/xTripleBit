@@ -771,7 +771,11 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		if(isFirstPage){
 			metaData = (MetaData*)(meta->endPtr - (MemoryBuffer::pagesize - (meta->length - ((meta->endPtr - meta->startPtr) + sizeof(ChunkManagerMeta))))+ sizeof(ChunkManagerMeta));
 		}else{
-			metaData = (MetaData*)(meta->endPtr - (MemoryBuffer::pagesize - (meta->length - ((meta->endPtr - meta->startPtr) + sizeof(ChunkManagerMeta)))));
+			size_t usedPage =
+								MemoryBuffer::pagesize
+										- (meta->length - meta->usedSpace
+												- sizeof(ChunkManagerMeta));
+						metaData = (MetaData*) (meta->endPtr - usedPage);
 		}
 		if(meta->soType == ORDERBYS){
 			if(x > metaData->max){
