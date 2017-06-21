@@ -85,7 +85,7 @@ public:
 	Status startBuildN3(string fileName);
 	bool N3Parse(istream& in, const char* name, TempFile& rawFacts);
 	Status importFromMySQL(string db, string server, string username, string password);
-	void NTriplesParse(const char* subject, const char* predicate, varType& object, char objType, TempFile&);
+	void NTriplesParse(const char* subject, const char* predicate, string& object, char& objType, TempFile&);
 	Status buildIndex();
 	Status endBuild();
 	

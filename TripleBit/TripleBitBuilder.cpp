@@ -42,11 +42,9 @@ TripleBitBuilder::TripleBitBuilder(string _dir) :
 	bitmap = new BitmapBuffer(dir);
 
 	spStatisBuffer = new StatisticsBuffer(
-			string(dir + "/subjectpredicate_statis"),
-			SUBJECTPREDICATE_STATIS); //subject-predicate statistics buffer;
+			string(dir + "/subjectpredicate_statis"), SUBJECTPREDICATE_STATIS); //subject-predicate statistics buffer;
 	opStatisBuffer = new StatisticsBuffer(
-			string(dir + "/objectpredicate_statis"),
-			OBJECTPREDICATE_STATIS); //object-predicate statistics buffer;
+			string(dir + "/objectpredicate_statis"), OBJECTPREDICATE_STATIS); //object-predicate statistics buffer;
 
 	staReifTable = new StatementReificationTable();
 }
@@ -110,8 +108,45 @@ bool TripleBitBuilder::isStatementReification(const char* object) {
 	return false;
 }
 
+bool lexDate(string &str, double& date) {
+	if (str.empty()) {
+		return false;
+	}
+	strim(str);
+	if(str.empty()|| str.length() != 19){
+		return false;
+	}
+	if (str[0] >= '0' && str[0] <= '9' && str[1] >= '0' && str[1] <= '9'
+			&& str[2] >= '0' && str[2] <= '9' && str[3] >= '0' && str[3] <= '9'
+			&& str[4] == '-' && str[5] >= '0' && str[5] <= '1' && str[6] >= '0'
+			&& str[6] <= '9' && str[7] == '-' && str[8] >= '0' && str[8] <= '3'
+			&& str[9] >= '0' && str[9] <= '9' && str[10] == ' '
+			&& str[11] >= '0' && str[11] <= '2' && str[12] >= '0'
+			&& str[12] <= '9' && str[13] == ':' && str[14] >= '0'
+			&& str[14] <= '5' && str[15] >= '0' && str[15] <= '9'
+			&& str[16] == ':' && str[17] >= '0' && str[17] <= '5'
+			&& str[18] >= '0' && str[18] <= '9') {
+		date = (str[0] - '0');
+		date = date * 10 + (str[1] - '0');
+		date = date * 10 + (str[2] - '0');
+		date = date * 10 + (str[3] - '0');
+		date = date * 10 + (str[5] - '0');
+		date = date * 10 + (str[6] - '0');
+		date = date * 10 + (str[8] - '0');
+		date = date * 10 + (str[9] - '0');
+		date = date * 10 + (str[11] - '0');
+		date = date * 10 + (str[12] - '0');
+		date = date * 10 + (str[14] - '0');
+		date = date * 10 + (str[15] - '0');
+		date = date * 10 + (str[17] - '0');
+		date = date * 10 + (str[18] - '0');
+		return true;
+	}
+	return false;
+}
+
 void TripleBitBuilder::NTriplesParse(const char* subject, const char* predicate,
-		varType& object, char objType, TempFile& facts) {
+		string& object, char& objType, TempFile& facts) {
 	ID subjectID, predicateID, objectID;
 	double tempObject;
 
@@ -128,39 +163,38 @@ void TripleBitBuilder::NTriplesParse(const char* subject, const char* predicate,
 
 		switch (objType) {
 		case BOOL:
-			tempObject = object.var_bool;
-			break;
 		case CHAR:
-			tempObject = object.var_char;
+			tempObject = (double) object[0];
 			break;
 		case INT:
-			tempObject = object.var_int;
-			break;
 		case FLOAT:
-			tempObject = object.var_float;
-			break;
 		case UNSIGNED_INT:
-			tempObject = object.var_uint;
-			break;
-		case DATE:
-		case DOUBLE:
-			tempObject = object.var_double;
-			break;
 		case LONGLONG:
-			tempObject = object.var_longlong;
+		case DOUBLE:
+			tempObject = atof(object);
+			if (tempObject == HUGE_VAL) {
+				MessageEngine::showMessage("data convert to double error",
+						MessageEngine::ERROR);
+				cout << "object: " << object << endl;
+				return;
+			}
 			break;
+
 		case STRING:
-			if (uriTable->getIdByURI(object.var_string, objectID)
+			if(lexDate(object, tempObject)){
+				objType = DATE;
+				return;
+			}
+
+			if (uriTable->getIdByURI(object.c_str(), objectID)
 					== URI_NOT_FOUND) {
-				uriTable->insertTable(object.var_string, objectID);
+				uriTable->insertTable(object.c_str(), objectID);
 				tempObject = objectID;
-
 				break;
-				default:
-				break;
-
 			}
 		}
+		default:
+		break;
 		facts.writeTriple(subjectID, predicateID, tempObject, objType);
 
 	}
@@ -173,8 +207,7 @@ bool TripleBitBuilder::N3Parse(istream& in, const char* name,
 
 	TurtleParser parser(in);
 	try {
-		string subject, predicate;
-		varType object;
+		string subject, predicate, object;
 		char objType = NONE;
 		while (true) {
 			try {
@@ -187,8 +220,7 @@ bool TripleBitBuilder::N3Parse(istream& in, const char* name,
 			}
 			//Construct IDs
 			//and write the triples
-			if (subject.length() && predicate.length()
-					&& objType != NONE)
+			if (subject.length() && predicate.length() && objType != NONE)
 				NTriplesParse((char*) subject.c_str(),
 						(char*) predicate.c_str(), object, objType, rawFacts);
 
@@ -285,8 +317,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 		lastPredicateID = predicateID;
 		lastObject = object;
 		reader = skipIdIdId(reader);
-		bitmap->insertTriple(predicateID, subjectID, object,
-				ORDERBYS, objType);
+		bitmap->insertTriple(predicateID, subjectID, object, ORDERBYS, objType);
 		count1 = 1;
 
 		while (reader < limit) {
@@ -314,8 +345,8 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 			}
 
 			reader = reader + 12;
-			bitmap->insertTriple(predicateID, subjectID, object,
-					ORDERBYS, objType);
+			bitmap->insertTriple(predicateID, subjectID, object, ORDERBYS,
+					objType);
 		}
 		mappedIn.close();
 	}
@@ -341,8 +372,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 		lastPredicateID = predicateID;
 		lastObject = object;
 		reader = skipIdIdId(reader);
-		bitmap->insertTriple(predicateID, object, subjectID,
-				ORDERBYO, objType);
+		bitmap->insertTriple(predicateID, object, subjectID, ORDERBYO, objType);
 		count1 = 1;
 
 		while (reader < limit) {
@@ -370,8 +400,8 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 			}
 			reader = skipIdIdId(reader);
 			// 1 indicate the triple is sorted by objects' id;
-			bitmap->insertTriple(predicateID, object, subjectID,
-					ORDERBYO, objType);
+			bitmap->insertTriple(predicateID, object, subjectID, ORDERBYO,
+					objType);
 		}
 		mappedIn.close();
 	}

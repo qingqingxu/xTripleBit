@@ -27,7 +27,7 @@ class TurtleParser
    class Lexer {
       public:
       /// Possible tokens
-      enum Token { Eof, Dot, Colon, Comma, Semicolon, LBracket, RBracket, LParen, RParen, At, Type, Integer, Decimal, Double, Name, A, True, False, String, URI };
+      enum Token { Eof, Dot, Colon, Comma, Semicolon, LBracket, RBracket, LParen, RParen, At, Type, Integer, Decimal, Double, Char, Name, A, True, False, String, URI, None };
 
       private:
       /// The input
@@ -65,8 +65,11 @@ class TurtleParser
       Token lexString(std::string& token,char c);
       /// Lex a URI
       Token lexURI(std::string& token,char c);
+      /// Lex a char
+      Token lexChar(std::string& token,char c);
       /// Lex a number
       Token lexNumber(std::string& token,char c);
+      Token getNumberType(std::string &s);
 
       public:
       /// Constructor
@@ -109,6 +112,7 @@ class TurtleParser
 
    /// Is a (generalized) name token?
    static inline bool isName(Lexer::Token token);
+   void getType(Lexer::Token token,std::string& type);
 
    /// Construct a new blank node
    void newBlankNode(std::string& node);
@@ -121,13 +125,13 @@ class TurtleParser
    /// Parse a subject
    void parseSubject(Lexer::Token token,std::string& subject);
    /// Parse an object
-   void parseObject(varType& object, char &objType);
+   void parseObject(std::string& object, char& objType);
    /// Parse a predicate object list
-   void parsePredicateObjectList(const std::string& subject, std::string& predicate, varType& object, char& objType);
+   void parsePredicateObjectList(const std::string& subject,std::string& predicate,std::string& object, char &objType);
    /// Parse a directive
    void parseDirective();
    /// Parse a new triple
-   void parseTriple(Lexer::Token token, std::string& subject, std::string& predicate, varType& object, char& objType);
+   void parseTriple(Lexer::Token token,std::string& subject,std::string& predicate,std::string& object, char &objType);
 
    public:
    /// Constructor
@@ -136,7 +140,7 @@ class TurtleParser
    ~TurtleParser();
 
    /// Read the next triple
-   bool parse(std::string& subject, std::string& predicate, varType& object, char& objType);
+   bool parse(std::string& subject,std::string& predicate,std::string& object, char& objType);
 };
 //---------------------------------------------------------------------------
 #endif

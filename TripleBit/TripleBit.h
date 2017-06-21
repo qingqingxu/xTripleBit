@@ -1,7 +1,7 @@
 #ifndef _TRIPLEBIT_H_
 #define _TRIPLEBIT_H_
 
-#include <string>
+#include <cstring>
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -18,12 +18,6 @@
 #include <float.h>
 
 using namespace std;
-
-//#include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
 
 
 #include "MessageEngine.h"
@@ -252,7 +246,6 @@ inline void Type_2_Length(unsigned char type, unsigned char& xLen, unsigned char
 }
 
 union varType {
-	char var_bool;
 	char var_char;
 	int var_int;
 	uint var_uint;
@@ -404,6 +397,51 @@ inline uint64_t getTicks(){
 	timeval t;
 	gettimeofday(&t, 0);
 	return static_cast<uint64_t>(t.tv_sec)*1000 + (t.tv_usec/1000);
+}
+
+inline string getDataType(char dataType){
+	switch(dataType){
+	case NONE:
+		return "NONE";
+	case BOOL:
+		return "BOOL";
+	case BOOL_DELETE:
+		return "BOOL_DELETE";
+	case CHAR:
+		return "CHAR";
+	case CHAR_DELETE:
+		return "CHAR_DELETE";
+	case INT:
+		return "INT";
+	case INT_DELETE:
+		return "INT_DELETE";
+	case UNSIGNED_INT:
+		return "UNSIGNED_INT";
+	case UNSIGNED_INT_DELETE:
+		return "UNSIGNED_INT_DELETE";
+	case FLOAT:
+		return "FLOAT";
+	case FLOAT_DELETE:
+		return "FLOAT_DELETE";
+	case DATE:
+		return "DATE";
+	case DATE_DELETE:
+		return "DATE_DELETE";
+	case LONGLONG:
+		return "LONGLONG";
+	case LONGLONG_DELETE:
+		return "LONGLONG_DELETE";
+	case DOUBLE:
+		return "DOUBLE";
+	case DOUBLE_DELETE:
+		return "DOUBLE_DELETE";
+	case STRING:
+		return "STRING";
+	case STRING_DELETE:
+		return "STRING_DELETE";
+	default:
+		return "NONE";
+	}
 }
 
 #endif // _TRIPLEBIT_H_
