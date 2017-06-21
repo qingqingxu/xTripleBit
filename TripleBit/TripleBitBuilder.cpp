@@ -335,6 +335,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 		assert(mappedIn.open(sortedBySubject.getFile().c_str()));
 		const uchar* reader = mappedIn.getBegin(), *limit = mappedIn.getEnd();
 
+		int count = 1;
 		loadTriple(reader, subjectID, predicateID, object, objType);
 		lastSubjectID = subjectID;
 		lastPredicateID = predicateID;
@@ -345,6 +346,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 
 		while (reader < limit) {
 			loadTriple(reader, subjectID, predicateID, object, objType);
+			count++;
 			if (lastSubjectID == subjectID && lastPredicateID == predicateID
 					&& lastObject == object) {
 				reader = skipIdIdId(reader);
@@ -373,6 +375,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 					objType);
 		}
 		mappedIn.close();
+		cout << "orderbysS: " << count << endl;
 	}
 
 	bitmap->flush();
@@ -390,6 +393,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 		assert(mappedIn.open(sortedByObject.getFile().c_str()));
 		const uchar* reader = mappedIn.getBegin(), *limit = mappedIn.getEnd();
 
+		int count = 1;
 		loadTriple(reader, subjectID, predicateID, object, objType);
 		lastSubjectID = subjectID;
 		lastPredicateID = predicateID;
@@ -401,6 +405,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 
 		while (reader < limit) {
 			loadTriple(reader, subjectID, predicateID, object, objType);
+			count++;
 			if (lastSubjectID == subjectID && lastPredicateID == predicateID
 					&& lastObject == object) {
 				reader = skipIdIdId(reader);
@@ -429,6 +434,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 					objType);
 		}
 		mappedIn.close();
+		cout << "orderbyO: " << count << endl;
 	}
 
 	bitmap->flush();
