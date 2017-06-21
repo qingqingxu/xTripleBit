@@ -320,7 +320,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 
 	ID subjectID, lastSubjectID = 0, predicateID, lastPredicateID = 0;
 	double object, lastObject;
-	char objType;
+	char objType, lastObjType;
 
 	size_t count1 = 0;
 	TempFile sortedBySubject("./SortByS"), sortedByObject("./SortByO");
@@ -357,6 +357,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 						count1);
 				lastPredicateID = predicateID;
 				lastSubjectID = subjectID;
+				lastObject = object;
 				count1 = 1;
 			} else if (predicateID != lastPredicateID) {
 				spStatisBuffer->addStatis(lastSubjectID, lastPredicateID,
@@ -395,6 +396,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 		lastSubjectID = subjectID;
 		lastPredicateID = predicateID;
 		lastObject = object;
+		lastObjType = objType;
 		reader = skipIdIdId(reader);
 		bitmap->insertTriple(predicateID, object, subjectID, ORDERBYO, objType);
 		count1 = 1;
@@ -409,13 +411,14 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 
 			if (object != lastObject) {
 				opStatisBuffer->addStatis(lastObject, lastPredicateID, count1,
-						objType);
+						lastObjType);
 				lastPredicateID = predicateID;
 				lastObject = object;
+				lastObjType = objType;
 				count1 = 1;
 			} else if (predicateID != lastPredicateID) {
 				opStatisBuffer->addStatis(lastObject, lastPredicateID, count1,
-						objType);
+						lastObjType);
 				lastPredicateID = predicateID;
 				count1 = 1;
 			} else {
