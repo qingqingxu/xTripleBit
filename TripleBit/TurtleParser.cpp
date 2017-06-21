@@ -860,67 +860,67 @@ void TurtleParser::parsePredicateObjectList(const string& subject,
 
 void TurtleParser::getType(Lexer::Token token, std::string& type) {
 	switch (token) {
-	case TurtleParser::Lexer::Token::Eof:
+	case Lexer::Token::Eof:
 		type = "Eof";
 		break;
-	case TurtleParser::Lexer::Token::Dot:
+	case Lexer::Token::Dot:
 		type = "Dot";
 		break;
-	case TurtleParser::Lexer::Token::Colon:
+	case Lexer::Token::Colon:
 		type = "Colon";
 		break;
-	case TurtleParser::Lexer::Token::Comma:
+	case Lexer::Token::Comma:
 		type = "Comma";
 		break;
-	case TurtleParser::Lexer::Token::Semicolon:
+	case Lexer::Token::Semicolon:
 		type = "Semicolon";
 		break;
-	case TurtleParser::Lexer::Token::LBracket:
+	case Lexer::Token::LBracket:
 		type = "LBracket";
 		break;
-	case TurtleParser::Lexer::Token::RBracket:
+	case Lexer::Token::RBracket:
 		type = "RBracket";
 		break;
-	case TurtleParser::Lexer::Token::LParen:
+	case Lexer::Token::LParen:
 		type = "LParen";
 		break;
-	case TurtleParser::Lexer::Token::RParen:
+	case Lexer::Token::RParen:
 		type = "RParen";
 		break;
-	case TurtleParser::Lexer::Token::At:
+	case Lexer::Token::At:
 		type = "At";
 		break;
-	case TurtleParser::Lexer::Token::Type:
+	case Lexer::Token::Type:
 		type = "Type";
 		break;
-	case TurtleParser::Lexer::Token::Integer:
+	case Lexer::Token::Integer:
 		type = "Integer";
 		break;
-	case TurtleParser::Lexer::Token::Decimal:
+	case Lexer::Token::Decimal:
 		type = "Decimal";
 		break;
-	case TurtleParser::Lexer::Token::Double:
+	case Lexer::Token::Double:
 		type = "Double";
 		break;
-	case TurtleParser::Lexer::Token::Char:
+	case Lexer::Token::Char:
 		type = "Char";
 		break;
-	case TurtleParser::Lexer::Token::Name:
+	case Lexer::Token::Name:
 		type = "Name";
 		break;
-	case TurtleParser::Lexer::Token::A:
+	case Lexer::Token::A:
 		type = "A";
 		break;
-	case TurtleParser::Lexer::Token::True:
+	case Lexer::Token::True:
 		type = "True";
 		break;
-	case TurtleParser::Lexer::Token::False:
+	case Lexer::Token::False:
 		type = "False";
 		break;
-	case TurtleParser::Lexer::Token::String:
+	case Lexer::Token::String:
 		type = "String";
 		break;
-	case TurtleParser::Lexer::Token::URI:
+	case Lexer::Token::URI:
 		type = "URI";
 		break;
 	default:
