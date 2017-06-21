@@ -12,17 +12,6 @@
 
 //#define MYDEBUG
 
-template<typename T>
-uchar* writeData(uchar* writer, T data) {
-	memcpy(writer, &data, sizeof(T));
-	return writer + sizeof(T);
-}
-template<typename T>
-const uchar* readData(const uchar* reader, T& data) {
-	memcpy(&data, reader, sizeof(T));
-	return reader + sizeof(T);
-}
-
 StatisticsBuffer::StatisticsBuffer(const string path, StatisticsType statType) :
 		statType(statType) {
 	buffer = new MMapBuffer(path.c_str(),

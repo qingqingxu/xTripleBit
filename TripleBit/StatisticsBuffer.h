@@ -18,6 +18,17 @@ class MMapBuffer;
 
 //SP、OP统信息类，存储结构：s-p-spcount、o-p-opcount
 
+template<typename T>
+uchar* writeData(uchar* writer, T data) {
+	memcpy(writer, &data, sizeof(T));
+	return writer + sizeof(T);
+}
+template<typename T>
+const uchar* readData(const uchar* reader, T& data) {
+	memcpy(&data, reader, sizeof(T));
+	return reader + sizeof(T);
+}
+
 class StatisticsBuffer{
 public:
 	struct Triple{
