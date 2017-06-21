@@ -764,6 +764,9 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 	cout << "-----------meta->usedSpace != 0 and not isChunkOverFlow" << endl;
 #endif
 		MetaData *metaData = (MetaData*)(meta->endPtr - (MemoryBuffer::pagesize - (meta->length - ((meta->endPtr - meta->startPtr) + sizeof(ChunkManagerMeta)))));
+#ifdef MYDEBUG
+	cout << "-----------metaData->usedSpace: " << (int*)meta->startPtr << "\t" << (int*)(meta->endPtr - (MemoryBuffer::pagesize - (meta->length - ((meta->endPtr - meta->startPtr) + sizeof(ChunkManagerMeta))))) << endl;
+#endif
 		if(meta->soType == ORDERBYS){
 			if(x > metaData->max){
 #ifdef MYDEBUG
