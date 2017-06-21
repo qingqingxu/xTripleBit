@@ -717,7 +717,7 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		meta->usedSpace = sizeof(MetaData) + len;
 		tripleCountAdd();
 	} else {
-		MetaData *metaData = (MetaData*)(meta->endPtr - (MemoryBuffer::pagesize - (meta->length - meta->endPtr)));
+		MetaData *metaData = (MetaData*)(meta->endPtr - (MemoryBuffer::pagesize - (meta->length - ((meta->endPtr - meta->startPtr) + sizeof(ChunkManagerMeta)))));
 		if(meta->soType == ORDERBYS){
 			if(x > metaData->max){
 				metaData->max = x;
