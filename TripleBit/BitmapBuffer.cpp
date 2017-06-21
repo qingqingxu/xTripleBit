@@ -737,6 +737,9 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		}
 		size_t pageNo;
 		resize(pageNo);
+#ifdef MYDEBUG
+	cout << "-----------pageNo: " << pageNo << endl;
+#endif
 		MetaData *metaData = (MetaData*) (meta->endPtr);
 		setMetaDataMin(metaData, x, y);
 		metaData->pageNo = pageNo;
@@ -750,9 +753,11 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		tripleCountAdd();
 	} else if (meta->usedSpace == 0) {
 		isFirstPage = true;
+/*
 #ifdef MYDEBUG
 	cout << "-----------meta->usedSpace == 0" << endl;
 #endif
+*/
 		MetaData *metaData = (MetaData*) (meta->startPtr);
 		memset((char*) metaData, 0, sizeof(MetaData));
 		setMetaDataMin(metaData, x, y);
@@ -772,6 +777,7 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		MetaData *metaData;
 		if(isFirstPage){
 			metaData = (MetaData*)(meta->endPtr - (MemoryBuffer::pagesize - (meta->length - ((meta->endPtr - meta->startPtr) + sizeof(ChunkManagerMeta))))+ sizeof(ChunkManagerMeta));
+			assert(meta->startPtr == (meta->endPtr - (MemoryBuffer::pagesize - (meta->length - ((meta->endPtr - meta->startPtr) + sizeof(ChunkManagerMeta))))+ sizeof(ChunkManagerMeta)));
 		}else{
 			metaData = (MetaData*)(meta->endPtr - (MemoryBuffer::pagesize - (meta->length - ((meta->endPtr - meta->startPtr) + sizeof(ChunkManagerMeta)))));
 		}
@@ -827,9 +833,11 @@ void ChunkManager::setMetaDataMin(MetaData *metaData, ID x, double y) {
 	if (meta->soType == ORDERBYS) {
 		metaData->min = x;
 		metaData->max = x;
+/*
 #ifdef MYDEBUG
 		cout << __FUNCTION__ << "\tx: " << metaData->min << "\t" << metaData->max << endl;
 #endif
+*/
 	} else if (meta->soType == ORDERBYO) {
 		metaData->min = y;
 		metaData->max = y;
