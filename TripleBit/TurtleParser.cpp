@@ -858,7 +858,7 @@ void TurtleParser::parsePredicateObjectList(const string& subject,
 	lexer.ungetIgnored(token);*/
 }
 
-void TurtleParser::getType(Lexer::Token token, std::string& type) {
+/*void TurtleParser::getType(Lexer::Token token, std::string& type) {
 	switch (token) {
 	case Lexer::Token::Eof:
 		type = "Eof";
@@ -928,7 +928,7 @@ void TurtleParser::getType(Lexer::Token token, std::string& type) {
 		break;
 
 	}
-}
+}*/
 //---------------------------------------------------------------------------
 void TurtleParser::parseTriple(Lexer::Token token, std::string& subject,
 		std::string& predicate, std::string& object, char &objType)

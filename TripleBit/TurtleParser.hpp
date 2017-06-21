@@ -112,7 +112,7 @@ class TurtleParser
 
    /// Is a (generalized) name token?
    static inline bool isName(Lexer::Token token);
-   void getType(Lexer::Token token,std::string& type);
+   //void getType(Lexer::Token token,std::string& type);
 
    /// Construct a new blank node
    void newBlankNode(std::string& node);
