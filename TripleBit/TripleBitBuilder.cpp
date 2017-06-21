@@ -307,12 +307,8 @@ void print(TempFile& infile, char* outfile) {
 	// Produce tempfile
 	ofstream out(outfile);
 	while (reader < limit) {
-		if(strcmp("STRING", getDataType(*(char*)(reader + 16)).c_str())){
-			out << *(ID*) reader << "\t" << *(ID*) (reader + 4) << "\t"
-							<< *(double*) (reader + 8) << getDataType(*(char*)(reader + 16)) << endl;
-		}
-		/*out << *(ID*) reader << "\t" << *(ID*) (reader + 4) << "\t"
-				<< *(double*) (reader + 8) << getDataType(*(char*)(reader + 16)) << endl;*/
+		out << *(ID*) reader << "\t" << *(ID*) (reader + 4) << "\t"
+				<< *(double*) (reader + 8) << *(char*)(reader + 16)/*getDataType(*(char*)(reader + 16))*/ << endl;
 		reader += 17;
 	}
 	mappedIn.close();
