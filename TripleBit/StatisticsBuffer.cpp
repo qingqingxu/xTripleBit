@@ -7,9 +7,8 @@
 
 #include "StatisticsBuffer.h"
 #include "BitmapBuffer.h"
-#include "MMapBuffer.h"
 #include "URITable.h"
-#include "MemoryBuffer.h"
+
 
 //#define MYDEBUG
 

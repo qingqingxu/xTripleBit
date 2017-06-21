@@ -8,9 +8,13 @@
 #ifndef STATISTICSBUFFER_H_
 #define STATISTICSBUFFER_H_
 
-class MMapBuffer;
+
 
 #include "TripleBit.h"
+#include "MemoryBuffer.h"
+#include "MMapBuffer.h"
+
+class MMapBuffer;
 
 //SP、OP统信息类，存储结构：s-p-spcount、o-p-opcount
 
