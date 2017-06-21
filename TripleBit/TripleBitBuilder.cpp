@@ -19,7 +19,7 @@
 #include <pthread.h>
 #include <fstream>
 
-//#define MYDEBUG
+#define MYDEBUG
 
 static int getCharPos(const char* data, char ch) {
 	const char * p = data;
@@ -308,8 +308,8 @@ void print(TempFile& infile, char* outfile) {
 	ofstream out(outfile);
 	while (reader < limit) {
 		out << *(ID*) reader << "\t" << *(ID*) (reader + 4) << "\t"
-				<< *(double*) (reader + 8) << *(char*) (reader + 12) << endl;
-		reader += 13;
+				<< *(double*) (reader + 8) << *(char*) (reader + 16) << endl;
+		reader += 17;
 	}
 	mappedIn.close();
 	out.close();
