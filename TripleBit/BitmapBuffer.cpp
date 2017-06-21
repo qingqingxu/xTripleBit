@@ -762,9 +762,11 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		meta->usedSpace = sizeof(MetaData) + len;
 		tripleCountAdd();
 	} else {
+/*
 #ifdef MYDEBUG
 	cout << "-----------meta->usedSpace != 0 and not isChunkOverFlow" << endl;
 #endif
+*/
 		MetaData *metaData;
 		if(isFirstPage){
 			metaData = (MetaData*)(meta->endPtr - (MemoryBuffer::pagesize - (meta->length - ((meta->endPtr - meta->startPtr) + sizeof(ChunkManagerMeta))))+ sizeof(ChunkManagerMeta));
@@ -773,10 +775,12 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		}
 		if(meta->soType == ORDERBYS){
 			if(x > metaData->max){
+/*
 #ifdef MYDEBUG
 	cout << "-----------metaData->min: " << metaData->min << endl;
 	cout << "-----------metaData->max: " << metaData->max << endl;
 #endif
+*/
 				metaData->max = x;
 			}
 		}else if(meta->soType == ORDERBYO){
