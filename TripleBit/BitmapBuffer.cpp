@@ -12,7 +12,7 @@
 #include "TempMMapBuffer.h"
 
 //#define WORD_ALIGN 1
-//#define MYDEBUG
+#define MYDEBUG
 
 BitmapBuffer::BitmapBuffer(const string _dir) :
 		dir(_dir) {
@@ -623,6 +623,9 @@ void getTempFilename(string& filename, unsigned pid, unsigned _type) {
 ChunkManager::ChunkManager(ID predicateID, OrderByType soType,
 		BitmapBuffer* _bitmapBuffer) :
 		bitmapBuffer(_bitmapBuffer) {
+#ifdef MYDEBUG
+	cout<<__FUNCTION__ << "\t" << predicateID << "\t" << soType <<endl;
+#endif
 	usedPages.resize(0);
 	size_t pageNo = 0;
 	meta = NULL;
@@ -680,6 +683,9 @@ uchar* ChunkManager::deleteTriple(uchar* reader, char objType){
 }
 
 void ChunkManager::insertXY(ID x, double y, char objType) {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << x << "\t" << y << "\t" << objType << endl;
+#endif
 	uint len = sizeof(ID) + Chunk::getLen(objType);
 	if (isChunkOverFlow(len) == true) {
 		if (meta->length == MemoryBuffer::pagesize) {

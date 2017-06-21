@@ -58,8 +58,7 @@ public:
 	static int compare321(const uchar* left, const uchar* right);
 
 	static inline void loadTriple(const uchar* data, ID& v1, ID& v2, double& v3, char& objType) {
-		const uchar* temp = TempFile::readID(TempFile::readID(data, v1), v2);
-		TempFile::read(temp, v3, objType);
+		TempFile::readTriple(data, v1, v2, v3, objType);
 	}
 
 	template<typename T>
