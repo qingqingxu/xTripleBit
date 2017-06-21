@@ -32,7 +32,6 @@ class StatisticsBuffer;
 #include "TurtleParser.hpp"
 #include "ThreadPool.h"
 #include "TempFile.h"
-#include "StatisticsBuffer.h"
 
 using namespace std;
 

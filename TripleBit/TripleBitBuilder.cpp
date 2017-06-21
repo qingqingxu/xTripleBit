@@ -10,6 +10,7 @@
 #include "BitmapBuffer.h"
 #include "TripleBitBuilder.h"
 #include "PredicateTable.h"
+#include "StatisticsBuffer.h"
 #include "TripleBit.h"
 #include "URITable.h"
 #include "Sorter.h"
