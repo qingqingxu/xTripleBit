@@ -14,11 +14,18 @@
 //#define MYDEBUG
 
 template<typename T>
-extern uchar* writeData(uchar* writer, T data);
+uchar* writeData(uchar* writer, T data) {
+	memcpy(writer, &data, sizeof(T));
+	return writer + sizeof(T);
+}
 template<typename T>
-extern const uchar* readData(const uchar* reader, T& data);
+const uchar* readData(const uchar* reader, T& data) {
+	memcpy(&data, reader, sizeof(T));
+	return reader + sizeof(T);
+}
 
-StatisticsBuffer::StatisticsBuffer(const string path, StatisticsType statType) :statType(statType) {
+StatisticsBuffer::StatisticsBuffer(const string path, StatisticsType statType) :
+		statType(statType) {
 	buffer = new MMapBuffer(path.c_str(),
 			STATISTICS_BUFFER_INIT_PAGE_COUNT * MemoryBuffer::pagesize);
 	writer = (uchar*) buffer->getBuffer();
@@ -40,59 +47,13 @@ StatisticsBuffer::~StatisticsBuffer() {
 	index = NULL;
 }
 
-template<typename T>
-Status StatisticsBuffer::addStatis(T soValue, ID predicateID, size_t count,
-		char objType) {
-	unsigned len = sizeof(T) + sizeof(ID) + sizeof(sizeof(size_t));
-
-	if (first || usedSpace + len > buffer->getSize()) {
-		usedSpace = writer - (uchar*) buffer->getBuffer();
-		buffer->resize(
-				STATISTICS_BUFFER_INCREMENT_PAGE_COUNT
-						* MemoryBuffer::pagesize);	//加大空间
-		writer = (uchar*) buffer->getBuffer() + usedSpace;
-
-		if ((indexPos + 1) >= indexSize) {
-#ifdef DEBUF
-			cout<<"indexPos: "<<indexPos<<" indexSize: "<<indexSize<<endl;
-#endif
-			index = (Triple*) realloc(index,
-					indexSize * sizeof(Triple)
-							+ MemoryBuffer::pagesize * sizeof(Triple));
-			if (index == NULL) {
-				cout << "realloc StatisticsBuffer error" << endl;
-				return ERR;
-			}
-			indexSize += MemoryBuffer::pagesize;
-		}
-
-		index[indexPos].soValue = soValue;
-		index[indexPos].predicateID = predicateID;
-		index[indexPos].count = usedSpace; //record offset，可以得出实体——谓词所在的块号
-
-		indexPos++;
-		first = false;
-	}
-
-	if (statType == SUBJECTPREDICATE_STATIS) {
-
-	} else if (statType == OBJECTPREDICATE_STATIS) {
-		writer = writeData(writer, objType); //OP统计信息O前需加objType
-	}
-	writer = writeData(writer, soValue);
-	writer = writeData(writer, predicateID);
-	writer = writeData(writer, count);
-
-	usedSpace = writer - (uchar*) buffer->getBuffer();
-	return OK;
-}
-
 /**
  * 获取SP或OP的统计信息
  * SP：直接解压SP范围内的SP进行比较
  * OP：除了OP比较外，还需比较O的数据类型
  */
-void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end, double soValue, ID predicateID, size_t& count, char objType) {
+void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
+		double soValue, ID predicateID, size_t& count, char objType) {
 	ID tempPredicateID;
 	size_t tempCount;
 	if (statType == SUBJECTPREDICATE_STATIS) {
@@ -103,7 +64,8 @@ void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end, double
 				begin = readData(begin, tempPredicateID);
 				if (tempPredicateID && begin + sizeof(size_t) <= end) {
 					begin = readData(begin, tempCount);
-					if(subjectID == soValue && tempPredicateID == predicateID){
+					if (subjectID == soValue
+							&& tempPredicateID == predicateID) {
 						count = tempCount;
 						return;
 					}
@@ -130,7 +92,9 @@ void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end, double
 						begin = readData(begin, tempPredicateID);
 						if (tempPredicateID && begin + sizeof(size_t) <= end) {
 							begin = readData(begin, tempCount);
-							if(tempObject == soValue && tempPredicateID == predicateID && objType == tempObjType){
+							if (tempObject == soValue
+									&& tempPredicateID == predicateID
+									&& objType == tempObjType) {
 								count = tempCount;
 								return;
 							}
@@ -150,51 +114,49 @@ void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end, double
 	}
 }
 
-void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end, double soValue, size_t& count, char objType){
+void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
+		double soValue, size_t& count, char objType) {
 	ID predicateID;
 	size_t tempCount = 0;
-		if (statType == SUBJECTPREDICATE_STATIS) {
-			ID subjectID;
-			while (begin + sizeof(ID) < end) {
-				begin = readData(begin, subjectID);
-				if (subjectID && begin + sizeof(ID) < end) {
-					begin = readData(begin, predicateID);
-					if (predicateID && begin + sizeof(size_t) <= end) {
-						begin = readData(begin, tempCount);
-						if(subjectID == soValue){
-							count += tempCount;
-						}else if(subjectID > soValue){
-							break;
-						}
-					} else {
+	if (statType == SUBJECTPREDICATE_STATIS) {
+		ID subjectID;
+		while (begin + sizeof(ID) < end) {
+			begin = readData(begin, subjectID);
+			if (subjectID && begin + sizeof(ID) < end) {
+				begin = readData(begin, predicateID);
+				if (predicateID && begin + sizeof(size_t) <= end) {
+					begin = readData(begin, tempCount);
+					if (subjectID == soValue) {
+						count += tempCount;
+					} else if (subjectID > soValue) {
 						break;
 					}
 				} else {
 					break;
 				}
+			} else {
+				break;
 			}
-		} else if (statType == OBJECTPREDICATE_STATIS) {
-			char tempObjType;
-			double object;
-			uint moveByteNum;
-			int status;
-			while (begin + sizeof(char) < end) {
-				status = Chunk::getObjTypeStatus(begin, moveByteNum);
-				if (status == DATA_EXSIT) {
-					begin -= moveByteNum;
-					begin = readData(begin, tempObjType);
-					if (begin + Chunk::getLen(objType) < end) {
-						begin = Chunk::read(begin, object, objType);
-						if (begin + sizeof(ID) < end) {
-							begin = readData(begin, predicateID);
-							if (predicateID && begin + sizeof(size_t) <= end) {
-								begin = readData(begin, tempCount);
-								if(soValue == object && objType == tempObjType){
-									count += tempCount;
-								}else if(soValue > object){
-									break;
-								}
-							} else {
+		}
+	} else if (statType == OBJECTPREDICATE_STATIS) {
+		char tempObjType;
+		double object;
+		uint moveByteNum;
+		int status;
+		while (begin + sizeof(char) < end) {
+			status = Chunk::getObjTypeStatus(begin, moveByteNum);
+			if (status == DATA_EXSIT) {
+				begin -= moveByteNum;
+				begin = readData(begin, tempObjType);
+				if (begin + Chunk::getLen(objType) < end) {
+					begin = Chunk::read(begin, object, objType);
+					if (begin + sizeof(ID) < end) {
+						begin = readData(begin, predicateID);
+						if (predicateID && begin + sizeof(size_t) <= end) {
+							begin = readData(begin, tempCount);
+							if (soValue == object && objType == tempObjType) {
+								count += tempCount;
+							} else if (soValue > object) {
 								break;
 							}
 						} else {
@@ -206,8 +168,11 @@ void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end, double
 				} else {
 					break;
 				}
+			} else {
+				break;
 			}
 		}
+	}
 }
 
 static inline bool greaterCouple(ID a1, double a2, ID b1, double b2) {
@@ -229,8 +194,8 @@ bool StatisticsBuffer::findLocation(ID predicateID, double soValue) {
 				pos[middle].soValue)) {
 			left = middle + 1;
 		} else if ((!middle)
-				|| greaterCouple(predicateID, soValue, pos[middle - 1].predicateID,
-						pos[middle - 1].soValue)) {
+				|| greaterCouple(predicateID, soValue,
+						pos[middle - 1].predicateID, pos[middle - 1].soValue)) {
 			break;
 		} else {
 			right = middle;
@@ -277,7 +242,9 @@ Status StatisticsBuffer::getStatis(double soValue, ID predicateID,
 		pos--;
 
 	uint start = pos->count;
-	while(pos <= posLimit && !greaterCouple(pos->predicateID, pos->soValue, predicateID, soValue)){
+	while (pos <= posLimit
+			&& !greaterCouple(pos->predicateID, pos->soValue, predicateID,
+					soValue)) {
 		pos++;
 	}
 	uint end = pos->count; // count is usedspace
@@ -289,35 +256,6 @@ Status StatisticsBuffer::getStatis(double soValue, ID predicateID,
 	decodeStatis(begin, limit, soValue, predicateID, count, objType);
 	findLocation(predicateID, soValue);
 	if (count) {
-		return OK;
-	}
-
-	return NOT_FOUND;
-}
-
-template<typename T>
-Status StatisticsBuffer::getStatisBySO(T soValue, size_t& count, char objType) {
-	count = 0;
-	pos = index, posLimit = index + indexPos;
-	findLocation(soValue);
-	if (pos->soValue >= soValue) {
-		pos--;
-	}
-
-	uint start = pos->count;
-	while (pos <= posLimit && pos->soValue <= soValue) {
-		pos++;
-	}
-
-	uint end = pos->count; // count is usedspace
-	if (pos == (index + indexPos))
-		end = usedSpace;
-
-	const uchar* begin = (uchar*) buffer->getBuffer() + start, *limit =
-			(uchar*) buffer->getBuffer() + end;
-	decodeStatis(begin, limit, soValue, count, objType);
-
-	if (count != 0) {
 		return OK;
 	}
 
@@ -346,7 +284,8 @@ Status StatisticsBuffer::save(MMapBuffer*& indexBuffer) {
 	return OK;
 }
 
-StatisticsBuffer* StatisticsBuffer::load(StatisticsType statType, const string path, uchar*& indexBuffer) {
+StatisticsBuffer* StatisticsBuffer::load(StatisticsType statType,
+		const string path, uchar*& indexBuffer) {
 	StatisticsBuffer* statBuffer = new StatisticsBuffer(path, statType);
 
 	indexBuffer = (uchar*) readData(indexBuffer, statBuffer->usedSpace);
