@@ -142,7 +142,7 @@ class TurtleParser
    /// Read the next triple
    bool parse(std::string& subject,std::string& predicate,std::string& object, char& objType);
 
-   inline static string strim(string &s) {
+   inline static std::string strim(std::string &s) {
    	if (s.empty()) {
    		return s;
    	}
