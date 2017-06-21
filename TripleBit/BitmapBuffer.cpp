@@ -807,105 +807,10 @@ void Chunk::writeID(const uchar*& writer, ID data, bool isUpdateAdress) {
 	}
 }
 
-template<typename T>
-void Chunk::write(const uchar*& writer, T data, char dataType,
-		bool isUpdateAdress) {
-	char c;
-	int i;
-	float f;
-	longlong ll;
-	double d;
-	uint ui;
-	switch (dataType) {
-	case BOOL:
-	case CHAR:
-		c = (char)data;
-		*(char*) writer = c;
-		if (isUpdateAdress) {
-			writer += sizeof(char);
-		}
-		break;
-	case INT:
-		i = (int)data;
-		*(int*) writer = i;
-		if (isUpdateAdress) {
-			writer += sizeof(int);
-		}
-		break;
-	case FLOAT:
-		f = (float)data;
-		*(float*) writer = f;
-		if (isUpdateAdress) {
-			writer += sizeof(float);
-		}
-		break;
-	case LONGLONG:
-		ll = (longlong)data;
-				*(longlong*) writer = ll;
-				if (isUpdateAdress) {
-					writer += sizeof(longlong);
-				}
-				break;
-	case DATE:
-	case DOUBLE:
-		 d = data;
-		*(double*) writer = d;
-		if (isUpdateAdress) {
-			writer += sizeof(double);
-		}
-		break;
-	case UNSIGNED_INT:
-	case STRING:
-	default:
-		 ui = (uint)data;
-		*(uint*) writer = ui;
-		if (isUpdateAdress) {
-			writer += sizeof(uint);
-		}
-
-		break;
-	}
-}
-
 const uchar* Chunk::readID(const uchar* reader, ID& data, bool isUpdateAdress) {
 	data = *(ID*)reader;
 	if (isUpdateAdress) {
 		reader += sizeof(ID);
-	}
-	return reader;
-}
-
-template<typename T>
-const uchar* Chunk::read(const uchar* reader, T& data, char dataType) {
-	switch (dataType) {
-	case BOOL:
-	case CHAR:
-		data = *reinterpret_cast<char*>(reader);
-			reader += sizeof(char);
-		break;
-	case INT:
-		data = *reinterpret_cast<int*>(reader);
-			reader += sizeof(int);
-		break;
-	case FLOAT:
-		data = *reinterpret_cast<float*>(reader);
-			reader += sizeof(float);
-		break;
-	case LONGLONG:
-		data = *reinterpret_cast<longlong*>(reader);
-					reader += sizeof(longlong);
-				break;
-	case DATE:
-	case DOUBLE:
-		data = *reinterpret_cast<double*>(reader);
-			reader += sizeof(double);
-		break;
-	case UNSIGNED_INT:
-	case STRING:
-	default:
-		data = *reinterpret_cast<uint*>(reader);
-			reader += sizeof(uint);
-		break;
 	}
 	return reader;
 }
