@@ -23,7 +23,7 @@ class TempFile;
 class StatisticsBuffer;
 
 #include "TripleBit.h"
-#include "StatisticsBuffer.h"
+#include "StatisticsBuffer.cpp"
 
 #include <fstream>
 #include <pthread.h>
