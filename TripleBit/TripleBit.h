@@ -393,10 +393,10 @@ struct TripleNode {
 		}
 };
 
-inline uint64_t getTicks(){
+inline unsigned long long getTicks(){
 	timeval t;
 	gettimeofday(&t, 0);
-	return static_cast<uint64_t>(t.tv_sec)*1000 + (t.tv_usec/1000);
+	return static_cast<unsigned long long>(t.tv_sec)*1000 + (t.tv_usec/1000);
 }
 
 inline string getDataType(char dataType){
