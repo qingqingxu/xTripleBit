@@ -623,9 +623,6 @@ void getTempFilename(string& filename, unsigned pid, unsigned _type) {
 ChunkManager::ChunkManager(ID predicateID, OrderByType soType,
 		BitmapBuffer* _bitmapBuffer) :
 		bitmapBuffer(_bitmapBuffer) {
-#ifdef MYDEBUG
-	cout<<__FUNCTION__ << "\t" << predicateID << "\t" << soType <<endl;
-#endif
 	usedPages.resize(0);
 	size_t pageNo = 0;
 	meta = NULL;
@@ -722,7 +719,7 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 	if (isChunkOverFlow(len) == true) {
 		isFirstPage = false;
 #ifdef MYDEBUG
-	cout << "-----------isChunkOverFlow" << endl;
+	cout << meta->pid << "-----------isChunkOverFlow" << endl;
 #endif
 		if (meta->length == MemoryBuffer::pagesize) {
 			MetaData *metaData = (MetaData*) (meta->endPtr - meta->usedSpace);
@@ -777,18 +774,15 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		MetaData *metaData;
 		if(isFirstPage){
 			metaData = (MetaData*)(meta->endPtr - (MemoryBuffer::pagesize - (meta->length - ((meta->endPtr - meta->startPtr) + sizeof(ChunkManagerMeta))))+ sizeof(ChunkManagerMeta));
-			assert(meta->startPtr == (meta->endPtr - (MemoryBuffer::pagesize - (meta->length - ((meta->endPtr - meta->startPtr) + sizeof(ChunkManagerMeta))))+ sizeof(ChunkManagerMeta)));
 		}else{
 			metaData = (MetaData*)(meta->endPtr - (MemoryBuffer::pagesize - (meta->length - ((meta->endPtr - meta->startPtr) + sizeof(ChunkManagerMeta)))));
 		}
 		if(meta->soType == ORDERBYS){
 			if(x > metaData->max){
-/*
 #ifdef MYDEBUG
 	cout << "-----------metaData->min: " << metaData->min << endl;
 	cout << "-----------metaData->max: " << metaData->max << endl;
 #endif
-*/
 				metaData->max = x;
 			}
 		}else if(meta->soType == ORDERBYO){
