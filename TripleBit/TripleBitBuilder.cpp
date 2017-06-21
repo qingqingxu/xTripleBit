@@ -122,7 +122,7 @@ bool lexDate(string &str, double& date) {
 		return false;
 	}
 	strim(str);
-	if(str.empty()|| str.length() != 19){
+	if (str.empty() || str.length() != 19) {
 		return false;
 	}
 	if (str[0] >= '0' && str[0] <= '9' && str[1] >= '0' && str[1] <= '9'
@@ -175,33 +175,32 @@ void TripleBitBuilder::NTriplesParse(const char* subject, const char* predicate,
 		case CHAR:
 			tempObject = (double) object[0];
 			break;
-		case INT:
-		{
+		case INT: {
 			longlong ll = atoll(object.c_str());
-					if(ll >= INT_MIN && ll <= INT_MAX){
-						objType = INT;
-					}else if(ll >=0 && ll <= UINT_MAX){
-						objType = UNSIGNED_INT;
-					}else if(ll >= LLONG_MIN && ll <= LLONG_MAX){
-						objType = LONGLONG;
-					}
-					tempObject = (double) ll;
-					break;
+			if (ll >= INT_MIN && ll <= INT_MAX) {
+				objType = INT;
+			} else if (ll >= 0 && ll <= UINT_MAX) {
+				objType = UNSIGNED_INT;
+			} else if (ll >= LLONG_MIN && ll <= LLONG_MAX) {
+				objType = LONGLONG;
+			}
+			tempObject = (double) ll;
+			break;
 		}
 		case DOUBLE:
-			tempObject = atof(object);
+			tempObject = atof(object.c_str());
 			if (tempObject == HUGE_VAL) {
 				MessageEngine::showMessage("data convert to double error",
 						MessageEngine::ERROR);
 				cout << "object: " << object << endl;
 				return;
-			}else if(tempObject >= FLT_MIN && tempObject <= FLT_MAX){
+			} else if (tempObject >= FLT_MIN && tempObject <= FLT_MAX) {
 				objType = FLOAT;
 			}
 			break;
 
 		case STRING:
-			if(lexDate(object, tempObject)){
+			if (lexDate(object, tempObject)) {
 				objType = DATE;
 				break;
 			}
@@ -212,9 +211,11 @@ void TripleBitBuilder::NTriplesParse(const char* subject, const char* predicate,
 				tempObject = objectID;
 				break;
 			}
-		}
+			break;
 		default:
-		break;
+			break;
+		}
+
 		facts.writeTriple(subjectID, predicateID, tempObject, objType);
 	}
 
@@ -239,13 +240,13 @@ bool TripleBitBuilder::N3Parse(istream& in, const char* name,
 			}
 			//Construct IDs
 			//and write the triples
-			if (subject.length() && predicate.length() && objType != NONE){
-				NTriplesParse(subject.c_str(),
-										predicate.c_str(), object, objType, rawFacts);
-			}else{
-				MessageEngine::showMessage("N3Parse error.", MessageEngine::ERROR);
+			if (subject.length() && predicate.length() && objType != NONE) {
+				NTriplesParse(subject.c_str(), predicate.c_str(), object,
+						objType, rawFacts);
+			} else {
+				MessageEngine::showMessage("N3Parse error.",
+						MessageEngine::ERROR);
 			}
-
 
 		}
 	} catch (const TurtleParser::Exception&) {
@@ -436,7 +437,6 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 
 	return OK;
 }
-
 
 Status TripleBitBuilder::startBuildN3(string fileName) {
 	TempFile rawFacts("./test");
