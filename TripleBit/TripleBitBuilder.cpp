@@ -400,7 +400,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 		lastObject = object;
 		lastObjType = objType;
 		reader = skipIdIdId(reader);
-		bitmap->insertTriple(predicateID, object, subjectID, ORDERBYO, objType);
+		bitmap->insertTriple(predicateID, subjectID, object, ORDERBYO, objType);
 		count1 = 1;
 
 		while (reader < limit) {
@@ -430,7 +430,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 			}
 			reader = skipIdIdId(reader);
 			// 1 indicate the triple is sorted by objects' id;
-			bitmap->insertTriple(predicateID, object, subjectID, ORDERBYO,
+			bitmap->insertTriple(predicateID, subjectID, object, ORDERBYO,
 					objType);
 		}
 		mappedIn.close();
