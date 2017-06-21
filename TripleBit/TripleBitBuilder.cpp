@@ -308,7 +308,7 @@ void print(TempFile& infile, char* outfile) {
 	ofstream out(outfile);
 	while (reader < limit) {
 		out << *(ID*) reader << "\t" << *(ID*) (reader + 4) << "\t"
-				<< *(double*) (reader + 8) << *(char*) (reader + 16) << endl;
+				<< *(double*) (reader + 8) << getDataType(*(char*) (reader + 16)) << endl;
 		reader += 17;
 	}
 	mappedIn.close();
