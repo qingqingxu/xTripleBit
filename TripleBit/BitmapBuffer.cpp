@@ -701,7 +701,7 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		metaData->usedSpace = 0;
 
 		writeXY(meta->endPtr + sizeof(MetaData), x, y, objType);
-		//meta->endPtr = meta->endPtr + sizeof(MetaData) + len;
+		meta->endPtr = meta->endPtr + sizeof(MetaData) + len;
 		meta->usedSpace = meta->length - MemoryBuffer::pagesize
 				- sizeof(ChunkManagerMeta) + sizeof(MetaData) + len; // indicate one chunk spare will not save
 		tripleCountAdd();
@@ -713,12 +713,22 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		metaData->usedSpace = 0;
 
 		writeXY(meta->endPtr + sizeof(MetaData), x, y, objType);
-		//meta->endPtr = meta->endPtr + sizeof(MetaData) + len;
+		meta->endPtr = meta->endPtr + sizeof(MetaData) + len;
 		meta->usedSpace = sizeof(MetaData) + len;
 		tripleCountAdd();
 	} else {
+		MetaData *metaData = (MetaData*)(meta->endPtr - (MemoryBuffer::pagesize - (meta->length - meta->endPtr)));
+		if(meta->soType == ORDERBYS){
+			if(x > metaData->max){
+				metaData->max = x;
+			}
+		}else if(meta->soType == ORDERBYO){
+			if(y > metaData->max){
+				metaData->max = y;
+			}
+		}
 		writeXY(meta->endPtr, x, y, objType);
-		//meta->endPtr = meta->endPtr + len;
+		meta->endPtr = meta->endPtr + len;
 		meta->usedSpace = meta->usedSpace + len;
 		tripleCountAdd();
 	}
@@ -753,8 +763,10 @@ bool ChunkManager::isChunkOverFlow(uint len) {
 void ChunkManager::setMetaDataMin(MetaData *metaData, ID x, double y) {
 	if (meta->soType == ORDERBYS) {
 		metaData->min = x;
+		metaData->max = x;
 	} else if (meta->soType == ORDERBYO) {
 		metaData->min = y;
+		metaData->max = y;
 	}
 }
 

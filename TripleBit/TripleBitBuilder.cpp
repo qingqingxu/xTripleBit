@@ -167,9 +167,16 @@ void TripleBitBuilder::NTriplesParse(const char* subject, const char* predicate,
 			tempObject = (double) object[0];
 			break;
 		case INT:
-		case FLOAT:
-		case UNSIGNED_INT:
-		case LONGLONG:
+			longlong ll = atoll(object.c_str());
+					if(ll >= INT_MIN && ll <= INT_MAX){
+						objType = INT;
+					}else if(ll >=0 && ll <= UINT_MAX){
+						objType = UNSIGNED_INT;
+					}else if(ll >= LLONG_MIN && ll <= LLONG_MAX){
+						objType = LONGLONG;
+					}
+					tempObject = (double) ll;
+					break;
 		case DOUBLE:
 			tempObject = atof(object);
 			if (tempObject == HUGE_VAL) {
@@ -177,13 +184,15 @@ void TripleBitBuilder::NTriplesParse(const char* subject, const char* predicate,
 						MessageEngine::ERROR);
 				cout << "object: " << object << endl;
 				return;
+			}else if(tempObject >= FLT_MIN && tempObject <= FLT_MAX){
+				objType = FLOAT;
 			}
 			break;
 
 		case STRING:
 			if(lexDate(object, tempObject)){
 				objType = DATE;
-				return;
+				break;
 			}
 
 			if (uriTable->getIdByURI(object.c_str(), objectID)
@@ -196,7 +205,6 @@ void TripleBitBuilder::NTriplesParse(const char* subject, const char* predicate,
 		default:
 		break;
 		facts.writeTriple(subjectID, predicateID, tempObject, objType);
-
 	}
 
 }
@@ -220,9 +228,13 @@ bool TripleBitBuilder::N3Parse(istream& in, const char* name,
 			}
 			//Construct IDs
 			//and write the triples
-			if (subject.length() && predicate.length() && objType != NONE)
-				NTriplesParse((char*) subject.c_str(),
-						(char*) predicate.c_str(), object, objType, rawFacts);
+			if (subject.length() && predicate.length() && objType != NONE){
+				NTriplesParse(subject.c_str(),
+										predicate.c_str(), object, objType, rawFacts);
+			}else{
+				MessageEngine::showMessage("N3Parse error.", MessageEngine::ERROR);
+			}
+
 
 		}
 	} catch (const TurtleParser::Exception&) {
@@ -413,6 +425,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 
 	return OK;
 }
+
 
 Status TripleBitBuilder::startBuildN3(string fileName) {
 	TempFile rawFacts("./test");
