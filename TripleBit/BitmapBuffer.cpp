@@ -296,10 +296,10 @@ void BitmapBuffer::save() {
 	ID id;
 	for (iter = predicate_managers[0].begin();
 			iter != predicate_managers[0].end(); iter++) {
-		id = *reinterpret_cast<ID*>(predicateWriter);
+		id = *(ID*)predicateWriter;
 		assert(iter->first == id);
 		predicateWriter += sizeof(ID) + sizeof(SOType);
-		offset = *reinterpret_cast<size_t*>(predicateWriter);
+		offset = *(size_t*)predicateWriter;
 		predicateWriter += sizeof(size_t) * 2;
 
 		uchar *base = buffer->get_address() + offset;
@@ -330,10 +330,10 @@ void BitmapBuffer::save() {
 
 	for (iter = predicate_managers[1].begin();
 			iter != predicate_managers[1].end(); iter++) {
-		id = *reinterpret_cast<ID*>(predicateWriter);
+		id = *(ID*)predicateWriter;
 		assert(iter->first == id);
 		predicateWriter = predicateWriter + sizeof(ID) + sizeof(SOType);
-		offset = *reinterpret_cast<size_t*>(predicateWriter);
+		offset = *(size_t*)predicateWriter;
 		predicateWriter = predicateWriter + sizeof(size_t) * 2;
 
 		uchar *base = buffer->get_address() + offset;
@@ -425,13 +425,13 @@ BitmapBuffer *BitmapBuffer::load(MMapBuffer* bitmapImage,
 	size_t sizePredicateBuffer = bitmapPredicateImage->get_length();
 
 	while (predicateOffset < sizePredicateBuffer) {
-		id = *reinterpret_cast<ID*>(predicateReader);
+		id = *(ID*)predicateReader;
 		predicateReader += sizeof(ID);
-		soType = *reinterpret_cast<SOType*>(predicateReader);
+		soType = *(SOType*)predicateReader;
 		predicateReader += sizeof(SOType);
-		offset = *reinterpret_cast<size_t*>(predicateReader);
+		offset = *(size_t*)predicateReader;
 		predicateReader += sizeof(size_t);
-		indexOffset = *reinterpret_cast<size_t*>(predicateReader);
+		indexOffset = *(size_t*)predicateReader;
 		predicateReader += sizeof(size_t);
 		if (soType == ORDERBYS) {
 			ChunkManager *manager = ChunkManager::load(id,
@@ -479,11 +479,11 @@ void BitmapBuffer::endUpdate(MMapBuffer *bitmapPredicateImage,
 		lastoffsetPage = offsetPage;
 		bufferWriterBegin = bufferWriter;
 
-		id = *reinterpret_cast<ID*>(predicateReader);
+		id = *(ID*)predicateReader;
 		predicateReader += sizeof(ID);
-		soType = *reinterpret_cast<SOType*>(predicateReader);
+		soType = *(SOType*)predicateReader;
 		predicateReader += sizeof(SOType);
-		offset = *reinterpret_cast<size_t*>(predicateReader);
+		offset = *(size_t*)predicateReader;
 		*((size_t*) predicateReader) = bufferWriterBegin
 				- buffer->get_address();
 		predicateReader += sizeof(size_t);
@@ -573,11 +573,11 @@ void BitmapBuffer::endUpdate(MMapBuffer *bitmapPredicateImage,
 	predicateOffset = 0;
 	predicateReader = bitmapPredicateImage->get_address();
 	while (predicateOffset < sizePredicateBuffer) {
-		id = *reinterpret_cast<ID*>(predicateReader);
+		id = *(ID*)predicateReader;
 		predicateReader += sizeof(ID);
-		soType = *reinterpret_cast<SOType*>(predicateReader);
+		soType = *(SOType*)predicateReader;
 		predicateReader += sizeof(SOType);
-		offset = *reinterpret_cast<size_t*>(predicateReader);
+		offset = *(size_t*)predicateReader;
 		predicateReader += sizeof(size_t);
 		predicateReader += sizeof(size_t);
 

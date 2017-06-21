@@ -223,30 +223,30 @@ public:
 		switch (dataType) {
 		case BOOL:
 		case CHAR:
-			data = *reinterpret_cast<char*>(reader);
+			data = *(char*)reader;
 			reader += sizeof(char);
 			break;
 		case INT:
-			data = *reinterpret_cast<int*>(reader);
+			data = *(int*)reader;
 			reader += sizeof(int);
 			break;
 		case FLOAT:
-			data = *reinterpret_cast<float*>(reader);
+			data = *(float*)reader;
 			reader += sizeof(float);
 			break;
 		case LONGLONG:
-			data = *reinterpret_cast<longlong*>(reader);
+			data = *(longlong*)reader;
 			reader += sizeof(longlong);
 			break;
 		case DATE:
 		case DOUBLE:
-			data = *reinterpret_cast<double*>(reader);
+			data = *(double*)reader;
 			reader += sizeof(double);
 			break;
 		case UNSIGNED_INT:
 		case STRING:
 		default:
-			data = *reinterpret_cast<uint*>(reader);
+			data = *(uint*)reader;
 			reader += sizeof(uint);
 			break;
 		}
