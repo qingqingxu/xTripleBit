@@ -499,13 +499,13 @@ Status TripleBitBuilder::buildIndex() {
 }
 
 Status TripleBitBuilder::endBuild() {
-	//bitmap->save();
+	bitmap->save();
 
-/*	ofstream ofile(string(dir + "/statIndex").c_str());
+	ofstream ofile(string(dir + "/statIndex").c_str());
 	MMapBuffer* indexBuffer = NULL;
 	spStatisBuffer->save(indexBuffer);
 	opStatisBuffer->save(indexBuffer);
 
-	delete indexBuffer;*/
+	delete indexBuffer;
 	return OK;
 }

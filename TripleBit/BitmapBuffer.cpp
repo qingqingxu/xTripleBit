@@ -245,7 +245,7 @@ void BitmapBuffer::save() {
 
 		*((ID*) predicateWriter) = iter->first;
 		predicateWriter += sizeof(ID);
-		*((SOType*) predicateWriter) = 0;
+		*((SOType*) predicateWriter) = ORDERBYS;
 		predicateWriter += sizeof(SOType);
 		*((size_t*) predicateWriter) = offset;
 		predicateWriter += sizeof(size_t) * 2;
@@ -276,7 +276,7 @@ void BitmapBuffer::save() {
 
 		*((ID*) predicateWriter) = iter->first;
 		predicateWriter += sizeof(ID);
-		*((SOType*) predicateWriter) = 1;
+		*((SOType*) predicateWriter) = ORDERBYO;
 		predicateWriter += sizeof(SOType);
 		*((size_t*) predicateWriter) = offset;
 		predicateWriter += sizeof(size_t) * 2;
