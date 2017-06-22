@@ -81,13 +81,13 @@ TripleBitBuilder::~TripleBitBuilder() {
 
 	if (spStatisBuffer != NULL) {
 		delete spStatisBuffer;
-		spStatisBuffer = NULL;
 	}
+	spStatisBuffer = NULL;
 
 	if (opStatisBuffer != NULL) {
 		delete opStatisBuffer;
-		opStatisBuffer = NULL;
 	}
+	opStatisBuffer = NULL;
 
 }
 
@@ -501,11 +501,11 @@ Status TripleBitBuilder::buildIndex() {
 Status TripleBitBuilder::endBuild() {
 	bitmap->save();
 
-	ofstream ofile(string(dir + "/statIndex").c_str());
+/*	ofstream ofile(string(dir + "/statIndex").c_str());
 	MMapBuffer* indexBuffer = NULL;
 	spStatisBuffer->save(indexBuffer);
 	opStatisBuffer->save(indexBuffer);
 
-	delete indexBuffer;
+	delete indexBuffer;*/
 	return OK;
 }
