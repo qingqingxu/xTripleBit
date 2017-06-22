@@ -60,7 +60,8 @@ public:
 #ifdef MYDEBUG
 		ofstream out;
 		out.open("addStatis", ios::app);
-		out << soValue << "\t" << ID << "\t" << count << endl;
+		double so = soValue;
+		out << so << "\t" << predicateID << "\t" << count << endl;
 #endif
 			if (first || usedSpace + len > buffer->getSize()) {
 #ifdef MYDEBUG
