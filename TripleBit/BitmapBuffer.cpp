@@ -192,7 +192,7 @@ void BitmapBuffer::save() {
 	string predicateFile(filename);
 	predicateFile.append("_predicate");
 
-	MMapBuffer *predicateBuffer = new MMapBuffer(predicateFile.c_str(),
+	/*MMapBuffer *predicateBuffer = new MMapBuffer(predicateFile.c_str(),
 			predicate_managers[0].size()
 					* (sizeof(ID) + sizeof(SOType) + sizeof(size_t) * 2) * 2);
 	uchar *predicateWriter = predicateBuffer->get_address();
@@ -203,7 +203,7 @@ void BitmapBuffer::save() {
 
 	buffer = new MMapBuffer(filename.c_str(), iter->second->meta->length);
 
-	/*predicateWriter = predicateBuffer->get_address();
+	predicateWriter = predicateBuffer->get_address();
 	bufferWriter = buffer->get_address();
 	vector<size_t>::iterator pageNoIter = iter->second->usedPages.begin(),
 			limit = iter->second->usedPages.end();
@@ -289,7 +289,7 @@ void BitmapBuffer::save() {
 	}
 	buffer->flush();
 	tempByO->discard();*/
-	predicateBuffer->flush();
+	//predicateBuffer->flush();
 
 	/*predicateWriter = predicateBuffer->get_address();
 
@@ -398,11 +398,11 @@ void BitmapBuffer::save() {
 		}
 	}*/
 
-	predicateWriter = NULL;
-	bufferWriter = NULL;
+	//predicateWriter = NULL;
+	//bufferWriter = NULL;
 	//delete bitmapIndex;
 	delete buffer;
-	delete predicateBuffer;
+	//delete predicateBuffer;
 }
 
 BitmapBuffer *BitmapBuffer::load(MMapBuffer* bitmapImage,
