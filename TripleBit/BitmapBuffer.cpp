@@ -792,7 +792,6 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 							- (meta->length - meta->usedSpace
 									- sizeof(ChunkManagerMeta));
 			metaData = (MetaData*) (meta->endPtr - usedPage);
-			metaData->usedSpace = usedPage; // every chunk usedspace, include metadata
 		}
 		if (meta->soType == ORDERBYS) {
 			if (x > metaData->max) {
