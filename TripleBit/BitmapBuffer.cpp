@@ -186,7 +186,17 @@ uchar* BitmapBuffer::getPage(bool soType, size_t& pageNo) {
 }
 
 void BitmapBuffer::save() {
-	string filename = dir + "/BitmapBuffer";
+
+	map<ID, ChunkManager*>::const_iterator iter = predicate_managers[0].begin();
+	for (; iter != predicate_managers[0].end(); iter++) {
+		cout << "S: " << iter->first << "--size: "<< iter->second->usedPages.size() <<"-- " << iter->second->usedPages.size() * MemoryBuffer::pagesize << "--length-- " << iter->second->meta->length << endl;
+	}
+	 iter = predicate_managers[1].begin();
+		for (; iter != predicate_managers[1].end(); iter++) {
+			cout << "o: " << iter->first << "--size: "<< iter->second->usedPages.size() <<"-- " << iter->second->usedPages.size() * MemoryBuffer::pagesize << "--length-- " << iter->second->meta->length << endl;
+		}
+
+	/*string filename = dir + "/BitmapBuffer";
 	MMapBuffer *buffer;
 	string bitmapName;
 	string predicateFile(filename);
@@ -412,7 +422,7 @@ void BitmapBuffer::save() {
 
 	delete bitmapIndex;
 	delete buffer;
-	delete predicateBuffer;
+	delete predicateBuffer;*/
 }
 
 BitmapBuffer *BitmapBuffer::load(MMapBuffer* bitmapImage,
@@ -798,15 +808,14 @@ Status ChunkManager::resize(size_t &pageNo) {
 	// TODO
 	lastChunkStartPtr = bitmapBuffer->getPage(meta->soType, pageNo);
 	usedPages.push_back(pageNo);
+	meta->length = usedPages.size() * MemoryBuffer::pagesize;
+	meta->endPtr = lastChunkStartPtr;
 #ifdef MYDEBUG
 	ofstream out;
 	out.open("ChunkManagerresize", ios::app);
 	out << meta->soType << "--------" << meta->pid << "----------" << usedPages.size() << "--------" << meta->length << "--------" << usedPages.size()* MemoryBuffer::pagesize << endl;
 	out.close();
 #endif
-
-	meta->length = usedPages.size() * MemoryBuffer::pagesize;
-	meta->endPtr = lastChunkStartPtr;
 	return OK;
 }
 
