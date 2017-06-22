@@ -201,7 +201,7 @@ void BitmapBuffer::save() {
 	map<ID, ChunkManager*>::const_iterator iter = predicate_managers[0].begin();
 	size_t offset = 0;
 
-	buffer = new MMapBuffer(filename.c_str(), iter->second->meta->length);
+	//buffer = new MMapBuffer(filename.c_str(), iter->second->meta->length);
 
 	/*predicateWriter = predicateBuffer->get_address();
 	bufferWriter = buffer->get_address();
@@ -399,7 +399,7 @@ void BitmapBuffer::save() {
 	}
 
 	delete bitmapIndex;*/
-	delete buffer;
+	//delete buffer;
 	delete predicateBuffer;
 }
 
