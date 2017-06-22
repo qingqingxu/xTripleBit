@@ -455,7 +455,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 		}
 		iter = bitmap->predicate_managers[1].begin();
 			for (; iter != bitmap->predicate_managers[1].end(); iter++) {
-				cout << "S: " << iter->first << "--size: "
+				cout << "O: " << iter->first << "--size: "
 						<< iter->second->usedPages.size() << "-- "
 						<< iter->second->usedPages.size() * MemoryBuffer::pagesize
 						<< "--length-- " << iter->second->meta->length << endl;
