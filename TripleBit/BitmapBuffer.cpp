@@ -815,8 +815,13 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		meta->endPtr = meta->endPtr + len;
 		meta->usedSpace = meta->usedSpace + len;
 		tripleCountAdd();
+
 	}
 #ifdef MYDEBUG
+	if(meta->soType == ORDERBYO){
+				out << meta->pid << "-----------meta->length: " << meta->length
+								<< endl;
+	}
 	out.close();
 #endif
 }
