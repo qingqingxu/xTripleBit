@@ -398,7 +398,7 @@ void BitmapBuffer::save() {
 		}
 	}
 
-	delete bitmapIndex;
+	//delete bitmapIndex;
 	delete buffer;
 	delete predicateBuffer;
 }
