@@ -257,7 +257,7 @@ void BitmapBuffer::save() {
 	}
 
 	buffer->flush();
-	tempByS->discard();
+	//tempByS->discard();
 
 	iter = predicate_managers[1].begin();
 	for (; iter != predicate_managers[1].end(); iter++) {
@@ -361,7 +361,7 @@ void BitmapBuffer::save() {
 		}
 	}
 	buffer->flush();
-	tempByO->discard();
+	//tempByO->discard();
 
 	//build index;
 	MMapBuffer* bitmapIndex = NULL;
@@ -398,7 +398,7 @@ void BitmapBuffer::save() {
 		}
 	}
 
-/*	if (bitmapIndex != NULL) {
+	if (bitmapIndex != NULL) {
 		delete bitmapIndex;
 		bitmapIndex = NULL;
 	}
@@ -411,7 +411,7 @@ void BitmapBuffer::save() {
 	if (predicateBuffer != NULL) {
 		delete predicateBuffer;
 		predicateBuffer = NULL;
-	}*/
+	}
 }
 
 BitmapBuffer *BitmapBuffer::load(MMapBuffer* bitmapImage,
