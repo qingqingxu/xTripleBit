@@ -108,7 +108,7 @@ public:
 		cout << __FUNCTION__ << endl;
 #endif
 		unsigned len = Chunk::getLen(objType) + sizeof(ID)
-				+ sizeof(sizeof(size_t));
+				+ sizeof(size_t);
 #ifdef MYDEBUG
 		ofstream out;
 		out.open("addStatis", ios::app);
