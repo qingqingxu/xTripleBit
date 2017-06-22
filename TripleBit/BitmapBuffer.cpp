@@ -251,10 +251,6 @@ void BitmapBuffer::save() {
 		predicateWriter += sizeof(size_t) * 2;
 		offset += iter->second->meta->length;
 
-		cout << iter->first << "------" << iter->second->usedPages.size()
-				<< "---------"
-				<< (iter->second->meta->length) / (MemoryBuffer::pagesize)
-				<< endl;
 		assert(
 				iter->second->usedPages.size() * MemoryBuffer::pagesize
 						== iter->second->meta->length);
@@ -687,23 +683,6 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		}
 		size_t pageNo;
 		resize(pageNo);
-		if (meta->soType == ORDERBYO) {
-			ofstream out;
-			out.open("subjectlength", ios::app);
-			out << meta->pid << "," << usedPages.size() << ","
-					<< usedPages.size() * MemoryBuffer::pagesize << ","
-					<< meta->length << endl;
-			map<ID, ChunkManager*>::const_iterator iter =
-					bitmapBuffer->predicate_managers[0].begin();
-			for (; iter != bitmapBuffer->predicate_managers[0].end(); iter++) {
-				out << "S: " << iter->first << ",size: "
-						<< iter->second->usedPages.size() << ","
-						<< iter->second->usedPages.size()
-								* MemoryBuffer::pagesize << ","
-						<< iter->second->meta->length << endl;
-			}
-			out.close();
-		}
 
 		MetaData *metaData = (MetaData*) (meta->endPtr);
 		setMetaDataMin(metaData, x, y);
