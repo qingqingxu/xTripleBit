@@ -731,7 +731,7 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 #ifdef MYDEBUG
 	ofstream out;
 	out.open("insertxy", ios::app);
-	if(meta->soType = ORDERBYO){
+	if(meta->soType == ORDERBYO){
 		out << __FUNCTION__ << "\t" << x << "\t" << y << "\t" << (objType == STRING)
 					<< endl;
 	}
@@ -741,7 +741,7 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 	if (isChunkOverFlow(len) == true) {
 		isFirstPage = false;
 #ifdef MYDEBUG
-		if(meta->soType = ORDERBYO){
+		if(meta->soType == ORDERBYO){
 			out << meta->pid << "-----------isChunkOverFlow" << endl;
 		}
 
@@ -787,7 +787,7 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		tripleCountAdd();
 	} else {
 #ifdef MYDEBUG
-		if(meta->soType = ORDERBYO){
+		if(meta->soType == ORDERBYO){
 			out << "-----------meta->usedSpace != 0 and not isChunkOverFlow"
 							<< endl;
 		}
