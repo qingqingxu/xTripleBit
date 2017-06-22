@@ -288,9 +288,10 @@ void BitmapBuffer::save() {
 								* MemoryBuffer::pagesize);
 	}
 	buffer->flush();
+	tempByO->discard();
 	predicateBuffer->flush();
 
-	predicateWriter = predicateBuffer->get_address();
+	/*predicateWriter = predicateBuffer->get_address();
 
 	//update bitmap point address
 	ID id;
@@ -360,8 +361,7 @@ void BitmapBuffer::save() {
 			}
 		}
 	}
-	buffer->flush();
-	tempByO->discard();
+	buffer->flush();*/
 
 	//build index;
 /*	MMapBuffer* bitmapIndex = NULL;
