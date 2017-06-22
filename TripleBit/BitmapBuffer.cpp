@@ -739,7 +739,7 @@ uchar* ChunkManager::deleteTriple(uchar* reader, char objType) {
 }
 
 void ChunkManager::insertXY(ID x, double y, char objType) {
-	uint len = sizeof(ID) + Chunk::getLen(objType);
+	uint len = sizeof(ID) + sizeof(char) + Chunk::getLen(objType);
 	if (isChunkOverFlow(len) == true) {
 		isFirstPage = false;
 		if (meta->length == MemoryBuffer::pagesize) {
@@ -801,13 +801,6 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		meta->endPtr = meta->endPtr + len;
 		meta->usedSpace = meta->usedSpace + len;
 		tripleCountAdd();
-	}
-
-	if(meta->pid == 14){
-		ofstream out;
-		out.open("length", ios::app);
-		out << meta->pid << "\t" << usedPages.size() * MemoryBuffer::pagesize << "\t" << meta->length << endl;
-		out.close();
 	}
 }
 
