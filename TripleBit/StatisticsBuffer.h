@@ -159,6 +159,7 @@ public:
 
 		usedSpace = writer - (uchar*) buffer->getBuffer();
 #ifdef MYDEBUG
+		cout << __FUNCTION__ << "end" << endl;
 		out.close();
 #endif
 		return OK;
