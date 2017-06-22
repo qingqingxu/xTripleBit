@@ -201,11 +201,9 @@ void BitmapBuffer::save() {
 	map<ID, ChunkManager*>::const_iterator iter = predicate_managers[0].begin();
 	size_t offset = 0;
 
-	cout << iter->second->meta->length << endl;
-	//buffer = new MMapBuffer(filename.c_str(), iter->second->meta->length);
-	//cout << buffer->getSize() << endl;
+	buffer = new MMapBuffer(filename.c_str(), iter->second->meta->length);
 
-	/*predicateWriter = predicateBuffer->get_address();
+	predicateWriter = predicateBuffer->get_address();
 	bufferWriter = buffer->get_address();
 	vector<size_t>::iterator pageNoIter = iter->second->usedPages.begin(),
 			limit = iter->second->usedPages.end();
@@ -216,9 +214,9 @@ void BitmapBuffer::save() {
 				tempByS->get_address() + pageNo * MemoryBuffer::pagesize,
 				MemoryBuffer::pagesize);
 		bufferWriter = bufferWriter + MemoryBuffer::pagesize;
-	}*/
+	}
 
-	/**((ID*) predicateWriter) = iter->first;
+	*((ID*) predicateWriter) = iter->first;
 	predicateWriter += sizeof(ID);
 	*((SOType*) predicateWriter) = ORDERBYS;
 	predicateWriter += sizeof(SOType);
@@ -229,8 +227,8 @@ void BitmapBuffer::save() {
 	bufferWriter = buffer->resize(iter->second->meta->length);
 	uchar *startPos = bufferWriter + offset;
 
-	iter++;*/
-	/*for (; iter != predicate_managers[0].end(); iter++) {
+	iter++;
+	for (; iter != predicate_managers[0].end(); iter++) {
 		bufferWriter = buffer->resize(iter->second->meta->length);
 		startPos = bufferWriter + offset;
 
@@ -256,12 +254,12 @@ void BitmapBuffer::save() {
 		assert(
 				iter->second->usedPages.size() * MemoryBuffer::pagesize
 						== iter->second->meta->length);
-	}*/
+	}
 
 	buffer->flush();
 	tempByS->discard();
 
-	/*iter = predicate_managers[1].begin();
+	iter = predicate_managers[1].begin();
 	for (; iter != predicate_managers[1].end(); iter++) {
 		bufferWriter = buffer->resize(iter->second->meta->length);
 		startPos = bufferWriter + offset;
@@ -290,10 +288,10 @@ void BitmapBuffer::save() {
 								* MemoryBuffer::pagesize);
 	}
 	buffer->flush();
-	tempByO->discard();*/
-	//predicateBuffer->flush();
+	tempByO->discard();
+	predicateBuffer->flush();
 
-	/*predicateWriter = predicateBuffer->get_address();
+	predicateWriter = predicateBuffer->get_address();
 
 	//update bitmap point address
 	ID id;
@@ -363,10 +361,10 @@ void BitmapBuffer::save() {
 			}
 		}
 	}
-	buffer->flush();*/
+	buffer->flush();
 
 	//build index;
-/*	MMapBuffer* bitmapIndex = NULL;
+	MMapBuffer* bitmapIndex = NULL;
 	predicateWriter = predicateBuffer->get_address();
 #ifdef MYDEBUG
 	cout << "build hash index for subject" << endl;
@@ -398,11 +396,11 @@ void BitmapBuffer::save() {
 			*((size_t*) predicateWriter) = offset;
 			predicateWriter = predicateWriter + sizeof(size_t);
 		}
-	}*/
+	}
 
-	//predicateWriter = NULL;
-	//bufferWriter = NULL;
-	//delete bitmapIndex;
+	predicateWriter = NULL;
+	bufferWriter = NULL;
+	delete bitmapIndex;
 	delete buffer;
 	delete predicateBuffer;
 }
