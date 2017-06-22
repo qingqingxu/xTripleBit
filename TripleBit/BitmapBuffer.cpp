@@ -57,6 +57,9 @@ Status BitmapBuffer::insertPredicate(ID predicateID, OrderByType soType) {
 
 Status BitmapBuffer::insertTriple(ID predicateID, ID subjectID, double object,
 		OrderByType soType, char objType) {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 	getChunkManager(predicateID, soType)->insertXY(subjectID, object, objType);
 	return OK;
 }
@@ -654,6 +657,9 @@ ChunkManager::~ChunkManager() {
 }
 
 void ChunkManager::writeXY(const uchar* reader, ID x, double y, char objType) {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 	if (meta->soType == ORDERBYS) {
 /*
 #ifdef MYDEBUG
@@ -729,6 +735,7 @@ uchar* ChunkManager::deleteTriple(uchar* reader, char objType) {
 
 void ChunkManager::insertXY(ID x, double y, char objType) {
 #ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
 	ofstream out;
 	out.open("insertxy", ios::app);
 	if(meta->soType == ORDERBYO){
@@ -815,13 +822,8 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		meta->endPtr = meta->endPtr + len;
 		meta->usedSpace = meta->usedSpace + len;
 		tripleCountAdd();
-
 	}
 #ifdef MYDEBUG
-	if(meta->soType == ORDERBYO){
-				out << meta->pid << "-----------meta->length: " << meta->length
-								<< endl;
-	}
 	out.close();
 #endif
 }
@@ -853,6 +855,9 @@ bool ChunkManager::isChunkOverFlow(uint len) {
 }
 
 void ChunkManager::setMetaDataMin(MetaData *metaData, ID x, double y) {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 	if (meta->soType == ORDERBYS) {
 		metaData->min = x;
 		metaData->max = x;

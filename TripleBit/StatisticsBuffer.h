@@ -56,6 +56,9 @@ public:
 	//插入一条SP或OP的统计信息,加入OP统计信息需指定objType
 	template<typename T>
 	Status addStatis(T soValue, ID predicateID, size_t count, char objType = STRING){
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 		unsigned len = sizeof(T) + sizeof(ID) + sizeof(sizeof(size_t));
 #ifdef MYDEBUG
 		ofstream out;
