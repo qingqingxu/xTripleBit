@@ -655,45 +655,61 @@ ChunkManager::~ChunkManager() {
 
 void ChunkManager::writeXY(const uchar* reader, ID x, double y, char objType) {
 	if (meta->soType == ORDERBYS) {
+/*
 #ifdef MYDEBUG
 		ofstream out;
 		out.open("writexy_ORDERBYS", ios::app);
 		out << meta->pid << "\t" << meta->soType << "\tx: " << (int*) reader
 				<< "\tobjType: " << getDataType(objType) << "\t";
 #endif
+*/
 		Chunk::writeID(reader, x);
+/*
 #ifdef MYDEBUG
 		out << (int*) reader << "\ty: ";
 #endif
+*/
 		Chunk::write(reader, objType, CHAR);
+/*
 #ifdef MYDEBUG
 		out << (int*) reader << "\tend: ";
 #endif
+*/
 		Chunk::write(reader, y, objType);
+/*
 #ifdef MYDEBUG
 		out << (double*) reader << endl;
 		out.close();
 #endif
+*/
 	} else if (meta->soType == ORDERBYO) {
+/*
 #ifdef MYDEBUG
 		ofstream out;
 		out.open("writexy_ORDERBYO", ios::app);
 		out << meta->pid << "\t" << meta->soType << "\tobjType: "
 				<< getDataType(objType) << "\t" << (double*) reader << "\ty: ";
 #endif
+*/
 		Chunk::write(reader, objType, CHAR);
+/*
 #ifdef MYDEBUG
 		out << (int*) reader << "\tx: ";
 #endif
+*/
 		Chunk::write(reader, y, objType);
+/*
 #ifdef MYDEBUG
 		out << (int*) reader << "\tend: ";
 #endif
+*/
 		Chunk::writeID(reader, x);
+/*
 #ifdef MYDEBUG
 		out << (int*) reader << endl;
 		out.close();
 #endif
+*/
 	}
 }
 
@@ -737,9 +753,11 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		}
 		size_t pageNo;
 		resize(pageNo);
+/*
 #ifdef MYDEBUG
 		out << "-----------pageNo: " << pageNo << endl;
 #endif
+*/
 		MetaData *metaData = (MetaData*) (meta->endPtr);
 		setMetaDataMin(metaData, x, y);
 		metaData->pageNo = pageNo;

@@ -16,6 +16,7 @@
 
 class MMapBuffer;
 
+#define MYDEBUG
 //SP、OP统信息类，存储结构：s-p-spcount、o-p-opcount
 
 template<typename T>
@@ -56,8 +57,15 @@ public:
 	template<typename T>
 	Status addStatis(T soValue, ID predicateID, size_t count, char objType = STRING){
 		unsigned len = sizeof(T) + sizeof(ID) + sizeof(sizeof(size_t));
-
+#ifdef MYDEBUG
+		ofstream out;
+		out.open("addStatis", ios::app);
+		out << soValue << "\t" << ID << "\t" << count << endl;
+#endif
 			if (first || usedSpace + len > buffer->getSize()) {
+#ifdef MYDEBUG
+		out << "usedSpace + len > buffer->getSize()" << endl;
+#endif
 				usedSpace = writer - (uchar*) buffer->getBuffer();
 				buffer->resize(
 						STATISTICS_BUFFER_INCREMENT_PAGE_COUNT
@@ -96,6 +104,9 @@ public:
 			writer = writeData(writer, count);
 
 			usedSpace = writer - (uchar*) buffer->getBuffer();
+#ifdef MYDEBUG
+		out.close();
+#endif
 			return OK;
 	}
 	//获取一条SP或OP的统计信息
