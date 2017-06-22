@@ -671,7 +671,10 @@ ChunkManager::~ChunkManager() {
 }
 
 void ChunkManager::writeXY(const uchar* reader, ID x, double y, char objType) {
-	if (meta->soType == ORDERBYS) {
+	Chunk::writeID(reader, x);
+	Chunk::write(reader, objType, CHAR);
+	Chunk::write(reader, y, objType);
+	/*if (meta->soType == ORDERBYS) {
 		Chunk::writeID(reader, x);
 		Chunk::write(reader, objType, CHAR);
 		Chunk::write(reader, y, objType);
@@ -679,7 +682,7 @@ void ChunkManager::writeXY(const uchar* reader, ID x, double y, char objType) {
 		Chunk::write(reader, objType, CHAR);
 		Chunk::write(reader, y, objType);
 		Chunk::writeID(reader, x);
-	}
+	}*/
 }
 
 uchar* ChunkManager::deleteTriple(uchar* reader, char objType) {
