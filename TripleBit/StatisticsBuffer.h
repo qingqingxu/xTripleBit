@@ -155,7 +155,7 @@ public:
 
 		writer = writeData(writer, predicateID);
 		cout<<"predicateID"<<endl;
-		cout << writer - (uchar*) buffer->getBuffer() << endl;
+		cout << buffer->getSize() - (writer - (uchar*) buffer->getBuffer()) << endl;
 		writer = writeData(writer, count);
 		cout<<"count"<<endl;
 
