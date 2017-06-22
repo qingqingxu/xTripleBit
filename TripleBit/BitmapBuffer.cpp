@@ -654,9 +654,6 @@ ChunkManager::~ChunkManager() {
 }
 
 void ChunkManager::writeXY(const uchar* reader, ID x, double y, char objType) {
-#ifdef MYDEBUG
-	cout << __FUNCTION__ << endl;
-#endif
 	if (meta->soType == ORDERBYS) {
 /*
 #ifdef MYDEBUG
@@ -732,7 +729,6 @@ uchar* ChunkManager::deleteTriple(uchar* reader, char objType) {
 
 void ChunkManager::insertXY(ID x, double y, char objType) {
 #ifdef MYDEBUG
-	cout << __FUNCTION__ << endl;
 	ofstream out;
 	out.open("insertxy", ios::app);
 	if(meta->soType == ORDERBYO){
