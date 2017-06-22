@@ -48,6 +48,7 @@ MMapBuffer::~MMapBuffer() {
 	// TODO Auto-generated destructor stub
 	flush();
 	munmap((char*)mmap_addr, size);
+	cout << getFileName() << "\t" << fd << endl;
 	close(fd);
 }
 

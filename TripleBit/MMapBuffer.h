@@ -23,6 +23,7 @@ public:
 	uchar* getBuffer(int pos);
 	void discard();
 	Status flush();
+	string getFileName(){return filename;}
 	size_t getSize() { return size;}
 	size_t get_length() { return size;}
 	uchar * get_address() const { return (uchar*)mmap_addr; }
