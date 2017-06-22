@@ -259,7 +259,7 @@ void BitmapBuffer::save() {
 	buffer->flush();
 	tempByS->discard();
 
-	iter = predicate_managers[1].begin();
+	/*iter = predicate_managers[1].begin();
 	for (; iter != predicate_managers[1].end(); iter++) {
 		bufferWriter = buffer->resize(iter->second->meta->length);
 		startPos = bufferWriter + offset;
@@ -288,7 +288,7 @@ void BitmapBuffer::save() {
 								* MemoryBuffer::pagesize);
 	}
 	buffer->flush();
-	tempByO->discard();
+	tempByO->discard();*/
 	predicateBuffer->flush();
 
 	/*predicateWriter = predicateBuffer->get_address();
