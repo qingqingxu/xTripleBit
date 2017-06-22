@@ -672,33 +672,42 @@ ChunkManager::~ChunkManager() {
 
 void ChunkManager::writeXY(const uchar* reader, ID x, double y, char objType) {
 	if (meta->soType == ORDERBYS) {
-		/*
-		 #ifdef MYDEBUG
-		 ofstream out;
-		 out.open("writexy_ORDERBYS", ios::app);
-		 out << meta->pid << "\t" << meta->soType << "\tx: " << (int*) reader
-		 << "\tobjType: " << getDataType(objType) << "\t";
-		 #endif
-		 */
+
+#ifdef MYDEBUG
+		ofstream out;
+		if (meta->pid == 14) {
+			out.open("writexy_pid14", ios::app);
+			out << meta->pid << "\t" << meta->soType << "\tx: " << (int*) reader
+					<< "\tobjType: " << getDataType(objType) << "\t";
+		}
+
+#endif
+
 		Chunk::writeID(reader, x);
-		/*
-		 #ifdef MYDEBUG
-		 out << (int*) reader << "\ty: ";
-		 #endif
-		 */
+
+#ifdef MYDEBUG
+		if (meta->pid == 14) {
+			out << (int*) reader << "\ty: ";
+		}
+#endif
+
 		Chunk::write(reader, objType, CHAR);
-		/*
-		 #ifdef MYDEBUG
-		 out << (int*) reader << "\tend: ";
-		 #endif
-		 */
+
+#ifdef MYDEBUG
+		if (meta->pid == 14) {
+			out << (int*) reader << "\tend: ";
+		}
+#endif
+
 		Chunk::write(reader, y, objType);
-		/*
-		 #ifdef MYDEBUG
-		 out << (double*) reader << endl;
-		 out.close();
-		 #endif
-		 */
+
+#ifdef MYDEBUG
+		if (meta->pid == 14) {
+			out << (double*) reader << endl;
+			out.close();
+		}
+#endif
+
 	} else if (meta->soType == ORDERBYO) {
 		/*
 		 #ifdef MYDEBUG
@@ -847,11 +856,6 @@ void ChunkManager::setMetaDataMin(MetaData *metaData, ID x, double y) {
 	if (meta->soType == ORDERBYS) {
 		metaData->min = x;
 		metaData->max = x;
-		/*
-		 #ifdef MYDEBUG
-		 cout << __FUNCTION__ << "\tx: " << metaData->min << "\t" << metaData->max << endl;
-		 #endif
-		 */
 	} else if (meta->soType == ORDERBYO) {
 		metaData->min = y;
 		metaData->max = y;
