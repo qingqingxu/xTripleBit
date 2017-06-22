@@ -187,7 +187,7 @@ uchar* BitmapBuffer::getPage(bool soType, size_t& pageNo) {
 
 void BitmapBuffer::save() {
 
-	map<ID, ChunkManager*>::const_iterator iter = predicate_managers[0].begin();
+/*	map<ID, ChunkManager*>::const_iterator iter = predicate_managers[0].begin();
 	for (; iter != predicate_managers[0].end(); iter++) {
 		cout << "S: " << iter->first << "--size: "
 				<< iter->second->usedPages.size() << "-- "
@@ -200,7 +200,7 @@ void BitmapBuffer::save() {
 				<< iter->second->usedPages.size() << "-- "
 				<< iter->second->usedPages.size() * MemoryBuffer::pagesize
 				<< "--length-- " << iter->second->meta->length << endl;
-	}
+	}*/
 
 	/*string filename = dir + "/BitmapBuffer";
 	 MMapBuffer *buffer;
