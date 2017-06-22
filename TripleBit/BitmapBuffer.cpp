@@ -202,8 +202,8 @@ void BitmapBuffer::save() {
 	size_t offset = 0;
 
 	cout << iter->second->meta->length << endl;
-	buffer = new MMapBuffer(filename.c_str(), iter->second->meta->length);
-	cout << buffer->getSize() << endl;
+	//buffer = new MMapBuffer(filename.c_str(), iter->second->meta->length);
+	//cout << buffer->getSize() << endl;
 
 	/*predicateWriter = predicateBuffer->get_address();
 	bufferWriter = buffer->get_address();
