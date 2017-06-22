@@ -59,7 +59,7 @@ public:
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << endl;
 #endif
-		unsigned len = sizeof(T) + sizeof(ID) + sizeof(sizeof(size_t));
+		unsigned len = Chunk::getLen(objType) + sizeof(ID) + sizeof(sizeof(size_t));
 #ifdef MYDEBUG
 		ofstream out;
 		out.open("addStatis", ios::app);
@@ -103,7 +103,8 @@ public:
 			} else if (statType == OBJECTPREDICATE_STATIS) {
 				writer = writeData(writer, objType); //OP统计信息O前需加objType
 			}
-			writer = writeData(writer, soValue);
+			Chunk::write(writer, soValue, objType);
+			//writer = writeData(writer, soValue);
 			writer = writeData(writer, predicateID);
 			writer = writeData(writer, count);
 
