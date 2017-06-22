@@ -104,11 +104,11 @@ public:
 	template<typename T>
 	Status addStatis(T soValue, ID predicateID, size_t count, char objType =
 			STRING) {
-#ifdef MYDEBUG
-		cout << __FUNCTION__ << endl;
-#endif
-		unsigned len = Chunk::getLen(objType) + sizeof(ID)
-				+ sizeof(size_t);
+		unsigned len = Chunk::getLen(objType) + sizeof(ID) + sizeof(size_t);
+		if(statType == OBJECTPREDICATE_STATIS){
+			len += sizeof(char);
+		}
+
 #ifdef MYDEBUG
 		ofstream out;
 		out.open("addStatis", ios::app);
@@ -116,7 +116,6 @@ public:
 		out << so << "\t" << predicateID << "\t" << count << endl;
 #endif
 		if (first || usedSpace + len > buffer->getSize()) {
-			cout << "usedSpace + len > buffer->getSize()" << endl;
 			usedSpace = writer - (uchar*) buffer->getBuffer();
 			buffer->resize(
 					STATISTICS_BUFFER_INCREMENT_PAGE_COUNT
@@ -124,9 +123,6 @@ public:
 			writer = (uchar*) buffer->getBuffer() + usedSpace;
 
 			if ((indexPos + 1) >= indexSize) {
-#ifdef MYDEBUG
-				cout<<"indexPos: "<<indexPos<<" indexSize: "<<indexSize<<endl;
-#endif
 				index = (Triple*) realloc(index,
 						indexSize * sizeof(Triple)
 								+ MemoryBuffer::pagesize * sizeof(Triple));
@@ -150,18 +146,13 @@ public:
 		} else if (statType == OBJECTPREDICATE_STATIS) {
 			writer = writeData(writer, objType); //OP统计信息O前需加objType
 			writer = writeData(writer, soValue, objType);
-			cout<<"OBJECT"<<endl;
 		}
 
 		writer = writeData(writer, predicateID);
-		cout<<"predicateID"<<endl;
-		cout << buffer->getSize() - (writer - (uchar*) buffer->getBuffer()) << endl;
 		writer = writeData(writer, count);
-		cout<<"count"<<endl;
 
 		usedSpace = writer - (uchar*) buffer->getBuffer();
 #ifdef MYDEBUG
-		cout << __FUNCTION__ << "end" << endl;
 		out.close();
 #endif
 		return OK;
