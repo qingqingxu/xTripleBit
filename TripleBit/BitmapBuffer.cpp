@@ -201,7 +201,8 @@ void BitmapBuffer::save() {
 	map<ID, ChunkManager*>::const_iterator iter = predicate_managers[0].begin();
 	size_t offset = 0;
 
-	//buffer = new MMapBuffer(filename.c_str(), iter->second->meta->length);
+	cout << iter->second->meta->length << endl;
+	buffer = new MMapBuffer(filename.c_str(), iter->second->meta->length);
 
 	/*predicateWriter = predicateBuffer->get_address();
 	bufferWriter = buffer->get_address();
