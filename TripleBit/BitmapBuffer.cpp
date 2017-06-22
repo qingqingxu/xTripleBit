@@ -203,7 +203,7 @@ void BitmapBuffer::save() {
 
 	buffer = new MMapBuffer(filename.c_str(), iter->second->meta->length);
 
-	predicateWriter = predicateBuffer->get_address();
+	/*predicateWriter = predicateBuffer->get_address();
 	bufferWriter = buffer->get_address();
 	vector<size_t>::iterator pageNoIter = iter->second->usedPages.begin(),
 			limit = iter->second->usedPages.end();
@@ -214,9 +214,9 @@ void BitmapBuffer::save() {
 				tempByS->get_address() + pageNo * MemoryBuffer::pagesize,
 				MemoryBuffer::pagesize);
 		bufferWriter = bufferWriter + MemoryBuffer::pagesize;
-	}
+	}*/
 
-	*((ID*) predicateWriter) = iter->first;
+	/**((ID*) predicateWriter) = iter->first;
 	predicateWriter += sizeof(ID);
 	*((SOType*) predicateWriter) = ORDERBYS;
 	predicateWriter += sizeof(SOType);
@@ -227,7 +227,7 @@ void BitmapBuffer::save() {
 	bufferWriter = buffer->resize(iter->second->meta->length);
 	uchar *startPos = bufferWriter + offset;
 
-	iter++;
+	iter++;*/
 	/*for (; iter != predicate_managers[0].end(); iter++) {
 		bufferWriter = buffer->resize(iter->second->meta->length);
 		startPos = bufferWriter + offset;
