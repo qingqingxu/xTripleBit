@@ -398,17 +398,17 @@ void BitmapBuffer::save() {
 		}
 	}
 
-	if (bitmapIndex == NULL) {
+	if (bitmapIndex != NULL) {
 		delete bitmapIndex;
 		bitmapIndex = NULL;
 	}
 
-	if (buffer == NULL) {
+	if (buffer != NULL) {
 		delete buffer;
 		buffer = NULL;
 	}
 
-	if (predicateBuffer == NULL) {
+	if (predicateBuffer != NULL) {
 		delete predicateBuffer;
 		predicateBuffer = NULL;
 	}
