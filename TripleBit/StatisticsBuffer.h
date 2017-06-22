@@ -117,7 +117,7 @@ public:
 #endif
 		if (first || usedSpace + len > buffer->getSize()) {
 #ifdef MYDEBUG
-			out << "usedSpace + len > buffer->getSize()" << endl;
+			cout << "usedSpace + len > buffer->getSize()" << endl;
 #endif
 			usedSpace = writer - (uchar*) buffer->getBuffer();
 			buffer->resize(
@@ -126,7 +126,7 @@ public:
 			writer = (uchar*) buffer->getBuffer() + usedSpace;
 
 			if ((indexPos + 1) >= indexSize) {
-#ifdef DEBUF
+#ifdef MYDEBUG
 				cout<<"indexPos: "<<indexPos<<" indexSize: "<<indexSize<<endl;
 #endif
 				index = (Triple*) realloc(index,
@@ -152,10 +152,13 @@ public:
 		} else if (statType == OBJECTPREDICATE_STATIS) {
 			writer = writeData(writer, objType); //OP统计信息O前需加objType
 			writer = writeData(writer, soValue, objType);
+			cout<<"OBJECT"<<endl;
 		}
 
 		writer = writeData(writer, predicateID);
+		cout<<"predicateID"<<endl;
 		writer = writeData(writer, count);
+		cout<<"count"<<endl;
 
 		usedSpace = writer - (uchar*) buffer->getBuffer();
 #ifdef MYDEBUG

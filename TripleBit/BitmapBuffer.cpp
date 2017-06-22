@@ -848,9 +848,6 @@ bool ChunkManager::isChunkOverFlow(uint len) {
 }
 
 void ChunkManager::setMetaDataMin(MetaData *metaData, ID x, double y) {
-#ifdef MYDEBUG
-	cout << __FUNCTION__ << endl;
-#endif
 	if (meta->soType == ORDERBYS) {
 		metaData->min = x;
 		metaData->max = x;
