@@ -720,6 +720,7 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 #endif
 	uint len = sizeof(ID) + Chunk::getLen(objType);
 	if (isChunkOverFlow(len) == true) {
+		isFirstPage = false;
 #ifdef MYDEBUG
 		out << meta->pid << "-----------isChunkOverFlow" << endl;
 #endif
@@ -751,6 +752,7 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 				- sizeof(ChunkManagerMeta) + sizeof(MetaData) + len; // indicate one chunk spare will not save
 		tripleCountAdd();
 	} else if (meta->usedSpace == 0) {
+		isFirstPage = true;
 #ifdef MYDEBUG
 		out << "-----------meta->usedSpace == 0" << endl;
 #endif
@@ -772,7 +774,12 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		MetaData *metaData;
 		size_t usedPage = MemoryBuffer::pagesize
 				- (meta->length - meta->usedSpace - sizeof(ChunkManagerMeta));
-		metaData = (MetaData*) (meta->endPtr - usedPage);
+		if (isFirstPage) {
+			metaData = (MetaData*) (meta->endPtr - usedPage
+					+ sizeof(ChunkManagerMeta));
+		} else {
+			metaData = (MetaData*) (meta->endPtr - usedPage);
+		}
 		if (meta->soType == ORDERBYS) {
 			if (x > metaData->max) {
 #ifdef MYDEBUG
