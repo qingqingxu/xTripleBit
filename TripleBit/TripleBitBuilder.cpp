@@ -452,6 +452,21 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 	sortedByObject.discard();
 	sortedBySubject.discard();
 
+	map<ID, ChunkManager*>::const_iterator iter = bitmap->predicate_managers[0].begin();
+		for (; iter != bitmap->predicate_managers[0].end(); iter++) {
+			cout << "S: " << iter->first << "--size: "
+					<< iter->second->usedPages.size() << "-- "
+					<< iter->second->usedPages.size() * MemoryBuffer::pagesize
+					<< "--length-- " << iter->second->meta->length << endl;
+		}
+		iter = bitmap->predicate_managers[1].begin();
+			for (; iter != bitmap->predicate_managers[1].end(); iter++) {
+				cout << "S: " << iter->first << "--size: "
+						<< iter->second->usedPages.size() << "-- "
+						<< iter->second->usedPages.size() * MemoryBuffer::pagesize
+						<< "--length-- " << iter->second->meta->length << endl;
+			}
+
 	return OK;
 }
 
