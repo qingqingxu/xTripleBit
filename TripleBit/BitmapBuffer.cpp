@@ -364,7 +364,7 @@ void BitmapBuffer::save() {
 	tempByO->discard();
 
 	//build index;
-	MMapBuffer* bitmapIndex = NULL;
+/*	MMapBuffer* bitmapIndex = NULL;
 	predicateWriter = predicateBuffer->get_address();
 #ifdef MYDEBUG
 	cout << "build hash index for subject" << endl;
@@ -396,7 +396,7 @@ void BitmapBuffer::save() {
 			*((size_t*) predicateWriter) = offset;
 			predicateWriter = predicateWriter + sizeof(size_t);
 		}
-	}
+	}*/
 
 	predicateWriter = NULL;
 	bufferWriter = NULL;
