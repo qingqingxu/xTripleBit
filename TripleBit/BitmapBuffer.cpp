@@ -228,7 +228,7 @@ void BitmapBuffer::save() {
 	uchar *startPos = bufferWriter + offset;
 
 	iter++;
-	for (; iter != predicate_managers[0].end(); iter++) {
+	/*for (; iter != predicate_managers[0].end(); iter++) {
 		bufferWriter = buffer->resize(iter->second->meta->length);
 		startPos = bufferWriter + offset;
 
@@ -254,7 +254,7 @@ void BitmapBuffer::save() {
 		assert(
 				iter->second->usedPages.size() * MemoryBuffer::pagesize
 						== iter->second->meta->length);
-	}
+	}*/
 
 	buffer->flush();
 	tempByS->discard();
