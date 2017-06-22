@@ -32,7 +32,7 @@ class StatisticsBuffer;
 #include "TurtleParser.hpp"
 #include "ThreadPool.h"
 #include "TempFile.h"
-
+#define MYDEBUG
 using namespace std;
 
 class TripleBitBuilder {
@@ -58,6 +58,9 @@ public:
 	static int compare321(const uchar* left, const uchar* right);
 
 	static inline void loadTriple(const uchar* data, ID& v1, ID& v2, double& v3, char& objType) {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 		TempFile::readTriple(data, v1, v2, v3, objType);
 	}
 
