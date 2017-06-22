@@ -224,7 +224,7 @@ void BitmapBuffer::save() {
 	predicateWriter += sizeof(size_t) * 2;
 	offset += iter->second->meta->length;
 
-	bufferWriter = buffer->resize(iter->second->meta->length);
+	//bufferWriter = buffer->resize(iter->second->meta->length);
 	uchar *startPos = bufferWriter + offset;
 
 	iter++;
@@ -288,7 +288,6 @@ void BitmapBuffer::save() {
 								* MemoryBuffer::pagesize);
 	}
 	buffer->flush();
-	tempByO->discard();
 	predicateBuffer->flush();
 
 	predicateWriter = predicateBuffer->get_address();
@@ -362,6 +361,7 @@ void BitmapBuffer::save() {
 		}
 	}
 	buffer->flush();
+	tempByO->discard();
 
 	//build index;
 	MMapBuffer* bitmapIndex = NULL;
