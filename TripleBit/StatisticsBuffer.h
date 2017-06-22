@@ -24,7 +24,7 @@ uchar* writeData(uchar* writer, T data) {
 	return writer + sizeof(T);
 }
 
-uchar* writeData(uchar* writer, double data, char objType) {
+uchar* writeObject(uchar* writer, double data, char objType) {
 	char c;
 	int i;
 	float f;
@@ -150,7 +150,7 @@ public:
 			writer = writeData(writer, soValue);
 		} else if (statType == OBJECTPREDICATE_STATIS) {
 			writer = writeData(writer, objType); //OP统计信息O前需加objType
-			writer = writeData(writer, soValue, objType);
+			writer = writeObject(writer, soValue, objType);
 		}
 
 		writer = writeData(writer, predicateID);
