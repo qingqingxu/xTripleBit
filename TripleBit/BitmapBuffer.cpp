@@ -57,9 +57,6 @@ Status BitmapBuffer::insertPredicate(ID predicateID, OrderByType soType) {
 
 Status BitmapBuffer::insertTriple(ID predicateID, ID subjectID, double object,
 		OrderByType soType, char objType) {
-#ifdef MYDEBUG
-	cout << __FUNCTION__ << endl;
-#endif
 	getChunkManager(predicateID, soType)->insertXY(subjectID, object, objType);
 	return OK;
 }

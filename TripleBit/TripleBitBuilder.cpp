@@ -347,6 +347,9 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 		count1 = 1;
 
 		while (reader < limit) {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 			loadTriple(reader, subjectID, predicateID, object, objType);
 			count++;
 			if (lastSubjectID == subjectID && lastPredicateID == predicateID
@@ -408,6 +411,9 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 		count1 = 1;
 
 		while (reader < limit) {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 			loadTriple(reader, subjectID, predicateID, object, objType);
 			count++;
 			if (lastSubjectID == subjectID && lastPredicateID == predicateID
