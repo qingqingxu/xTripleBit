@@ -732,7 +732,7 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 	ofstream out;
 	out.open("insertxy", ios::app);
 	if(meta->soType == ORDERBYO){
-		out << __FUNCTION__ << "\t" << x << "\t" << y << "\t" << (objType == STRING)
+		out << __FUNCTION__ << "\t" << meta->pid << "\t" << x << "\t" << y << "\t" << (objType == STRING)
 					<< endl;
 	}
 
