@@ -361,6 +361,7 @@ void BitmapBuffer::save() {
 		}
 	}
 	buffer->flush();
+	tempByO->discard();
 
 	//build index;
 	MMapBuffer* bitmapIndex = NULL;
