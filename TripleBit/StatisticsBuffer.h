@@ -13,6 +13,7 @@
 #include "TripleBit.h"
 #include "MemoryBuffer.h"
 #include "MMapBuffer.h"
+#include "BitmapBuffer.h"
 
 class MMapBuffer;
 
