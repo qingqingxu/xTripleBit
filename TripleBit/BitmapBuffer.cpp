@@ -50,13 +50,13 @@ BitmapBuffer::~BitmapBuffer() {
 }
 
 Status BitmapBuffer::insertPredicate(ID predicateID, OrderByType soType) {
-	predicate_managers[soType][predicateID] = new ChunkManager(predicateID, soType, this);
+	predicate_managers[soType][predicateID] = new ChunkManager(predicateID,
+			soType, this);
 	return OK;
 }
 
-Status BitmapBuffer::insertTriple(ID predicateID, ID subjectID,
-		double object, OrderByType soType,
-		char objType) {
+Status BitmapBuffer::insertTriple(ID predicateID, ID subjectID, double object,
+		OrderByType soType, char objType) {
 	getChunkManager(predicateID, soType)->insertXY(subjectID, object, objType);
 	return OK;
 }
@@ -296,10 +296,10 @@ void BitmapBuffer::save() {
 	ID id;
 	for (iter = predicate_managers[0].begin();
 			iter != predicate_managers[0].end(); iter++) {
-		id = *(ID*)predicateWriter;
+		id = *(ID*) predicateWriter;
 		assert(iter->first == id);
 		predicateWriter += sizeof(ID) + sizeof(SOType);
-		offset = *(size_t*)predicateWriter;
+		offset = *(size_t*) predicateWriter;
 		predicateWriter += sizeof(size_t) * 2;
 
 		uchar *base = buffer->get_address() + offset;
@@ -330,10 +330,10 @@ void BitmapBuffer::save() {
 
 	for (iter = predicate_managers[1].begin();
 			iter != predicate_managers[1].end(); iter++) {
-		id = *(ID*)predicateWriter;
+		id = *(ID*) predicateWriter;
 		assert(iter->first == id);
 		predicateWriter = predicateWriter + sizeof(ID) + sizeof(SOType);
-		offset = *(size_t*)predicateWriter;
+		offset = *(size_t*) predicateWriter;
 		predicateWriter = predicateWriter + sizeof(size_t) * 2;
 
 		uchar *base = buffer->get_address() + offset;
@@ -366,7 +366,7 @@ void BitmapBuffer::save() {
 	MMapBuffer* bitmapIndex = NULL;
 	predicateWriter = predicateBuffer->get_address();
 #ifdef MYDEBUG
-	cout<<"build hash index for subject"<<endl;
+	cout << "build hash index for subject" << endl;
 	cout << "predicate size: " << predicate_managers[0].size() << endl;
 #endif
 	for (map<ID, ChunkManager*>::iterator iter = predicate_managers[0].begin();
@@ -375,7 +375,7 @@ void BitmapBuffer::save() {
 #ifdef MYDEBUG
 			ofstream out;
 			out.open("buildindex", ios::app);
-			out<< "pid: " <<iter->first<<endl;
+			out << "pid: " << iter->first << endl;
 			out.close();
 #endif
 			iter->second->buildChunkIndex();
@@ -388,7 +388,7 @@ void BitmapBuffer::save() {
 	}
 
 #ifdef MYDEBUG
-	cout<<"build hash index for object"<<endl;
+	cout << "build hash index for object" << endl;
 	cout << "predicate size: " << predicate_managers[1].size() << endl;
 #endif
 	for (map<ID, ChunkManager*>::iterator iter = predicate_managers[1].begin();
@@ -397,7 +397,7 @@ void BitmapBuffer::save() {
 #ifdef MYDEBUG
 			ofstream out;
 			out.open("buildindex", ios::app);
-			out<< "pid: " << iter->first<<endl;
+			out << "pid: " << iter->first << endl;
 			out.close();
 #endif
 			iter->second->buildChunkIndex();
@@ -425,24 +425,24 @@ BitmapBuffer *BitmapBuffer::load(MMapBuffer* bitmapImage,
 	size_t sizePredicateBuffer = bitmapPredicateImage->get_length();
 
 	while (predicateOffset < sizePredicateBuffer) {
-		id = *(ID*)predicateReader;
+		id = *(ID*) predicateReader;
 		predicateReader += sizeof(ID);
-		soType = *(SOType*)predicateReader;
+		soType = *(SOType*) predicateReader;
 		predicateReader += sizeof(SOType);
-		offset = *(size_t*)predicateReader;
+		offset = *(size_t*) predicateReader;
 		predicateReader += sizeof(size_t);
-		indexOffset = *(size_t*)predicateReader;
+		indexOffset = *(size_t*) predicateReader;
 		predicateReader += sizeof(size_t);
 		if (soType == ORDERBYS) {
-			ChunkManager *manager = ChunkManager::load(id,
-					ORDERBYS, bitmapImage->get_address(), offset);
+			ChunkManager *manager = ChunkManager::load(id, ORDERBYS,
+					bitmapImage->get_address(), offset);
 			manager->chunkIndex = LineHashIndex::load(*manager,
 					LineHashIndex::SUBJECT_INDEX,
 					bitmapIndexImage->get_address(), indexOffset);
 			buffer->predicate_managers[0][id] = manager;
 		} else if (soType == ORDERBYO) {
-			ChunkManager *manager = ChunkManager::load(id,
-					ORDERBYO, bitmapImage->get_address(), offset);
+			ChunkManager *manager = ChunkManager::load(id, ORDERBYO,
+					bitmapImage->get_address(), offset);
 			manager->chunkIndex = LineHashIndex::load(*manager,
 					LineHashIndex::OBJECT_INDEX,
 					bitmapIndexImage->get_address(), indexOffset);
@@ -479,11 +479,11 @@ void BitmapBuffer::endUpdate(MMapBuffer *bitmapPredicateImage,
 		lastoffsetPage = offsetPage;
 		bufferWriterBegin = bufferWriter;
 
-		id = *(ID*)predicateReader;
+		id = *(ID*) predicateReader;
 		predicateReader += sizeof(ID);
-		soType = *(SOType*)predicateReader;
+		soType = *(SOType*) predicateReader;
 		predicateReader += sizeof(SOType);
-		offset = *(size_t*)predicateReader;
+		offset = *(size_t*) predicateReader;
 		*((size_t*) predicateReader) = bufferWriterBegin
 				- buffer->get_address();
 		predicateReader += sizeof(size_t);
@@ -573,11 +573,11 @@ void BitmapBuffer::endUpdate(MMapBuffer *bitmapPredicateImage,
 	predicateOffset = 0;
 	predicateReader = bitmapPredicateImage->get_address();
 	while (predicateOffset < sizePredicateBuffer) {
-		id = *(ID*)predicateReader;
+		id = *(ID*) predicateReader;
 		predicateReader += sizeof(ID);
-		soType = *(SOType*)predicateReader;
+		soType = *(SOType*) predicateReader;
 		predicateReader += sizeof(SOType);
-		offset = *(size_t*)predicateReader;
+		offset = *(size_t*) predicateReader;
 		predicateReader += sizeof(size_t);
 		predicateReader += sizeof(size_t);
 
@@ -654,72 +654,74 @@ ChunkManager::~ChunkManager() {
 }
 
 void ChunkManager::writeXY(const uchar* reader, ID x, double y, char objType) {
-	if(meta->soType == ORDERBYS){
+	if (meta->soType == ORDERBYS) {
 #ifdef MYDEBUG
-	ofstream out;
-	out.open("writexy_ORDERBYS", ios::app);
-	out << meta->pid << "\t" << meta->soType << "\tx: "  << (int*)reader << "\tobjType: " << getDataType(objType) << "\t"  ;
+		ofstream out;
+		out.open("writexy_ORDERBYS", ios::app);
+		out << meta->pid << "\t" << meta->soType << "\tx: " << (int*) reader
+				<< "\tobjType: " << getDataType(objType) << "\t";
 #endif
 		Chunk::writeID(reader, x);
 #ifdef MYDEBUG
-		out << (int*)reader << "\ty: ";
+		out << (int*) reader << "\ty: ";
 #endif
 		Chunk::write(reader, objType, CHAR);
 #ifdef MYDEBUG
-		out << (int*)reader << "\tend: ";
+		out << (int*) reader << "\tend: ";
 #endif
 		Chunk::write(reader, y, objType);
 #ifdef MYDEBUG
-		out << (double*)reader << endl;
+		out << (double*) reader << endl;
 		out.close();
 #endif
-	}else if(meta->soType == ORDERBYO){
+	} else if (meta->soType == ORDERBYO) {
 #ifdef MYDEBUG
-	ofstream out;
-	out.open("writexy_ORDERBYO", ios::app);
-	out << meta->pid << "\t" << meta->soType << "\tobjType: " << getDataType(objType) << "\t"  << (double*)reader << "\ty: ";
+		ofstream out;
+		out.open("writexy_ORDERBYO", ios::app);
+		out << meta->pid << "\t" << meta->soType << "\tobjType: "
+				<< getDataType(objType) << "\t" << (double*) reader << "\ty: ";
 #endif
 		Chunk::write(reader, objType, CHAR);
 #ifdef MYDEBUG
-		out << (int*)reader << "\tx: ";
+		out << (int*) reader << "\tx: ";
 #endif
 		Chunk::write(reader, y, objType);
 #ifdef MYDEBUG
-		out << (int*)reader << "\tend: ";
+		out << (int*) reader << "\tend: ";
 #endif
 		Chunk::writeID(reader, x);
 #ifdef MYDEBUG
-		out << (int*)reader << endl;
+		out << (int*) reader << endl;
 		out.close();
 #endif
 	}
 }
 
-uchar* ChunkManager::deleteTriple(uchar* reader, char objType){
-	if(meta->soType == ORDERBYS){
-		*(ID*) reader = 0;//s
+uchar* ChunkManager::deleteTriple(uchar* reader, char objType) {
+	if (meta->soType == ORDERBYS) {
+		*(ID*) reader = 0; //s
 		reader += sizeof(ID);
-		return Chunk::deleteData(reader, objType);//o
-	}else if(meta->soType == ORDERBYO){
-		reader = Chunk::deleteData(reader, objType);//o
-		*(ID*) reader = 0;//s
+		return Chunk::deleteData(reader, objType); //o
+	} else if (meta->soType == ORDERBYO) {
+		reader = Chunk::deleteData(reader, objType); //o
+		*(ID*) reader = 0; //s
 		reader += sizeof(ID);
 		return reader;
 	}
-	return reader;//无操作
+	return reader; //无操作
 }
 
 void ChunkManager::insertXY(ID x, double y, char objType) {
 #ifdef MYDEBUG
 	ofstream out;
 	out.open("insertxy", ios::app);
-	out << __FUNCTION__ << "\t" << x << "\t" << y << "\t" << (objType == STRING) << endl;
+	out << __FUNCTION__ << "\t" << x << "\t" << y << "\t" << (objType == STRING)
+			<< endl;
 #endif
 	uint len = sizeof(ID) + Chunk::getLen(objType);
 	if (isChunkOverFlow(len) == true) {
-		isFirstPage = false;
 #ifdef MYDEBUG
-	out << meta->pid << "-----------isChunkOverFlow" << endl;
+		out << meta->pid << "-----------isChunkOverFlow" << endl;
 #endif
 		if (meta->length == MemoryBuffer::pagesize) {
 			MetaData *metaData = (MetaData*) (meta->endPtr - meta->usedSpace);
@@ -735,7 +737,7 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		size_t pageNo;
 		resize(pageNo);
 #ifdef MYDEBUG
-	out << "-----------pageNo: " << pageNo << endl;
+		out << "-----------pageNo: " << pageNo << endl;
 #endif
 		MetaData *metaData = (MetaData*) (meta->endPtr);
 		setMetaDataMin(metaData, x, y);
@@ -749,9 +751,8 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 				- sizeof(ChunkManagerMeta) + sizeof(MetaData) + len; // indicate one chunk spare will not save
 		tripleCountAdd();
 	} else if (meta->usedSpace == 0) {
-		isFirstPage = true;
 #ifdef MYDEBUG
-	out << "-----------meta->usedSpace == 0" << endl;
+		out << "-----------meta->usedSpace == 0" << endl;
 #endif
 		MetaData *metaData = (MetaData*) (meta->startPtr);
 		memset((char*) metaData, 0, sizeof(MetaData));
@@ -765,28 +766,25 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		tripleCountAdd();
 	} else {
 #ifdef MYDEBUG
-	out << "-----------meta->usedSpace != 0 and not isChunkOverFlow" << endl;
+		out << "-----------meta->usedSpace != 0 and not isChunkOverFlow"
+				<< endl;
 #endif
 		MetaData *metaData;
-		if(isFirstPage){
-			metaData = (MetaData*)(meta->endPtr - (MemoryBuffer::pagesize - (meta->length - ((meta->endPtr - meta->startPtr) + sizeof(ChunkManagerMeta))))+ sizeof(ChunkManagerMeta));
-		}else{
-			size_t usedPage =
-								MemoryBuffer::pagesize
-										- (meta->length - meta->usedSpace
-												- sizeof(ChunkManagerMeta));
-						metaData = (MetaData*) (meta->endPtr - usedPage);
-		}
-		if(meta->soType == ORDERBYS){
-			if(x > metaData->max){
+		size_t usedPage = MemoryBuffer::pagesize
+				- (meta->length - meta->usedSpace - sizeof(ChunkManagerMeta));
+		metaData = (MetaData*) (meta->endPtr - usedPage);
+		if (meta->soType == ORDERBYS) {
+			if (x > metaData->max) {
 #ifdef MYDEBUG
-	out << meta->pid << "-----------metaData->min: " << metaData->min << endl;
-	out << meta->pid << "-----------metaData->max: " << metaData->max << endl;
+				out << meta->pid << "-----------metaData->min: "
+						<< metaData->min << endl;
+				out << meta->pid << "-----------metaData->max: "
+						<< metaData->max << endl;
 #endif
 				metaData->max = x;
 			}
-		}else if(meta->soType == ORDERBYO){
-			if(y > metaData->max){
+		} else if (meta->soType == ORDERBYO) {
+			if (y > metaData->max) {
 				metaData->max = y;
 			}
 		}
@@ -830,11 +828,11 @@ void ChunkManager::setMetaDataMin(MetaData *metaData, ID x, double y) {
 	if (meta->soType == ORDERBYS) {
 		metaData->min = x;
 		metaData->max = x;
-/*
-#ifdef MYDEBUG
-		cout << __FUNCTION__ << "\tx: " << metaData->min << "\t" << metaData->max << endl;
-#endif
-*/
+		/*
+		 #ifdef MYDEBUG
+		 cout << __FUNCTION__ << "\tx: " << metaData->min << "\t" << metaData->max << endl;
+		 #endif
+		 */
 	} else if (meta->soType == ORDERBYO) {
 		metaData->min = y;
 		metaData->max = y;
@@ -845,8 +843,8 @@ size_t ChunkManager::getChunkNumber() {
 	return (meta->length) / (MemoryBuffer::pagesize);
 }
 
-ChunkManager* ChunkManager::load(ID predicateID, bool soType,
-		uchar* buffer, size_t& offset) {
+ChunkManager* ChunkManager::load(ID predicateID, bool soType, uchar* buffer,
+		size_t& offset) {
 	ChunkManagerMeta * meta = (ChunkManagerMeta*) (buffer + offset);
 	if (meta->pid != predicateID || meta->soType != soType) {
 		MessageEngine::showMessage("load chunkmanager error: check meta info",
@@ -878,7 +876,7 @@ void Chunk::writeID(const uchar*& writer, ID data, bool isUpdateAdress) {
 }
 
 const uchar* Chunk::readID(const uchar* reader, ID& data, bool isUpdateAdress) {
-	data = *(ID*)reader;
+	data = *(ID*) reader;
 	if (isUpdateAdress) {
 		reader += sizeof(ID);
 	}
@@ -909,10 +907,10 @@ uchar* Chunk::deleteData(uchar* reader, char dataType) {
 		break;
 	case LONGLONG:
 		*(char*) reader = LONGLONG_DELETE;
-				reader += sizeof(char);
-				*(longlong*) reader = 0;
-				reader += sizeof(longlong);
-				break;
+		reader += sizeof(char);
+		*(longlong*) reader = 0;
+		reader += sizeof(longlong);
+		break;
 	case DATE:
 	case DOUBLE:
 		*(char*) reader = DOUBLE_DELETE;
@@ -959,9 +957,9 @@ const uchar* Chunk::skipData(const uchar* reader, char dataType) {
 	return reader + getLen(dataType);
 }
 
-Status Chunk::getObjTypeStatus(const uchar*& reader, uint& moveByteNum){
-	char objType = *(char*)reader;
-	switch(objType){
+Status Chunk::getObjTypeStatus(const uchar*& reader, uint& moveByteNum) {
+	char objType = *(char*) reader;
+	switch (objType) {
 	case NONE:
 		return DATA_NONE;
 	case BOOL:
@@ -1005,38 +1003,38 @@ Status Chunk::getObjTypeStatus(const uchar*& reader, uint& moveByteNum){
 //若无下一对xy，则返回endPtr表示该Chunk无下一对xy
 const uchar* Chunk::skipForward(const uchar* reader, const uchar* endPtr,
 		OrderByType soType) {
-	if(soType == ORDERBYS){
-		while(reader + sizeof(ID) < endPtr && (*(ID*)reader == 0)){
+	if (soType == ORDERBYS) {
+		while (reader + sizeof(ID) < endPtr && (*(ID*) reader == 0)) {
 			reader += sizeof(ID);
-			if(reader + sizeof(char) < endPtr && *(char*)reader != NONE){
-				char objType = *(char*)reader;
+			if (reader + sizeof(char) < endPtr && *(char*) reader != NONE) {
+				char objType = *(char*) reader;
 				reader += sizeof(char);
-				if(reader + getLen(objType) >= endPtr){
+				if (reader + getLen(objType) >= endPtr) {
 					return endPtr;
 				}
-			}else {
+			} else {
 				return endPtr;
 			}
 		}
-		if(reader + sizeof(ID) >= endPtr){
+		if (reader + sizeof(ID) >= endPtr) {
 			return endPtr;
-		}else if(*(ID*)reader != 0){
+		} else if (*(ID*) reader != 0) {
 			return reader;
 		}
-	}else if(soType == ORDERBYO){
+	} else if (soType == ORDERBYO) {
 		uint moveByteNum = 0;
 		int status;
-		while(reader + sizeof(char) < endPtr && (*(char*)reader != NONE)){
+		while (reader + sizeof(char) < endPtr && (*(char*) reader != NONE)) {
 			status = getObjTypeStatus(reader, moveByteNum);
-			if(status == DATA_NONE){
+			if (status == DATA_NONE) {
 				return endPtr;
-			}else if(status == DATA_EXSIT){
-				if((reader += sizeof(ID)) <= endPtr){
+			} else if (status == DATA_EXSIT) {
+				if ((reader += sizeof(ID)) <= endPtr) {
 					return reader - moveByteNum;
-				}else{
+				} else {
 					return endPtr;
 				}
-			}else if(status == DATA_DELETE){
+			} else if (status == DATA_DELETE) {
 				reader += sizeof(ID);
 			}
 		}
@@ -1045,15 +1043,16 @@ const uchar* Chunk::skipForward(const uchar* reader, const uchar* endPtr,
 	return endPtr;
 }
 
-const uchar* Chunk::skipBackward(const uchar* reader, const uchar* endPtr, OrderByType soType){
+const uchar* Chunk::skipBackward(const uchar* reader, const uchar* endPtr,
+		OrderByType soType) {
 	const uchar* temp = reader + sizeof(MetaData);
 	reader = temp;
 	uint len = 0;
-	while(reader < endPtr){
+	while (reader < endPtr) {
 		len = reader - temp;
 		reader = Chunk::skipForward(temp, endPtr, soType);
 	}
-	if(len){
+	if (len) {
 		return temp - len;
 	}
 	return endPtr;
