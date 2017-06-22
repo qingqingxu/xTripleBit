@@ -731,14 +731,16 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 #ifdef MYDEBUG
 	ofstream out;
 	out.open("insertxy", ios::app);
-	out << __FUNCTION__ << "\t" << x << "\t" << y << "\t" << (objType == STRING)
+	if(meta->soType = ORDERBYO)
+		out << __FUNCTION__ << "\t" << x << "\t" << y << "\t" << (objType == STRING)
 			<< endl;
 #endif
 	uint len = sizeof(ID) + Chunk::getLen(objType);
 	if (isChunkOverFlow(len) == true) {
 		isFirstPage = false;
 #ifdef MYDEBUG
-		out << meta->pid << "-----------isChunkOverFlow" << endl;
+		if(meta->soType = ORDERBYO)
+			out << meta->pid << "-----------isChunkOverFlow" << endl;
 #endif
 		if (meta->length == MemoryBuffer::pagesize) {
 			MetaData *metaData = (MetaData*) (meta->endPtr - meta->usedSpace);
@@ -771,9 +773,6 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		tripleCountAdd();
 	} else if (meta->usedSpace == 0) {
 		isFirstPage = true;
-#ifdef MYDEBUG
-		out << "-----------meta->usedSpace == 0" << endl;
-#endif
 		MetaData *metaData = (MetaData*) (meta->startPtr);
 		memset((char*) metaData, 0, sizeof(MetaData));
 		setMetaDataMin(metaData, x, y);
@@ -786,8 +785,8 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		tripleCountAdd();
 	} else {
 #ifdef MYDEBUG
-		out << "-----------meta->usedSpace != 0 and not isChunkOverFlow"
-				<< endl;
+		if(meta->soType = ORDERBYO)
+			out << meta->pid << "---meta->usedSpace != 0-------not -isChunkOverFlow" << endl;
 #endif
 		MetaData *metaData;
 		size_t usedPage = MemoryBuffer::pagesize
@@ -800,12 +799,14 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		}
 		if (meta->soType == ORDERBYS) {
 			if (x > metaData->max) {
+/*
 #ifdef MYDEBUG
 				out << meta->pid << "-----------metaData->min: "
 						<< metaData->min << endl;
 				out << meta->pid << "-----------metaData->max: "
 						<< metaData->max << endl;
 #endif
+*/
 				metaData->max = x;
 			}
 		} else if (meta->soType == ORDERBYO) {
