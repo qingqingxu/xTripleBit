@@ -729,24 +729,9 @@ uchar* ChunkManager::deleteTriple(uchar* reader, char objType) {
 }
 
 void ChunkManager::insertXY(ID x, double y, char objType) {
-#ifdef MYDEBUG
-	ofstream out;
-	out.open("insertxy", ios::app);
-	if(meta->soType == ORDERBYO){
-		out << __FUNCTION__ << "\t" << meta->pid << "\t" << x << "\t" << y << "\t" << (objType == STRING)
-					<< endl;
-	}
-
-#endif
 	uint len = sizeof(ID) + Chunk::getLen(objType);
 	if (isChunkOverFlow(len) == true) {
 		isFirstPage = false;
-#ifdef MYDEBUG
-		if(meta->soType == ORDERBYO){
-			out << meta->pid << "-----------isChunkOverFlow" << endl;
-		}
-
-#endif
 		if (meta->length == MemoryBuffer::pagesize) {
 			MetaData *metaData = (MetaData*) (meta->endPtr - meta->usedSpace);
 			metaData->usedSpace = meta->usedSpace;
@@ -773,9 +758,6 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		tripleCountAdd();
 	} else if (meta->usedSpace == 0) {
 		isFirstPage = true;
-#ifdef MYDEBUG
-		out << "-----------meta->usedSpace == 0" << endl;
-#endif
 		MetaData *metaData = (MetaData*) (meta->startPtr);
 		memset((char*) metaData, 0, sizeof(MetaData));
 		setMetaDataMin(metaData, x, y);
@@ -787,13 +769,6 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		meta->usedSpace = sizeof(MetaData) + len;
 		tripleCountAdd();
 	} else {
-#ifdef MYDEBUG
-		if(meta->soType == ORDERBYO){
-			out << "-----------meta->usedSpace != 0 and not isChunkOverFlow"
-							<< endl;
-		}
-
-#endif
 		MetaData *metaData;
 		size_t usedPage = MemoryBuffer::pagesize
 				- (meta->length - meta->usedSpace - sizeof(ChunkManagerMeta));
@@ -817,15 +792,19 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		meta->usedSpace = meta->usedSpace + len;
 		tripleCountAdd();
 	}
-#ifdef MYDEBUG
-	out.close();
-#endif
 }
 
 Status ChunkManager::resize(size_t &pageNo) {
 	// TODO
 	lastChunkStartPtr = bitmapBuffer->getPage(meta->soType, pageNo);
 	usedPages.push_back(pageNo);
+#ifdef MYDEBUG
+	ofstream out;
+	out.open("ChunkManagerresize", ios::app);
+	out << meta->pid << "----------" << usedPages.size() << endl;
+	out.close();
+#endif
+
 	meta->length = usedPages.size() * MemoryBuffer::pagesize;
 	meta->endPtr = lastChunkStartPtr;
 	return OK;

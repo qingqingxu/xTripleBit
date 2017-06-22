@@ -108,13 +108,6 @@ public:
 		if(statType == OBJECTPREDICATE_STATIS){
 			len += sizeof(char);
 		}
-
-#ifdef MYDEBUG
-		ofstream out;
-		out.open("addStatis", ios::app);
-		double so = soValue;
-		out << so << "\t" << predicateID << "\t" << count << endl;
-#endif
 		if (first || usedSpace + len > buffer->getSize()) {
 			usedSpace = writer - (uchar*) buffer->getBuffer();
 			buffer->resize(
@@ -152,9 +145,6 @@ public:
 		writer = writeData(writer, count);
 
 		usedSpace = writer - (uchar*) buffer->getBuffer();
-#ifdef MYDEBUG
-		out.close();
-#endif
 		return OK;
 	}
 	//获取一条SP或OP的统计信息
