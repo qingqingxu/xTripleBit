@@ -25,6 +25,53 @@ uchar* writeData(uchar* writer, T data) {
 }
 
 template<typename T>
+uchar* writeData(uchar* writer, T data, char objType) {
+	char c;
+	int i;
+	float f;
+	longlong ll;
+	double d;
+	uint ui;
+	switch (objType) {
+	case BOOL:
+	case CHAR:
+		c = (char) data;
+		*(char*) writer = c;
+		writer += sizeof(char);
+		break;
+	case INT:
+		i = (int) data;
+		*(int*) writer = i;
+		writer += sizeof(int);
+		break;
+	case FLOAT:
+		f = (float) data;
+		*(float*) writer = f;
+		writer += sizeof(float);
+		break;
+	case LONGLONG:
+		ll = (longlong) data;
+		*(longlong*) writer = ll;
+		writer += sizeof(longlong);
+		break;
+	case DATE:
+	case DOUBLE:
+		d = data;
+		*(double*) writer = d;
+		writer += sizeof(double);
+		break;
+	case UNSIGNED_INT:
+	case STRING:
+	default:
+		ui = (uint) data;
+		*(uint*) writer = ui;
+		writer += sizeof(uint);
+
+		break;
+	}
+	return writer;
+}
+template<typename T>
 const uchar* readData(const uchar* reader, T& data) {
 	memcpy(&data, reader, sizeof(T));
 	return reader + sizeof(T);
@@ -104,7 +151,7 @@ public:
 			writer = writeData(writer, soValue);
 		} else if (statType == OBJECTPREDICATE_STATIS) {
 			writer = writeData(writer, objType); //OP统计信息O前需加objType
-			Chunk::write((const uchar*)writer, soValue, objType);
+			writer = writeData(writer, soValue, objType);
 		}
 
 		writer = writeData(writer, predicateID);
