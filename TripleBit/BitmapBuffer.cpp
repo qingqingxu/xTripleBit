@@ -400,7 +400,7 @@ void BitmapBuffer::save() {
 
 	predicateWriter = NULL;
 	bufferWriter = NULL;
-	delete bitmapIndex;
+	//delete bitmapIndex;
 	delete buffer;
 	delete predicateBuffer;
 }
