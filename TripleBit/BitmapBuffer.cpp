@@ -195,7 +195,7 @@ void BitmapBuffer::save() {
 	MMapBuffer *predicateBuffer = new MMapBuffer(predicateFile.c_str(),
 			predicate_managers[0].size()
 					* (sizeof(ID) + sizeof(SOType) + sizeof(size_t) * 2) * 2);
-	/*uchar *predicateWriter = predicateBuffer->get_address();
+	uchar *predicateWriter = predicateBuffer->get_address();
 	uchar *bufferWriter = NULL;
 
 	map<ID, ChunkManager*>::const_iterator iter = predicate_managers[0].begin();
@@ -203,7 +203,7 @@ void BitmapBuffer::save() {
 
 	buffer = new MMapBuffer(filename.c_str(), iter->second->meta->length);
 
-	predicateWriter = predicateBuffer->get_address();
+	/*predicateWriter = predicateBuffer->get_address();
 	bufferWriter = buffer->get_address();
 	vector<size_t>::iterator pageNoIter = iter->second->usedPages.begin(),
 			limit = iter->second->usedPages.end();
