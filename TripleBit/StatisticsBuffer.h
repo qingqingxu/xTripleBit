@@ -116,9 +116,7 @@ public:
 		out << so << "\t" << predicateID << "\t" << count << endl;
 #endif
 		if (first || usedSpace + len > buffer->getSize()) {
-#ifdef MYDEBUG
 			cout << "usedSpace + len > buffer->getSize()" << endl;
-#endif
 			usedSpace = writer - (uchar*) buffer->getBuffer();
 			buffer->resize(
 					STATISTICS_BUFFER_INCREMENT_PAGE_COUNT
@@ -157,7 +155,7 @@ public:
 
 		writer = writeData(writer, predicateID);
 		cout<<"predicateID"<<endl;
-		assert(usedSpace + len > buffer->getSize());
+		cout << writer - (uchar*) buffer->getBuffer() << endl;
 		writer = writeData(writer, count);
 		cout<<"count"<<endl;
 
