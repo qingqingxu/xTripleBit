@@ -23,7 +23,7 @@ BitmapBuffer::BitmapBuffer(const string _dir) :
 			INIT_PAGE_COUNT * MemoryBuffer::pagesize);
 
 	filename.assign(dir.begin(), dir.end());
-	filename.append("/tempByS");
+	filename.append("/tempByO");
 	tempByO = new MMapBuffer(filename.c_str(),
 			INIT_PAGE_COUNT * MemoryBuffer::pagesize);
 
@@ -187,248 +187,251 @@ uchar* BitmapBuffer::getPage(bool soType, size_t& pageNo) {
 
 void BitmapBuffer::save() {
 
-	/*	map<ID, ChunkManager*>::const_iterator iter = predicate_managers[0].begin();
-	 for (; iter != predicate_managers[0].end(); iter++) {
-	 cout << "S: " << iter->first << "--size: "
-	 << iter->second->usedPages.size() << "-- "
-	 << iter->second->usedPages.size() * MemoryBuffer::pagesize
-	 << "--length-- " << iter->second->meta->length << endl;
-	 }
-	 iter = predicate_managers[1].begin();
-	 for (; iter != predicate_managers[1].end(); iter++) {
-	 cout << "o: " << iter->first << "--size: "
-	 << iter->second->usedPages.size() << "-- "
-	 << iter->second->usedPages.size() * MemoryBuffer::pagesize
-	 << "--length-- " << iter->second->meta->length << endl;
-	 }*/
+	map<ID, ChunkManager*>::const_iterator iter = predicate_managers[0].begin();
+	for (; iter != predicate_managers[0].end(); iter++) {
+		cout << "S: " << iter->first << "--size: "
+				<< iter->second->usedPages.size() << "-- "
+				<< iter->second->usedPages.size() * MemoryBuffer::pagesize
+				<< "--length-- " << iter->second->meta->length << endl;
+	}
+	iter = predicate_managers[1].begin();
+	for (; iter != predicate_managers[1].end(); iter++) {
+		cout << "o: " << iter->first << "--size: "
+				<< iter->second->usedPages.size() << "-- "
+				<< iter->second->usedPages.size() * MemoryBuffer::pagesize
+				<< "--length-- " << iter->second->meta->length << endl;
+	}
 
-	/*string filename = dir + "/BitmapBuffer";
-	 MMapBuffer *buffer;
-	 string bitmapName;
-	 string predicateFile(filename);
-	 predicateFile.append("_predicate");
+	string filename = dir + "/BitmapBuffer";
+	MMapBuffer *buffer;
+	string bitmapName;
+	string predicateFile(filename);
+	predicateFile.append("_predicate");
 
-	 MMapBuffer *predicateBuffer = new MMapBuffer(predicateFile.c_str(),
-	 predicate_managers[0].size()
-	 * (sizeof(ID) + sizeof(SOType) + sizeof(size_t) * 2) * 2);
-	 uchar *predicateWriter = predicateBuffer->get_address();
-	 uchar *bufferWriter = NULL;
+	MMapBuffer *predicateBuffer = new MMapBuffer(predicateFile.c_str(),
+			predicate_managers[0].size()
+					* (sizeof(ID) + sizeof(SOType) + sizeof(size_t) * 2) * 2);
+	uchar *predicateWriter = predicateBuffer->get_address();
+	uchar *bufferWriter = NULL;
 
-	 map<ID, ChunkManager*>::const_iterator iter = predicate_managers[0].begin();
-	 size_t offset = 0;
+	map<ID, ChunkManager*>::const_iterator iter = predicate_managers[0].begin();
+	size_t offset = 0;
 
-	 buffer = new MMapBuffer(filename.c_str(), iter->second->meta->length);
+	buffer = new MMapBuffer(filename.c_str(), iter->second->meta->length);
 
-	 predicateWriter = predicateBuffer->get_address();
-	 bufferWriter = buffer->get_address();
-	 vector<size_t>::iterator pageNoIter = iter->second->usedPages.begin(),
-	 limit = iter->second->usedPages.end();
+	predicateWriter = predicateBuffer->get_address();
+	bufferWriter = buffer->get_address();
+	vector<size_t>::iterator pageNoIter = iter->second->usedPages.begin(),
+			limit = iter->second->usedPages.end();
 
-	 for (; pageNoIter != limit; pageNoIter++) {
-	 size_t pageNo = *pageNoIter;
-	 memcpy(bufferWriter,
-	 tempByS->get_address() + pageNo * MemoryBuffer::pagesize,
-	 MemoryBuffer::pagesize);
-	 bufferWriter = bufferWriter + MemoryBuffer::pagesize;
-	 }
+	for (; pageNoIter != limit; pageNoIter++) {
+		size_t pageNo = *pageNoIter;
+		memcpy(bufferWriter,
+				tempByS->get_address() + pageNo * MemoryBuffer::pagesize,
+				MemoryBuffer::pagesize);
+		bufferWriter = bufferWriter + MemoryBuffer::pagesize;
+	}
 
-	 *((ID*) predicateWriter) = iter->first;
-	 predicateWriter += sizeof(ID);
-	 *((SOType*) predicateWriter) = 0;
-	 predicateWriter += sizeof(SOType);
-	 *((size_t*) predicateWriter) = offset;
-	 predicateWriter += sizeof(size_t) * 2;
-	 offset += iter->second->meta->length;
+	*((ID*) predicateWriter) = iter->first;
+	predicateWriter += sizeof(ID);
+	*((SOType*) predicateWriter) = 0;
+	predicateWriter += sizeof(SOType);
+	*((size_t*) predicateWriter) = offset;
+	predicateWriter += sizeof(size_t) * 2;
+	offset += iter->second->meta->length;
 
-	 bufferWriter = buffer->resize(iter->second->meta->length);
-	 uchar *startPos = bufferWriter + offset;
+	bufferWriter = buffer->resize(iter->second->meta->length);
+	uchar *startPos = bufferWriter + offset;
 
-	 iter++;
-	 for (; iter != predicate_managers[0].end(); iter++) {
-	 bufferWriter = buffer->resize(iter->second->meta->length);
-	 startPos = bufferWriter + offset;
+	iter++;
+	for (; iter != predicate_managers[0].end(); iter++) {
+		bufferWriter = buffer->resize(iter->second->meta->length);
+		startPos = bufferWriter + offset;
 
-	 pageNoIter = iter->second->usedPages.begin();
-	 limit = iter->second->usedPages.end();
+		pageNoIter = iter->second->usedPages.begin();
+		limit = iter->second->usedPages.end();
 
-	 for (; pageNoIter != limit; pageNoIter++) {
-	 size_t pageNo = *pageNoIter;
-	 memcpy(startPos,
-	 tempByS->get_address() + pageNo * MemoryBuffer::pagesize,
-	 MemoryBuffer::pagesize);
-	 startPos += MemoryBuffer::pagesize;
-	 }
+		for (; pageNoIter != limit; pageNoIter++) {
+			size_t pageNo = *pageNoIter;
+			memcpy(startPos,
+					tempByS->get_address() + pageNo * MemoryBuffer::pagesize,
+					MemoryBuffer::pagesize);
+			startPos += MemoryBuffer::pagesize;
+		}
 
-	 *((ID*) predicateWriter) = iter->first;
-	 predicateWriter += sizeof(ID);
-	 *((SOType*) predicateWriter) = 0;
-	 predicateWriter += sizeof(SOType);
-	 *((size_t*) predicateWriter) = offset;
-	 predicateWriter += sizeof(size_t) * 2;
-	 offset += iter->second->meta->length;
+		*((ID*) predicateWriter) = iter->first;
+		predicateWriter += sizeof(ID);
+		*((SOType*) predicateWriter) = 0;
+		predicateWriter += sizeof(SOType);
+		*((size_t*) predicateWriter) = offset;
+		predicateWriter += sizeof(size_t) * 2;
+		offset += iter->second->meta->length;
 
-	 cout << iter->first << "------" << iter->second->usedPages.size() << "---------" << (iter->second->meta->length)/(MemoryBuffer::pagesize) << endl;
-	 assert(
-	 iter->second->usedPages.size() * MemoryBuffer::pagesize
-	 == iter->second->meta->length);
-	 }
+		cout << iter->first << "------" << iter->second->usedPages.size()
+				<< "---------"
+				<< (iter->second->meta->length) / (MemoryBuffer::pagesize)
+				<< endl;
+		assert(
+				iter->second->usedPages.size() * MemoryBuffer::pagesize
+						== iter->second->meta->length);
+	}
 
-	 buffer->flush();
-	 tempByS->discard();
+	buffer->flush();
+	tempByS->discard();
 
-	 iter = predicate_managers[1].begin();
-	 for (; iter != predicate_managers[1].end(); iter++) {
-	 bufferWriter = buffer->resize(iter->second->meta->length);
-	 startPos = bufferWriter + offset;
+	iter = predicate_managers[1].begin();
+	for (; iter != predicate_managers[1].end(); iter++) {
+		bufferWriter = buffer->resize(iter->second->meta->length);
+		startPos = bufferWriter + offset;
 
-	 pageNoIter = iter->second->usedPages.begin();
-	 limit = iter->second->usedPages.end();
-	 for (; pageNoIter != limit; pageNoIter++) {
-	 size_t pageNo = *pageNoIter;
-	 memcpy(startPos,
-	 tempByO->get_address() + pageNo * MemoryBuffer::pagesize,
-	 MemoryBuffer::pagesize);
-	 startPos += MemoryBuffer::pagesize;
-	 }
+		pageNoIter = iter->second->usedPages.begin();
+		limit = iter->second->usedPages.end();
+		for (; pageNoIter != limit; pageNoIter++) {
+			size_t pageNo = *pageNoIter;
+			memcpy(startPos,
+					tempByO->get_address() + pageNo * MemoryBuffer::pagesize,
+					MemoryBuffer::pagesize);
+			startPos += MemoryBuffer::pagesize;
+		}
 
-	 *((ID*) predicateWriter) = iter->first;
-	 predicateWriter += sizeof(ID);
-	 *((SOType*) predicateWriter) = 1;
-	 predicateWriter += sizeof(SOType);
-	 *((size_t*) predicateWriter) = offset;
-	 predicateWriter += sizeof(size_t) * 2;
-	 offset += iter->second->meta->length;
+		*((ID*) predicateWriter) = iter->first;
+		predicateWriter += sizeof(ID);
+		*((SOType*) predicateWriter) = 1;
+		predicateWriter += sizeof(SOType);
+		*((size_t*) predicateWriter) = offset;
+		predicateWriter += sizeof(size_t) * 2;
+		offset += iter->second->meta->length;
 
-	 assert(
-	 iter->second->meta->length
-	 == iter->second->usedPages.size()
-	 * MemoryBuffer::pagesize);
-	 }
-	 buffer->flush();
-	 predicateBuffer->flush();
+		assert(
+				iter->second->meta->length
+						== iter->second->usedPages.size()
+								* MemoryBuffer::pagesize);
+	}
+	buffer->flush();
+	predicateBuffer->flush();
 
-	 predicateWriter = predicateBuffer->get_address();
+	predicateWriter = predicateBuffer->get_address();
 
-	 //update bitmap point address
-	 ID id;
-	 for (iter = predicate_managers[0].begin();
-	 iter != predicate_managers[0].end(); iter++) {
-	 id = *(ID*) predicateWriter;
-	 assert(iter->first == id);
-	 predicateWriter += sizeof(ID) + sizeof(SOType);
-	 offset = *(size_t*) predicateWriter;
-	 predicateWriter += sizeof(size_t) * 2;
+	//update bitmap point address
+	ID id;
+	for (iter = predicate_managers[0].begin();
+			iter != predicate_managers[0].end(); iter++) {
+		id = *(ID*) predicateWriter;
+		assert(iter->first == id);
+		predicateWriter += sizeof(ID) + sizeof(SOType);
+		offset = *(size_t*) predicateWriter;
+		predicateWriter += sizeof(size_t) * 2;
 
-	 uchar *base = buffer->get_address() + offset;
-	 iter->second->meta = (ChunkManagerMeta*) base;
-	 iter->second->meta->startPtr = base + sizeof(ChunkManagerMeta);
-	 iter->second->meta->endPtr = iter->second->meta->startPtr
-	 + iter->second->meta->usedSpace;
+		uchar *base = buffer->get_address() + offset;
+		iter->second->meta = (ChunkManagerMeta*) base;
+		iter->second->meta->startPtr = base + sizeof(ChunkManagerMeta);
+		iter->second->meta->endPtr = iter->second->meta->startPtr
+				+ iter->second->meta->usedSpace;
 
-	 //why only update last metadata
-	 if (iter->second->meta->usedSpace + sizeof(ChunkManagerMeta)
-	 <= MemoryBuffer::pagesize) {
-	 MetaData *metaData = (MetaData*) iter->second->meta->startPtr;
-	 metaData->usedSpace = iter->second->meta->usedSpace;
-	 } else {
-	 size_t usedLastPage = (iter->second->meta->usedSpace
-	 + sizeof(ChunkManagerMeta)) % MemoryBuffer::pagesize;
-	 if (usedLastPage == 0) {
-	 MetaData *metaData = (MetaData*) (iter->second->meta->endPtr
-	 - MemoryBuffer::pagesize);
-	 metaData->usedSpace = MemoryBuffer::pagesize;
-	 } else if (usedLastPage > 0) {
-	 MetaData *metaData = (MetaData*) (iter->second->meta->endPtr
-	 - usedLastPage);
-	 metaData->usedSpace = usedLastPage;
-	 }
-	 }
-	 }
+		//why only update last metadata
+		if (iter->second->meta->usedSpace + sizeof(ChunkManagerMeta)
+				<= MemoryBuffer::pagesize) {
+			MetaData *metaData = (MetaData*) iter->second->meta->startPtr;
+			metaData->usedSpace = iter->second->meta->usedSpace;
+		} else {
+			size_t usedLastPage = (iter->second->meta->usedSpace
+					+ sizeof(ChunkManagerMeta)) % MemoryBuffer::pagesize;
+			if (usedLastPage == 0) {
+				MetaData *metaData = (MetaData*) (iter->second->meta->endPtr
+						- MemoryBuffer::pagesize);
+				metaData->usedSpace = MemoryBuffer::pagesize;
+			} else if (usedLastPage > 0) {
+				MetaData *metaData = (MetaData*) (iter->second->meta->endPtr
+						- usedLastPage);
+				metaData->usedSpace = usedLastPage;
+			}
+		}
+	}
 
-	 for (iter = predicate_managers[1].begin();
-	 iter != predicate_managers[1].end(); iter++) {
-	 id = *(ID*) predicateWriter;
-	 assert(iter->first == id);
-	 predicateWriter = predicateWriter + sizeof(ID) + sizeof(SOType);
-	 offset = *(size_t*) predicateWriter;
-	 predicateWriter = predicateWriter + sizeof(size_t) * 2;
+	for (iter = predicate_managers[1].begin();
+			iter != predicate_managers[1].end(); iter++) {
+		id = *(ID*) predicateWriter;
+		assert(iter->first == id);
+		predicateWriter = predicateWriter + sizeof(ID) + sizeof(SOType);
+		offset = *(size_t*) predicateWriter;
+		predicateWriter = predicateWriter + sizeof(size_t) * 2;
 
-	 uchar *base = buffer->get_address() + offset;
-	 iter->second->meta = (ChunkManagerMeta*) base;
-	 iter->second->meta->startPtr = base + sizeof(ChunkManagerMeta);
-	 iter->second->meta->endPtr = iter->second->meta->startPtr
-	 + iter->second->meta->usedSpace;
+		uchar *base = buffer->get_address() + offset;
+		iter->second->meta = (ChunkManagerMeta*) base;
+		iter->second->meta->startPtr = base + sizeof(ChunkManagerMeta);
+		iter->second->meta->endPtr = iter->second->meta->startPtr
+				+ iter->second->meta->usedSpace;
 
-	 if (iter->second->meta->usedSpace + sizeof(ChunkManagerMeta)
-	 <= MemoryBuffer::pagesize) {
-	 MetaData *metaData = (MetaData*) (iter->second->meta->startPtr);
-	 metaData->usedSpace = iter->second->meta->usedSpace;
-	 } else {
-	 size_t usedLastPage = (iter->second->meta->usedSpace
-	 + sizeof(ChunkManagerMeta)) % MemoryBuffer::pagesize;
-	 if (usedLastPage == 0) {
-	 MetaData *metaData = (MetaData*) (iter->second->meta->endPtr
-	 - MemoryBuffer::pagesize);
-	 metaData->usedSpace = MemoryBuffer::pagesize;
-	 } else if (usedLastPage > 0) {
-	 MetaData *metaData = (MetaData*) (iter->second->meta->endPtr
-	 - usedLastPage);
-	 metaData->usedSpace = usedLastPage;
-	 }
-	 }
-	 }
-	 buffer->flush();
+		if (iter->second->meta->usedSpace + sizeof(ChunkManagerMeta)
+				<= MemoryBuffer::pagesize) {
+			MetaData *metaData = (MetaData*) (iter->second->meta->startPtr);
+			metaData->usedSpace = iter->second->meta->usedSpace;
+		} else {
+			size_t usedLastPage = (iter->second->meta->usedSpace
+					+ sizeof(ChunkManagerMeta)) % MemoryBuffer::pagesize;
+			if (usedLastPage == 0) {
+				MetaData *metaData = (MetaData*) (iter->second->meta->endPtr
+						- MemoryBuffer::pagesize);
+				metaData->usedSpace = MemoryBuffer::pagesize;
+			} else if (usedLastPage > 0) {
+				MetaData *metaData = (MetaData*) (iter->second->meta->endPtr
+						- usedLastPage);
+				metaData->usedSpace = usedLastPage;
+			}
+		}
+	}
+	buffer->flush();
 
-	 //build index;
-	 MMapBuffer* bitmapIndex = NULL;
-	 predicateWriter = predicateBuffer->get_address();
-	 #ifdef MYDEBUG
-	 cout << "build hash index for subject" << endl;
-	 cout << "predicate size: " << predicate_managers[0].size() << endl;
-	 #endif
-	 for (map<ID, ChunkManager*>::iterator iter = predicate_managers[0].begin();
-	 iter != predicate_managers[0].end(); iter++) {
-	 if (iter->second) {
-	 #ifdef MYDEBUG
-	 ofstream out;
-	 out.open("buildindex", ios::app);
-	 out << "pid: " << iter->first << endl;
-	 out.close();
-	 #endif
-	 iter->second->buildChunkIndex();
-	 offset = iter->second->getChunkIndex()->save(bitmapIndex);
-	 predicateWriter = predicateWriter + sizeof(ID) + sizeof(SOType)
-	 + sizeof(size_t);
-	 *((size_t*) predicateWriter) = offset;
-	 predicateWriter = predicateWriter + sizeof(size_t);
-	 }
-	 }
+	//build index;
+	MMapBuffer* bitmapIndex = NULL;
+	predicateWriter = predicateBuffer->get_address();
+#ifdef MYDEBUG
+	cout << "build hash index for subject" << endl;
+	cout << "predicate size: " << predicate_managers[0].size() << endl;
+#endif
+	for (map<ID, ChunkManager*>::iterator iter = predicate_managers[0].begin();
+			iter != predicate_managers[0].end(); iter++) {
+		if (iter->second) {
+#ifdef MYDEBUG
+			ofstream out;
+			out.open("buildindex", ios::app);
+			out << "pid: " << iter->first << endl;
+			out.close();
+#endif
+			iter->second->buildChunkIndex();
+			offset = iter->second->getChunkIndex()->save(bitmapIndex);
+			predicateWriter = predicateWriter + sizeof(ID) + sizeof(SOType)
+					+ sizeof(size_t);
+			*((size_t*) predicateWriter) = offset;
+			predicateWriter = predicateWriter + sizeof(size_t);
+		}
+	}
 
-	 #ifdef MYDEBUG
-	 cout << "build hash index for object" << endl;
-	 cout << "predicate size: " << predicate_managers[1].size() << endl;
-	 #endif
-	 for (map<ID, ChunkManager*>::iterator iter = predicate_managers[1].begin();
-	 iter != predicate_managers[1].end(); iter++) {
-	 if (iter->second) {
-	 #ifdef MYDEBUG
-	 ofstream out;
-	 out.open("buildindex", ios::app);
-	 out << "pid: " << iter->first << endl;
-	 out.close();
-	 #endif
-	 iter->second->buildChunkIndex();
-	 offset = iter->second->getChunkIndex()->save(bitmapIndex);
-	 predicateWriter = predicateWriter + sizeof(ID) + sizeof(SOType)
-	 + sizeof(size_t);
-	 *((size_t*) predicateWriter) = offset;
-	 predicateWriter = predicateWriter + sizeof(size_t);
-	 }
-	 }
+#ifdef MYDEBUG
+	cout << "build hash index for object" << endl;
+	cout << "predicate size: " << predicate_managers[1].size() << endl;
+#endif
+	for (map<ID, ChunkManager*>::iterator iter = predicate_managers[1].begin();
+			iter != predicate_managers[1].end(); iter++) {
+		if (iter->second) {
+#ifdef MYDEBUG
+			ofstream out;
+			out.open("buildindex", ios::app);
+			out << "pid: " << iter->first << endl;
+			out.close();
+#endif
+			iter->second->buildChunkIndex();
+			offset = iter->second->getChunkIndex()->save(bitmapIndex);
+			predicateWriter = predicateWriter + sizeof(ID) + sizeof(SOType)
+					+ sizeof(size_t);
+			*((size_t*) predicateWriter) = offset;
+			predicateWriter = predicateWriter + sizeof(size_t);
+		}
+	}
 
-	 delete bitmapIndex;
-	 delete buffer;
-	 delete predicateBuffer;*/
+	delete bitmapIndex;
+	delete buffer;
+	delete predicateBuffer;
 }
 
 BitmapBuffer *BitmapBuffer::load(MMapBuffer* bitmapImage,
@@ -671,10 +674,7 @@ ChunkManager::~ChunkManager() {
 }
 
 void ChunkManager::writeXY(const uchar* reader, ID x, double y, char objType) {
-	Chunk::writeID(reader, x);
-	Chunk::write(reader, objType, CHAR);
-	Chunk::write(reader, y, objType);
-	/*if (meta->soType == ORDERBYS) {
+	if (meta->soType == ORDERBYS) {
 		Chunk::writeID(reader, x);
 		Chunk::write(reader, objType, CHAR);
 		Chunk::write(reader, y, objType);
@@ -682,7 +682,7 @@ void ChunkManager::writeXY(const uchar* reader, ID x, double y, char objType) {
 		Chunk::write(reader, objType, CHAR);
 		Chunk::write(reader, y, objType);
 		Chunk::writeID(reader, x);
-	}*/
+	}
 }
 
 uchar* ChunkManager::deleteTriple(uchar* reader, char objType) {
