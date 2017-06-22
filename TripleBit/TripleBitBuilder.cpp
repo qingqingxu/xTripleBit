@@ -499,7 +499,7 @@ Status TripleBitBuilder::buildIndex() {
 }
 
 Status TripleBitBuilder::endBuild() {
-	bitmap->save();
+	//bitmap->save();
 
 /*	ofstream ofile(string(dir + "/statIndex").c_str());
 	MMapBuffer* indexBuffer = NULL;
