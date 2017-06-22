@@ -677,8 +677,8 @@ void ChunkManager::writeXY(const uchar* reader, ID x, double y, char objType) {
 		ofstream out;
 		if (meta->pid == 14) {
 			out.open("writexy_pid14", ios::app);
-			out << meta->pid << "\t" << meta->soType << "\tx: " << (int*) reader
-					<< "\tobjType: " << getDataType(objType) << "\t";
+			out << meta->pid << "," << usedPages.size() << "," << usedPages.size() * MemoryBuffer::pagesize << "," << meta->length << ",x: " << (int*) reader
+					<< ",objType: " << getDataType(objType) << ",";
 		}
 
 #endif
@@ -687,7 +687,7 @@ void ChunkManager::writeXY(const uchar* reader, ID x, double y, char objType) {
 
 #ifdef MYDEBUG
 		if (meta->pid == 14) {
-			out << (int*) reader << "\ty: ";
+			out << (int*) reader << ",y: ";
 		}
 #endif
 
@@ -695,7 +695,7 @@ void ChunkManager::writeXY(const uchar* reader, ID x, double y, char objType) {
 
 #ifdef MYDEBUG
 		if (meta->pid == 14) {
-			out << (int*) reader << "\tend: ";
+			out << (int*) reader << ",end: ";
 		}
 #endif
 
