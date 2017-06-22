@@ -394,7 +394,6 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 		assert(mappedIn.open(sortedByObject.getFile().c_str()));
 		const uchar* reader = mappedIn.getBegin(), *limit = mappedIn.getEnd();
 
-		int count = 1;
 		loadTriple(reader, subjectID, predicateID, object, objType);
 		lastSubjectID = subjectID;
 		lastPredicateID = predicateID;

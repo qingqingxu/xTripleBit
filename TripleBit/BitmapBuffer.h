@@ -76,7 +76,7 @@ struct MetaData {
 };
 
 class ChunkManager {
-public:
+private:
 	ChunkManagerMeta* meta; //每个ChunkManager的元数据信息
 	BitmapBuffer* bitmapBuffer; //BitmapBuffer
 	LineHashIndex* chunkIndex; //以S（O）排序存储的每个predicate存储块的索引信息
