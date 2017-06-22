@@ -203,7 +203,7 @@ void BitmapBuffer::save() {
 
 	buffer = new MMapBuffer(filename.c_str(), iter->second->meta->length);
 
-	predicateWriter = predicateBuffer->get_address();
+	/*predicateWriter = predicateBuffer->get_address();
 	bufferWriter = buffer->get_address();
 	vector<size_t>::iterator pageNoIter = iter->second->usedPages.begin(),
 			limit = iter->second->usedPages.end();
@@ -398,7 +398,7 @@ void BitmapBuffer::save() {
 		}
 	}
 
-	//delete bitmapIndex;
+	delete bitmapIndex;*/
 	delete buffer;
 	delete predicateBuffer;
 }
