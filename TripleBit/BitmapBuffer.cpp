@@ -398,7 +398,7 @@ void BitmapBuffer::save() {
 		}
 	}
 
-	if (bitmapIndex != NULL) {
+/*	if (bitmapIndex != NULL) {
 		delete bitmapIndex;
 		bitmapIndex = NULL;
 	}
@@ -411,7 +411,7 @@ void BitmapBuffer::save() {
 	if (predicateBuffer != NULL) {
 		delete predicateBuffer;
 		predicateBuffer = NULL;
-	}
+	}*/
 }
 
 BitmapBuffer *BitmapBuffer::load(MMapBuffer* bitmapImage,
