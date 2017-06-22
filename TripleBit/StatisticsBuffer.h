@@ -142,7 +142,7 @@ public:
 		}
 
 		if (statType == SUBJECTPREDICATE_STATIS) {
-			writer = writeData(writer, soValue);
+			writer = writeData(writer, soValue, objType);
 		} else if (statType == OBJECTPREDICATE_STATIS) {
 			writer = writeData(writer, objType); //OP统计信息O前需加objType
 			writer = writeData(writer, soValue, objType);

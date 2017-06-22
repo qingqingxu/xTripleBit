@@ -251,7 +251,7 @@ void BitmapBuffer::save() {
 		predicateWriter += sizeof(size_t) * 2;
 		offset += iter->second->meta->length;
 
-		cout << iter->second->usedPages.size() << "---------" << (iter->second->meta->length)/(MemoryBuffer::pagesize) << endl;
+		cout << iter->first << "------" << iter->second->usedPages.size() << "---------" << (iter->second->meta->length)/(MemoryBuffer::pagesize) << endl;
 		assert(
 				iter->second->usedPages.size() * MemoryBuffer::pagesize
 						== iter->second->meta->length);
