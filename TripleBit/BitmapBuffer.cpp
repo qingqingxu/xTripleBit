@@ -192,10 +192,10 @@ void BitmapBuffer::save() {
 	string predicateFile(filename);
 	predicateFile.append("_predicate");
 
-	/*MMapBuffer *predicateBuffer = new MMapBuffer(predicateFile.c_str(),
+	MMapBuffer *predicateBuffer = new MMapBuffer(predicateFile.c_str(),
 			predicate_managers[0].size()
 					* (sizeof(ID) + sizeof(SOType) + sizeof(size_t) * 2) * 2);
-	uchar *predicateWriter = predicateBuffer->get_address();
+	/*uchar *predicateWriter = predicateBuffer->get_address();
 	uchar *bufferWriter = NULL;
 
 	map<ID, ChunkManager*>::const_iterator iter = predicate_managers[0].begin();
@@ -402,7 +402,7 @@ void BitmapBuffer::save() {
 	//bufferWriter = NULL;
 	//delete bitmapIndex;
 	delete buffer;
-	//delete predicateBuffer;
+	delete predicateBuffer;
 }
 
 BitmapBuffer *BitmapBuffer::load(MMapBuffer* bitmapImage,
