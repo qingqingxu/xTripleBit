@@ -802,6 +802,13 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		meta->usedSpace = meta->usedSpace + len;
 		tripleCountAdd();
 	}
+
+	if(meta->pid == 14){
+		ofstream out;
+		out.open("length", ios::app);
+		out << meta->pid << "\t" << usedPages.size() * MemoryBuffer::pagesize << "\t" << meta->length << endl;
+		out.close();
+	}
 }
 
 Status ChunkManager::resize(size_t &pageNo) {
