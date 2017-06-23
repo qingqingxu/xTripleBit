@@ -52,11 +52,11 @@ int main(int argc, char* argv[]) {
 		bufferReader += sizeof(ChunkManagerMeta);
 
 		if (meta->soType == ORDERBYS) {
-			uchar* endChunkManager = bufferReader - sizeof(ChunkManagerMeta)
+			const uchar* endChunkManager = bufferReader - sizeof(ChunkManagerMeta)
 					+ meta->length;
 			while (bufferReader < endChunkManager) {
 				MetaData* metaData = (MetaData*) bufferReader;
-				uchar* endPtr = bufferReader + metaData->usedSpace;
+				const uchar* endPtr = bufferReader + metaData->usedSpace;
 				bufferReader += sizeof(MetaData);
 				while (bufferReader < endPtr) {
 					bufferReader = Chunk::readID(bufferReader, subjectID);
@@ -68,11 +68,11 @@ int main(int argc, char* argv[]) {
 			}
 
 		} else if (meta->soType == ORDERBYO) {
-			uchar* endChunkManager = bufferReader - sizeof(ChunkManagerMeta)
+			const uchar* endChunkManager = bufferReader - sizeof(ChunkManagerMeta)
 					+ meta->length;
 			while (bufferReader < endChunkManager) {
 				MetaData* metaData = (MetaData*) bufferReader;
-				uchar* endPtr = bufferReader + metaData->usedSpace;
+				const uchar* endPtr = bufferReader + metaData->usedSpace;
 				bufferReader += sizeof(MetaData);
 				while (bufferReader < endPtr) {
 					bufferReader = Chunk::read(bufferReader, objType, CHAR);
