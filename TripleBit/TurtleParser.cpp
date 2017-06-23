@@ -926,13 +926,6 @@ void TurtleParser::parseTriple(Lexer::Token token, std::string& subject,
 		// Parse a triple
 		{
 	parseSubject(token, subject);
-#ifdef DEBUG
-	ofstream out("C:\\Users\\XuQingQing\\Desktop\\temp", ios::app);
-	std::string type;
-	getType(token, type);
-	out << "S: " << type << "\t" << subject << endl;
-	out.close();
-#endif
 	parsePredicateObjectList(subject, predicate, object, objType);
 	if (lexer.next() != Lexer::Dot)
 		parseError("'.' expected after triple");
