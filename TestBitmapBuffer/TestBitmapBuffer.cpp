@@ -10,6 +10,7 @@
 #include "OSFile.h"
 #include "BitmapBuffer.h"
 #include "MMapBuffer.h"
+#include "MemoryBuffer.h"
 #include <fstream>
 
 using namespace std;
