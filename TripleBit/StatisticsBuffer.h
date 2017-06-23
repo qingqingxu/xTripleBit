@@ -32,6 +32,7 @@ uchar* writeData(uchar* writer, T data, char objType) {
 	longlong ll;
 	double d;
 	uint ui;
+
 	switch (objType) {
 	case BOOL:
 	case CHAR:
@@ -104,6 +105,16 @@ public:
 	template<typename T>
 	Status addStatis(T soValue, ID predicateID, size_t count, char objType =
 			STRING) {
+#ifdef MYDEBUG
+		ofstream out;
+		if(statType == SUBJECTPREDICATE_STATIS){
+			out.open("spc", ios::app);
+		}else if(statType == OBJECTPREDICATE_STATIS){
+			out.open("opc", ios::app);
+		}
+		out << soValue << "\t" << predicateID << "\t" << count << endl;
+		out.close();
+#endif
 		unsigned len = Chunk::getLen(objType) + sizeof(ID) + sizeof(size_t);
 		if(statType == OBJECTPREDICATE_STATIS){
 			len += sizeof(char);
@@ -135,7 +146,7 @@ public:
 		}
 
 		if (statType == SUBJECTPREDICATE_STATIS) {
-			writer = writeData(writer, soValue, objType);
+			writer = writeData(writer, soValue);
 		} else if (statType == OBJECTPREDICATE_STATIS) {
 			writer = writeData(writer, objType); //OP统计信息O前需加objType
 			writer = writeData(writer, soValue, objType);
