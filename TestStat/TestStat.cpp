@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
 	size_t count;
 	cout << "spc stat" << endl;
 	ofstream out("spct", ios::app);
-	while (reader < limit) {
+	while (reader <= limit) {
 		memcpy(&subjectID, reader, sizeof(ID));
 		reader += sizeof(ID);
 		memcpy(&predicateID, reader, sizeof(ID));

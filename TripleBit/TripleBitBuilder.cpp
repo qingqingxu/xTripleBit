@@ -308,7 +308,7 @@ void print(TempFile& infile, char* outfile) {
 	ofstream out(outfile);
 	while (reader < limit) {
 		out << *(ID*) reader << "\t" << *(ID*) (reader + 4) << "\t"
-				<< *(double*) (reader + 8) << *(char*)(reader + 16)/*getDataType(*(char*)(reader + 16))*/ << endl;
+				<< *(double*) (reader + 8) /*<< *(char*)(reader + 16)getDataType(*(char*)(reader + 16))*/ << endl;
 		reader += 17;
 	}
 	mappedIn.close();
@@ -325,11 +325,9 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 	size_t count1 = 0;
 	TempFile sortedBySubject("./SortByS"), sortedByObject("./SortByO");
 	Sorter::sort(rawFacts, sortedBySubject, skipIdIdId, compare123);
-/*
 #ifdef MYDEBUG
 	print(sortedBySubject, "sortedBySubject_temp");
 #endif
-*/
 	{
 		//insert into chunk
 		sortedBySubject.close();
@@ -347,6 +345,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 
 		while (reader < limit) {
 			loadTriple(reader, subjectID, predicateID, object, objType);
+			cout << subjectID << predicateID << object << endl;
 			if (lastSubjectID == subjectID && lastPredicateID == predicateID
 					&& lastObject == object) {
 				reader = skipIdIdId(reader);
@@ -382,11 +381,9 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 	//sort
 	cerr << "Sort by Object" << endl;
 	Sorter::sort(rawFacts, sortedByObject, skipIdIdId, compare321);
-/*
 #ifdef MYDEBUG
 	print(sortedByObject, "sortedByObject_temp");
 #endif
-*/
 	{
 		//insert into chunk
 		sortedByObject.close();
