@@ -677,6 +677,16 @@ uchar* ChunkManager::deleteTriple(uchar* reader, char objType) {
 }
 
 void ChunkManager::insertXY(ID x, double y, char objType) {
+#ifdef MYDEBUG
+	ofstream out;
+	if(meta->soType == ORDERBYS){
+		out.open("spxy", ios::app);
+	}else if(meta->soType == ORDERBYO){
+		out.open("opxy", ios::app);
+	}
+	out << x << "\t" << meta->pid << "\t" << y << endl;
+	out.close();
+#endif
 	uint len = sizeof(ID) + sizeof(char) + Chunk::getLen(objType);
 	if (isChunkOverFlow(len) == true) {
 		if (meta->length == MemoryBuffer::pagesize) {
