@@ -104,6 +104,16 @@ public:
 	template<typename T>
 	Status addStatis(T soValue, ID predicateID, size_t count, char objType =
 			STRING) {
+#ifdef MYDEBUG
+		ofstream out;
+		if(statType == OBJECTPREDICATE_STATIS){
+			out.open("spc", ios::app);
+		}else{
+			out.open("opc", ios::app);
+		}
+		out << soValue << "\t" << predicateID << "\t" << count << endl;
+		out.close();
+#endif
 		unsigned len = Chunk::getLen(objType) + sizeof(ID) + sizeof(size_t);
 		if(statType == OBJECTPREDICATE_STATIS){
 			len += sizeof(char);
