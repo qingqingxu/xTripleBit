@@ -149,7 +149,7 @@ public:
 		if(statType == OBJECTPREDICATE_STATIS){
 			ofstream out("writer", ios::app);
 			out << (writer - temp) << endl;
-			out.close;
+			out.close();
 		}
 		usedSpace = writer - (uchar*) buffer->getBuffer();
 		return OK;
