@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
 		out.open("opct", ios::app);
 		while (reader < limit) {
 			memcpy(&objType, reader, sizeof(char));
-			assert((int)objType == 17);
+			if(objType)
 			reader += sizeof(char);
 			reader = Chunk::read(reader, object, objType);
 			memcpy(&predicateID, reader, sizeof(ID));
