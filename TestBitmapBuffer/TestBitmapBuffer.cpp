@@ -22,11 +22,13 @@ int main(int argc, char* argv[]) {
 	string bitmapBuffer = "/home/xuqingqing/code/xTripleBit/data/BitmapBuffer";
 
 	MMapBuffer* buffer = MMapBuffer::create(bitmapBuffer.c_str(), 0);
-	const uchar* bufferReader = (const uchar*)buffer->get_address();
+	const uchar* bufferReader = (const uchar*) buffer->get_address();
+	const uchar* startBuffer = bufferReader;
 
 	string predicate = bitmapBuffer.append("_predicate");
 	MMapBuffer* predicateBuffer = MMapBuffer::create(predicate.c_str(), 0);
-	const uchar* predicateReader = (const uchar*)predicateBuffer->get_address();
+	const uchar* predicateReader =
+			(const uchar*) predicateBuffer->get_address();
 	const uchar* predicateLimit = predicateReader + predicateBuffer->getSize();
 	ID subjectID;
 	double object;
@@ -46,14 +48,15 @@ int main(int argc, char* argv[]) {
 		predicateReader += sizeof(bool);
 		offset = *(size_t*) predicateReader;
 		predicateReader += sizeof(size_t) * 2;
-		bufferReader += offset;
+		bufferReader = startBuffer + offset;
 
 		meta = (ChunkManagerMeta*) bufferReader;
 		bufferReader += sizeof(ChunkManagerMeta);
 
 		if (meta->soType == ORDERBYS) {
-			const uchar* endChunkManager = bufferReader - sizeof(ChunkManagerMeta)
-					+ meta->length;
+			const uchar* endChunkManager = bufferReader
+					- sizeof(ChunkManagerMeta) + meta->length;
+			bool isFirstPage = true;
 			while (bufferReader < endChunkManager) {
 				MetaData* metaData = (MetaData*) bufferReader;
 				const uchar* endPtr = bufferReader + metaData->usedSpace;
@@ -65,11 +68,20 @@ int main(int argc, char* argv[]) {
 					sp << subjectID << "\t" << meta->pid << "\t" << object
 							<< endl;
 				}
+				if (isFirstPage) {
+					bufferReader = endPtr - metaData->usedSpace
+							- sizeof(ChunkManagerMeta) + MemoryBuffer::pagesize;
+					isFirstPage = false;
+				} else {
+					bufferReader = endPtr - metaData->usedSpace
+							+ MemoryBuffer::pagesize;
+				}
 			}
 
 		} else if (meta->soType == ORDERBYO) {
-			const uchar* endChunkManager = bufferReader - sizeof(ChunkManagerMeta)
-					+ meta->length;
+			const uchar* endChunkManager = bufferReader
+					- sizeof(ChunkManagerMeta) + meta->length;
+			bool isFirstPage = true;
 			while (bufferReader < endChunkManager) {
 				MetaData* metaData = (MetaData*) bufferReader;
 				const uchar* endPtr = bufferReader + metaData->usedSpace;
@@ -80,6 +92,14 @@ int main(int argc, char* argv[]) {
 					bufferReader = Chunk::readID(bufferReader, subjectID);
 					op << subjectID << "\t" << meta->pid << "\t" << object
 							<< endl;
+				}
+				if (isFirstPage) {
+					bufferReader = endPtr - metaData->usedSpace
+							- sizeof(ChunkManagerMeta) + MemoryBuffer::pagesize;
+					isFirstPage = false;
+				} else {
+					bufferReader = endPtr - metaData->usedSpace
+							+ MemoryBuffer::pagesize;
 				}
 			}
 		}
