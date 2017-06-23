@@ -15,7 +15,7 @@ using namespace std;
 //mine
 
 int main(int argc, char* argv[]) {
-
+	DATABASE_PATH = "/home/xuqingqing/code/xTripleBit/data/";
 
 	string str = "/home/xuqingqing/code/xTripleBit/data/subjectpredicate_statis";
 	cout << str << "................" << endl;
