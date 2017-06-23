@@ -54,11 +54,13 @@ int main(int argc, char* argv[]) {
 			memcpy(&objType, reader, sizeof(char));
 			assert((int)objType == 17);
 			reader += sizeof(char);
+			cout << (reader - temp) << endl;
 			reader = Chunk::read(reader, object, objType);
 			reader += Chunk::getLen(objType);
-			cout << Chunk::getLen(objType) << endl;
+			cout << (reader - temp) << endl;
 			memcpy(&predicateID, reader, sizeof(ID));
 			reader += sizeof(ID);
+			cout << (reader - temp) << endl;
 			memcpy(&count, reader, sizeof(size_t));
 			reader += sizeof(size_t);
 			cout << (reader - temp) << endl;
