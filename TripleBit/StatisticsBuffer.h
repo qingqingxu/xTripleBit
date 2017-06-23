@@ -136,6 +136,7 @@ public:
 			first = false;
 		}
 
+		uchar* temp = writer;
 		if (statType == SUBJECTPREDICATE_STATIS) {
 			writer = writeData(writer, soValue);
 		} else if (statType == OBJECTPREDICATE_STATIS) {
@@ -145,7 +146,11 @@ public:
 
 		writer = writeData(writer, predicateID);
 		writer = writeData(writer, count);
-
+		if(statType == OBJECTPREDICATE_STATIS){
+			ofstream out("writer", ios::app);
+			out << (writer - temp) << endl;
+			out.close;
+		}
 		usedSpace = writer - (uchar*) buffer->getBuffer();
 		return OK;
 	}
