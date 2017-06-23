@@ -210,7 +210,10 @@ void TripleBitBuilder::NTriplesParse(const char* subject, const char* predicate,
 				uriTable->insertTable(object.c_str(), objectID);
 				tempObject = objectID;
 				break;
+			}else{
+				tempObject = objectID;
 			}
+
 			break;
 		default:
 			break;
@@ -220,7 +223,7 @@ void TripleBitBuilder::NTriplesParse(const char* subject, const char* predicate,
 		ofstream out;
 		out.open("idString", ios::app);
 		out << subject << "\t" << predicate << "\t" << object << endl;
-		out << subjectID << "\t" << predicateID << "\t" << objectID << endl;
+		out << subjectID << "\t" << predicateID << "\t" << tempObject << endl;
 		out.close();
 #endif
 
