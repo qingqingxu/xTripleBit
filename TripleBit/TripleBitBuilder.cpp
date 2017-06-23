@@ -215,7 +215,9 @@ void TripleBitBuilder::NTriplesParse(const char* subject, const char* predicate,
 		default:
 			break;
 		}
-
+		cout << *subject << "\t" << *predicate << "\t" << object << endl;
+		cout << subjectID << "\t" << predicateID << "\t" << tempObject << endl;
+		return;
 		facts.writeTriple(subjectID, predicateID, tempObject, objType);
 	}
 
