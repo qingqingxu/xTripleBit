@@ -46,9 +46,8 @@ int main(int argc, char* argv[]) {
 		limit = mappedIn.getEnd();
 		double object;
 		char objType;
-		size_t count;
 		cout << "opc stat" << endl;
-		ofstream out("opct", ios::app);
+		out.open("opct", ios::app);
 		while (reader < limit) {
 			memcpy(&objType, reader, sizeof(char));
 			reader += sizeof(char);
