@@ -48,7 +48,9 @@ int main(int argc, char* argv[]) {
 		char objType;
 		cout << "opc stat" << endl;
 		out.open("opct", ios::app);
+		const uchar* temp;
 		while (reader < limit) {
+			temp = reader;
 			memcpy(&objType, reader, sizeof(char));
 			assert((int)objType == 17);
 			reader += sizeof(char);
@@ -58,6 +60,7 @@ int main(int argc, char* argv[]) {
 			reader += sizeof(ID);
 			memcpy(&count, reader, sizeof(size_t));
 			reader += sizeof(size_t);
+			out << (reader - temp) << endl;
 			out << object << "\t" << predicateID << "\t" << count << endl;
 		}
 		out.close();
