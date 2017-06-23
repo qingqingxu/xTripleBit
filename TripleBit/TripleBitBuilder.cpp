@@ -325,11 +325,9 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 	size_t count1 = 0;
 	TempFile sortedBySubject("./SortByS"), sortedByObject("./SortByO");
 	Sorter::sort(rawFacts, sortedBySubject, skipIdIdId, compare123);
-/*
 #ifdef MYDEBUG
 	print(sortedBySubject, "sortedBySubject_temp");
 #endif
-*/
 	{
 		//insert into chunk
 		sortedBySubject.close();
@@ -384,11 +382,9 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 	//sort
 	cerr << "Sort by Object" << endl;
 	Sorter::sort(rawFacts, sortedByObject, skipIdIdId, compare321);
-/*
 #ifdef MYDEBUG
 	print(sortedByObject, "sortedByObject_temp");
 #endif
-*/
 	{
 		//insert into chunk
 		sortedByObject.close();
