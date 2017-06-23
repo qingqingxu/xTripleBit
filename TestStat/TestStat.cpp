@@ -50,6 +50,8 @@ int main(int argc, char* argv[]) {
 		out.open("opct", ios::app);
 		while (reader < limit) {
 			memcpy(&objType, reader, sizeof(char));
+			cout << (int)objType << endl;
+			break;
 			reader += sizeof(char);
 			reader = Chunk::read(reader, object, objType);
 			reader += Chunk::getLen(objType);
