@@ -22,13 +22,13 @@ int main(int argc, char* argv[]) {
 	string bitmapBuffer = "/home/xuqingqing/code/xTripleBit/data/BitmapBuffer";
 
 	MMapBuffer* buffer = MMapBuffer::create(bitmapBuffer.c_str(), 0);
-	uchar* bufferReader = buffer->get_address();
+	const uchar* bufferReader = (const uchar*)buffer->get_address();
 
 	string predicate = bitmapBuffer.append("_predicate");
 	MMapBuffer* predicateBuffer = MMapBuffer::create(predicate.c_str(), 0);
-	uchar* predicateReader = predicateBuffer->get_address();
-	uchar* predicateLimit = predicateReader + predicateBuffer->getSize();
-	ID predicateID, subjectID;
+	const uchar* predicateReader = (const uchar*)predicateBuffer->get_address();
+	const uchar* predicateLimit = predicateReader + predicateBuffer->getSize();
+	ID subjectID;
 	double object;
 	char objType;
 	bool soType;
