@@ -215,9 +215,14 @@ void TripleBitBuilder::NTriplesParse(const char* subject, const char* predicate,
 		default:
 			break;
 		}
-		cout << *subject << "\t" << *predicate << "\t" << object << endl;
-		cout << subjectID << "\t" << predicateID << "\t" << tempObject << endl;
-		return;
+#ifdef MYDEBUG
+		ofstream out;
+		out.open("idString", ios::app);
+		out << subject << "\t" << predicate << "\t" << object << endl;
+		out << subjectID << "\t" << predicateID << "\t" << tempObject << endl;
+		out.close();
+#endif
+
 		facts.writeTriple(subjectID, predicateID, tempObject, objType);
 	}
 
