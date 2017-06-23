@@ -7,6 +7,9 @@
 
 #include "TripleBitBuilder.h"
 #include "OSFile.h"
+#include <raptor.h>
+#include "TripleBitQuery.h"
+#include "TripleBitRepository.h"
 #include "BitmapBuffer.h"
 #include <fstream>
 
