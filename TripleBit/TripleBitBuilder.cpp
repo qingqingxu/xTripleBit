@@ -215,6 +215,7 @@ void TripleBitBuilder::NTriplesParse(const char* subject, const char* predicate,
 		default:
 			break;
 		}
+/*
 #ifdef MYDEBUG
 		ofstream out;
 		out.open("idString", ios::app);
@@ -222,7 +223,7 @@ void TripleBitBuilder::NTriplesParse(const char* subject, const char* predicate,
 		out << subjectID << "\t" << predicateID << "\t" << tempObject << endl;
 		out.close();
 #endif
-
+*/
 		facts.writeTriple(subjectID, predicateID, tempObject, objType);
 	}
 

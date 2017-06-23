@@ -105,6 +105,7 @@ public:
 	template<typename T>
 	Status addStatis(T soValue, ID predicateID, size_t count, char objType =
 			STRING) {
+/*
 #ifdef MYDEBUG
 		ofstream out;
 		if(statType == SUBJECTPREDICATE_STATIS){
@@ -115,9 +116,12 @@ public:
 		out << soValue << "\t" << predicateID << "\t" << count << endl;
 		out.close();
 #endif
-		unsigned len = Chunk::getLen(objType) + sizeof(ID) + sizeof(size_t);
-		if(statType == OBJECTPREDICATE_STATIS){
-			len += sizeof(char);
+*/
+		uint len;
+		if(statType == SUBJECTPREDICATE_STATIS){
+			len = sizeof(ID) + sizeof(ID) + sizeof(size_t);
+		}else if(statType == OBJECTPREDICATE_STATIS){
+			len = sizeof(char) + Chunk::getLen(objType) + sizeof(ID) + sizeof(size_t);
 		}
 		if (first || usedSpace + len > buffer->getSize()) {
 			usedSpace = writer - (uchar*) buffer->getBuffer();
