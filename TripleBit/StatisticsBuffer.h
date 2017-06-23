@@ -26,46 +26,33 @@ uchar* writeData(uchar* writer, T data) {
 
 template<typename T>
 uchar* writeData(uchar* writer, T data, char objType) {
-	char c;
-	int i;
-	float f;
-	longlong ll;
-	double d;
-	uint ui;
-
 	switch (objType) {
 	case BOOL:
 	case CHAR:
-		c = (char) data;
-		*(char*) writer = c;
+		*(char*) writer = data;
 		writer += sizeof(char);
 		break;
 	case INT:
-		i = (int) data;
-		*(int*) writer = i;
+		*(int*) writer = data;
 		writer += sizeof(int);
 		break;
 	case FLOAT:
-		f = (float) data;
-		*(float*) writer = f;
+		*(float*) writer = data;
 		writer += sizeof(float);
 		break;
 	case LONGLONG:
-		ll = (longlong) data;
-		*(longlong*) writer = ll;
+		*(longlong*) writer = data;
 		writer += sizeof(longlong);
 		break;
 	case DATE:
 	case DOUBLE:
-		d = data;
-		*(double*) writer = d;
+		*(double*) writer = data;
 		writer += sizeof(double);
 		break;
 	case UNSIGNED_INT:
 	case STRING:
 	default:
-		ui = (uint) data;
-		*(uint*) writer = ui;
+		*(uint*) writer = data;
 		writer += sizeof(uint);
 
 		break;
