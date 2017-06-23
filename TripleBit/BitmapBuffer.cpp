@@ -367,7 +367,6 @@ void BitmapBuffer::save() {
 	predicateWriter = predicateBuffer->get_address();
 #ifdef MYDEBUG
 	cout << "build hash index for subject" << endl;
-	cout << "predicate size: " << predicate_managers[0].size() << endl;
 #endif
 	for (map<ID, ChunkManager*>::iterator iter = predicate_managers[0].begin();
 			iter != predicate_managers[0].end(); iter++) {
@@ -383,7 +382,6 @@ void BitmapBuffer::save() {
 
 #ifdef MYDEBUG
 	cout << "build hash index for object" << endl;
-	cout << "predicate size: " << predicate_managers[1].size() << endl;
 #endif
 	for (map<ID, ChunkManager*>::iterator iter = predicate_managers[1].begin();
 			iter != predicate_managers[1].end(); iter++) {
