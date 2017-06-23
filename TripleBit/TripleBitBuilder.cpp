@@ -345,8 +345,8 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 
 		while (reader < limit) {
 			loadTriple(reader, subjectID, predicateID, object, objType);
-			cout << lastSubjectID << "\t" << lastPredicateID << "\t" << lastObject << endl;
-			cout << subjectID << "\t" << predicateID << "\t" << object << endl;
+			//cout << lastSubjectID << "\t" << lastPredicateID << "\t" << lastObject << endl;
+			//cout << subjectID << "\t" << predicateID << "\t" << object << endl;
 			if (lastSubjectID == subjectID && lastPredicateID == predicateID
 					&& lastObject == object) {
 				reader = skipIdIdId(reader);
@@ -374,6 +374,8 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 			bitmap->insertTriple(predicateID, subjectID, object, ORDERBYS,
 					objType);
 		}
+		spStatisBuffer->addStatis(lastSubjectID, lastPredicateID,
+								count1);
 		mappedIn.close();
 	}
 
@@ -430,6 +432,8 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 			bitmap->insertTriple(predicateID, subjectID, object, ORDERBYO,
 					objType);
 		}
+		opStatisBuffer->addStatis(lastObject, lastPredicateID, count1,
+								lastObjType);
 		mappedIn.close();
 	}
 
