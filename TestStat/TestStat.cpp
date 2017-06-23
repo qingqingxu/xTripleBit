@@ -56,11 +56,12 @@ int main(int argc, char* argv[]) {
 			reader += sizeof(char);
 			reader = Chunk::read(reader, object, objType);
 			reader += Chunk::getLen(objType);
+			cout << Chunk::getLen(objType) << endl;
 			memcpy(&predicateID, reader, sizeof(ID));
 			reader += sizeof(ID);
 			memcpy(&count, reader, sizeof(size_t));
 			reader += sizeof(size_t);
-			out << (reader - temp) << endl;
+			cout << (reader - temp) << endl;
 			out << object << "\t" << predicateID << "\t" << count << endl;
 		}
 		out.close();
