@@ -42,7 +42,8 @@ int main(int argc, char* argv[]) {
 	str = "/home/xuqingqing/code/xTripleBit/data/objectpredicate_statis";
 		cout << str << "................" << endl;
 		assert(mappedIn.open(str.c_str()));
-		reader = mappedIn.getBegin(), *limit = mappedIn.getEnd();
+		reader = mappedIn.getBegin();
+		limit = mappedIn.getEnd();
 		double object;
 		char objType;
 		size_t count;
