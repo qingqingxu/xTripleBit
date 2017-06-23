@@ -160,7 +160,7 @@ void TripleBitBuilder::NTriplesParse(const char* subject, const char* predicate,
 	double tempObject;
 
 	if (isStatementReification(object.c_str()) == false
-			&& isStatementReification(predicate) == false) { //?object->subject
+			&& isStatementReification(predicate) == false) {
 		if (preTable->getIDByPredicate(predicate, predicateID)
 				== PREDICATE_NOT_BE_FINDED) {
 			preTable->insertTable(predicate, predicateID);
@@ -220,7 +220,7 @@ void TripleBitBuilder::NTriplesParse(const char* subject, const char* predicate,
 		ofstream out;
 		out.open("idString", ios::app);
 		out << subject << "\t" << predicate << "\t" << object << endl;
-		out << subjectID << "\t" << predicateID << "\t" << tempObject << endl;
+		out << subjectID << "\t" << predicateID << "\t" << objectID << endl;
 		out.close();
 #endif
 

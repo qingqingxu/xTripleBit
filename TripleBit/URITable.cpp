@@ -42,7 +42,7 @@ Status URITable::getIdByURI(const char* URI,ID& id)
 	getPrefix(URI);
 	if (prefix.equals(SINGLE.c_str())) {
 		searchStr.clear();
-		searchStr.insert(searchStr.begin(), 1);
+		searchStr.insert(searchStr.begin(), 2);
 		searchStr.append(suffix.str, suffix.length);
 		searchLen.str = searchStr.c_str();
 		searchLen.length = searchStr.length();
