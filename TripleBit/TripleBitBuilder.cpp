@@ -345,7 +345,8 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 
 		while (reader < limit) {
 			loadTriple(reader, subjectID, predicateID, object, objType);
-			cout << subjectID << predicateID << object << endl;
+			cout << lastSubjectID << "\t" << lastPredicateID << "\t" << lastObject << endl;
+			cout << subjectID << "\t" << predicateID << "\t" << object << endl;
 			if (lastSubjectID == subjectID && lastPredicateID == predicateID
 					&& lastObject == object) {
 				reader = skipIdIdId(reader);
