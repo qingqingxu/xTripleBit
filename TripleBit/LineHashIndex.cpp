@@ -51,10 +51,7 @@ LineHashIndex::LineHashIndex(ChunkManager& _chunkManager, IndexType index_type) 
 LineHashIndex::~LineHashIndex() {
 	// TODO Auto-generated destructor stub
 	idTable = NULL;
-	if (idTableEntries != NULL) {
-		delete idTableEntries;
-		idTableEntries = NULL;
-	}
+	idTableEntries = NULL;
 	startPtr = NULL;
 	endPtr = NULL;
 	chunkMeta.clear();

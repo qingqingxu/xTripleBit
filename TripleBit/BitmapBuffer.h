@@ -102,7 +102,9 @@ public:
 	//在chunk中插入数据x，y, x表示subjectID， y表示object
 	void insertXY(ID x, double y, char objType = STRING);
 	//向指定位置写入数据x，y，写完后指针仍指向原地址, x表示subjectID， y表示object
-	void writeXY(const uchar* reader, ID x, double y, char objType = STRING);
+	void writeXY(uchar* reader, ID x, double y, char objType = STRING);
+	//读取subjectID、object、objType
+	const uchar* readXY(const uchar* reader, ID& subjectID, double& object, char& objType);
 	//根据数据类型删除在指定位置数据，返回删除后位置，删除将该位置0
 	uchar* deleteTriple(uchar* reader, char objType = STRING);
 	//获取新的Chunk
@@ -151,11 +153,11 @@ public:
 	~Chunk();
 
 	//在指定位置写入ID数据，默认返回写后数据位置
-	static void writeID(const uchar*& writer, ID data, bool isUpdateAdress =
+	static void writeID(uchar*& writer, ID data, bool isUpdateAdress =
 			true);
 	//在指定位置根据数据类型写入数据，默认返回写后数据位置
 	template<typename T>
-	static void write(const uchar*& writer, T data, char dataType = STRING,
+	static void write(uchar*& writer, T data, char dataType = STRING,
 			bool isUpdateAdress = true) {
 		char c;
 		int i;

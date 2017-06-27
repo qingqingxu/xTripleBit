@@ -650,7 +650,7 @@ ChunkManager::~ChunkManager() {
 	chunkIndex = NULL;
 }
 
-void ChunkManager::writeXY(const uchar* reader, ID x, double y, char objType) {
+void ChunkManager::writeXY(uchar* reader, ID x, double y, char objType) {
 	if (meta->soType == ORDERBYS) {
 		Chunk::writeID(reader, x);
 		Chunk::write(reader, objType, CHAR);
@@ -660,6 +660,20 @@ void ChunkManager::writeXY(const uchar* reader, ID x, double y, char objType) {
 		Chunk::write(reader, y, objType);
 		Chunk::writeID(reader, x);
 	}
+}
+
+const uchar* ChunkManager::readXY(const uchar* reader, ID& subjectID,
+		double& object, char& objType) {
+	if (meta->soType == ORDERBYS) {
+		reader = Chunk::read(Chunk::read(reader, subjectID, STRING), objType,
+				CHAR);
+		reader = Chunk::read(reader, object, objType);
+	} else if (meta->soType == ORDERBYO) {
+		reader = Chunk::read(reader, objType, CHAR);
+		reader = Chunk::read(Chunk::read(reader, object, objType), subjectID,
+				STRING);
+	}
+	return reader;
 }
 
 uchar* ChunkManager::deleteTriple(uchar* reader, char objType) {
@@ -679,9 +693,9 @@ uchar* ChunkManager::deleteTriple(uchar* reader, char objType) {
 void ChunkManager::insertXY(ID x, double y, char objType) {
 #ifdef MYDEBUG
 	ofstream out;
-	if(meta->soType == ORDERBYS){
+	if (meta->soType == ORDERBYS) {
 		out.open("spxy", ios::app);
-	}else if(meta->soType == ORDERBYO){
+	} else if (meta->soType == ORDERBYO) {
 		out.open("opxy", ios::app);
 	}
 	out << x << "\t" << meta->pid << "\t" << y << endl;
@@ -758,16 +772,6 @@ Status ChunkManager::resize(size_t &pageNo) {
 	usedPages.push_back(pageNo);
 	meta->length = usedPages.size() * MemoryBuffer::pagesize;
 	meta->endPtr = lastChunkStartPtr;
-	/*
-	 #ifdef MYDEBUG
-	 ofstream out;
-	 out.open("ChunkManagerresize", ios::app);
-	 out << meta->soType << "--------" << meta->pid << "----------"
-	 << usedPages.size() << "--------" << meta->length << "--------"
-	 << usedPages.size() * MemoryBuffer::pagesize << endl;
-	 out.close();
-	 #endif
-	 */
 	return OK;
 }
 
@@ -827,7 +831,7 @@ Chunk::~Chunk() {
 	// TODO Auto-generated destructor stub
 }
 
-void Chunk::writeID(const uchar*& writer, ID data, bool isUpdateAdress) {
+void Chunk::writeID(uchar*& writer, ID data, bool isUpdateAdress) {
 	*(ID*) writer = data;
 	if (isUpdateAdress) {
 		writer += sizeof(ID);

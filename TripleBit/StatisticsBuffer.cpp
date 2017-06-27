@@ -29,10 +29,6 @@ StatisticsBuffer::~StatisticsBuffer() {
 		delete buffer;
 	}
 	buffer = NULL;
-	if (index != NULL) {
-		delete index;
-	}
-	index = NULL;
 }
 
 /**
