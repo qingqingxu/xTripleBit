@@ -20,6 +20,7 @@
 
 using namespace std;
 
+
 #include "MessageEngine.h"
 
 //#define MYDEBUG
@@ -29,7 +30,8 @@ using namespace std;
 //#define TTDEBUG
 //#define PRINT_BUFFERSIZE
 
-template<class T> string toStr(T tmp) {
+template<class T> string toStr(T tmp)
+{
 	stringstream ss;
 	ss << tmp;
 	return ss.str();
@@ -76,8 +78,7 @@ const unsigned int HASH_CAPACITY = 100000 / HASH_RANGE;
 const unsigned int HASH_CAPACITY_INCREASE = 100000 / HASH_RANGE;
 const unsigned int SECONDARY_HASH_RANGE = 10;
 const unsigned int SECONDARY_HASH_CAPACITY = 100000 / SECONDARY_HASH_RANGE;
-const unsigned int SECONDARY_HASH_CAPACITY_INCREASE = 100000
-		/ SECONDARY_HASH_RANGE;
+const unsigned int SECONDARY_HASH_CAPACITY_INCREASE = 100000 / SECONDARY_HASH_RANGE;
 
 extern char* DATABASE_PATH;
 
@@ -118,7 +119,7 @@ enum Status {
 	END_OF_FILE, 	// read beyond end of file or no space to extend file
 	LOCK_ERROR, 	// file is used by another program
 	NO_MEMORY,
-	URID_NOT_FOUND,
+	URID_NOT_FOUND ,
 	ALREADY_EXISTS,
 	NOT_FOUND,
 	CREATE_FAILURE,
@@ -135,15 +136,18 @@ enum Status {
 };
 
 //join shape of patterns within a join variable.
-enum JoinShape {
-	STAR, CHAIN
+enum JoinShape{
+	STAR,
+	CHAIN
 };
 
-enum OrderByType {
-	ORDERBYS, ORDERBYO
+enum OrderByType{
+	ORDERBYS,
+	ORDERBYO
 };
 
-enum DataType {
+enum DataType
+{
 	NONE,
 	BOOL,
 	BOOL_DELETE,
@@ -166,16 +170,23 @@ enum DataType {
 };
 
 enum StatisticsType {
-	SUBJECTPREDICATE_STATIS, OBJECTPREDICATE_STATIS
+	SUBJECTPREDICATE_STATIS,
+	OBJECTPREDICATE_STATIS
 };
 
-enum NODEEDGETYPE {
-	STARTEDGE, TARGETEDGE
+enum NODEEDGETYPE{
+	STARTEDGE,
+	TARGETEDGE
 };
 
-enum EntityType {
-	PREDICATE = 1 << 0, SUBJECT = 1 << 1, OBJECT = 1 << 2, DEFAULT = -1
+enum EntityType
+{
+	PREDICATE = 1 << 0,
+	SUBJECT = 1 << 1,
+	OBJECT = 1 << 2,
+	DEFAULT = -1
 };
+
 
 typedef long long int64;
 typedef unsigned char word;
@@ -190,11 +201,11 @@ typedef bool status;
 typedef short COMPRESS_UNIT;
 typedef unsigned int uint;
 typedef unsigned char uchar;
-typedef unsigned short ushort;
+typedef unsigned short     ushort;
 typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef size_t OffsetType;
-typedef size_t HashCodeType;
+typedef long long          longlong;
+typedef size_t       OffsetType;
+typedef size_t       HashCodeType;
 
 extern const ID INVALID_ID;
 
@@ -229,8 +240,8 @@ inline unsigned char Type_2_Length(unsigned char type) {
 	return (type - 1) / 4 + (type - 1) % 4 + 2;
 }
 
-inline void Type_2_Length(unsigned char type, unsigned char& xLen,
-		unsigned char& yLen) {
+inline void Type_2_Length(unsigned char type, unsigned char& xLen, unsigned char& yLen)
+{
 	xLen = (type - 1) / 4 + 1;
 	yLen = (type - 1) % 4 + 1;
 }
@@ -266,7 +277,7 @@ struct LengthString {
 			fputc(str[i], file);
 	}
 	LengthString() :
-			str(NULL), length(0) {
+		str(NULL), length(0) {
 	}
 	LengthString(const char * str) {
 		this->str = str;
@@ -277,7 +288,7 @@ struct LengthString {
 		this->length = length;
 	}
 	LengthString(const std::string & rhs) :
-			str(rhs.c_str()), length(rhs.length()) {
+		str(rhs.c_str()), length(rhs.length()) {
 	}
 	bool equals(LengthString * rhs) {
 		if (length != rhs->length)
@@ -296,7 +307,7 @@ struct LengthString {
 		return true;
 	}
 	bool equals(const char * str) {
-		if (length != strlen(str))
+		if(length != strlen(str))
 			return false;
 		for (uint i = 0; i < length; i++)
 			if (this->str[i] != str[i])
@@ -318,97 +329,96 @@ struct TripleNode {
 	ID subjectID, predicateID;
 	double object;
 	char objType;
-	// Which of the three values are constants?
-	bool constSubject, constPredicate, constObject;
-	enum Op {
-		FINDSBYPO,
-		FINDOBYSP,
-		FINDPBYSO,
-		FINDSBYP,
-		FINDOBYP,
-		FINDPBYS,
-		FINDPBYO,
-		FINDSBYO,
-		FINDOBYS,
-		FINDS,
-		FINDP,
-		FINDO,
-		NOOP,
-		FINDSPBYO,
-		FINDSOBYP,
-		FINDPOBYS,
-		FINDPSBYO,
-		FINDOSBYP,
-		FINDOPBYS,
-		FINDSOBYNONE,
-		FINDOSBYNONE,
-		FINDSPO,
-		FINDSPBYNONE,
-		FINDPOBYNONE
-	};
+		// Which of the three values are constants?
+		bool constSubject, constPredicate, constObject;
+		enum Op {
+			FINDSBYPO,
+			FINDOBYSP,
+			FINDPBYSO,
+			FINDSBYP,
+			FINDOBYP,
+			FINDPBYS,
+			FINDPBYO,
+			FINDSBYO,
+			FINDOBYS,
+			FINDS,
+			FINDP,
+			FINDO,
+			NOOP,
+			FINDSPBYO,
+			FINDSOBYP,
+			FINDPOBYS,
+			FINDPSBYO,
+			FINDOSBYP,
+			FINDOPBYS,
+			FINDSOBYNONE,
+			FINDOSBYNONE,
+			FINDSPO,
+			FINDSPBYNONE,
+			FINDPOBYNONE
+		};
 
-	TripleNodeID tripleNodeID;
-	/// define the first scan operator
-	Op scanOperation;
-	int selectivity;
-	// Is there an implicit join edge to another TripleNode?
-	TripleNode() {
-		subjectID = 0;
-		predicateID = 0;
-		object = 0;
-		objType = NONE;
-		constSubject = 0;
-		constPredicate = 0;
-		constObject = 0;
-		tripleNodeID = 0;
-		scanOperation = TripleNode::FINDP;
-		selectivity = -1;
-	}
-	TripleNode(const TripleNode &orig) {
-		subjectID = orig.subjectID;
-		predicateID = orig.predicateID;
-		object = orig.object;
-		objType = orig.objType;
-		constSubject = orig.constSubject;
-		constPredicate = orig.constPredicate;
-		constObject = orig.constObject;
-		tripleNodeID = orig.tripleNodeID;
-		scanOperation = orig.scanOperation;
-		selectivity = orig.selectivity;
+		TripleNodeID tripleNodeID;
+		/// define the first scan operator
+		Op scanOperation;
+		int selectivity;
+		// Is there an implicit join edge to another TripleNode?
+		TripleNode() {
+			subjectID = 0;
+			predicateID = 0;
+			object = 0;
+			objType = 0;
+			constSubject = 0;
+			constPredicate = 0;
+			constObject = 0;
+			tripleNodeID = 0;
+			scanOperation = TripleNode::FINDP;
+			selectivity = -1;
+		}
+		TripleNode(const TripleNode &orig)
+		{
+			subjectID = orig.subjectID;
+			predicateID = orig.predicateID;
+			object = orig.object;
+			objType = orig.objType;
+			constSubject = orig.constSubject;
+			constPredicate = orig.constPredicate;
+			constObject = orig.constObject;
+			tripleNodeID = orig.tripleNodeID;
+			scanOperation = orig.scanOperation;
+			selectivity = orig.selectivity;
 
-	}
-	TripleNode& operator=(const TripleNode& orig) {
-		subjectID = orig.subjectID;
-		predicateID = orig.predicateID;
-		object = orig.object;
-		objType = orig.objType;
-		constSubject = orig.constSubject;
-		constPredicate = orig.constPredicate;
-		constObject = orig.constObject;
-		tripleNodeID = orig.tripleNodeID;
-		scanOperation = orig.scanOperation;
-		selectivity = orig.selectivity;
-		return *this;
-	}
+		}
+		TripleNode& operator=(const TripleNode& orig)
+		{
+			subjectID = orig.subjectID;
+			predicateID = orig.predicateID;
+			object = orig.object;
+			objType = orig.objType;
+			constSubject = orig.constSubject;
+			constPredicate = orig.constPredicate;
+			constObject = orig.constObject;
+			tripleNodeID = orig.tripleNodeID;
+			scanOperation = orig.scanOperation;
+			selectivity = orig.selectivity;
+			return *this;
+		}
 
-	void print() {
-		cout << "subjectID: " << subjectID << "\t predicateID: " << predicateID
-				<< "\t object: " << object << endl;
-		cout << "constSubject: " << constSubject << "\t constPredicate: "
-				<< constPredicate << "\t constObject: " << constObject << endl;
-		cout << "tripleNodeID: " << tripleNodeID << "\t scanOperation: "
-				<< scanOperation << "\t selectivity: " << selectivity << endl;
-	}
+		void print(){
+			cout << "subjectID: " << subjectID << "\t predicateID: " << predicateID <<"\t object: " << object << endl;
+			cout << "constSubject: " << constSubject << "\t constPredicate: " << constPredicate <<"\t constObject: " << constObject << endl;
+			cout << "tripleNodeID: " << tripleNodeID << "\t scanOperation: " << scanOperation <<"\t selectivity: " << selectivity << endl;
+		}
 };
 
-inline unsigned long long getTicks() {
+inline unsigned long long getTicks(){
 	timeval t;
 	gettimeofday(&t, 0);
-	return static_cast<unsigned long long>(t.tv_sec) * 1000 + (t.tv_usec / 1000);
+	return static_cast<unsigned long long>(t.tv_sec)*1000 + (t.tv_usec/1000);
 }
 
-inline string getDataType(char dataType) {
-	switch (dataType) {
+inline string getDataType(char dataType){
+	switch(dataType){
 	case NONE:
 		return "NONE";
 	case BOOL:

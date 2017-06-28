@@ -8,7 +8,7 @@
 #include "MemoryBuffer.h"
 #include "BitmapBuffer.h"
 #include "TripleBitRepository.h"
-#include "EntityIDBuffer.h"
+//#include "EntityIDBuffer.h"
 #include "TripleBitQueryGraph.h"
 #include "util/BufferManager.h"
 #include "util/PartitionBufferManager.h"
@@ -987,7 +987,11 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 
 void PartitionMaster::deleteDataForDeleteClause(EntityIDBuffer *buffer,
 		const ID deleteID, const bool soType) {
+<<<<<<< HEAD
 /*	size_t size = buffer->getSize();
+=======
+	/*size_t size = buffer->getSize();
+>>>>>>> 381c3b86701d0bf8e46c1cba3e7862be8ee66351
 	ID *retBuffer = buffer->getBuffer();
 	size_t index;
 	int chunkID;
@@ -1928,7 +1932,7 @@ void PartitionMaster::findObjectIDByPredicate(EntityIDBuffer *retBuffer,
 void PartitionMaster::findSubjectIDByPredicate(EntityIDBuffer *retBuffer,
 		const ID minID, const ID maxID, const uchar *startPtr,
 		const int xyType) {
-#ifdef MYDEBUG
+/*#ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
 #endif
 	findObjectIDByPredicate(retBuffer, minID, maxID, startPtr, xyType);
@@ -1939,7 +1943,7 @@ void PartitionMaster::findSubjectIDByPredicate(EntityIDBuffer *retBuffer,
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
 #endif
-	findObjectIDByPredicate(retBuffer, startPtr, xyType);
+	findObjectIDByPredicate(retBuffer, startPtr, xyType);*/
 }
 
 double PartitionMaster::getChunkMinOrMax(const SOCouple* triple,

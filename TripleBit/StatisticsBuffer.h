@@ -26,33 +26,45 @@ uchar* writeData(uchar* writer, T data) {
 
 template<typename T>
 uchar* writeData(uchar* writer, T data, char objType) {
+	char c;
+	int i;
+	float f;
+	longlong ll;
+	double d;
+	uint ui;
 	switch (objType) {
 	case BOOL:
 	case CHAR:
-		*(char*) writer = data;
+		c = (char) data;
+		*(char*) writer = c;
 		writer += sizeof(char);
 		break;
 	case INT:
-		*(int*) writer = data;
+		i = (int) data;
+		*(int*) writer = i;
 		writer += sizeof(int);
 		break;
 	case FLOAT:
-		*(float*) writer = data;
+		f = (float) data;
+		*(float*) writer = f;
 		writer += sizeof(float);
 		break;
 	case LONGLONG:
-		*(longlong*) writer = data;
+		ll = (longlong) data;
+		*(longlong*) writer = ll;
 		writer += sizeof(longlong);
 		break;
 	case DATE:
 	case DOUBLE:
-		*(double*) writer = data;
+		d = data;
+		*(double*) writer = d;
 		writer += sizeof(double);
 		break;
 	case UNSIGNED_INT:
 	case STRING:
 	default:
-		*(uint*) writer = data;
+		ui = (uint) data;
+		*(uint*) writer = ui;
 		writer += sizeof(uint);
 
 		break;
@@ -92,23 +104,9 @@ public:
 	template<typename T>
 	Status addStatis(T soValue, ID predicateID, size_t count, char objType =
 			STRING) {
-/*
-#ifdef MYDEBUG
-		ofstream out;
-		if(statType == SUBJECTPREDICATE_STATIS){
-			out.open("spc", ios::app);
-		}else if(statType == OBJECTPREDICATE_STATIS){
-			out.open("opc", ios::app);
-		}
-		out << soValue << "\t" << predicateID << "\t" << count << endl;
-		out.close();
-#endif
-*/
-		uint len;
-		if(statType == SUBJECTPREDICATE_STATIS){
-			len = sizeof(ID) + sizeof(ID) + sizeof(size_t);
-		}else if(statType == OBJECTPREDICATE_STATIS){
-			len = sizeof(char) + Chunk::getLen(objType) + sizeof(ID) + sizeof(size_t);
+		unsigned len = Chunk::getLen(objType) + sizeof(ID) + sizeof(size_t);
+		if(statType == OBJECTPREDICATE_STATIS){
+			len += sizeof(char);
 		}
 		if (first || usedSpace + len > buffer->getSize()) {
 			usedSpace = writer - (uchar*) buffer->getBuffer();
@@ -137,7 +135,7 @@ public:
 		}
 
 		if (statType == SUBJECTPREDICATE_STATIS) {
-			writer = writeData(writer, soValue);
+			writer = writeData(writer, soValue, objType);
 		} else if (statType == OBJECTPREDICATE_STATIS) {
 			writer = writeData(writer, objType); //OP统计信息O前需加objType
 			writer = writeData(writer, soValue, objType);
@@ -145,6 +143,7 @@ public:
 
 		writer = writeData(writer, predicateID);
 		writer = writeData(writer, count);
+
 		usedSpace = writer - (uchar*) buffer->getBuffer();
 		return OK;
 	}
