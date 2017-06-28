@@ -21,6 +21,8 @@
 using namespace std;
 
 #include "MessageEngine.h"
+#include <boost/thread/thread.hpp>
+using namespace boost;
 
 //#define MYDEBUG
 //#define RESULT_TIME
