@@ -987,7 +987,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 
 void PartitionMaster::deleteDataForDeleteClause(EntityIDBuffer *buffer,
 		const ID deleteID, const bool soType) {
-	size_t size = buffer->getSize();
+	/*size_t size = buffer->getSize();
 	ID *retBuffer = buffer->getBuffer();
 	size_t index;
 	int chunkID;
@@ -1041,13 +1041,13 @@ void PartitionMaster::deleteDataForDeleteClause(EntityIDBuffer *buffer,
 					deleteID, scanType, taskPackage, indexForTT);
 			xyChunkQueue[deleteSOType][chunkID]->EnQueue(chunkTask);
 		}
-	}
+	}*/
 }
 
 void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 		const ID chunkID, const uchar *startPtr, const bool soType) {
 
-	ID deleteXID = 0, deleteXYID = 0;
+	/*ID deleteXID = 0, deleteXYID = 0;
 	if (soType == 0) {
 		if (xyType == 1) {
 			//sort by S,x < y
@@ -1119,12 +1119,12 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 
 		partitionBufferManager->freeBuffer(buffer);
 	}
-	retBuffer = NULL;
+	retBuffer = NULL;*/
 }
 
 void PartitionMaster::updateDataForUpdate(EntityIDBuffer *buffer,
 		const ID deleteID, const ID updateID, const bool soType) {
-	size_t size = buffer->getSize();
+	/*size_t size = buffer->getSize();
 	ID *retBuffer = buffer->getBuffer();
 	size_t indexDelete, indexUpdate;
 	int chunkID;
@@ -1262,13 +1262,13 @@ void PartitionMaster::updateDataForUpdate(EntityIDBuffer *buffer,
 					updateID, scanType, taskPackage, indexForTT);
 			xyChunkQueue[insertSOType][chunkID]->EnQueue(chunkTask2);
 		}
-	}
+	}*/
 }
 
 void PartitionMaster::executeChunkTaskUpdate(ChunkTask *chunkTask,
 		const ID chunkID, const uchar* startPtr,
 		const bool soType) {
-	ID deleteXID = 0, deleteXYID = 0;
+	/*ID deleteXID = 0, deleteXYID = 0;
 	if (soType == 0) {
 		if (xyType == 1)
 			deleteXID = chunkTask->Triple.subject;
@@ -1443,13 +1443,13 @@ void PartitionMaster::executeChunkTaskQuery(ChunkTask *chunkTask,
 		printSomething(buffer);
 #endif
 	}
-	retBuffer = NULL;
+	retBuffer = NULL;*/
 }
 
 void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID,
 		EntityIDBuffer *retBuffer, const ID minID, const ID maxID,
 		const uchar* startPtr, const int xyType) {
-#ifdef MYDEBUG
+/*#ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
 #endif
 
@@ -1547,12 +1547,12 @@ void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID,
 					return;
 			}
 		}
-	}
+	}*/
 }
 
 void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID,
 		EntityIDBuffer *retBuffer, const uchar *startPtr, const int xyType) {
-	register ID x, y;
+	/*register ID x, y;
 	const uchar *reader, *limit, *chunkBegin = startPtr;
 
 	retBuffer->setIDCount(1);
@@ -1622,13 +1622,13 @@ void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID,
 					return;
 			}
 		}
-	}
+	}*/
 }
 
 void PartitionMaster::findSubjectIDByPredicateAndObject(const ID objectID,
 		EntityIDBuffer *retBuffer, const ID minID, const ID maxID,
 		const uchar* startPtr, const int xyType) {
-#ifdef MYDEBUG
+/*#ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
 #endif
 	findObjectIDByPredicateAndSubject(objectID, retBuffer, minID, maxID,
@@ -1723,12 +1723,12 @@ void PartitionMaster::findObjectIDAndSubjectIDByPredicate(
 					return;
 			}
 		}
-	}
+	}*/
 }
 
 void PartitionMaster::findObjectIDAndSubjectIDByPredicate(
 		EntityIDBuffer *retBuffer, const uchar *startPtr, const int xyType) {
-	register ID x, y;
+	/*register ID x, y;
 	const uchar *reader, *limit, *chunkBegin = startPtr;
 
 	retBuffer->setIDCount(2);
@@ -1778,13 +1778,13 @@ void PartitionMaster::findObjectIDAndSubjectIDByPredicate(
 				retBuffer->insertID(x);
 			}
 		}
-	}
+	}*/
 }
 
 void PartitionMaster::findSubjectIDAndObjectIDByPredicate(
 		EntityIDBuffer *retBuffer, const ID minID, const ID maxID,
 		const uchar *startPtr, const int xyType) {
-#ifdef MYDEBUG
+/*#ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
 #endif
 	findObjectIDAndSubjectIDByPredicate(retBuffer, minID, maxID, startPtr,
@@ -1871,12 +1871,12 @@ void PartitionMaster::findObjectIDByPredicate(EntityIDBuffer *retBuffer,
 					return;
 			}
 		}
-	}
+	}*/
 }
 
 void PartitionMaster::findObjectIDByPredicate(EntityIDBuffer *retBuffer,
 		const uchar *startPtr, const int xyType) {
-	retBuffer->setIDCount(1);
+	/*retBuffer->setIDCount(1);
 	retBuffer->setSortKey(0);
 
 	register ID x, y;
@@ -1922,13 +1922,13 @@ void PartitionMaster::findObjectIDByPredicate(EntityIDBuffer *retBuffer,
 				retBuffer->insertID(x + y);
 			}
 		}
-	}
+	}*/
 }
 
 void PartitionMaster::findSubjectIDByPredicate(EntityIDBuffer *retBuffer,
 		const ID minID, const ID maxID, const uchar *startPtr,
 		const int xyType) {
-#ifdef MYDEBUG
+/*#ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
 #endif
 	findObjectIDByPredicate(retBuffer, minID, maxID, startPtr, xyType);
@@ -1939,7 +1939,7 @@ void PartitionMaster::findSubjectIDByPredicate(EntityIDBuffer *retBuffer,
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
 #endif
-	findObjectIDByPredicate(retBuffer, startPtr, xyType);
+	findObjectIDByPredicate(retBuffer, startPtr, xyType);*/
 }
 
 double PartitionMaster::getChunkMinOrMax(const SOCouple* triple,
