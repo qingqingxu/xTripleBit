@@ -41,8 +41,8 @@ public:
 	shared_ptr<subTaskPackage> taskPackage;
 	shared_ptr<IndexForTT> indexForTT;
 
-	ChunkTask(TripleBitQueryGraph::OpType opType, ID subject, ID object, TripleNode::Op operation, shared_ptr<subTaskPackage> task_Package, shared_ptr<IndexForTT> index_ForTT):
-		operationType(opType), Triple({subject, object, operation}), taskPackage(task_Package), indexForTT(index_ForTT){
+	ChunkTask(TripleBitQueryGraph::OpType opType, ID subjectID, double object, char objType, TripleNode::Op operation, shared_ptr<subTaskPackage> task_Package, shared_ptr<IndexForTT> index_ForTT):
+		operationType(opType), Triple({subjectID, object, objType, operation}), taskPackage(task_Package), indexForTT(index_ForTT){
 	}
 
 	~ChunkTask(){}
