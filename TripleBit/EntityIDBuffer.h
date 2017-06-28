@@ -13,7 +13,6 @@ class EntityIDBuffer;
 
 #include "TripleBit.h"
 #include "ThreadPool.h"
-using namespace boost;
 
 class SortTask
 {
