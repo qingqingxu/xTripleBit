@@ -150,8 +150,8 @@ void TripleBitWorker::Print() {
 	vector<TripleNode>& triples = query.tripleNodes;
 	for (i = 0; i < size; i++) {
 		cout << i << " triple: " << endl;
-		cout << triples[i].constSubject << " " << triples[i].subject << endl;
-		cout << triples[i].constPredicate << " " << triples[i].predicate << endl;
+		cout << triples[i].constSubject << " " << triples[i].subjectID << endl;
+		cout << triples[i].constPredicate << " " << triples[i].predicateID << endl;
 		cout << triples[i].constObject << " " << triples[i].object << endl;
 		cout << endl;
 	}
