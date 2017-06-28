@@ -106,9 +106,9 @@ public:
 	StatisticsBuffer* getStatisticsBuffer(StatisticsType type) {
 		switch(type) {
 		case SUBJECTPREDICATE_STATIS:
-			return subPredicateStat;
+			return spStatisBuffer;
 		case OBJECTPREDICATE_STATIS:
-			return objPredicateStat;
+			return opStatisBuffer;
 		}
 
 		return NULL;

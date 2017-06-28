@@ -17,7 +17,7 @@
 
 void PrintChunkTask(ChunkTask* chunkTask) {
 	cout << "opType:" << chunkTask->operationType << " subject:"
-			<< chunkTask->Triple.subject << " object:"
+			<< chunkTask->Triple.subjectID << " object:"
 			<< chunkTask->Triple.object << " operation:"
 			<< chunkTask->Triple.operation << endl;
 }

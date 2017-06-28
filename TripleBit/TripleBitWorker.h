@@ -25,6 +25,8 @@ class TasksQueueWP;
 class TripleBitWorkerQuery;
 
 #include "TripleBit.h"
+#include <boost/thread/thread.hpp>
+using namespace boost;
 
 class TripleBitWorker
 {
