@@ -26,7 +26,7 @@ class ChunkTask;
 #include "TripleBit.h"
 #include "TripleBitQueryGraph.h"
 #include <boost/thread/thread.hpp>
-using namespace boost;
+/*using namespace boost;*/
 
 class PartitionMaster {
 private:
