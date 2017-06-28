@@ -14,6 +14,8 @@
 class EntityIDBuffer;
 
 #include "../TripleBit.h"
+#include <boost/thread/thread.hpp>
+using namespace boost;
 
 class BufferManager {
 private:
