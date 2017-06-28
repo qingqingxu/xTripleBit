@@ -19,12 +19,12 @@
 #include "OSFile.h"
 #include <sys/time.h>
 #include "comm/TransQueueSW.h"
-#include "comm/TransQueueSWTT.h"
 #include "comm/TasksQueueWP.h"
 #include "comm/ResultBuffer.h"
 #include "comm/IndexForTT.h"
 #include <boost/thread/thread.hpp>
 
+//#define MYDEBUG
 int TripleBitRepository::colNo = INT_MAX - 1;
 
 TripleBitRepository::TripleBitRepository() {
@@ -34,10 +34,8 @@ TripleBitRepository::TripleBitRepository() {
 	buffer = NULL;
 	this->transQueSW = NULL;
 
-	subjectStat = NULL;
-	subPredicateStat = NULL;
-	objectStat = NULL;
-	objPredicateStat = NULL;
+	spStatisBuffer = NULL;
+	opStatisBuffer = NULL;
 
 	bitmapImage = NULL;
 	bitmapIndexImage = NULL;
@@ -45,6 +43,8 @@ TripleBitRepository::TripleBitRepository() {
 }
 
 TripleBitRepository::~TripleBitRepository() {
+	TempMMapBuffer::deleteInstance();
+
 	if (buffer != NULL)
 		delete buffer;
 	buffer = NULL;
@@ -67,21 +67,14 @@ TripleBitRepository::~TripleBitRepository() {
 #ifdef DEBUG
 	cout<<"bitmapBuffer delete"<<endl;
 #endif
-	if (subjectStat != NULL)
-		delete subjectStat;
-	subjectStat = NULL;
 
-	if (subPredicateStat != NULL)
-		delete subPredicateStat;
-	subPredicateStat = NULL;
+	if (spStatisBuffer != NULL)
+		delete spStatisBuffer;
+	spStatisBuffer = NULL;
 
-	if (objectStat != NULL)
-		delete objectStat;
-	objectStat = NULL;
-
-	if (objPredicateStat != NULL)
-		delete objPredicateStat;
-	objPredicateStat = NULL;
+	if (opStatisBuffer != NULL)
+		delete opStatisBuffer;
+	opStatisBuffer = NULL;
 
 	if (bitmapImage != NULL)
 		delete bitmapImage;
@@ -117,16 +110,6 @@ TripleBitRepository::~TripleBitRepository() {
 	cout << "TripleBitWorker delete" << endl;
 #endif
 
-	if (tripleBitWorkerTT.size() == workerNum) {
-		for (size_t i = 1; i <= workerNum; ++i) {
-			if (tripleBitWorkerTT[i] != NULL)
-				delete tripleBitWorkerTT[i];
-			tripleBitWorkerTT[i] = NULL;
-		}
-	}
-#ifdef MYDEBUG
-	cout << "TripleBitWorkerTT delete" << endl;
-#endif
 
 	for (size_t i = 1; i <= partitionNum; ++i) {
 		if (partitionMaster[i] != NULL)
@@ -171,11 +154,9 @@ bool TripleBitRepository::find_soid_by_string_update(SOID& soid, const string& s
 }
 
 bool TripleBitRepository::find_string_by_pid(string& str, PID& pid) {
-	str = preTable->getPrediacateByID(pid);
-
-	if (str.length() == 0)
-		return false;
-	return true;
+	if (preTable->getPredicateByID(str, pid) == OK)
+		return true;
+	return false;
 }
 
 bool TripleBitRepository::find_string_by_soid(string& str, SOID& soid) {
@@ -186,10 +167,7 @@ bool TripleBitRepository::find_string_by_soid(string& str, SOID& soid) {
 }
 
 int TripleBitRepository::get_predicate_count(PID pid) {
-	int count1 = bitmapBuffer->getChunkManager(pid, 0)->getTripleCount();
-	int count2 = bitmapBuffer->getChunkManager(pid, 1)->getTripleCount();
-
-	return count1 + count2;
+	return bitmapBuffer->getChunkManager(pid, ORDERBYS)->getTripleCount();
 }
 
 bool TripleBitRepository::lookup(const string& str, ID& id) {
@@ -198,31 +176,35 @@ bool TripleBitRepository::lookup(const string& str, ID& id) {
 
 	return true;
 }
-int TripleBitRepository::get_object_count(ID objectID) {
-	((OneConstantStatisticsBuffer*) objectStat)->getStatis(objectID);
-	return objectID;
+int TripleBitRepository::get_object_count(double object, char objType) {
+	size_t count;
+	spStatisBuffer->getStatisBySO(object, count, objType);
+	return count;
 }
 
 int TripleBitRepository::get_subject_count(ID subjectID) {
-	((OneConstantStatisticsBuffer*) subjectStat)->getStatis(subjectID);
-	return subjectID;
+	size_t count;
+	opStatisBuffer->getStatisBySO(subjectID, count);
+	return count;
 }
 
 int TripleBitRepository::get_subject_predicate_count(ID subjectID, ID predicateID) {
-	subPredicateStat->getStatis(subjectID, predicateID);
-	return subjectID;
+	size_t count;
+	spStatisBuffer->getStatis(subjectID, predicateID, count);
+	return count;
 }
 
-int TripleBitRepository::get_object_predicate_count(ID objectID, ID predicateID) {
-	objPredicateStat->getStatis(objectID, predicateID);
-	return objectID;
+int TripleBitRepository::get_object_predicate_count(double object, ID predicateID, char objType) {
+	size_t count;
+	opStatisBuffer->getStatis(object, predicateID, count, objType);
+	return count;
 }
 
-int TripleBitRepository::get_subject_object_count(ID subjectID, ID objectID) {
+int TripleBitRepository::get_subject_object_count(ID subjectID, double object, char objType) {
 	return 1;
 }
 
-Status TripleBitRepository::getSubjectByObjectPredicate(ID oid, ID pid) {
+Status TripleBitRepository::getSubjectByObjectPredicate(double object, ID pid, char objType) {
 	pos = 0;
 	return OK;
 }
@@ -235,10 +217,6 @@ ID TripleBitRepository::next() {
 
 	pos++;
 	return id;
-}
-
-TransQueueSWTT *TripleBitRepository::getTransQueueSWTT() {
-	return transQueSWTT;
 }
 
 TripleBitRepository* TripleBitRepository::create(const string &path) {
@@ -270,6 +248,12 @@ TripleBitRepository* TripleBitRepository::create(const string &path) {
 	repo->UriTable = URITable::load(path);
 	repo->preTable = PredicateTable::load(path);
 
+	string uri;
+	ID maxID = repo->UriTable->getMaxID();
+	for(ID i = 1; i <= maxID; ++i){
+		repo->UriTable->getURIById(uri, i);
+	}
+
 #ifdef DEBUG
 	cout<<"total triple count: "<<repo->bitmapBuffer->getTripleCount()<<endl;
 	cout<<"URITableSize: "<<repo->UriTable->getSize()<<endl;
@@ -278,16 +262,12 @@ TripleBitRepository* TripleBitRepository::create(const string &path) {
 
 	filename = path + "/statIndex";
 	MMapBuffer* indexBufferFile = MMapBuffer::create(filename.c_str(), 0);
-	char* indexBuffer = indexBufferFile->get_address();
+	uchar* indexBuffer = indexBufferFile->get_address();
 
-	string statFilename = path + "/subject_statis";
-	repo->subjectStat = OneConstantStatisticsBuffer::load(StatisticsBuffer::SUBJECT_STATIS, statFilename, indexBuffer);
-	statFilename = path + "/object_statis";
-	repo->objectStat = OneConstantStatisticsBuffer::load(StatisticsBuffer::OBJECT_STATIS, statFilename, indexBuffer);
-	statFilename = path + "/subjectpredicate_statis";
-	repo->subPredicateStat = TwoConstantStatisticsBuffer::load(StatisticsBuffer::SUBJECTPREDICATE_STATIS, statFilename, indexBuffer);
+	string statFilename = path + "/subjectpredicate_statis";
+	repo->spStatisBuffer = StatisticsBuffer::load(SUBJECTPREDICATE_STATIS, statFilename, indexBuffer);
 	statFilename = path + "/objectpredicate_statis";
-	repo->objPredicateStat = TwoConstantStatisticsBuffer::load(StatisticsBuffer::OBJECTPREDICATE_STATIS, statFilename, indexBuffer);
+	repo->opStatisBuffer = StatisticsBuffer::load(OBJECTPREDICATE_STATIS, statFilename, indexBuffer);
 
 #ifdef DEBUG
 	cout<<"subject count: "<<((OneConstantStatisticsBuffer*)repo->subjectStat)->getEntityCount()<<endl;
@@ -296,9 +276,9 @@ TripleBitRepository* TripleBitRepository::create(const string &path) {
 
 	repo->buffer = new EntityIDBuffer();
 
-	cerr << "load complete!" << endl;
+	cout << "load complete!" << endl;
 
-	repo->partitionNum = repo->bitmapPredicateImage->get_length() / ((sizeof(ID) + sizeof(SOType) + sizeof(size_t) * 2) * 2);
+	repo->partitionNum = repo->bitmapPredicateImage->get_length() / ((sizeof(ID) + sizeof(SOType) + sizeof(size_t) * 2) * 2);//numbers of predicate
 	repo->workerNum = WORKERNUM;
 	repo->indexForTT = new IndexForTT(WORKERNUM);
 
@@ -323,102 +303,21 @@ TripleBitRepository* TripleBitRepository::create(const string &path) {
 	return repo;
 }
 
-TripleBitRepository* TripleBitRepository::createForTT(const string &path) {
-	DATABASE_PATH = (char*) path.c_str();
-	TripleBitRepository *repo = new TripleBitRepository();
-	repo->dataBasePath = path;
-
-	string filename = path + "BitmapBuffer";
-
-	//load the repository from image files;
-	//load bitmap
-#ifdef DEBUG
-	cout << filename.c_str() << endl;
-#endif
-
-	repo->bitmapImage = new MMapBuffer(filename.c_str(), 0);
-	string predicateFile(filename);
-	predicateFile.append("_predicate");
-	string indexFile(filename);
-	indexFile.append("_index");
-
-	string tempMMap(filename);
-	tempMMap.append("_temp");
-	TempMMapBuffer::create(tempMMap.c_str(), repo->bitmapImage->getSize());
-
-	repo->bitmapPredicateImage = new MMapBuffer(predicateFile.c_str(), 0);
-	repo->bitmapIndexImage = new MMapBuffer(indexFile.c_str(), 0);
-	repo->bitmapBuffer = BitmapBuffer::load(repo->bitmapImage, repo->bitmapIndexImage, repo->bitmapPredicateImage);
-
-	repo->UriTable = URITable::load(path);
-	repo->preTable = PredicateTable::load(path);
-
-#ifdef DEBUG
-	cout << "total triple count: " << repo->bitmapBuffer->getTripleCount() << endl;
-	cout << "URITableSize: " << repo->UriTable->getSize() << endl;
-	cout << "predicateTableSize: " << repo->preTable->getSize() << endl;
-#endif
-
-	filename = path + "/statIndex";
-	MMapBuffer *indexBufferFile = MMapBuffer::create(filename.c_str(), 0);
-	char *indexBuffer = indexBufferFile->get_address();
-
-	string statFilename = path + "/subject_statis";
-	repo->subjectStat = OneConstantStatisticsBuffer::load(StatisticsBuffer::SUBJECT_STATIS, statFilename, indexBuffer);
-	statFilename = path + "/object_statis";
-	repo->objectStat = OneConstantStatisticsBuffer::load(StatisticsBuffer::OBJECT_STATIS, statFilename, indexBuffer);
-	statFilename = path + "/subjectpredicate_statis";
-	repo->subPredicateStat = TwoConstantStatisticsBuffer::load(StatisticsBuffer::SUBJECTPREDICATE_STATIS, statFilename, indexBuffer);
-	statFilename = path + "/objectpredicate_statis";
-	repo->objPredicateStat = TwoConstantStatisticsBuffer::load(StatisticsBuffer::OBJECTPREDICATE_STATIS, statFilename, indexBuffer);
-
-#ifdef DEBUG
-	cout << "subject count: " << ((OneConstantStatisticsBuffer*)repo->subjectStat)->getEntityCount() << endl;
-	cout << "object count: " << ((OneConstantStatisticsBuffer*)repo->objectStat)->getEntityCount() << endl;
-#endif
-
-	repo->buffer = new EntityIDBuffer();
-
-	cerr << "load complete!" << endl;
-
-	repo->partitionNum = repo->bitmapPredicateImage->get_length() / ((sizeof(ID) + sizeof(SOType) + sizeof(size_t) * 2) * 2);
-	repo->workerNum = WORKERNUM;
-	repo->indexForTT = new IndexForTT(WORKERNUM);
-
-#ifdef DEBUG
-	cout << "partitionNumber: " << repo->partitionNum << endl;
-#endif
-
-	repo->sharedMemoryTTInit();
-
-	for (size_t i = 1; i <= repo->workerNum; ++i) {
-		repo->tripleBitWorkerTT[i] = new TripleBitWorkerTT(repo, i);
-	}
-
-	for (size_t i = 1; i <= repo->partitionNum; ++i) {
-		repo->partitionMaster[i] = new PartitionMaster(repo, i);
-	}
-
-	return repo;
-}
 
 void TripleBitRepository::tripleBitWorkerInit(int i) {
 	tripleBitWorker[i]->Work();
 }
 
-void TripleBitRepository::tripleBitWorkerTTInit(int i) {
-	tripleBitWorkerTT[i]->Work();
-}
-
-void TripleBitRepository::partitionMasterInit(int i) {
-	partitionMaster[i]->Work();
+void TripleBitRepository::partitionMasterInit(TripleBitRepository*& repo, int i) {
+	repo->partitionMaster[i] = new PartitionMaster(repo, i);
+	repo->partitionMaster[i]->Work();
 }
 
 Status TripleBitRepository::sharedMemoryInit() {
 	//Init the transQueueSW shared Memory
 	sharedMemoryTransQueueSWInit();
 
-	//Init the tasksQueueWP shareed memory
+	//Init the tasksQueueWP shared memory
 	sharedMemoryTasksQueueWPInit();
 
 	//Init the resultWP shared memory
@@ -426,14 +325,6 @@ Status TripleBitRepository::sharedMemoryInit() {
 
 	uriMutex = new boost::mutex();
 
-	return OK;
-}
-
-Status TripleBitRepository::sharedMemoryTTInit() {
-//	sharedMemoryTransQueueSWTTInit();
-	sharedMemoryTasksQueueWPInit();
-	sharedMemoryResultWPInit();
-	uriMutex = new boost::mutex;
 	return OK;
 }
 
@@ -459,13 +350,6 @@ Status TripleBitRepository::sharedMemoryDestroy() {
 	return OK;
 }
 
-Status TripleBitRepository::sharedMemoryTTDestroy() {
-	sharedMemoryTransQueueSWTTDestroy();
-	sharedMemoryTasksQueueWPDestroy();
-	sharedMemoryResultWPDestroy();
-	return OK;
-}
-
 Status TripleBitRepository::sharedMemoryTransQueueSWInit() {
 	transQueSW = new transQueueSW();
 #ifdef DEBUG
@@ -475,36 +359,14 @@ Status TripleBitRepository::sharedMemoryTransQueueSWInit() {
 		cout << "TransQueueSW Init Failed!" << endl;
 		return ERROR_UNKOWN;
 	}
-
-	transQueSWTT = NULL;
-
 	return OK;
 }
 
-Status TripleBitRepository::sharedMemoryTransQueueSWTTInit() {
-	transQueSWTT = new TransQueueSWTT;
-	if (transQueSWTT == NULL) {
-		cout << "TransQueueSWTT Init Failed!" << endl;
-		return ERROR_UNKOWN;
-	}
-
-	transQueSW = NULL;
-
-	return OK;
-}
 
 Status TripleBitRepository::sharedMemoryTransQueueSWDestroy() {
 	if (transQueSW != NULL) {
 		delete transQueSW;
 		transQueSW = NULL;
-	}
-	return OK;
-}
-
-Status TripleBitRepository::sharedMemoryTransQueueSWTTDestroy() {
-	if (transQueSWTT != NULL) {
-		delete transQueSWTT;
-		transQueSWTT = NULL;
 	}
 	return OK;
 }
@@ -565,9 +427,9 @@ Status TripleBitRepository::tempMMapDestroy() {
 		return OK;
 	}
 
-//	endPartitionMaster();
+	endPartitionMaster();
 
-//	bitmapBuffer->endUpdate(bitmapPredicateImage, bitmapImage);
+	bitmapBuffer->endUpdate(bitmapPredicateImage, bitmapImage);
 	TempMMapBuffer::deleteInstance();
 	return OK;
 }
@@ -618,14 +480,6 @@ void TripleBitRepository::endForWorker(){
 	string queryStr("exit");
 	for(size_t i = 1; i <= workerNum; ++i){
 		transQueSW->EnQueue(queryStr);
-	}
-	indexForTT->wait();
-}
-
-void TripleBitRepository::endForWorkerTT(){
-	string queryStr("exit");
-	for(size_t i = 1; i <= workerNum; ++i){
-		transQueSWTT->EnQueue(queryStr);
 	}
 	indexForTT->wait();
 }
@@ -711,6 +565,7 @@ void TripleBitRepository::cmd_line_cold(FILE *fin, FILE *fout, const string cmd)
 	cout << "DataBase: " << DATABASE_PATH << " Query:" << cmd << endl;
 	transQueSW->EnQueue(queryStr);
 	endForWorker();
+	tempMMapDestroy();
 }
 
 extern char* QUERY_PATH;
@@ -726,36 +581,5 @@ void TripleBitRepository::cmd_line_warm(FILE *fin, FILE *fout, const string cmd)
 		transQueSW->EnQueue(queryStr);
 	}
 	endForWorker();
-}
-
-void TripleBitRepository::prepareForTT() {
-	ThreadPool::getChunkPool();
-	//ID pid = 1;
-	for(ID pid = 1; pid <= partitionNum; ++pid){
-		PartitionMasterArg *arg = new PartitionMasterArg;
-		arg->partitionMaster = partitionMaster[pid];
-		pthread_t tid = 0;
-		pthread_create(&tid, NULL, createPartitionMasterThread, arg);
-	}
-}
-
-void TripleBitRepository::syncForTT() {
-	//ThreadPool::getChunkPool().waitforchunk();
-	ThreadPool::getChunkPool().wait();
-}
-
-void TripleBitRepository::endForTT() {
 	tempMMapDestroy();
-	ThreadPool::deleteAllPool();
-}
-
-TripleBitWorkerTT *TripleBitRepository::getTripleBitWorkerTT(unsigned workerNumber){
-	return tripleBitWorkerTT[workerNumber];
-}
-
-void *TripleBitRepository::createPartitionMasterThread(void *threadData){
-	PartitionMasterArg *partitionMasterArg = (PartitionMasterArg*)threadData;
-	PartitionMaster *partitionMaster = partitionMasterArg->partitionMaster;
-	partitionMaster->Work();
-	return (void*)0;
 }

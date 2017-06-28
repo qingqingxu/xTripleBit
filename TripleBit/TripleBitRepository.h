@@ -16,7 +16,6 @@ class BitmapBuffer;
 class EntityIDBuffer;
 class MMapBuffer;
 class TripleBitWorker;
-class TripleBitWorkerTT;
 class PartitionMaster;
 class transQueueSW;
 class TasksQueueWP;
@@ -27,7 +26,6 @@ class IndexForTT;
 #include "TripleBit.h"
 #include "StatisticsBuffer.h"
 #include "TripleBitWorker.h"
-#include "TripleBitWorkerTT.h"
 #include "PartitionMaster.h"
 #include "ThreadPool.h"
 
@@ -36,7 +34,7 @@ private:
 	PredicateTable * preTable;
 	URITable* UriTable;
 	BitmapBuffer* bitmapBuffer;
-	StatisticsBuffer* subjectStat, *subPredicateStat, *objectStat, *objPredicateStat;
+	StatisticsBuffer *spStatisBuffer, *opStatisBuffer;
 	EntityIDBuffer* buffer;
 	int pos;
 	string dataBasePath;
@@ -58,9 +56,6 @@ private:
 	vector<string>::iterator resBegin;
 	vector<string>::iterator resEnd;
 
-//	some thing about TransactionTest
-	TransQueueSWTT *transQueSWTT;
-	map<ID, TripleBitWorkerTT*> tripleBitWorkerTT;
 
 //	some thing about QueryTest
 	IndexForTT *indexForTT;
@@ -84,21 +79,19 @@ public:
 
 	//create a Repository specific in the path .
 	static TripleBitRepository* create(const string &path);
-	static TripleBitRepository* createForTT(const string &path);
 
 	//Get some statistics information
 	int	get_predicate_count(PID pid);
 	int get_subject_count(ID subjectID);
-	int get_object_count(ID objectID);
+	int get_object_count(double object, char objType = STRING);
 	int get_subject_predicate_count(ID subjectID, ID predicateID);
-	int get_object_predicate_count(ID objectID, ID predicateID);
-	int get_subject_object_count(ID subjectID, ID objectID);
+	int get_object_predicate_count(double object, ID predicateID, char objType = STRING);
+	int get_subject_object_count(ID subjectID, double object, char objType = STRING);
 
 	PredicateTable* getPredicateTable() const { return preTable; }
 	URITable* getURITable() const { return UriTable; }
 	BitmapBuffer* getBitmapBuffer() const { return bitmapBuffer; }
 	transQueueSW* getTransQueueSW() { return transQueSW; }
-	TransQueueSWTT* getTransQueueSWTT();
 	vector<TasksQueueWP*> getTasksQueueWP() { return tasksQueueWP; }
 	vector<ResultBuffer*> getResultWP() { return resultWP; }
 	vector<boost::mutex*> getTasksQueueWPMutex() { return tasksQueueWPMutex; }
@@ -110,22 +103,18 @@ public:
 	string getDataBasePath() { return dataBasePath; }
 
 
-	StatisticsBuffer* getStatisticsBuffer(StatisticsBuffer::StatisticsType type) {
+	StatisticsBuffer* getStatisticsBuffer(StatisticsType type) {
 		switch(type) {
-		case StatisticsBuffer::SUBJECT_STATIS:
-			return subjectStat;
-		case StatisticsBuffer::OBJECT_STATIS:
-			return objectStat;
-		case StatisticsBuffer::SUBJECTPREDICATE_STATIS:
-			return subPredicateStat;
-		case StatisticsBuffer::OBJECTPREDICATE_STATIS:
-			return objPredicateStat;
+		case SUBJECTPREDICATE_STATIS:
+			return spStatisBuffer;
+		case OBJECTPREDICATE_STATIS:
+			return opStatisBuffer;
 		}
 
 		return NULL;
 	}
 	//scan the database;
-	Status getSubjectByObjectPredicate(ID oid, ID pod);
+	Status getSubjectByObjectPredicate(double object, ID pod, char objType = STRING);
 	ID next();
 
 	//lookup string id;
@@ -135,9 +124,7 @@ public:
 	size_t getResultSize() const { return resultSet.size(); }
 
 	void tripleBitWorkerInit(int i);
-	void partitionMasterInit(int i);
-
-	void tripleBitWorkerTTInit(int i);
+	void partitionMasterInit(TripleBitRepository*& repo, int i);
 
 	Status sharedMemoryInit();
 	Status sharedMemoryDestroy();
@@ -148,16 +135,10 @@ public:
 	Status sharedMemoryResultWPInit();
 	Status sharedMemoryResultWPDestroy();
 
-	Status sharedMemoryTTInit();
-	Status sharedMemoryTTDestroy();
-	Status sharedMemoryTransQueueSWTTInit();
-	Status sharedMemoryTransQueueSWTTDestroy();
-
 	Status tempMMapDestroy();
 	void endPartitionMaster();
 
 	void endForWorker();
-	void endForWorkerTT();
 	void workerComplete();
 
 	void cmd_line(FILE* fin, FILE* fout);
@@ -165,17 +146,6 @@ public:
 	void cmd_line_cold(FILE* fin, FILE* fout, const string cmd);
 	void cmd_line_warm(FILE* fin, FILE* fout, const string cmd);
 	static int colNo;
-
-public:
-	//for TransactionTest
-	void prepareForTT();
-	void syncForTT();
-	void endForTT();
-	TripleBitWorkerTT *getTripleBitWorkerTT(unsigned workerNumber);
-	struct PartitionMasterArg{
-			PartitionMaster *partitionMaster;
-	};
-	static void *createPartitionMasterThread(void *threadData);
 };
 
 #endif /* TRIPLEBITRESPOSITORY_H_ */
