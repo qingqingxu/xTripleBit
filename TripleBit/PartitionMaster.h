@@ -108,7 +108,7 @@ private:
 			const int xyType);
 	void findObjectIDByPredicateAndSubject(const ID subject, EntityIDBuffer *retBuffer, const uchar* startPtr, const int xyType);
 	void findSubjectIDByPredicateAndObject(const ID object, EntityIDBuffer *retBuffer, const uchar* startPtr, const int xyType);*/
-	double getChunkMinOrMax(const ChunkTask::ChunkTriple* triple, const bool soType);
+	double getChunkMinOrMax(const ChunkTriple* triple, const bool soType);
 
 };
 

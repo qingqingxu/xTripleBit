@@ -672,13 +672,13 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	startPtrTemp = lastPtrTemp - sizeof(MetaData);
 	endPtrTemp = startPtrTemp + ((MetaData*) startPtrTemp)->usedSpace;
 
-	ChunkTask::ChunkTriple* chunkTriple, *tempTriple;
-	ChunkTask::ChunkTriple *lastTempBuffer, *currentTempBuffer, *endTempBuffer;
-	ChunkTask::ChunkTriple *start = buffer->getBuffer(), *end = buffer->getEnd();
+	ChunkTriple* chunkTriple, *tempTriple;
+	ChunkTriple *lastTempBuffer, *currentTempBuffer, *endTempBuffer;
+	ChunkTriple *start = buffer->getBuffer(), *end = buffer->getEnd();
 	lastTempBuffer = currentTempBuffer = start;
 	endTempBuffer = end;
 
-	chunkTriple = (ChunkTask::ChunkTriple*) malloc(sizeof(ChunkTask::ChunkTriple));
+	chunkTriple = (ChunkTriple*) malloc(sizeof(ChunkTriple));
 	if(chunkTriple == NULL){
 		cout << "malloc a ChunkTriple error" << endl;
 		free(chunkTriple);
@@ -1944,8 +1944,7 @@ void PartitionMaster::findSubjectIDByPredicate(EntityIDBuffer *retBuffer,
 	findObjectIDByPredicate(retBuffer, startPtr, xyType);
 }*/
 
-double PartitionMaster::getChunkMinOrMax(const ChunkTask::ChunkTriple* triple,
-		const bool soType) {
+double PartitionMaster::getChunkMinOrMax(const ChunkTriple* triple, const bool soType) {
 	if (soType == ORDERBYS) {
 		return triple->subjectID;
 	} else {
