@@ -125,6 +125,7 @@ static bool encodeFilter(IRepository &repo,const SPARQLParser::PatternGroup& gro
 bool static encodeTripleNode(IRepository& repo, const SPARQLParser::Pattern& triplePattern, TripleNode &tripleNode)
 // Encode a triple pattern for graph. encode subject,predicate,object to ids, also store their types.
 {
+	SOID objectID;
 	//encode subject node
 	switch(triplePattern.subject.type) {
 	 case SPARQLParser::Element::Variable:
@@ -148,7 +149,7 @@ bool static encodeTripleNode(IRepository& repo, const SPARQLParser::Pattern& tri
 		 break;
 	 case SPARQLParser::Element::String:
 	 case SPARQLParser::Element::IRI:
-		 SOID objectID = (SOID)tripleNode.object;
+		 objectID = (SOID)tripleNode.object;
 		 if(repo.find_soid_by_string(objectID, triplePattern.object.value)){
 			 tripleNode.constObject = true;
 			 break;
@@ -184,6 +185,7 @@ static bool encodeTripleNodeUpdate(IRepository& repo,const SPARQLParser::Pattern
 // Encode a triple pattern for graph, encode subject, predicate, object to ids, also store their types
 {
 	//encode subject node
+	SOID objectID;
 	switch(triplePattern.subject.type)
 	{
 	case SPARQLParser::Element::Variable:
@@ -211,7 +213,7 @@ static bool encodeTripleNodeUpdate(IRepository& repo,const SPARQLParser::Pattern
 		break;
 	case SPARQLParser::Element::String:
 	case SPARQLParser::Element::IRI:
-		SOID objectID = (SOID)tripleNode.object;
+		objectID = (SOID)tripleNode.object;
 		if(repo.find_soid_by_string_update(objectID, triplePattern.object.value))
 		{
 			tripleNode.constObject = true;
