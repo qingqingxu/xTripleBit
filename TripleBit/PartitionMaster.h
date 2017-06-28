@@ -17,9 +17,9 @@ class SubTrans;
 class ChunkManager;
 class ResultBuffer;
 class TempBuffer;
-//class PartitionBufferManager;
+class PartitionBufferManager;
 class TasksQueueChunk;
-//class subTaskPackage;
+class subTaskPackage;
 class IndexForTT;
 class ChunkTask;
 

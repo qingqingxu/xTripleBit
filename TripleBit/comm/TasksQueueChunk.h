@@ -10,14 +10,14 @@
 
 #include "../TripleBit.h"
 #include "../TripleBitQueryGraph.h"
-//#include "subTaskPackage.h"
+#include "subTaskPackage.h"
 #include "IndexForTT.h"
 #include "Tools.h"
 #include "Tasks.h"
 
 void PrintChunkTask(ChunkTask* chunkTask) {
 	cout << "opType:" << chunkTask->operationType << " subject:"
-			<< chunkTask->Triple.subjectID << " object:"
+			<< chunkTask->Triple.subject << " object:"
 			<< chunkTask->Triple.object << " operation:"
 			<< chunkTask->Triple.operation << endl;
 }
@@ -40,7 +40,8 @@ class TasksQueueChunk {
 private:
 	const uchar* chunkBegin;
 	ID chunkID;
-	bool soType;
+	int xyType;
+	int soType;
 
 private:
 	NodeChunkQueue* head;
@@ -50,9 +51,9 @@ private:
 private:
 	TasksQueueChunk();
 public:
-	TasksQueueChunk(const uchar* chunk_Begin, ID& chunk_ID,
-			bool so_Type) :
-			chunkBegin(chunk_Begin), chunkID(chunk_ID), soType(
+	TasksQueueChunk(const uchar* chunk_Begin, ID& chunk_ID, int xy_Type,
+			int so_Type) :
+			chunkBegin(chunk_Begin), chunkID(chunk_ID), xyType(xy_Type), soType(
 					so_Type) {
 		NodeChunkQueue* nodeChunkQueue = new NodeChunkQueue();
 		head = tail = nodeChunkQueue;
@@ -90,7 +91,10 @@ public:
 	const uchar* getChunkBegin() {
 		return chunkBegin;
 	}
-	const bool getSOType() {
+	const int getXYType() {
+		return xyType;
+	}
+	const int getSOType() {
 		return soType;
 	}
 

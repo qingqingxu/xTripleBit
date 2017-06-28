@@ -12,7 +12,7 @@
 #include "TripleBitBuilder.h"
 #include "BitmapBuffer.h"
 #include "StatisticsBuffer.h"
-//#include "EntityIDBuffer.h"
+#include "EntityIDBuffer.h"
 #include "MMapBuffer.h"
 #include "ThreadPool.h"
 #include "TempMMapBuffer.h"
@@ -274,7 +274,7 @@ TripleBitRepository* TripleBitRepository::create(const string &path) {
 	cout<<"object count: "<<((OneConstantStatisticsBuffer*)repo->objectStat)->getEntityCount()<<endl;
 #endif
 
-	//repo->buffer = new EntityIDBuffer();
+	repo->buffer = new EntityIDBuffer();
 
 	cout << "load complete!" << endl;
 
