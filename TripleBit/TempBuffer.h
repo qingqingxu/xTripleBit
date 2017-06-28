@@ -13,7 +13,7 @@
 
 class TempBuffer {
 public:
-	ChunkTriple buffer[TEMPBUFFER_INIT_PAGE_COUNT * getpagesize() / sizeof(ChunkTriple)];
+	ChunkTriple* buffer;
 	int pos; //buffer's index
 
 	size_t usedSize;
