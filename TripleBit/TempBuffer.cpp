@@ -12,9 +12,9 @@
 
 TempBuffer::TempBuffer() {
 	// TODO Auto-generated constructor stub
-	buffer = (SOCouple*)malloc(TEMPBUFFER_INIT_PAGE_COUNT * getpagesize());
+	buffer = (ChunkTask::ChunkTriple*)malloc(TEMPBUFFER_INIT_PAGE_COUNT * getpagesize());
 	usedSize = 0;
-	totalSize = TEMPBUFFER_INIT_PAGE_COUNT * getpagesize() / sizeof(SOCouple);
+	totalSize = TEMPBUFFER_INIT_PAGE_COUNT * getpagesize() / sizeof(ChunkTask::ChunkTriple);
 	pos = 0;
 }
 
@@ -42,7 +42,7 @@ Status TempBuffer::clear()
 	return OK;
 }
 
-SOCouple& TempBuffer::operator[](const size_t index){
+ChunkTask::ChunkTriple& TempBuffer::operator[](const size_t index){
 	if(index >= usedSize){
 		return buffer[0];
 	}
@@ -62,8 +62,8 @@ void TempBuffer::Print()
 
 int cmpByS(const void *lhs, const void *rhs)
 {
-	SOCouple* lTriple = (SOCouple*) lhs;
-	SOCouple* rTriple = (SOCouple*) rhs;
+	ChunkTask::ChunkTriple* lTriple = (ChunkTask::ChunkTriple*) lhs;
+	ChunkTask::ChunkTriple* rTriple = (ChunkTask::ChunkTriple*) rhs;
 	if(lTriple->subjectID != rTriple->subjectID){
 		return lTriple->subjectID - rTriple->subjectID;
 	}else {
@@ -73,8 +73,8 @@ int cmpByS(const void *lhs, const void *rhs)
 
 int cmpByO(const void *lhs, const void *rhs)
 {
-	SOCouple* lTriple = (SOCouple*) lhs;
-	SOCouple* rTriple = (SOCouple*) rhs;
+	ChunkTask::ChunkTriple* lTriple = (ChunkTask::ChunkTriple*) lhs;
+	ChunkTask::ChunkTriple* rTriple = (ChunkTask::ChunkTriple*) rhs;
 	if(lTriple->object != rTriple->object){
 		return lTriple->object - rTriple->object;
 	}else {
@@ -85,15 +85,15 @@ int cmpByO(const void *lhs, const void *rhs)
 Status TempBuffer::sort(bool soType)
 {
 	if(soType == ORDERBYS){
-		qsort(buffer, usedSize, sizeof(SOCouple), cmpByS);
+		qsort(buffer, usedSize, sizeof(ChunkTask::ChunkTriple), cmpByS);
 	}else if(soType == ORDERBYO){
-		qsort(buffer, usedSize, sizeof(SOCouple), cmpByO);
+		qsort(buffer, usedSize, sizeof(ChunkTask::ChunkTriple), cmpByO);
 	}
 
 	return OK;
 }
 
-bool TempBuffer::isEquals(SOCouple* lTriple, SOCouple* rTriple){
+bool TempBuffer::isEquals(ChunkTask::ChunkTriple* lTriple, ChunkTask::ChunkTriple* rTriple){
 	if(lTriple->subjectID == rTriple->subjectID && lTriple->object == rTriple->object){
 		return true;
 	}
@@ -103,7 +103,7 @@ bool TempBuffer::isEquals(SOCouple* lTriple, SOCouple* rTriple){
 void TempBuffer::uniqe()
 {
 	if(usedSize <= 1) return;
-	SOCouple *lastPtr, *currentPtr, *endPtr;
+	ChunkTask::ChunkTriple *lastPtr, *currentPtr, *endPtr;
 	lastPtr = currentPtr = buffer;
 	endPtr = getEnd();
 	currentPtr++;

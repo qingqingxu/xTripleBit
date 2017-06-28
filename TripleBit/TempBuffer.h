@@ -13,7 +13,7 @@
 
 class TempBuffer {
 public:
-	SOCouple buffer[TEMPBUFFER_INIT_PAGE_COUNT * getpagesize() / sizeof(SOCouple)];
+	ChunkTask::ChunkTriple buffer[TEMPBUFFER_INIT_PAGE_COUNT * getpagesize() / sizeof(ChunkTask::ChunkTriple)];
 	int pos; //buffer's index
 
 	size_t usedSize;
@@ -25,18 +25,18 @@ public:
 	Status sort(bool soType);
 	void uniqe();
 	Status clear();
-	SOCouple& operator[](const size_t index);
-	bool isEquals(SOCouple* lTriple, SOCouple* rTriple);
+	ChunkTask::ChunkTriple& operator[](const size_t index);
+	bool isEquals(ChunkTask::ChunkTriple* lTriple, ChunkTask::ChunkTriple* rTriple);
 	bool isFull() { return usedSize > totalSize-2; }
 	bool isEmpty() { return usedSize == 0; }
 	size_t getSize() const{
 		return usedSize;
 	}
-	SOCouple* getBuffer() const{
+	ChunkTask::ChunkTriple* getBuffer() const{
 		return buffer;
 	}
 
-	SOCouple* getEnd(){
+	ChunkTask::ChunkTriple* getEnd(){
 		return getBuffer() + usedSize;
 	}
 

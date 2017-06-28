@@ -670,15 +670,15 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	startPtrTemp = lastPtrTemp - sizeof(MetaData);
 	endPtrTemp = startPtrTemp + ((MetaData*) startPtrTemp)->usedSpace;
 
-	SOCouple* chunkTriple, *tempTriple;
-	SOCouple *lastTempBuffer, *currentTempBuffer, *endTempBuffer;
-	SOCouple *start = buffer->getBuffer(), *end = buffer->getEnd();
+	ChunkTask::ChunkTriple* chunkTriple, *tempTriple;
+	ChunkTask::ChunkTriple *lastTempBuffer, *currentTempBuffer, *endTempBuffer;
+	ChunkTask::ChunkTriple *start = buffer->getBuffer(), *end = buffer->getEnd();
 	lastTempBuffer = currentTempBuffer = start;
 	endTempBuffer = end;
 
-	chunkTriple = (SOCouple*) malloc(sizeof(SOCouple));
+	chunkTriple = (ChunkTask::ChunkTriple*) malloc(sizeof(ChunkTask::ChunkTriple));
 	if(chunkTriple == NULL){
-		cout << "malloc a SOCouple error" << endl;
+		cout << "malloc a ChunkTriple error" << endl;
 		free(chunkTriple);
 		return;
 	}
@@ -1946,7 +1946,7 @@ void PartitionMaster::findSubjectIDByPredicate(EntityIDBuffer *retBuffer,
 	findObjectIDByPredicate(retBuffer, startPtr, xyType);*/
 }
 
-double PartitionMaster::getChunkMinOrMax(const SOCouple* triple,
+double PartitionMaster::getChunkMinOrMax(const ChunkTask::ChunkTriple* triple,
 		const bool soType) {
 	if (soType == ORDERBYS) {
 		return triple->subjectID;

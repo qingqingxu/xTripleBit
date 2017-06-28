@@ -256,19 +256,6 @@ union varType {
 	char* var_string;
 };
 
-struct SOCouple {
-	ID subjectID;
-	double object;
-	char objType;
-};
-
-struct Triple {
-	ID subjectID;
-	ID predicateID;
-	double object;
-	char objType;
-};
-
 struct LengthString {
 	const char * str;
 	uint length;
