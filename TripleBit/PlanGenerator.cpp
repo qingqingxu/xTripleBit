@@ -27,8 +27,8 @@ bool isUnused(const TripleBitQueryGraph::SubQuery& query,const TripleNode& node,
 		const TripleNode& n=*iter;
 		if ((&n)==(&node))
 			continue;
-		if ((!n.constSubject)&&(val==n.subject)) return false;
-		if ((!n.constPredicate)&&(val==n.predicate)) return false;
+		if ((!n.constSubject)&&(val==n.subjectID)) return false;
+		if ((!n.constPredicate)&&(val==n.predicateID)) return false;
 		if ((!n.constObject)&&(val==n.object)) return false;
 	}
 	for (vector<TripleBitQueryGraph::SubQuery>::const_iterator iter=query.optional.begin(),limit=query.optional.end();iter!=limit;++iter)
@@ -151,8 +151,8 @@ Status PlanGenerator::generateScanOperator(TripleNode& node, TripleBitQueryGraph
 {
 	bool subjectUnused, predicateUnused, objectUnused;
 
-	subjectUnused = (!node.constSubject) && isUnused(*graph, node, node.subject);
-	predicateUnused = (!node.constPredicate) && isUnused(*graph, node, node.predicate);
+	subjectUnused = (!node.constSubject) && isUnused(*graph, node, node.subjectID);
+	predicateUnused = (!node.constPredicate) && isUnused(*graph, node, node.predicateID);
 	objectUnused = (!node.constObject) && isUnused(*graph, node, node.object);
 
 	unsigned unusedSum = subjectUnused + predicateUnused + objectUnused;
@@ -192,17 +192,17 @@ Status PlanGenerator::generateScanOperator(TripleNode& node, TripleBitQueryGraph
 	} else {
 		if (variableCnt == 2) {
 			if (node.constSubject) {
-				if(node.predicate == varID)
+				if(node.predicateID == varID)
 					node.scanOperation = TripleNode::FINDPOBYS;
 				else
 					node.scanOperation = TripleNode::FINDOPBYS;
 			} else if (node.constPredicate) {
-				if(node.subject == varID)
+				if(node.subjectID == varID)
 					node.scanOperation = TripleNode::FINDSOBYP;
 				else
 					node.scanOperation = TripleNode::FINDOSBYP;
 			} else if (node.constObject) {
-				if(node.subject == varID)
+				if(node.subjectID == varID)
 					node.scanOperation = TripleNode::FINDSPBYO;
 				else
 					node.scanOperation = TripleNode::FINDPSBYO;
@@ -324,24 +324,24 @@ int PlanGenerator::getSelectivity(TripleBitQueryGraph::TripleNodeID& tripleID)
 			if (iter->constSubject)
 				selectivity = 1;
 			else {
-				selectivity = repo.get_object_predicate_count(iter->object, iter->predicate);
+				selectivity = repo.get_object_predicate_count(iter->object, iter->predicateID);
 #ifdef MYDEBUG
 				cout << "selectivity: " << selectivity << endl;
 #endif
 			}
 		} else {
 			if (iter->constSubject)
-				selectivity = repo.get_subject_predicate_count(iter->subject, iter->predicate);
-			else selectivity = repo.get_predicate_count(iter->predicate);
+				selectivity = repo.get_subject_predicate_count(iter->subjectID, iter->predicateID);
+			else selectivity = repo.get_predicate_count(iter->predicateID);
 		}
 	} else {
 		if ( iter->constObject) {
 			if (iter->constSubject)
-				selectivity = repo.get_subject_object_count(iter->subject, iter->object);
+				selectivity = repo.get_subject_object_count(iter->subjectID, iter->object);
 			else selectivity = repo.get_object_count(iter->object);
 		} else {
 			if (iter->constSubject)
-				selectivity = repo.get_subject_count(iter->subject);
+				selectivity = repo.get_subject_count(iter->subjectID);
 			else selectivity = TripleBitRepository::colNo;
 		}
 	}
