@@ -12,7 +12,7 @@
 #include "TripleBitBuilder.h"
 #include "BitmapBuffer.h"
 #include "StatisticsBuffer.h"
-#include "EntityIDBuffer.h"
+//#include "EntityIDBuffer.h"
 #include "MMapBuffer.h"
 #include "ThreadPool.h"
 #include "TempMMapBuffer.h"
@@ -211,11 +211,11 @@ Status TripleBitRepository::getSubjectByObjectPredicate(double object, ID pid, c
 
 ID TripleBitRepository::next() {
 	ID id;
-	Status s = buffer->getID(id, pos);
+	/*Status s = buffer->getID(id, pos);
 	if (s != OK)
 		return 0;
 
-	pos++;
+	pos++;*/
 	return id;
 }
 
@@ -274,7 +274,7 @@ TripleBitRepository* TripleBitRepository::create(const string &path) {
 	cout<<"object count: "<<((OneConstantStatisticsBuffer*)repo->objectStat)->getEntityCount()<<endl;
 #endif
 
-	repo->buffer = new EntityIDBuffer();
+	//repo->buffer = new EntityIDBuffer();
 
 	cout << "load complete!" << endl;
 

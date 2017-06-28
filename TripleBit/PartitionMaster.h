@@ -78,20 +78,20 @@ private:
 	void handleEndofChunk(const uchar *startPtr, uchar *&chunkBegin, uchar*&startPtrChunk, uchar *&currentPtrChunk, uchar *&endPtrChunk, const uchar *&startPtrTemp,
 			char *&tempPage, char *&tempPage2, bool &isInTempPage, bool &theOtherPageEmpty, double min, double max, bool soType, const ID chunkID);
 
-	void executeQuery(SubTrans *subTransaction);
+	/*void executeQuery(SubTrans *subTransaction);*/
 	void executeInsertData(SubTrans *subTransaction);
 	void executeDeleteData(SubTrans *subTransaction);
-	void executeDeleteClause(SubTrans *subTransaction);
+/*	void executeDeleteClause(SubTrans *subTransaction);
 	void executeUpdate(SubTrans *subTransfirst, SubTrans *subTranssecond);
 
 	void deleteDataForDeleteClause(EntityIDBuffer *buffer, const ID deleteID, const bool soType);
-	void updateDataForUpdate(EntityIDBuffer *buffer, const ID deleteID, const ID updateID, const bool soType);
+	void updateDataForUpdate(EntityIDBuffer *buffer, const ID deleteID, const ID updateID, const bool soType);*/
 
 	void handleTasksQueueChunk(TasksQueueChunk *tasksQueue);
-	void executeChunkTaskQuery(ChunkTask *chunkTask, const ID chunkID, const uchar* chunkBegin);
+/*	void executeChunkTaskQuery(ChunkTask *chunkTask, const ID chunkID, const uchar* chunkBegin);*/
 	void executeChunkTaskInsertData(ChunkTask *chunkTask, const ID chunkID, const uchar *startPtr, const bool soType);
 	void executeChunkTaskDeleteData(ChunkTask *chunkTask, const ID chunkID, const uchar *startPtr, const bool soType);
-	void executeChunkTaskDeleteClause(ChunkTask *chunkTask, const ID chunkID, const uchar *startPtr, const bool soType);
+/*	void executeChunkTaskDeleteClause(ChunkTask *chunkTask, const ID chunkID, const uchar *startPtr, const bool soType);
 	void executeChunkTaskUpdate(ChunkTask *chunkTask, const ID chunkID, const uchar *startPtr, const bool soType);
 
 	void findSubjectIDByPredicate(EntityIDBuffer *retBuffer, const ID minID, const ID maxID, const uchar *startPtr, const int xyType);
@@ -107,7 +107,7 @@ private:
 	void findSubjectIDByPredicateAndObject(const ID object, EntityIDBuffer *retBuffer, const ID minID, const ID maxID, const uchar* startPtr,
 			const int xyType);
 	void findObjectIDByPredicateAndSubject(const ID subject, EntityIDBuffer *retBuffer, const uchar* startPtr, const int xyType);
-	void findSubjectIDByPredicateAndObject(const ID object, EntityIDBuffer *retBuffer, const uchar* startPtr, const int xyType);
+	void findSubjectIDByPredicateAndObject(const ID object, EntityIDBuffer *retBuffer, const uchar* startPtr, const int xyType);*/
 	double getChunkMinOrMax(const ChunkTask::ChunkTriple* triple, const bool soType);
 
 };

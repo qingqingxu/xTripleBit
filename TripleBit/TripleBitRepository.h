@@ -13,7 +13,7 @@ class PredicateTable;
 class URITable;
 class URIStatisticsBuffer;
 class BitmapBuffer;
-class EntityIDBuffer;
+//class EntityIDBuffer;
 class MMapBuffer;
 class TripleBitWorker;
 class PartitionMaster;
@@ -35,7 +35,7 @@ private:
 	URITable* UriTable;
 	BitmapBuffer* bitmapBuffer;
 	StatisticsBuffer *spStatisBuffer, *opStatisBuffer;
-	EntityIDBuffer* buffer;
+	//EntityIDBuffer* buffer;
 	int pos;
 	string dataBasePath;
 

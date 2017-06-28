@@ -122,7 +122,7 @@ void PartitionMaster::Work() {
 
 		switch (subTransaction->operationType) {
 		case TripleBitQueryGraph::QUERY:
-			executeQuery(subTransaction);
+			//executeQuery(subTransaction);
 			delete subTransaction;
 			break;
 		case TripleBitQueryGraph::INSERT_DATA:
@@ -134,12 +134,12 @@ void PartitionMaster::Work() {
 			delete subTransaction;
 			break;
 		case TripleBitQueryGraph::DELETE_CLAUSE:
-			executeDeleteClause(subTransaction);
+			//executeDeleteClause(subTransaction);
 			delete subTransaction;
 			break;
 		case TripleBitQueryGraph::UPDATE:
 			SubTrans *subTransaction2 = tasksQueue->Dequeue();
-			executeUpdate(subTransaction, subTransaction2);
+			//executeUpdate(subTransaction, subTransaction2);
 			delete subTransaction;
 			delete subTransaction2;
 			break;
@@ -147,6 +147,7 @@ void PartitionMaster::Work() {
 	}
 }
 
+/*
 void PartitionMaster::executeQuery(SubTrans *subTransaction) {
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
@@ -286,6 +287,7 @@ void PartitionMaster::executeQuery(SubTrans *subTransaction) {
 	cerr << "taskEnQueue time elapsed: " << ((end.tv_sec - start.tv_sec) * 1000000 + end.tv_usec - start.tv_usec) / 1000000.0 << " s" << endl;
 #endif
 }
+*/
 
 void PartitionMaster::executeInsertData(SubTrans* subTransaction) {
 #ifdef TTDEBUG
@@ -321,7 +323,7 @@ void PartitionMaster::executeDeleteData(SubTrans* subTransaction) {
 	executeInsertData(subTransaction);
 }
 
-void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
+/*void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << endl;
 #endif
@@ -462,7 +464,7 @@ void PartitionMaster::executeUpdate(SubTrans *subTransfirst,
 			}
 		}
 	}
-}
+}*/
 
 void PrintChunkTaskPart(ChunkTask* chunkTask) {
 	cout << "opType:" << chunkTask->operationType << " subject:"
@@ -496,7 +498,7 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 	while ((chunkTask = tasksQueue->Dequeue()) != NULL) {
 		switch (chunkTask->operationType) {
 		case TripleBitQueryGraph::QUERY:
-			executeChunkTaskQuery(chunkTask, chunkID, chunkBegin);
+			//executeChunkTaskQuery(chunkTask, chunkID, chunkBegin);
 			break;
 		case TripleBitQueryGraph::INSERT_DATA:
 			executeChunkTaskInsertData(chunkTask, chunkID, chunkBegin, soType);
@@ -505,10 +507,10 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 			executeChunkTaskDeleteData(chunkTask, chunkID, chunkBegin, soType);
 			break;
 		case TripleBitQueryGraph::DELETE_CLAUSE:
-			executeChunkTaskDeleteClause(chunkTask, chunkID, chunkBegin, soType);
+			//executeChunkTaskDeleteClause(chunkTask, chunkID, chunkBegin, soType);
 			break;
 		case TripleBitQueryGraph::UPDATE:
-			executeChunkTaskUpdate(chunkTask, chunkID, chunkBegin, soType);
+			//executeChunkTaskUpdate(chunkTask, chunkID, chunkBegin, soType);
 			break;
 		}
 	}
@@ -985,13 +987,9 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 	}
 }
 
-void PartitionMaster::deleteDataForDeleteClause(EntityIDBuffer *buffer,
+/*void PartitionMaster::deleteDataForDeleteClause(EntityIDBuffer *buffer,
 		const ID deleteID, const bool soType) {
-<<<<<<< HEAD
-/*	size_t size = buffer->getSize();
-=======
-	/*size_t size = buffer->getSize();
->>>>>>> 381c3b86701d0bf8e46c1cba3e7862be8ee66351
+	size_t size = buffer->getSize();
 	ID *retBuffer = buffer->getBuffer();
 	size_t index;
 	int chunkID;
@@ -1045,13 +1043,13 @@ void PartitionMaster::deleteDataForDeleteClause(EntityIDBuffer *buffer,
 					deleteID, scanType, taskPackage, indexForTT);
 			xyChunkQueue[deleteSOType][chunkID]->EnQueue(chunkTask);
 		}
-	}*/
+	}
 }
 
 void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 		const ID chunkID, const uchar *startPtr, const bool soType) {
 
-	/*ID deleteXID = 0, deleteXYID = 0;
+	ID deleteXID = 0, deleteXYID = 0;
 	if (soType == 0) {
 		if (xyType == 1) {
 			//sort by S,x < y
@@ -1123,12 +1121,12 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 
 		partitionBufferManager->freeBuffer(buffer);
 	}
-	retBuffer = NULL;*/
+	retBuffer = NULL;
 }
 
 void PartitionMaster::updateDataForUpdate(EntityIDBuffer *buffer,
 		const ID deleteID, const ID updateID, const bool soType) {
-	/*size_t size = buffer->getSize();
+	size_t size = buffer->getSize();
 	ID *retBuffer = buffer->getBuffer();
 	size_t indexDelete, indexUpdate;
 	int chunkID;
@@ -1266,13 +1264,13 @@ void PartitionMaster::updateDataForUpdate(EntityIDBuffer *buffer,
 					updateID, scanType, taskPackage, indexForTT);
 			xyChunkQueue[insertSOType][chunkID]->EnQueue(chunkTask2);
 		}
-	}*/
+	}
 }
 
 void PartitionMaster::executeChunkTaskUpdate(ChunkTask *chunkTask,
 		const ID chunkID, const uchar* startPtr,
 		const bool soType) {
-	/*ID deleteXID = 0, deleteXYID = 0;
+	ID deleteXID = 0, deleteXYID = 0;
 	if (soType == 0) {
 		if (xyType == 1)
 			deleteXID = chunkTask->Triple.subject;
@@ -1374,12 +1372,12 @@ void PartitionMaster::executeChunkTaskUpdate(ChunkTask *chunkTask,
 
 		partitionBufferManager->freeBuffer(buffer);
 	}
-	retBuffer = NULL;*/
+	retBuffer = NULL;
 }
 
 void PartitionMaster::executeChunkTaskQuery(ChunkTask *chunkTask,
 		const ID chunkID, const uchar* chunkBegin) {
-/*#ifdef MYDEBUG
+#ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
 #endif
 
@@ -1447,13 +1445,13 @@ void PartitionMaster::executeChunkTaskQuery(ChunkTask *chunkTask,
 		printSomething(buffer);
 #endif
 	}
-	retBuffer = NULL;*/
+	retBuffer = NULL;
 }
 
 void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID,
 		EntityIDBuffer *retBuffer, const ID minID, const ID maxID,
 		const uchar* startPtr, const int xyType) {
-/*#ifdef MYDEBUG
+#ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
 #endif
 
@@ -1551,12 +1549,12 @@ void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID,
 					return;
 			}
 		}
-	}*/
+	}
 }
 
 void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID,
 		EntityIDBuffer *retBuffer, const uchar *startPtr, const int xyType) {
-	/*register ID x, y;
+	register ID x, y;
 	const uchar *reader, *limit, *chunkBegin = startPtr;
 
 	retBuffer->setIDCount(1);
@@ -1626,13 +1624,13 @@ void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID,
 					return;
 			}
 		}
-	}*/
+	}
 }
 
 void PartitionMaster::findSubjectIDByPredicateAndObject(const ID objectID,
 		EntityIDBuffer *retBuffer, const ID minID, const ID maxID,
 		const uchar* startPtr, const int xyType) {
-/*#ifdef MYDEBUG
+#ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
 #endif
 	findObjectIDByPredicateAndSubject(objectID, retBuffer, minID, maxID,
@@ -1727,12 +1725,12 @@ void PartitionMaster::findObjectIDAndSubjectIDByPredicate(
 					return;
 			}
 		}
-	}*/
+	}
 }
 
 void PartitionMaster::findObjectIDAndSubjectIDByPredicate(
 		EntityIDBuffer *retBuffer, const uchar *startPtr, const int xyType) {
-	/*register ID x, y;
+	register ID x, y;
 	const uchar *reader, *limit, *chunkBegin = startPtr;
 
 	retBuffer->setIDCount(2);
@@ -1782,17 +1780,17 @@ void PartitionMaster::findObjectIDAndSubjectIDByPredicate(
 				retBuffer->insertID(x);
 			}
 		}
-	}*/
+	}
 }
 
 void PartitionMaster::findSubjectIDAndObjectIDByPredicate(
 		EntityIDBuffer *retBuffer, const ID minID, const ID maxID,
 		const uchar *startPtr, const int xyType) {
-/*#ifdef MYDEBUG
+#ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
 #endif
 	findObjectIDAndSubjectIDByPredicate(retBuffer, minID, maxID, startPtr,
-			xyType);*/
+			xyType);
 }
 
 void PartitionMaster::findSubjectIDAndObjectIDByPredicate(
@@ -1802,7 +1800,7 @@ void PartitionMaster::findSubjectIDAndObjectIDByPredicate(
 void PartitionMaster::findObjectIDByPredicate(EntityIDBuffer *retBuffer,
 		const ID minID, const ID maxID, const uchar* startPtr,
 		const int xyType) {
-/*#ifdef MYDEBUG
+#ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
 #endif
 	if (minID == 0 && maxID == UINT_MAX) {
@@ -1875,12 +1873,12 @@ void PartitionMaster::findObjectIDByPredicate(EntityIDBuffer *retBuffer,
 					return;
 			}
 		}
-	}*/
+	}
 }
 
 void PartitionMaster::findObjectIDByPredicate(EntityIDBuffer *retBuffer,
 		const uchar *startPtr, const int xyType) {
-	/*retBuffer->setIDCount(1);
+	retBuffer->setIDCount(1);
 	retBuffer->setSortKey(0);
 
 	register ID x, y;
@@ -1926,13 +1924,13 @@ void PartitionMaster::findObjectIDByPredicate(EntityIDBuffer *retBuffer,
 				retBuffer->insertID(x + y);
 			}
 		}
-	}*/
+	}
 }
 
 void PartitionMaster::findSubjectIDByPredicate(EntityIDBuffer *retBuffer,
 		const ID minID, const ID maxID, const uchar *startPtr,
 		const int xyType) {
-/*#ifdef MYDEBUG
+#ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
 #endif
 	findObjectIDByPredicate(retBuffer, minID, maxID, startPtr, xyType);
@@ -1943,8 +1941,8 @@ void PartitionMaster::findSubjectIDByPredicate(EntityIDBuffer *retBuffer,
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
 #endif
-	findObjectIDByPredicate(retBuffer, startPtr, xyType);*/
-}
+	findObjectIDByPredicate(retBuffer, startPtr, xyType);
+}*/
 
 double PartitionMaster::getChunkMinOrMax(const ChunkTask::ChunkTriple* triple,
 		const bool soType) {
