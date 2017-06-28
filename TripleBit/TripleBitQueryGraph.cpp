@@ -105,14 +105,14 @@ void TripleBitQueryGraph::constructSubqueryEdges()
 //      const TripleBitQueryGraph::TripleNode& tpn=query.tripleNodes[index];
 	   	const TripleNode& tpn = query.tripleNodes[index];
       if (!tpn.constSubject) {
-         patternBindings[index].insert(tpn.subject);
-         bindings.insert(tpn.subject);
-         TripleNodesVariables.insert(tpn.subject);
+         patternBindings[index].insert(tpn.subjectID);
+         bindings.insert(tpn.subjectID);
+         TripleNodesVariables.insert(tpn.subjectID);
       }
       if (!tpn.constPredicate) {
-         patternBindings[index].insert(tpn.predicate);
-         bindings.insert(tpn.predicate);
-         TripleNodesVariables.insert(tpn.predicate);
+         patternBindings[index].insert(tpn.predicateID);
+         bindings.insert(tpn.predicateID);
+         TripleNodesVariables.insert(tpn.predicateID);
       }
       if (!tpn.constObject) {
          patternBindings[index].insert(tpn.object);

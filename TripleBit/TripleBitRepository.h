@@ -83,9 +83,9 @@ public:
 	//Get some statistics information
 	int	get_predicate_count(PID pid);
 	int get_subject_count(ID subjectID);
-	int get_object_count(double object, char objType = STRING);
+	int get_object_count(double object, char objType);
 	int get_subject_predicate_count(ID subjectID, ID predicateID);
-	int get_object_predicate_count(double object, ID predicateID, char objType = STRING);
+	int get_object_predicate_count(double object, ID predicateID, char objType);
 	int get_subject_object_count(ID subjectID, double object, char objType = STRING);
 
 	PredicateTable* getPredicateTable() const { return preTable; }
@@ -106,15 +106,15 @@ public:
 	StatisticsBuffer* getStatisticsBuffer(StatisticsType type) {
 		switch(type) {
 		case SUBJECTPREDICATE_STATIS:
-			return spStatisBuffer;
+			return subPredicateStat;
 		case OBJECTPREDICATE_STATIS:
-			return opStatisBuffer;
+			return objPredicateStat;
 		}
 
 		return NULL;
 	}
 	//scan the database;
-	Status getSubjectByObjectPredicate(double object, ID pod, char objType = STRING);
+	Status getSubjectByObjectPredicate(ID oid, ID pod);
 	ID next();
 
 	//lookup string id;

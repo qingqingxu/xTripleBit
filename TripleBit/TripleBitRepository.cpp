@@ -167,7 +167,10 @@ bool TripleBitRepository::find_string_by_soid(string& str, SOID& soid) {
 }
 
 int TripleBitRepository::get_predicate_count(PID pid) {
-	return bitmapBuffer->getChunkManager(pid, ORDERBYS)->getTripleCount();
+	int count1 = bitmapBuffer->getChunkManager(pid, ORDERBYS)->getTripleCount();
+	int count2 = bitmapBuffer->getChunkManager(pid, ORDERBYO)->getTripleCount();
+
+	return count1 + count2;
 }
 
 bool TripleBitRepository::lookup(const string& str, ID& id) {
@@ -204,18 +207,18 @@ int TripleBitRepository::get_subject_object_count(ID subjectID, double object, c
 	return 1;
 }
 
-Status TripleBitRepository::getSubjectByObjectPredicate(double object, ID pid, char objType) {
+Status TripleBitRepository::getSubjectByObjectPredicate(ID oid, ID pid) {
 	pos = 0;
 	return OK;
 }
 
 ID TripleBitRepository::next() {
 	ID id;
-	/*Status s = buffer->getID(id, pos);
+	Status s = buffer->getID(id, pos);
 	if (s != OK)
 		return 0;
 
-	pos++;*/
+	pos++;
 	return id;
 }
 
@@ -268,11 +271,6 @@ TripleBitRepository* TripleBitRepository::create(const string &path) {
 	repo->spStatisBuffer = StatisticsBuffer::load(SUBJECTPREDICATE_STATIS, statFilename, indexBuffer);
 	statFilename = path + "/objectpredicate_statis";
 	repo->opStatisBuffer = StatisticsBuffer::load(OBJECTPREDICATE_STATIS, statFilename, indexBuffer);
-
-#ifdef DEBUG
-	cout<<"subject count: "<<((OneConstantStatisticsBuffer*)repo->subjectStat)->getEntityCount()<<endl;
-	cout<<"object count: "<<((OneConstantStatisticsBuffer*)repo->objectStat)->getEntityCount()<<endl;
-#endif
 
 	repo->buffer = new EntityIDBuffer();
 

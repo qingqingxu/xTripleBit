@@ -73,26 +73,30 @@ private:
 	void taskEnQueue(ChunkTask *chunkTask, TasksQueueChunk *tasksQueue);
 
 	void combineTempBufferToSource(TempBuffer *buffer, const uchar* startPtr, const ID chunkID, const bool soType);
-	void readIDInTempPage(const uchar *&currentPtrTemp, const uchar *&endPtrTemp, const uchar *&startPtrTemp, char *&tempPage, char *&tempPage2,
-			bool &theOtherPageEmpty, bool &isInTempPage);
-	void handleEndofChunk(const uchar *startPtr, uchar *&chunkBegin, uchar*&startPtrChunk, uchar *&currentPtrChunk, uchar *&endPtrChunk, const uchar *&startPtrTemp,
-			char *&tempPage, char *&tempPage2, bool &isInTempPage, bool &theOtherPageEmpty, double min, double max, bool soType, const ID chunkID);
+	void readIDInTempPage(const uchar *&currentPtrTemp,
+			const uchar *&endPtrTemp, const uchar *&startPtrTemp, char *&tempPage,
+			char *&tempPage2, bool &theOtherPageEmpty, bool &isInTempPage);
+	void handleEndofChunk(const uchar *startPtr,
+			uchar *&chunkBegin, uchar*&startPtrChunk, uchar *&currentPtrChunk,
+			uchar *&endPtrChunk, const uchar *&startPtrTemp, char *&tempPage,
+			char *&tempPage2, bool &isInTempPage, bool &theOtherPageEmpty,
+			double min, double max, bool soType, const ID chunkID);
 
-	/*void executeQuery(SubTrans *subTransaction);*/
+	//void executeQuery(SubTrans *subTransaction);
 	void executeInsertData(SubTrans *subTransaction);
 	void executeDeleteData(SubTrans *subTransaction);
 /*	void executeDeleteClause(SubTrans *subTransaction);
-	void executeUpdate(SubTrans *subTransfirst, SubTrans *subTranssecond);
+	void executeUpdate(SubTrans *subTransfirst, SubTrans *subTranssecond);*/
 
-	void deleteDataForDeleteClause(EntityIDBuffer *buffer, const ID deleteID, const bool soType);
-	void updateDataForUpdate(EntityIDBuffer *buffer, const ID deleteID, const ID updateID, const bool soType);*/
+/*	void deleteDataForDeleteClause(EntityIDBuffer *buffer, const ID deleteID, const bool soType);
+	void updateDataForUpdate(EntityIDBuffer *buffer, const ID deleteID, const ID updateID, const int soType);*/
 
 	void handleTasksQueueChunk(TasksQueueChunk *tasksQueue);
-/*	void executeChunkTaskQuery(ChunkTask *chunkTask, const ID chunkID, const uchar* chunkBegin);*/
+//	void executeChunkTaskQuery(ChunkTask *chunkTask, const ID chunkID, const uchar* chunkBegin, const int xyType);
 	void executeChunkTaskInsertData(ChunkTask *chunkTask, const ID chunkID, const uchar *startPtr, const bool soType);
 	void executeChunkTaskDeleteData(ChunkTask *chunkTask, const ID chunkID, const uchar *startPtr, const bool soType);
-/*	void executeChunkTaskDeleteClause(ChunkTask *chunkTask, const ID chunkID, const uchar *startPtr, const bool soType);
-	void executeChunkTaskUpdate(ChunkTask *chunkTask, const ID chunkID, const uchar *startPtr, const bool soType);
+/*	void executeChunkTaskDeleteClause(ChunkTask *chunkTask, const ID chunkID, const uchar *startPtr, const int xyType, const int soType);
+	void executeChunkTaskUpdate(ChunkTask *chunkTask, const ID chunkID, const uchar *startPtr, const int xyType, const int soType);
 
 	void findSubjectIDByPredicate(EntityIDBuffer *retBuffer, const ID minID, const ID maxID, const uchar *startPtr, const int xyType);
 	void findSubjectIDByPredicate(EntityIDBuffer *retBuffer, const uchar *startPtr, const int xyType);
@@ -106,10 +110,9 @@ private:
 			const int xyType);
 	void findSubjectIDByPredicateAndObject(const ID object, EntityIDBuffer *retBuffer, const ID minID, const ID maxID, const uchar* startPtr,
 			const int xyType);
-	void findObjectIDByPredicateAndSubject(const ID subject, EntityIDBuffer *retBuffer, const uchar* startPtr, const int xyType);
-	void findSubjectIDByPredicateAndObject(const ID object, EntityIDBuffer *retBuffer, const uchar* startPtr, const int xyType);*/
+	void findObjectIDByPredicateAndSubject(const ID subject, EntityIDBuffer *retBuffer, const uchar* startPtr, const int xyType);*/
+	void findSubjectIDByPredicateAndObject(const ID object, EntityIDBuffer *retBuffer, const uchar* startPtr, const int xyType);
 	double getChunkMinOrMax(const ChunkTriple* triple, const bool soType);
-
 };
 
 #endif /* PARTITIONMASTER_H_ */
