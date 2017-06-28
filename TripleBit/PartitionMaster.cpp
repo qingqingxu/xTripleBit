@@ -8,7 +8,7 @@
 #include "MemoryBuffer.h"
 #include "BitmapBuffer.h"
 #include "TripleBitRepository.h"
-#include "EntityIDBuffer.h"
+//#include "EntityIDBuffer.h"
 #include "TripleBitQueryGraph.h"
 #include "util/BufferManager.h"
 #include "util/PartitionBufferManager.h"
