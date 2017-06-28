@@ -11,7 +11,7 @@
 #include "Tools.h"
 #include "../TripleBit.h"
 #include "../TripleBitQueryGraph.h"
-#include "subTaskPackage.h"
+//#include "subTaskPackage.h"
 #include "IndexForTT.h"
 
 class SubTrans : private Uncopyable{

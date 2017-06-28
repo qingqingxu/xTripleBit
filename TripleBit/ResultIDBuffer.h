@@ -9,8 +9,8 @@
 #define RESULTIDBUFFER_H_
 
 #include "TripleBit.h"
-#include "EntityIDBuffer.h"
-#include "comm/subTaskPackage.h"
+//#include "EntityIDBuffer.h"
+//#include "comm/subTaskPackage.h"
 
 using namespace boost;
 
