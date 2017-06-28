@@ -296,7 +296,7 @@ Status EdgeStartTargetBuffer::addTriple(ID edgeID, ID startID, double target,
 
 		writer = writeData(writer, edgeID);
 		writer = writeData(writer, startID);
-		const uchar* temp = writer;
+		uchar* temp = writer;
 		Chunk::write(temp, target, objType);
 		writer = (uchar*)temp;
 		usedSpace = writer - (uchar*) buffer->getBuffer();
