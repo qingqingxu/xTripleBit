@@ -36,11 +36,6 @@ public:
 
 class ChunkTask: private Uncopyable{
 public:
-	struct ChunkTriple
-	{
-		ID subject, object;
-		TripleNode::Op operation;
-	};
 	TripleBitQueryGraph::OpType operationType;
 	ChunkTriple Triple;
 	shared_ptr<subTaskPackage> taskPackage;

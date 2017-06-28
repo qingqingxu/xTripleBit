@@ -40,8 +40,7 @@ class TasksQueueChunk {
 private:
 	const uchar* chunkBegin;
 	ID chunkID;
-	int xyType;
-	int soType;
+	bool soType;
 
 private:
 	NodeChunkQueue* head;
@@ -51,9 +50,9 @@ private:
 private:
 	TasksQueueChunk();
 public:
-	TasksQueueChunk(const uchar* chunk_Begin, ID& chunk_ID, int xy_Type,
-			int so_Type) :
-			chunkBegin(chunk_Begin), chunkID(chunk_ID), xyType(xy_Type), soType(
+	TasksQueueChunk(const uchar* chunk_Begin, ID& chunk_ID,
+			bool so_Type) :
+			chunkBegin(chunk_Begin), chunkID(chunk_ID), soType(
 					so_Type) {
 		NodeChunkQueue* nodeChunkQueue = new NodeChunkQueue();
 		head = tail = nodeChunkQueue;
