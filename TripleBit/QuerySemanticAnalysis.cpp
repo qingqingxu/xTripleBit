@@ -128,12 +128,12 @@ bool static encodeTripleNode(IRepository& repo, const SPARQLParser::Pattern& tri
 	//encode subject node
 	switch(triplePattern.subject.type) {
 	 case SPARQLParser::Element::Variable:
-		 tripleNode.subject = triplePattern.subject.id;
+		 tripleNode.subjectID = triplePattern.subject.id;
 		 tripleNode.constSubject = false;
 		 break;
 	 case SPARQLParser::Element::String:
 	 case SPARQLParser::Element::IRI:
-		 if(repo.find_soid_by_string(tripleNode.subject,triplePattern.subject.value)){
+		 if(repo.find_soid_by_string(tripleNode.subjectID,triplePattern.subject.value)){
 			 tripleNode.constSubject = true;
 			 break;
 		 }else return false;
@@ -148,7 +148,7 @@ bool static encodeTripleNode(IRepository& repo, const SPARQLParser::Pattern& tri
 		 break;
 	 case SPARQLParser::Element::String:
 	 case SPARQLParser::Element::IRI:
-		 if(repo.find_soid_by_string(tripleNode.object,triplePattern.object.value)){
+		 if(repo.find_soid_by_string((SOID)tripleNode.object,triplePattern.object.value)){
 			 tripleNode.constObject = true;
 			 break;
 		 }else{
@@ -161,12 +161,12 @@ bool static encodeTripleNode(IRepository& repo, const SPARQLParser::Pattern& tri
 	//encode predicate node.
 	switch(triplePattern.predicate.type) {
 	 case SPARQLParser::Element::Variable:
-		 tripleNode.predicate = triplePattern.predicate.id;
+		 tripleNode.predicateID = triplePattern.predicate.id;
 		 tripleNode.constPredicate = false;
 		 break;
 	 case SPARQLParser::Element::String:
 	 case SPARQLParser::Element::IRI:
-		 if(repo.find_pid_by_string(tripleNode.predicate,triplePattern.predicate.value)){
+		 if(repo.find_pid_by_string(tripleNode.predicateID,triplePattern.predicate.value)){
 			 tripleNode.constPredicate = true;
 			 break;
 		 }else {
@@ -186,13 +186,13 @@ static bool encodeTripleNodeUpdate(IRepository& repo,const SPARQLParser::Pattern
 	switch(triplePattern.subject.type)
 	{
 	case SPARQLParser::Element::Variable:
-		tripleNode.subject = triplePattern.subject.id;
+		tripleNode.subjectID = triplePattern.subject.id;
 		tripleNode.constSubject = false;
 		tripleNode.scanOperation = TripleNode::FINDSBYPO;
 		break;
 	case SPARQLParser::Element::String:
 	case SPARQLParser::Element::IRI:
-		if(repo.find_soid_by_string_update(tripleNode.subject, triplePattern.subject.value))
+		if(repo.find_soid_by_string_update(tripleNode.subjectID, triplePattern.subject.value))
 		{
 			tripleNode.constSubject = true;
 			break;
@@ -210,7 +210,7 @@ static bool encodeTripleNodeUpdate(IRepository& repo,const SPARQLParser::Pattern
 		break;
 	case SPARQLParser::Element::String:
 	case SPARQLParser::Element::IRI:
-		if(repo.find_soid_by_string_update(tripleNode.object, triplePattern.object.value))
+		if(repo.find_soid_by_string_update((SOID)tripleNode.object, triplePattern.object.value))
 		{
 			tripleNode.constObject = true;
 			break;
@@ -222,12 +222,12 @@ static bool encodeTripleNodeUpdate(IRepository& repo,const SPARQLParser::Pattern
 	switch(triplePattern.predicate.type)
 	{
 	case SPARQLParser::Element::Variable:
-		tripleNode.predicate = triplePattern.predicate.id;
+		tripleNode.predicateID = triplePattern.predicate.id;
 		tripleNode.constPredicate = false;
 		break;
 	case SPARQLParser::Element::String:
 	case SPARQLParser::Element::IRI:
-		if(repo.find_pid_by_string_update(tripleNode.predicate, triplePattern.predicate.value))
+		if(repo.find_pid_by_string_update(tripleNode.predicateID, triplePattern.predicate.value))
 		{
 			tripleNode.constPredicate = true;
 			break;
@@ -245,17 +245,17 @@ bool static collectJoinVariables(TripleBitQueryGraph::SubQuery& query)
 	for(unsigned int  index = 0, limit = query.tripleNodes.size(); index < limit ; index ++) {
 	      const TripleNode& tpn=query.tripleNodes[index];
 		  if (!tpn.constSubject) {
-			  if(isUnused(query, tpn, tpn.subject) == false || query.tripleNodes.size() == 1) {
-				  iter = find(query.joinVariables.begin(),query.joinVariables.end(),tpn.subject);
+			  if(isUnused(query, tpn, tpn.subjectID) == false || query.tripleNodes.size() == 1) {
+				  iter = find(query.joinVariables.begin(),query.joinVariables.end(),tpn.subjectID);
 				  if(iter == query.joinVariables.end())
-					  query.joinVariables.push_back(tpn.subject);
+					  query.joinVariables.push_back(tpn.subjectID);
 			  }
 	      }
 	      if (!tpn.constPredicate) {
-			  if(isUnused(query, tpn, tpn.predicate) == false || query.tripleNodes.size() == 1) {
-				  iter = find(query.joinVariables.begin(),query.joinVariables.end(),tpn.predicate);
+			  if(isUnused(query, tpn, tpn.predicateID) == false || query.tripleNodes.size() == 1) {
+				  iter = find(query.joinVariables.begin(),query.joinVariables.end(),tpn.predicateID);
 				  if(iter == query.joinVariables.end())
-					  query.joinVariables.push_back(tpn.predicate);
+					  query.joinVariables.push_back(tpn.predicateID);
 			  }
 	      }
 	      if (!tpn.constObject) {
@@ -288,7 +288,7 @@ bool static encodeJoinVariableNodes(TripleBitQueryGraph::SubQuery& query)
 		std::vector< TripleNode>::size_type triplenodes_size = query.tripleNodes.size();
 		for(unsigned int j = 0; j < triplenodes_size; ++ j) {
 			if(!query.tripleNodes[j].constSubject) {
-				if(query.joinVariableNodes[i].value == query.tripleNodes[j].subject){
+				if(query.joinVariableNodes[i].value == query.tripleNodes[j].subjectID){
 					//add an edge
 					std::pair<TripleBitQueryGraph::TripleNodeID,TripleBitQueryGraph::JoinVariableNode::DimType> edge;
 					edge.first = query.tripleNodes[j].tripleNodeID;
@@ -297,7 +297,7 @@ bool static encodeJoinVariableNodes(TripleBitQueryGraph::SubQuery& query)
 				}
 			}
 			if(!query.tripleNodes[j].constPredicate){
-				if(query.joinVariableNodes[i].value == query.tripleNodes[j].predicate){
+				if(query.joinVariableNodes[i].value == query.tripleNodes[j].predicateID){
 					//add an edge
 					std::pair<TripleBitQueryGraph::TripleNodeID,TripleBitQueryGraph::JoinVariableNode::DimType> edge;
 					edge.first = query.tripleNodes[j].tripleNodeID;

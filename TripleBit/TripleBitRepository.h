@@ -114,7 +114,7 @@ public:
 		return NULL;
 	}
 	//scan the database;
-	Status getSubjectByObjectPredicate(ID oid, ID pod);
+	Status getSubjectByObjectPredicate(double object, ID pod, char objType = STRING);
 	ID next();
 
 	//lookup string id;

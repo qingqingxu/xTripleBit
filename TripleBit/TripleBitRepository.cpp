@@ -207,7 +207,7 @@ int TripleBitRepository::get_subject_object_count(ID subjectID, double object, c
 	return 1;
 }
 
-Status TripleBitRepository::getSubjectByObjectPredicate(ID oid, ID pid) {
+Status TripleBitRepository::getSubjectByObjectPredicate(double object, ID pod, char objType = STRING) {
 	pos = 0;
 	return OK;
 }
