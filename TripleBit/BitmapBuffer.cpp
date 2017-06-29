@@ -707,13 +707,13 @@ uchar* ChunkManager::deleteTriple(uchar* reader, char objType) {
 
 void ChunkManager::insertXY(ID x, double y, char objType) {
 #ifdef MYDEBUG
-	ifstream out;
+	ofstream out;
 	if(meta->soType == ORDERBYS){
 		out.open("insertsxy", ios::app);
 	}else{
 		out.open("insertoxy", ios::app);
 	}
-	out << x << "\t" << meta->pid << "\t" << y << "\n";
+	out << x << "\t" << meta->pid << "\t" << y << endl;
 	out.close();
 #endif
 	uint len = sizeof(ID) + sizeof(char) + Chunk::getLen(objType);
