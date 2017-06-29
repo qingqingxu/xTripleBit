@@ -53,18 +53,22 @@ PartitionMaster::PartitionMaster(TripleBitRepository*& repo, const ID parID) {
 		chunkSizeAll += xChunkNumber[type];
 		ID chunkID = 0;
 		xChunkQueue[type][0] = new TasksQueueChunk(startPtr, chunkID, type);
+/*
 #ifdef MYDEBUG
 	MetaData* metaData0 = (MetaData*)xChunkQueue[type][0]->getChunkBegin();
 	cout << "partitionID," << partitionID << ",chunkID," << chunkID << ",metaData.min," << metaData0->min << ",metaData.max," << metaData0->max<< ",metaData.pageNo," << metaData0->pageNo << endl;
 #endif
+*/
 		xChunkTempBuffer[type][0] = new TempBuffer;
 		for (chunkID = 1; chunkID < xChunkNumber[type]; chunkID++) {
 			xChunkQueue[type][chunkID] = new TasksQueueChunk(startPtr + chunkID * MemoryBuffer::pagesize - sizeof(ChunkManagerMeta), chunkID,
 					type);
+/*
 #ifdef MYDEBUG
 	metaData0 = (MetaData*)xChunkQueue[type][chunkID]->getChunkBegin();
 	cout << "partitionID," << partitionID << ",chunkID," << chunkID << ",metaData.min," << metaData0->min << ",metaData.max," << metaData0->max<< ",metaData.pageNo," << metaData0->pageNo << endl;
 #endif
+*/
 			xChunkTempBuffer[type][chunkID] = new TempBuffer;
 		}
 	}
@@ -1003,11 +1007,13 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer, const uchar 
 
 void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 		const ID chunkID, const uchar* startPtr, const bool soType) {
+/*
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << endl;
 	MetaData* metaData0 = (MetaData*)xChunkQueue[soType][chunkID]->getChunkBegin();
 	cout << "metaData.min," << metaData0->min << ",metaData.max," << metaData0->max<< ",metaData.pageNo," << metaData0->pageNo << endl;
 #endif
+*/
 	ID subjectID = chunkTask->Triple.subjectID;
 	ID tempSubjectID;
 	double object = chunkTask->Triple.object;
