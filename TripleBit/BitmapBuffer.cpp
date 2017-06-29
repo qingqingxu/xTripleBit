@@ -651,29 +651,29 @@ ChunkManager::~ChunkManager() {
 }
 
 void ChunkManager::writeXY(uchar* reader, ID x, double y, char objType) {
-	cout << meta->pid << "\t" << x << "\t" << y << endl;
+	//cout << meta->pid << "\t" << x << "\t" << y << endl;
 	if (meta->soType == ORDERBYS) {
 		Chunk::writeID(reader, x);
-		const uchar* temp = (const uchar*) reader;
+		//const uchar* temp = (const uchar*) reader;
 		Chunk::write(reader, objType, CHAR);
 		Chunk::write(reader, y, objType);
-		char tempObjType;
+		/*char tempObjType;
 		double tempObject;
 		temp = Chunk::read(temp, tempObjType, CHAR);
 		temp = Chunk::read(temp, tempObject, tempObjType);
 		assert(tempObjType == objType);
-		assert(tempObject == y);
+		assert(tempObject == y);*/
 	} else if (meta->soType == ORDERBYO) {
-		const uchar* temp = (const uchar*) reader;
+		//const uchar* temp = (const uchar*) reader;
 		Chunk::write(reader, objType, CHAR);
 		Chunk::write(reader, y, objType);
 		Chunk::writeID(reader, x);
-		char tempObjType;
+/*		char tempObjType;
 		double tempObject;
 		temp = Chunk::read(temp, tempObjType, CHAR);
 		temp = Chunk::read(temp, tempObject, tempObjType);
 		assert(tempObjType == objType);
-		assert(tempObject == y);
+		assert(tempObject == y);*/
 	}
 }
 
@@ -706,6 +706,16 @@ uchar* ChunkManager::deleteTriple(uchar* reader, char objType) {
 }
 
 void ChunkManager::insertXY(ID x, double y, char objType) {
+#ifdef MYDEBUG
+	ifstream out;
+	if(meta->soType == ORDERBYS){
+		out.open("insertsxy", ios::app);
+	}else{
+		out.open("insertoxy", ios::app);
+	}
+	out << x << "\t" << meta->pid << "\t" << y << "\n";
+	out.close();
+#endif
 	uint len = sizeof(ID) + sizeof(char) + Chunk::getLen(objType);
 	if (isChunkOverFlow(len) == true) {
 		if (meta->length == MemoryBuffer::pagesize) {
