@@ -604,6 +604,7 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 	const uchar* chunkBegin = tasksQueue->getChunkBegin();
 
 	while ((chunkTask = tasksQueue->Dequeue()) != NULL) {
+		cout << "chunkTask->operationType" << chunkTask->operationType << endl;
 		switch (chunkTask->operationType) {
 		case TripleBitQueryGraph::QUERY:
 			//executeChunkTaskQuery(chunkTask, chunkID, chunkBegin, xyType);
