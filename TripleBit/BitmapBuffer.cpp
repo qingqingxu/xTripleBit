@@ -775,6 +775,7 @@ Status ChunkManager::resize(size_t &pageNo) {
 	meta->length = usedPages.size() * MemoryBuffer::pagesize;
 	meta->endPtr = lastChunkStartPtr;
 
+/*
 #ifdef MYDEBUG
 	ofstream out;
 	out.open("ChunkManagerresize", ios::app);
@@ -782,6 +783,7 @@ Status ChunkManager::resize(size_t &pageNo) {
 			<< usedPages.size() <<endl;
 	out.close();
 #endif
+*/
 
 	return OK;
 }
