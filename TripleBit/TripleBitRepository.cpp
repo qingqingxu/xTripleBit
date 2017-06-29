@@ -451,9 +451,9 @@ static void getQuery(string& queryStr, const char* filename) {
 	}
 
 	char line[150];
-	while (f.peek() != EOF) {
+	while (!f.eof()) {
 		f.getline(line, 150);
-
+		cout << line << endl;
 		queryStr.append(line);
 		queryStr.append(" ");
 	}
