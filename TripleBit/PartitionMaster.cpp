@@ -1002,7 +1002,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 	char objType = chunkTask->Triple.objType;
 	char tempObjType;
 
-	cout << subjectID << "\t" << partitionID << "\t" << object << "\t" << (int)objType << endl;
 	const uchar *reader, *limit, *chunkBegin = startPtr;
 	uchar *temp;
 
@@ -1022,7 +1021,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				continue;
 			else if (tempSubjectID == subjectID && tempObject == object
 					&& tempObjType == objType) {
-				cout << "Sok" << endl;
+				cout << "Sok" << subjectID << "\t" << partitionID << "\t" << object << "\t" << (int)objType << endl;
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						objType);
 				return;
@@ -1068,7 +1067,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				continue;
 			else if (tempObject == object && tempObjType == objType
 					&& tempSubjectID == subjectID) {
-				cout << "Ook" << endl;
+				cout << "Ook" << subjectID << "\t" << partitionID << "\t" << object << "\t" << (int)objType << endl;
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						objType);
 				return;
