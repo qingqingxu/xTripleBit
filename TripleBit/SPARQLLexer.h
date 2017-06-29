@@ -11,6 +11,7 @@
 // San Francisco, California, 94105, USA.
 //---------------------------------------------------------------------------
 #include <string>
+#include <iostream>
 //---------------------------------------------------------------------------
 /// A lexer for SPARQL input
 class SPARQLLexer
