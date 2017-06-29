@@ -211,11 +211,20 @@ void TripleBitBuilder::NTriplesParse(const char* subject, const char* predicate,
 				tempObject = objectID;
 				break;
 			}
+			tempObject = objectID;
 			break;
 		default:
 			break;
 		}
 
+/*
+#ifdef MYDEBUG
+		ofstream out("n3ID", ios::app);
+		out << subject << "\t" << predicate << "\t" << object << endl;
+		out << subjectID << "\t" << predicateID << "\t" << tempObject << endl;
+		out.close();
+#endif
+*/
 		facts.writeTriple(subjectID, predicateID, tempObject, objType);
 	}
 
@@ -324,9 +333,11 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 
 	size_t count1 = 0;
 	TempFile sortedBySubject("./SortByS"), sortedByObject("./SortByO");
+/*
 #ifdef MYDEBUG
 	print(rawFacts, "sortedBySubject_temp_unsort");
 #endif
+*/
 	Sorter::sort(rawFacts, sortedBySubject, skipIdIdId, compare123);
 /*
 #ifdef MYDEBUG
