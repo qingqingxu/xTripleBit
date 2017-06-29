@@ -246,7 +246,6 @@ size_t LineHashIndex::searchChunk(double x, double y) {
 	}
 
 	size_t offsetID = searchChunkFrank(x);
-	cout << "-------------------" << chunkMeta[offsetID].minx << endl;
 	if (offsetID == tableSize - 1) {
 		return offsetID;
 	}
