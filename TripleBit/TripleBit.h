@@ -26,8 +26,8 @@ using namespace boost;
 
 //#define MYDEBUG
 //#define RESULT_TIME
-#define PATTERN_TIME
-#define TOTAL_TIME
+//#define PATTERN_TIME
+//#define TOTAL_TIME
 //#define TTDEBUG
 //#define PRINT_BUFFERSIZE
 
