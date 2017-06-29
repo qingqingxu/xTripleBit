@@ -37,8 +37,8 @@ int main(int argc, char* argv[]) {
 	bool soType;
 	size_t offset = 0;
 	bool isFirstPage = true;
-	/*ofstream sp("bitmapbuffer_sp_del", ios::app);
-	ofstream op("bitmapbuffer_op_del", ios::app);*/
+	ofstream sp("bitmapbuffer_sp_chunk", ios::app);
+	ofstream op("bitmapbuffer_op_chunk", ios::app);
 	ChunkManagerMeta* meta;
 
 	while (predicateReader < predicateLimit) {
@@ -52,8 +52,7 @@ int main(int argc, char* argv[]) {
 		bufferReader = startBuffer + offset;
 
 		meta = (ChunkManagerMeta*) bufferReader;
-		cout << meta->pid << "\t" << meta->soType << "\t" << meta->pid << "\t" << meta->tripleCount << endl;
-		/*bufferReader += sizeof(ChunkManagerMeta);
+		bufferReader += sizeof(ChunkManagerMeta);
 
 		if (meta->soType == ORDERBYS) {
 			const uchar* endChunkManager = bufferReader
@@ -61,6 +60,7 @@ int main(int argc, char* argv[]) {
 			bool isFirstPage = true;
 			while (bufferReader < endChunkManager) {
 				MetaData* metaData = (MetaData*) bufferReader;
+				sp << "ORDERBYS: " <<  meta->pid << "\t" << "chunk:" << metaData->pageNo << "\t" << metaData->usedSpace << "\t" << metaData->min << "\t" << metaData->max << endl;
 				const uchar* endPtr = bufferReader + metaData->usedSpace;
 				bufferReader += sizeof(MetaData);
 				while (bufferReader < endPtr) {
@@ -86,6 +86,7 @@ int main(int argc, char* argv[]) {
 			bool isFirstPage = true;
 			while (bufferReader < endChunkManager) {
 				MetaData* metaData = (MetaData*) bufferReader;
+				op << "ORDERBYO: " <<  meta->pid << "\t" << "chunk:" << metaData->pageNo << "\t" << metaData->usedSpace << "\t" << metaData->min << "\t" << metaData->max << endl;
 				const uchar* endPtr = bufferReader + metaData->usedSpace;
 				bufferReader += sizeof(MetaData);
 				while (bufferReader < endPtr) {
@@ -104,11 +105,11 @@ int main(int argc, char* argv[]) {
 							+ MemoryBuffer::pagesize;
 				}
 			}
-		}*/
+		}
 	}
 
-	/*sp.close();
-	op.close();*/
+	sp.close();
+	op.close();
 
 	cout << "over" << endl;
 	return 0;
