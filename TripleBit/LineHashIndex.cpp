@@ -246,10 +246,11 @@ size_t LineHashIndex::searchChunk(double x, double y) {
 	}
 
 	size_t offsetID = searchChunkFrank(x);
+	cout << "-------------------" << chunkMeta[offsetID].minx << endl;
 	if (offsetID == tableSize - 1) {
-		return offsetID - 1;
+		return offsetID;
 	}
-	while (offsetID < tableSize - 2) {
+	while (offsetID < tableSize - 1) {
 		if (MetaID(offsetID + 1) == x) {
 			if (MetaYID(offsetID + 1) > y) {
 				return offsetID;
@@ -272,11 +273,11 @@ bool LineHashIndex::searchChunk(double x, double y, size_t& offsetID)
 	}
 
 	offsetID = searchChunkFrank(x);
-	if (offsetID == tableSize - 1) {
+	if (offsetID == tableSize) {
 		return false;
 	}
 
-	while (offsetID < tableSize - 2) {
+	while (offsetID < tableSize - 1) {
 		if (MetaID(offsetID + 1) == x) {
 			if (MetaYID(offsetID + 1) > y) {
 				return true;
