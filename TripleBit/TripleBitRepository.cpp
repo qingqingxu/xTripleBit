@@ -451,8 +451,13 @@ static void getQuery(string& queryStr, const char* filename) {
 	}
 
 	char line[150];
+	int l = 0;
 	while (!f.eof()) {
 		f.getline(line, 150);
+		if(l > 120){
+			break;
+		}
+		l++;
 		cout << line << endl;
 		queryStr.append(line);
 		queryStr.append(" ");
