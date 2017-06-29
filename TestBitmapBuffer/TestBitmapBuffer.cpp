@@ -18,7 +18,6 @@ using namespace std;
 //mine
 char* DATABASE_PATH;
 int main(int argc, char* argv[]) {
-	cout << "hello" << endl;
 	DATABASE_PATH = "/home/xuqingqing/code/xTripleBit/data/";
 
 	string bitmapBuffer = "/home/xuqingqing/code/xTripleBit/data/BitmapBuffer";
@@ -53,6 +52,7 @@ int main(int argc, char* argv[]) {
 		bufferReader = startBuffer + offset;
 
 		meta = (ChunkManagerMeta*) bufferReader;
+		cout << "hello" << endl;
 		cout << meta->pid << "\t" << meta->soType << "\t" << meta->pid << "\t" << meta->startPtr << "\t" << meta->endPtr << endl;
 		/*bufferReader += sizeof(ChunkManagerMeta);
 
