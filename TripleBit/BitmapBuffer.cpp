@@ -809,6 +809,7 @@ size_t ChunkManager::getChunkNumber() {
 ChunkManager* ChunkManager::load(ID predicateID, bool soType, uchar* buffer,
 		size_t& offset) {
 	ChunkManagerMeta * meta = (ChunkManagerMeta*) (buffer + offset);
+	cout << predicateID << "\t" << meta->soType << "\t" << meta->pid << "\t" << meta->startPtr << "\t" << meta->endPtr << endl;
 	if (meta->pid != predicateID || meta->soType != soType) {
 		MessageEngine::showMessage("load chunkmanager error: check meta info",
 				MessageEngine::ERROR);

@@ -52,7 +52,8 @@ int main(int argc, char* argv[]) {
 		bufferReader = startBuffer + offset;
 
 		meta = (ChunkManagerMeta*) bufferReader;
-		bufferReader += sizeof(ChunkManagerMeta);
+		cout << meta->pid << "\t" << meta->soType << "\t" << meta->pid << "\t" << meta->startPtr << "\t" << meta->endPtr << endl;
+		/*bufferReader += sizeof(ChunkManagerMeta);
 
 		if (meta->soType == ORDERBYS) {
 			const uchar* endChunkManager = bufferReader
@@ -103,7 +104,7 @@ int main(int argc, char* argv[]) {
 							+ MemoryBuffer::pagesize;
 				}
 			}
-		}
+		}*/
 	}
 
 	sp.close();
