@@ -451,7 +451,7 @@ static void getQuery(string& queryStr, const char* filename) {
 	}
 
 	char line[150];
-	while (!f.eof()) {
+	while (f.peek() != EOF) {
 		f.getline(line, 150);
 
 		queryStr.append(line);
