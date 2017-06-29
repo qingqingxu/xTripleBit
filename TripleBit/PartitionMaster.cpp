@@ -56,7 +56,7 @@ PartitionMaster::PartitionMaster(TripleBitRepository*& repo, const ID parID) {
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << endl;
 	MetaData* metaData0 = (MetaData*)xChunkQueue[type][0]->getChunkBegin();
-	cout << "metaData.min," << metaData0->min << ",metaData.max," << metaData0->max<< ",metaData.pageNo," << metaData0->pageNo << endl;
+	cout << "partitionID," << partitionID << ",chunkID," << chunkID << ",metaData.min," << metaData0->min << ",metaData.max," << metaData0->max<< ",metaData.pageNo," << metaData0->pageNo << endl;
 #endif
 		xChunkTempBuffer[type][0] = new TempBuffer;
 		for (chunkID = 1; chunkID < xChunkNumber[type]; chunkID++) {
@@ -65,7 +65,7 @@ PartitionMaster::PartitionMaster(TripleBitRepository*& repo, const ID parID) {
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << endl;
 	metaData0 = (MetaData*)xChunkQueue[type][chunkID]->getChunkBegin();
-	cout << "metaData.min," << metaData0->min << ",metaData.max," << metaData0->max<< ",metaData.pageNo," << metaData0->pageNo << endl;
+	cout << "partitionID," << partitionID << ",chunkID," << chunkID << "metaData.min," << metaData0->min << ",metaData.max," << metaData0->max<< ",metaData.pageNo," << metaData0->pageNo << endl;
 #endif
 			xChunkTempBuffer[type][chunkID] = new TempBuffer;
 		}
