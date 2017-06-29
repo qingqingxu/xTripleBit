@@ -507,7 +507,7 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type,
 							object, objType), subjectID);
 			index->chunkMeta.push_back( { object, subjectID });
 		}
-		cout << "object index chunkMeta size: " << chunkMeta.size() << endl;
+		cout << "object index chunkMeta size: " << index->chunkMeta.size() << endl;
 	}
 	return index;
 }
