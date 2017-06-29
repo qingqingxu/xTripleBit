@@ -380,18 +380,20 @@ void PartitionMaster::executeInsertData(SubTrans* subTransaction) {
 	size_t chunkID;
 	shared_ptr<subTaskPackage> taskPackage(new subTaskPackage);
 
+	cout << "subjectID: " << subjectID << "\tobject: " << object;
 	chunkID = partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
 			subjectID, object);
-	cout << "subjectID: " << subjectID << "\tobject: " << object << "\tchunkID: " << chunkID << endl;
+	cout<< "\tchunkID: " << chunkID << endl << endl;
 
 	ChunkTask *chunkTask1 = new ChunkTask(subTransaction->operationType,
 			subjectID, object, objType, subTransaction->triple.scanOperation,
 			taskPackage, subTransaction->indexForTT);
 	taskEnQueue(chunkTask1, xChunkQueue[ORDERBYS][chunkID]);
 
+	cout << "object: " << object << "\tsubjectID: " << subjectID;
 	chunkID = partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(
 			object, subjectID);
-	cout << "object: " << object << "\tsubjectID: " << subjectID << "\tchunkID: " << chunkID << endl;
+	cout << "\tchunkID: " << chunkID << endl;
 	ChunkTask *chunkTask2 = new ChunkTask(subTransaction->operationType,
 			subjectID, object, objType, subTransaction->triple.scanOperation,
 			taskPackage, subTransaction->indexForTT);
