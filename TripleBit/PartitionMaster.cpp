@@ -374,7 +374,6 @@ void PartitionMaster::executeInsertData(SubTrans* subTransaction) {
 	cout << __FUNCTION__ << endl;
 #endif
 */
-	cout << "subTransaction->triple.object: " << subTransaction->triple.object << endl;
 	ID subjectID = subTransaction->triple.subjectID;
 	double object = subTransaction->triple.object;
 	char objType = subTransaction->triple.objType;

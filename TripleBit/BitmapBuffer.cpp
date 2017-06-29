@@ -653,12 +653,26 @@ ChunkManager::~ChunkManager() {
 void ChunkManager::writeXY(uchar* reader, ID x, double y, char objType) {
 	if (meta->soType == ORDERBYS) {
 		Chunk::writeID(reader, x);
+		const uchar* temp = (const uchar*) reader;
 		Chunk::write(reader, objType, CHAR);
 		Chunk::write(reader, y, objType);
+		char tempObjType;
+		double tempObject;
+		temp = Chunk::read(temp, tempObjType, CHAR);
+		temp = Chunk::read(temp, tempObject, tempObjType);
+		assert(tempObjType == objType);
+		assert(tempObject == y);
 	} else if (meta->soType == ORDERBYO) {
 		Chunk::write(reader, objType, CHAR);
+		const uchar* temp = (const uchar*) reader;
 		Chunk::write(reader, y, objType);
 		Chunk::writeID(reader, x);
+		char tempObjType;
+		double tempObject;
+		temp = Chunk::read(temp, tempObjType, CHAR);
+		temp = Chunk::read(temp, tempObject, tempObjType);
+		assert(tempObjType == objType);
+		assert(tempObject == y);
 	}
 }
 
