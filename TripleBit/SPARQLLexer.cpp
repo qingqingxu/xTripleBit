@@ -1,5 +1,6 @@
 #include "SPARQLLexer.h"
 
+using namespace std;
 //---------------------------------------------------------------------------
 // RDF-3X
 // (c) 2008 Thomas Neumann. Web site: http://www.mpi-inf.mpg.de/~neumann/rdf3x
@@ -37,7 +38,7 @@ SPARQLLexer::Token SPARQLLexer::getNext()
 
 	// Read the string
 	while (pos != input.end()) {
-		std::cout << *pos;
+		cout << *pos;
 		tokenStart = pos;
 		// Interpret the first character
 		switch (*(pos++)) {
