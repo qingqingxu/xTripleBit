@@ -42,11 +42,13 @@ TripleBitWorker::TripleBitWorker(TripleBitRepository* repo, ID workID) {
 void TripleBitWorker::Work() {
 	while (1) {
 		trans = transQueSW->DeQueue();
+/*
 #ifdef MYDEBUG
 		cout << "transTime(sec): " << trans->transTime.tv_sec << endl;
 		cout << "transTime(usec): " << trans->transTime.tv_usec << endl;
 		cout << "transInfo: " << trans->transInfo << endl;
 #endif
+*/
 		string queryString = trans->transInfo;
 		if(queryString == "exit"){
 			delete trans;

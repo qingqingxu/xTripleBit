@@ -149,8 +149,9 @@ bool static encodeTripleNode(IRepository& repo, const SPARQLParser::Pattern& tri
 		 break;
 	 case SPARQLParser::Element::String:
 	 case SPARQLParser::Element::IRI:
-		 objectID = (SOID)tripleNode.object;
 		 if(repo.find_soid_by_string(objectID, triplePattern.object.value)){
+			 tripleNode.object = objectID;
+			 tripleNode.objType = STRING;//temp
 			 tripleNode.constObject = true;
 			 break;
 		 }else{

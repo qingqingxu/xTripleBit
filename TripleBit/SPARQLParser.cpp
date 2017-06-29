@@ -604,7 +604,6 @@ void SPARQLParser::parseGroupGraphPattern(PatternGroup& group)
             parseGraphPattern(group);
          }
       } else if (token==SPARQLLexer::RCurly) {
-    	  cout << "RCurly" << endl;
          break;
       } else {
          throw ParserException("'}' expected");
