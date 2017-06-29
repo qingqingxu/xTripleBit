@@ -651,47 +651,14 @@ ChunkManager::~ChunkManager() {
 }
 
 void ChunkManager::writeXY(uchar* reader, ID x, double y, char objType) {
-	//cout << meta->pid << "\t" << x << "\t" << y << endl;
 	if (meta->soType == ORDERBYS) {
 		Chunk::writeID(reader, x);
-		const uchar* temp = (const uchar*) reader;
 		Chunk::write(reader, objType, CHAR);
 		Chunk::write(reader, y, objType);
-		if (x == 26454 && meta->pid == 1) {
-			char tempObjType;
-			double tempObject;
-			temp = Chunk::read(temp, tempObjType, CHAR);
-			temp = Chunk::read(temp, tempObject, tempObjType);
-			assert(tempObjType == objType);
-			assert(tempObject == y);
-			cout << y << "\t" << tempObject << endl;
-		}
-		/*char tempObjType;
-		 double tempObject;
-		 temp = Chunk::read(temp, tempObjType, CHAR);
-		 temp = Chunk::read(temp, tempObject, tempObjType);
-		 assert(tempObjType == objType);
-		 assert(tempObject == y);*/
 	} else if (meta->soType == ORDERBYO) {
-		const uchar* temp = (const uchar*) reader;
 		Chunk::write(reader, objType, CHAR);
 		Chunk::write(reader, y, objType);
 		Chunk::writeID(reader, x);
-		if (x == 26454 && meta->pid == 1) {
-			char tempObjType;
-			double tempObject;
-			temp = Chunk::read(temp, tempObjType, CHAR);
-			temp = Chunk::read(temp, tempObject, tempObjType);
-			assert(tempObjType == objType);
-			assert(tempObject == y);
-			cout << y << "\t" << tempObject << endl;
-		}
-		/*		char tempObjType;
-		 double tempObject;
-		 temp = Chunk::read(temp, tempObjType, CHAR);
-		 temp = Chunk::read(temp, tempObject, tempObjType);
-		 assert(tempObjType == objType);
-		 assert(tempObject == y);*/
 	}
 }
 

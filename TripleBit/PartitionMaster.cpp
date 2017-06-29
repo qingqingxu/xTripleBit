@@ -380,20 +380,20 @@ void PartitionMaster::executeInsertData(SubTrans* subTransaction) {
 	size_t chunkID;
 	shared_ptr<subTaskPackage> taskPackage(new subTaskPackage);
 
-	//cout << "partitionID: " << partitionID << "\tsubjectID: " << subjectID << "\tobject: " << object;
+	cout << "partitionID: " << partitionID << ",subjectID: " << subjectID << ",object: " << object;
 	chunkID = partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
 			subjectID, object);
-	//cout<< "\tchunkID: " << chunkID << endl;
+	cout<< ",chunkID: " << chunkID << endl;
 
 	ChunkTask *chunkTask1 = new ChunkTask(subTransaction->operationType,
 			subjectID, object, objType, subTransaction->triple.scanOperation,
 			taskPackage, subTransaction->indexForTT);
 	taskEnQueue(chunkTask1, xChunkQueue[ORDERBYS][chunkID]);
 
-	//cout << "object: " << object << "\tsubjectID: " << subjectID;
+	cout << "partitionID: " << partitionID << ",object: " << object << ",subjectID: " << subjectID;
 	chunkID = partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(
 			object, subjectID);
-	//cout << "\tchunkID: " << chunkID << endl;
+	cout << ",chunkID: " << chunkID << endl;
 	ChunkTask *chunkTask2 = new ChunkTask(subTransaction->operationType,
 			subjectID, object, objType, subTransaction->triple.scanOperation,
 			taskPackage, subTransaction->indexForTT);
@@ -1021,7 +1021,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				continue;
 			else if (tempSubjectID == subjectID && tempObject == object
 					&& tempObjType == objType) {
-				cout << "Sok" << subjectID << "\t" << partitionID << "\t" << object << "\t" << (int)objType << endl;
+				//cout << "Sok" << subjectID << "\t" << partitionID << "\t" << object << "\t" << (int)objType << endl;
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						objType);
 				return;
@@ -1067,7 +1067,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				continue;
 			else if (tempObject == object && tempObjType == objType
 					&& tempSubjectID == subjectID) {
-				cout << "Ook" << subjectID << "\t" << partitionID << "\t" << object << "\t" << (int)objType << endl;
+				//cout << "Ook" << subjectID << "\t" << partitionID << "\t" << object << "\t" << (int)objType << endl;
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						objType);
 				return;
