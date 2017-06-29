@@ -125,9 +125,11 @@ Status TripleBitWorker::Execute(string& queryString) {
 		}
 		uriMutex->unlock();
 
+/*
 #ifdef MYDEBUG
 		Print();
 #endif
+*/
 
 		workerQuery->query(queryGraph, resultSet, trans->transTime);
 
@@ -137,6 +139,8 @@ Status TripleBitWorker::Execute(string& queryString) {
 #endif
 
 		workerQuery->releaseBuffer();
+		cout << "delS: " << delS << endl;
+		cout << "delO: " << delO << endl;
 	}
 	delete lexer;
 	delete parser;

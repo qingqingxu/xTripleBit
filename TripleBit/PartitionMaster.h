@@ -28,6 +28,8 @@ class ChunkTask;
 #include <boost/thread/thread.hpp>
 using namespace boost;
 
+int delS = 0;
+int delO = 0;
 class PartitionMaster {
 private:
 	TripleBitRepository *tripleBitRepo;
