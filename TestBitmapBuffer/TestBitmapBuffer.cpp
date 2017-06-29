@@ -37,8 +37,8 @@ int main(int argc, char* argv[]) {
 	bool soType;
 	size_t offset = 0;
 	bool isFirstPage = true;
-	ofstream sp("bitmapbuffer_sp_del", ios::app);
-	ofstream op("bitmapbuffer_op_del", ios::app);
+	/*ofstream sp("bitmapbuffer_sp_del", ios::app);
+	ofstream op("bitmapbuffer_op_del", ios::app);*/
 	ChunkManagerMeta* meta;
 
 	while (predicateReader < predicateLimit) {
@@ -107,8 +107,8 @@ int main(int argc, char* argv[]) {
 		}*/
 	}
 
-	sp.close();
-	op.close();
+	/*sp.close();
+	op.close();*/
 
 	cout << "over" << endl;
 	return 0;
