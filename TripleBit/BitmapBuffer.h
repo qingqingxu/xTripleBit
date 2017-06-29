@@ -159,6 +159,7 @@ public:
 	template<typename T>
 	static void write(uchar*& writer, T data, char dataType = STRING,
 			bool isUpdateAdress = true) {
+		cout << "write: " << getLen(dataType) << endl;
 		memcpy(&data, writer, getLen(dataType));
 		if(isUpdateAdress){
 			writer += getLen(dataType);
@@ -226,6 +227,7 @@ public:
 	template<typename T>
 	static const uchar* read(const uchar* reader, T& data, char dataType =
 			STRING) {
+		cout << "read: " << getLen(dataType) << endl;
 		memcpy((uchar*)reader, &data, getLen(dataType));
 		reader += getLen(dataType);
 		/*switch (dataType) {
