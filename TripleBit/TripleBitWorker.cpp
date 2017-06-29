@@ -64,6 +64,7 @@ Status TripleBitWorker::Execute(string& queryString) {
 	gettimeofday(&start, NULL);
 #endif
 
+	cout << queryString << endl;
 	SPARQLLexer *lexer = new SPARQLLexer(queryString);
 	SPARQLParser *parser = new SPARQLParser(*lexer);
 	try {
