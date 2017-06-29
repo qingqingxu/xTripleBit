@@ -367,9 +367,11 @@ void PartitionMaster::executeQuery(SubTrans *subTransaction){
 */
 
 void PartitionMaster::executeInsertData(SubTrans* subTransaction) {
+/*
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << endl;
 #endif
+*/
 	ID subjectID = subTransaction->triple.subjectID;
 	double object = subTransaction->triple.object;
 	char objType = subTransaction->triple.objType;
@@ -392,9 +394,11 @@ void PartitionMaster::executeInsertData(SubTrans* subTransaction) {
 }
 
 void PartitionMaster::executeDeleteData(SubTrans* subTransaction) {
+/*
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << endl;
 #endif
+*/
 	executeInsertData(subTransaction);
 }
 
@@ -1008,6 +1012,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				continue;
 			else if (tempSubjectID == subjectID && tempObject == object
 					&& tempObjType == objType) {
+				cout << "S: " << tempSubjectID << "\t" << partitionID << "\t" << tempObject << "\t" << endl;
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						objType);
 				return;
@@ -1053,6 +1058,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				continue;
 			else if (tempObject == object && tempObjType == objType
 					&& tempSubjectID == subjectID) {
+				cout << "O: " << tempSubjectID << "\t" << partitionID << "\t" << tempObject << "\t" << endl;
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						objType);
 				return;
