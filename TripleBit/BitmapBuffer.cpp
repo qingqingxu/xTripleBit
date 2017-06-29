@@ -651,6 +651,7 @@ ChunkManager::~ChunkManager() {
 }
 
 void ChunkManager::writeXY(uchar* reader, ID x, double y, char objType) {
+	cout << meta->pid << "\t" << x << "\t" << y << endl;
 	if (meta->soType == ORDERBYS) {
 		Chunk::writeID(reader, x);
 		const uchar* temp = (const uchar*) reader;
