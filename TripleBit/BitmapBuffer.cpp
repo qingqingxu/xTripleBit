@@ -663,8 +663,8 @@ void ChunkManager::writeXY(uchar* reader, ID x, double y, char objType) {
 		assert(tempObjType == objType);
 		assert(tempObject == y);
 	} else if (meta->soType == ORDERBYO) {
-		Chunk::write(reader, objType, CHAR);
 		const uchar* temp = (const uchar*) reader;
+		Chunk::write(reader, objType, CHAR);
 		Chunk::write(reader, y, objType);
 		Chunk::writeID(reader, x);
 		char tempObjType;
