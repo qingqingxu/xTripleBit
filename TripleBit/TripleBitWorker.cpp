@@ -139,8 +139,6 @@ Status TripleBitWorker::Execute(string& queryString) {
 #endif
 
 		workerQuery->releaseBuffer();
-		cout << "delS: " << delS << endl;
-		cout << "delO: " << delO << endl;
 	}
 	delete lexer;
 	delete parser;
