@@ -997,8 +997,8 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 		const ID chunkID, const uchar* startPtr, const bool soType) {
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << endl;
-	MetaData metaData0 = (MetaData*)xChunkQueue[soType][chunkID]->chunkBegin;
-	cout << "metaData.min," << metaData0.min << ",metaData.max," << metaData0.max<< ",metaData.pageNo," << metaData0.pageNo << endl;
+	MetaData* metaData0 = (MetaData*)xChunkQueue[soType][chunkID]->getChunkBegin();
+	cout << "metaData.min," << metaData0->min << ",metaData.max," << metaData0->max<< ",metaData.pageNo," << metaData0->pageNo << endl;
 #endif
 	ID subjectID = chunkTask->Triple.subjectID;
 	ID tempSubjectID;
