@@ -774,16 +774,16 @@ Status ChunkManager::resize(size_t &pageNo) {
 	usedPages.push_back(pageNo);
 	meta->length = usedPages.size() * MemoryBuffer::pagesize;
 	meta->endPtr = lastChunkStartPtr;
-	/*
-	 #ifdef MYDEBUG
-	 ofstream out;
-	 out.open("ChunkManagerresize", ios::app);
-	 out << meta->soType << "--------" << meta->pid << "----------"
-	 << usedPages.size() << "--------" << meta->length << "--------"
-	 << usedPages.size() * MemoryBuffer::pagesize << endl;
-	 out.close();
-	 #endif
-	 */
+
+#ifdef MYDEBUG
+	ofstream out;
+	out.open("ChunkManagerresize", ios::app);
+	out << meta->soType << "--------" << meta->pid << "----------"
+			<< usedPages.size() << "--------" << meta->length << "--------"
+			<< usedPages.size() * MemoryBuffer::pagesize << endl;
+	out.close();
+#endif
+
 	return OK;
 }
 
