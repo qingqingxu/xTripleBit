@@ -561,6 +561,8 @@ void SPARQLParser::parseGroupGraphPattern(PatternGroup& group)
    while (true) {
       SPARQLLexer::Token token=lexer.getNext();
 
+      cout << token << endl;
+
       if (token==SPARQLLexer::LCurly) {
          // Parse the group
          PatternGroup newGroup;
