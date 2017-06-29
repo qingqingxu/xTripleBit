@@ -555,6 +555,9 @@ void SPARQLParser::parseGraphPattern(PatternGroup& group)
 void SPARQLParser::parseGroupGraphPattern(PatternGroup& group)
    // Parse a group of patterns
 {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
    while (true) {
       SPARQLLexer::Token token=lexer.getNext();
 
@@ -601,6 +604,7 @@ void SPARQLParser::parseGroupGraphPattern(PatternGroup& group)
             parseGraphPattern(group);
          }
       } else if (token==SPARQLLexer::RCurly) {
+    	  cout << "RCurly" << endl;
          break;
       } else {
          throw ParserException("'}' expected");
