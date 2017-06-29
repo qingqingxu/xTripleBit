@@ -18,6 +18,7 @@ using namespace std;
 //mine
 char* DATABASE_PATH;
 int main(int argc, char* argv[]) {
+	cout << "hello" << endl;
 	DATABASE_PATH = "/home/xuqingqing/code/xTripleBit/data/";
 
 	string bitmapBuffer = "/home/xuqingqing/code/xTripleBit/data/BitmapBuffer";
