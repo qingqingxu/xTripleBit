@@ -226,7 +226,7 @@ public:
 	template<typename T>
 	static const uchar* read(const uchar* reader, T& data, char dataType =
 			STRING) {
-		memcpy(reader, &data, getLen(dataType));
+		memcpy((uchar*)reader, &data, getLen(dataType));
 		reader += getLen(dataType);
 		/*switch (dataType) {
 		case BOOL:
