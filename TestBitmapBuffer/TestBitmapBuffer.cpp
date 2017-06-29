@@ -52,8 +52,7 @@ int main(int argc, char* argv[]) {
 		bufferReader = startBuffer + offset;
 
 		meta = (ChunkManagerMeta*) bufferReader;
-		cout << "hello" << endl;
-		cout << meta->pid << "\t" << meta->soType << "\t" << meta->pid << "\t" << meta->startPtr << "\t" << meta->endPtr << endl;
+		cout << meta->pid << "\t" << meta->soType << "\t" << meta->pid << "\t" << meta->tripleCount << endl;
 		/*bufferReader += sizeof(ChunkManagerMeta);
 
 		if (meta->soType == ORDERBYS) {
