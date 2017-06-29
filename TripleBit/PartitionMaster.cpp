@@ -1007,6 +1007,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 			temp = const_cast<uchar*>(reader);
 			reader = partitionChunkManager[soType]->readXY(reader,
 					tempSubjectID, tempObject, tempObjType);
+			cout << "S: " << tempSubjectID << "\t" << partitionID << "\t" << tempObject << "\t" << endl;
 			if (tempSubjectID < subjectID
 					|| (tempSubjectID == subjectID && tempObject < object)
 					|| (tempSubjectID == subjectID && tempObject == object
@@ -1014,7 +1015,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				continue;
 			else if (tempSubjectID == subjectID && tempObject == object
 					&& tempObjType == objType) {
-				cout << "S: " << tempSubjectID << "\t" << partitionID << "\t" << tempObject << "\t" << endl;
+				cout << "Sok" << endl;
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						objType);
 				return;
@@ -1053,6 +1054,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 			temp = const_cast<uchar*>(reader);
 			reader = partitionChunkManager[soType]->readXY(reader,
 					tempSubjectID, tempObject, tempObjType);
+			cout << "O: " << tempSubjectID << "\t" << partitionID << "\t" << tempObject << "\t" << endl;
 			if (tempObject < object
 					|| (tempObject == object && tempObjType != objType)
 					|| (tempObject == object && tempObjType == objType
@@ -1060,7 +1062,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				continue;
 			else if (tempObject == object && tempObjType == objType
 					&& tempSubjectID == subjectID) {
-				cout << "O: " << tempSubjectID << "\t" << partitionID << "\t" << tempObject << "\t" << endl;
+				cout << "Ook" << endl;
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						objType);
 				return;
