@@ -109,9 +109,11 @@ PartitionMaster::~PartitionMaster() {
 }
 
 void PartitionMaster::Work() {
+/*
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID<< endl;
 #endif
+*/
 
 	while (1) {
 		SubTrans* subTransaction = tasksQueue->Dequeue();
@@ -596,9 +598,11 @@ void PrintChunkTaskPart(ChunkTask* chunkTask) {
 }
 
 void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
+/*
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID<< endl;
 #endif
+*/
 
 	ChunkTask* chunkTask = NULL;
 	ID chunkID = tasksQueue->getChunkID();
@@ -607,7 +611,6 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 	const uchar* chunkBegin = tasksQueue->getChunkBegin();
 
 	while ((chunkTask = tasksQueue->Dequeue()) != NULL) {
-		cout << "chunkTask->operationType: " << chunkTask->operationType << endl;
 		switch (chunkTask->operationType) {
 		case TripleBitQueryGraph::QUERY:
 			//executeChunkTaskQuery(chunkTask, chunkID, chunkBegin, xyType);
