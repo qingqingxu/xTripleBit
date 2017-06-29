@@ -160,7 +160,7 @@ public:
 	static void write(uchar*& writer, T data, char dataType = STRING,
 			bool isUpdateAdress = true) {
 		cout << "write: " << getLen(dataType) << endl;
-		memcpy(&data, writer, getLen(dataType));
+		memcpy(writer, &data, getLen(dataType));
 		if(isUpdateAdress){
 			writer += getLen(dataType);
 		}
@@ -228,7 +228,7 @@ public:
 	static const uchar* read(const uchar* reader, T& data, char dataType =
 			STRING) {
 		cout << "read: " << getLen(dataType) << endl;
-		memcpy((uchar*)reader, &data, getLen(dataType));
+		memcpy(&data, (uchar*)reader, getLen(dataType));
 		reader += getLen(dataType);
 		/*switch (dataType) {
 		case BOOL:
