@@ -85,7 +85,7 @@ extern char* DATABASE_PATH;
 
 //thread pool
 const unsigned int WORKERNUM = 1;
-const unsigned int WORK_THREAD_NUMBER = 8; //should be 2^n;
+const unsigned int WORK_THREAD_NUMBER = 1; //should be 2^n;old: 8
 const unsigned int PARTITION_THREAD_NUMBER = 6;
 const unsigned int CHUNK_THREAD_NUMBER = 16;
 
