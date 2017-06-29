@@ -37,6 +37,7 @@ SPARQLLexer::Token SPARQLLexer::getNext()
 
 	// Read the string
 	while (pos != input.end()) {
+		std::cout << *pos;
 		tokenStart = pos;
 		// Interpret the first character
 		switch (*(pos++)) {
