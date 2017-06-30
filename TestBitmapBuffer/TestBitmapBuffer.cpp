@@ -20,7 +20,7 @@ char* DATABASE_PATH;
 int main(int argc, char* argv[]) {
 	DATABASE_PATH = "/home/xuqingqing/code/xTripleBit/data/";
 
-	string bitmapBuffer = "/home/xuqingqing/code/xTripleBit/data/BitmapBuffer";
+	string bitmapBuffer = "/home/xuqingqing/code/xTripleBit/data/BitmapBuffer_temp";
 
 	MMapBuffer* buffer = MMapBuffer::create(bitmapBuffer.c_str(), 0);
 	const uchar* bufferReader = (const uchar*) buffer->get_address();
