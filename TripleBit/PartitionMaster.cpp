@@ -793,9 +793,9 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	assert(buffer != NULL);
 
 	buffer->sort(soType);
-
+	cout << "sort" << endl;
 	buffer->uniqe();
-
+	cout << "uniqe" << endl;
 	if (buffer->isEmpty())
 		return;
 
@@ -810,7 +810,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	}
 	memset(tempPage, 0, sizeof(char));
 	memset(tempPage2, 0, sizeof(char));
-
+	cout << "tempPage2" << endl;
 	uchar *currentPtrChunk, *endPtrChunk, *chunkBegin, *startPtrChunk;
 	const uchar *lastPtrTemp, *currentPtrTemp, *endPtrTemp, *startPtrTemp;
 	bool isInTempPage = true, theOtherPageEmpty = true;
@@ -1074,7 +1074,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				continue;
 			else if (tempSubjectID == subjectID && tempObject == object
 					&& tempObjType == objType) {
-				//cout << "Sok" << subjectID << "\t" << partitionID << "\t" << object << "\t" << (int)objType << endl;
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						objType);
 				return;
@@ -1120,7 +1119,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				continue;
 			else if (tempObject == object && tempObjType == objType
 					&& tempSubjectID == subjectID) {
-				//cout << "Ook" << subjectID << "\t" << partitionID << "\t" << object << "\t" << (int)objType << endl;
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						objType);
 				return;

@@ -20,13 +20,13 @@ char* DATABASE_PATH;
 int main(int argc, char* argv[]) {
 	DATABASE_PATH = "/home/xuqingqing/code/xTripleBit/data/";
 
-	string bitmapBuffer = "/home/xuqingqing/code/xTripleBit/data/BitmapBuffer_temp";
+	string bitmapBuffer = "/home/xuqingqing/code/xTripleBit/data/BitmapBuffer";
 
 	MMapBuffer* buffer = MMapBuffer::create(bitmapBuffer.c_str(), 0);
 	const uchar* bufferReader = (const uchar*) buffer->get_address();
 	const uchar* startBuffer = bufferReader;
 
-	string predicate = "/home/xuqingqing/code/xTripleBit/data/BitmapBuffer_predicate";
+	string predicate = bitmapBuffer.append("_predicate");
 	MMapBuffer* predicateBuffer = MMapBuffer::create(predicate.c_str(), 0);
 	const uchar* predicateReader =
 			(const uchar*) predicateBuffer->get_address();

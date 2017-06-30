@@ -94,7 +94,7 @@ Status TempBuffer::sort(bool soType)
 }
 
 bool TempBuffer::isEquals(ChunkTriple* lTriple, ChunkTriple* rTriple){
-	if(lTriple->subjectID == rTriple->subjectID && lTriple->object == rTriple->object){
+	if(lTriple->subjectID == rTriple->subjectID && lTriple->object == rTriple->object && lTriple->objType == rTriple->objType){
 		return true;
 	}
 	return false;
