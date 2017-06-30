@@ -80,6 +80,7 @@ int main(int argc, char* argv[]) {
 					bufferReader = endPtr - metaData->usedSpace
 							+ MemoryBuffer::pagesize;
 				}
+				chunkId++;
 			}
 
 		} else if (meta->soType == ORDERBYO) {
@@ -90,7 +91,6 @@ int main(int argc, char* argv[]) {
 			while (bufferReader < endChunkManager) {
 				MetaData* metaData = (MetaData*) bufferReader;
 				op << "ORDERBYO: " <<  meta->pid << "\t" << "chunk:" << chunkId << "\t" << metaData->usedSpace << "\t" << metaData->min << "\t" << metaData->max << endl;
-				chunkId++;
 				const uchar* endPtr = bufferReader + metaData->usedSpace;
 				bufferReader += sizeof(MetaData);
 				while (bufferReader < endPtr) {
@@ -108,6 +108,7 @@ int main(int argc, char* argv[]) {
 					bufferReader = endPtr - metaData->usedSpace
 							+ MemoryBuffer::pagesize;
 				}
+				chunkId++;
 			}
 		}
 	}
