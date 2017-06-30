@@ -847,7 +847,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	cout << "2" << endl;
 	memset(chunkTriple, 0, sizeof(ChunkTriple));
 	cout << "21" << endl;
-	*tempTriple = *currentTempBuffer;
+	tempTriple = currentTempBuffer;
 	cout << "3" << endl;
 	double max = DBL_MIN, min = DBL_MIN;
 
@@ -942,7 +942,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 				lastTempBuffer = currentTempBuffer;
 				currentTempBuffer++;
 				if (currentTempBuffer < endTempBuffer) {
-					*tempTriple = *currentTempBuffer;
+					tempTriple = currentTempBuffer;
 				}
 				cout << "7" << endl;
 			}
@@ -1016,7 +1016,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		lastTempBuffer = currentTempBuffer;
 		currentTempBuffer++;
 		if (currentTempBuffer < endTempBuffer) {
-			*tempTriple = *currentTempBuffer;
+			tempTriple = currentTempBuffer;
 		}
 	}
 
