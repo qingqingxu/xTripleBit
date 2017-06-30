@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
 					bufferReader = Chunk::readID(bufferReader, subjectID);
 					bufferReader = Chunk::read(bufferReader, objType, CHAR);
 					bufferReader = Chunk::read(bufferReader, object, objType);
-					sp << "chunk:" << metaData->pageNo << "\t" << subjectID << "\t" << meta->pid << "\t" << object
+					sp << "chunk:" << chunkId << "\t" << subjectID << "\t" << meta->pid << "\t" << object
 							<< endl;
 				}
 				if (isFirstPage) {
@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
 					bufferReader = Chunk::read(bufferReader, objType, CHAR);
 					bufferReader = Chunk::read(bufferReader, object, objType);
 					bufferReader = Chunk::readID(bufferReader, subjectID);
-					op << "chunk:" << metaData->pageNo << "\t" << subjectID << "\t" << meta->pid << "\t" << object
+					op << "chunk:" << chunkId << "\t" << subjectID << "\t" << meta->pid << "\t" << object
 							<< endl;
 				}
 				if (isFirstPage) {
