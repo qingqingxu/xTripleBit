@@ -392,20 +392,25 @@ void PartitionMaster::executeInsertData(SubTrans* subTransaction) {
 	size_t chunkID;
 	shared_ptr<subTaskPackage> taskPackage(new subTaskPackage);
 
-	//cout << "partitionID, " << partitionID << ",subjectID, " << subjectID << ",object, " << object;
+	ofstream s("searchChunkIDByS", ios::app);
+	s << "partitionID, " << partitionID << ",subjectID, " << subjectID << ",object, " << object;
 	chunkID = partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
 			subjectID, object);
-	//cout<< ",chunkID, " << chunkID << endl;
+	s << ",chunkID, " << chunkID << endl;
+	s.close();
 
 	ChunkTask *chunkTask1 = new ChunkTask(subTransaction->operationType,
 			subjectID, object, objType, subTransaction->triple.scanOperation,
 			taskPackage, subTransaction->indexForTT);
 	taskEnQueue(chunkTask1, xChunkQueue[ORDERBYS][chunkID]);
 
-	//cout << "partitionID, " << partitionID << ",object, " << object << ",subjectID, " << subjectID;
+	ofstream o("searchChunkIDByO", ios::app);
+	o << "partitionID, " << partitionID << ",object, " << object << ",subjectID, " << subjectID;
 	chunkID = partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(
 			object, subjectID);
-	//cout << ",chunkID, " << chunkID << endl;
+	o << ",chunkID, " << chunkID << endl;
+	o.close();
+
 	ChunkTask *chunkTask2 = new ChunkTask(subTransaction->operationType,
 			subjectID, object, objType, subTransaction->triple.scanOperation,
 			taskPackage, subTransaction->indexForTT);
