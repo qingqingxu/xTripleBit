@@ -658,6 +658,7 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 	const uchar* chunkBegin = tasksQueue->getChunkBegin();
 
 	while ((chunkTask = tasksQueue->Dequeue()) != NULL) {
+		cout << __FUNCTION__ << "\t" << chunkTask->Triple.subjectID << "\t" << chunkTask->Triple.object << endl;
 		switch (chunkTask->operationType) {
 		case TripleBitQueryGraph::QUERY:
 			//executeChunkTaskQuery(chunkTask, chunkID, chunkBegin, xyType);
@@ -681,7 +682,7 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
 		const ID chunkID, const uchar *startPtr, const bool soType) {
 //	chunkTask->indexForTT->completeOneTriple();
-	cout << __FUNCTION__ << "\t" << chunkTask->Triple.subjectID << "\t" << chunkTask->Triple.object << endl;
+
 	xChunkTempBuffer[soType][chunkID]->insertTriple(chunkTask->Triple.subjectID,
 			chunkTask->Triple.object, chunkTask->Triple.objType);
 	/*if (xChunkTempBuffer[soType][chunkID]->isFull()) {
