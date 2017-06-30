@@ -22,6 +22,7 @@
 #include "TripleBitWorkerQuery.h"
 
 //#define MYDEBUG
+#define TOTAL_TIME
 
 TripleBitWorker::TripleBitWorker(TripleBitRepository* repo, ID workID) {
 	tripleBitRepo = repo;
