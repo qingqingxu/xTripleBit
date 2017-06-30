@@ -806,8 +806,8 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		free(tempPage2);
 		return;
 	}
-	memset(tempPage, 0, sizeof(char));
-	memset(tempPage2, 0, sizeof(char));
+	memset(tempPage, 0, MemoryBuffer::pagesize);
+	memset(tempPage2, 0, MemoryBuffer::pagesize);
 
 	uchar *currentPtrChunk, *endPtrChunk, *chunkBegin, *startPtrChunk;
 	const uchar *lastPtrTemp, *currentPtrTemp, *endPtrTemp, *startPtrTemp;
@@ -845,7 +845,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		return;
 	}
 	cout << "2" << endl;
-	memset(chunkTriple, 0, sizeof(char));
+	memset(chunkTriple, 0, sizeof(ChunkTriple));
 	*tempTriple = *currentTempBuffer;
 	double max = DBL_MIN, min = DBL_MIN;
 
