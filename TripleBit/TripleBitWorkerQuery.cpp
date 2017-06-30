@@ -315,7 +315,6 @@ Status TripleBitWorkerQuery::excuteInsertData() {
 
 		tasksQueueWPMutex[partitionID - 1]->lock();
 		for (; tripleNodeIter != iter->second.end(); ++tripleNodeIter) {
-			cout << __FUNCTION__ << "\t" << (*tripleNodeIter)->subjectID << "\t" << (*tripleNodeIter)->object << endl;
 			SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0, operationType, tripleNodeSize, *(*tripleNodeIter), indexForTT);
 			tasksEnQueue(partitionID, subTrans);
 		}
