@@ -871,13 +871,13 @@ uchar* Chunk::deleteData(uchar* reader, char dataType) {
 		break;
 	case INT:
 		*(char*) reader = INT_DELETE;
-		reader += sizeof(int);
+		reader += sizeof(char);
 		*(int*) reader = 0;
 		reader += sizeof(int);
 		break;
 	case FLOAT:
 		*(char*) reader = FLOAT_DELETE;
-		reader += sizeof(float);
+		reader += sizeof(char);
 		*(float*) reader = 0;
 		reader += sizeof(float);
 		break;
@@ -890,7 +890,7 @@ uchar* Chunk::deleteData(uchar* reader, char dataType) {
 	case DATE:
 	case DOUBLE:
 		*(char*) reader = DOUBLE_DELETE;
-		reader += sizeof(double);
+		reader += sizeof(char);
 		*(double*) reader = 0;
 		reader += sizeof(double);
 		break;
@@ -898,7 +898,7 @@ uchar* Chunk::deleteData(uchar* reader, char dataType) {
 	case STRING:
 	default:
 		*(char*) reader = UNSIGNED_INT_DELETE;
-		reader += sizeof(uint);
+		reader += sizeof(char);
 		*(uint*) reader = 0;
 		reader += sizeof(uint);
 		break;
