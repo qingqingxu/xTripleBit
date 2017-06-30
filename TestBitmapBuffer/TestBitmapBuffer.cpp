@@ -62,7 +62,6 @@ int main(int argc, char* argv[]) {
 			while (bufferReader < endChunkManager) {
 				MetaData* metaData = (MetaData*) bufferReader;
 				sp << "ORDERBYS: " <<  meta->pid << "\t" << "chunk:" << chunkId << "\t" << metaData->usedSpace << "\t" << metaData->min << "\t" << metaData->max << endl;
-				chunkId++;
 				const uchar* endPtr = bufferReader + metaData->usedSpace;
 				bufferReader += sizeof(MetaData);
 				while (bufferReader < endPtr) {
