@@ -37,8 +37,8 @@ int main(int argc, char* argv[]) {
 	bool soType;
 	size_t offset = 0;
 	bool isFirstPage = true;
-	ofstream sp("bitmapbuffer_sp_chunk", ios::app);
-	ofstream op("bitmapbuffer_op_chunk", ios::app);
+	ofstream sp("bitmapbuffer_sp_chunk_insert", ios::app);
+	ofstream op("bitmapbuffer_op_chunk_insert", ios::app);
 	ChunkManagerMeta* meta;
 
 	while (predicateReader < predicateLimit) {

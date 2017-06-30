@@ -827,7 +827,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		lastPtrTemp = currentPtrTemp = reinterpret_cast<uchar*>(tempPage)
 				+ sizeof(MetaData);
 	}
-	cout << "1" << endl;
 	endPtrChunk = chunkBegin + MemoryBuffer::pagesize;
 	startPtrTemp = lastPtrTemp - sizeof(MetaData);
 	endPtrTemp = startPtrTemp + ((MetaData*) startPtrTemp)->usedSpace;
@@ -844,11 +843,8 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		free(chunkTriple);
 		return;
 	}
-	cout << "2" << endl;
 	memset(chunkTriple, 0, sizeof(ChunkTriple));
-	cout << "21" << endl;
 	tempTriple = currentTempBuffer;
-	cout << "3" << endl;
 	double max = DBL_MIN, min = DBL_MIN;
 
 
@@ -861,7 +857,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 				chunkTriple->subjectID, chunkTriple->object,
 				chunkTriple->objType);
 	}
-	cout << "4" << endl;
 	while (lastPtrTemp < endPtrTemp && lastTempBuffer < endTempBuffer) {
 		//the Ptr not reach the end
 		if (chunkTriple->subjectID == 0
@@ -882,7 +877,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 						currentPtrTemp, chunkTriple->subjectID,
 						chunkTriple->object, chunkTriple->objType);
 			}
-			cout << "5" << endl;
 		} else {
 			if (chunkTriple->subjectID < tempTriple->subjectID
 					|| (chunkTriple->subjectID == tempTriple->subjectID
@@ -919,7 +913,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 							currentPtrTemp, chunkTriple->subjectID,
 							chunkTriple->object, chunkTriple->objType);
 				}
-				cout << "6" << endl;
 			} else {
 				//insert data read from tempbuffer
 				uint len = sizeof(ID) + sizeof(char)
@@ -996,6 +989,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	}
 
 	while (lastTempBuffer < endTempBuffer) {
+		cout << "1" << endl;
 		uint len = sizeof(ID) + sizeof(char)
 				+ Chunk::getLen(tempTriple->objType);
 
