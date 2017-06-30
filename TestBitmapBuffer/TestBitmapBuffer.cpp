@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
 	const uchar* bufferReader = (const uchar*) buffer->get_address();
 	const uchar* startBuffer = bufferReader;
 
-	string predicate = bitmapBuffer.append("_predicate");
+	string predicate = bitmapBuffer.append("BitmapBuffer_predicate");
 	MMapBuffer* predicateBuffer = MMapBuffer::create(predicate.c_str(), 0);
 	const uchar* predicateReader =
 			(const uchar*) predicateBuffer->get_address();
