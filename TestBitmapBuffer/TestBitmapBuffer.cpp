@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
 	const uchar* bufferReader = (const uchar*) buffer->get_address();
 	const uchar* startBuffer = bufferReader;
 
-	string predicate("BitmapBuffer_predicate");
+	string predicate = "/home/xuqingqing/code/xTripleBit/data/BitmapBuffer_predicate";
 	MMapBuffer* predicateBuffer = MMapBuffer::create(predicate.c_str(), 0);
 	const uchar* predicateReader =
 			(const uchar*) predicateBuffer->get_address();
