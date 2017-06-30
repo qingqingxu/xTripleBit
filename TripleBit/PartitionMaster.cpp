@@ -423,12 +423,12 @@ void PartitionMaster::executeInsertData(SubTrans* subTransaction) {
 			subjectID, object);
 	/*s << ",chunkID, " << chunkID << endl;
 	s.close();*/
-
+	cout << __FUNCTION__ << "\t" << subjectID << "\t" << object << endl;
 	ChunkTask *chunkTask1 = new ChunkTask(subTransaction->operationType,
 			subjectID, object, objType, subTransaction->triple.scanOperation,
 			taskPackage, subTransaction->indexForTT);
 	taskEnQueue(chunkTask1, xChunkQueue[ORDERBYS][chunkID]);
-
+	cout << __FUNCTION__ << "\t" << chunkTask1->Triple.subjectID << "\t" << chunkTask1->Triple.object << endl;
 	/*ofstream o("searchChunkIDByO", ios::app);
 	o << "partitionID, " << partitionID << ",object, " << object
 			<< ",subjectID, " << subjectID;*/
@@ -658,7 +658,6 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 	const uchar* chunkBegin = tasksQueue->getChunkBegin();
 
 	while ((chunkTask = tasksQueue->Dequeue()) != NULL) {
-		cout << __FUNCTION__ << "\t" << chunkTask->Triple.subjectID << "\t" << chunkTask->Triple.object << endl;
 		switch (chunkTask->operationType) {
 		case TripleBitQueryGraph::QUERY:
 			//executeChunkTaskQuery(chunkTask, chunkID, chunkBegin, xyType);
