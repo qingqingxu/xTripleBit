@@ -27,6 +27,7 @@ TempBuffer::~TempBuffer() {
 
 Status TempBuffer::insertTriple(ID subjectID, double object, char objType)
 {
+	cout << subjectID << "\t" << object << endl;
 	buffer[pos].subjectID = subjectID;
 	buffer[pos].object = object;
 	buffer[pos].objType = objType;

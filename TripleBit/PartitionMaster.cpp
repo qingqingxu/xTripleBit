@@ -683,13 +683,13 @@ void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
 //	chunkTask->indexForTT->completeOneTriple();
 	xChunkTempBuffer[soType][chunkID]->insertTriple(chunkTask->Triple.subjectID,
 			chunkTask->Triple.object, chunkTask->Triple.objType);
-	if (xChunkTempBuffer[soType][chunkID]->isFull()) {
+	/*if (xChunkTempBuffer[soType][chunkID]->isFull()) {
 		//combine the data in tempbuffer into the source data
 		combineTempBufferToSource(xChunkTempBuffer[soType][chunkID], startPtr,
 				chunkID, soType);
 	}
 
-	chunkTask->indexForTT->completeOneTriple();
+	chunkTask->indexForTT->completeOneTriple();*/
 }
 
 void PartitionMaster::readIDInTempPage(const uchar *&currentPtrTemp,
