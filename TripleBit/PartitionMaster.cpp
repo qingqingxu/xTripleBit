@@ -892,9 +892,10 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 							tempPage, tempPage2, isInTempPage,
 							theOtherPageEmpty, min, max, soType, chunkID);
 				}
-				if (currentPtrChunk == startPtrChunk) {
+				if (lastPtrTemp == startPtrChunk) {
 					min = getChunkMinOrMax(chunkTriple, soType);
 				}
+				assert(false);
 				memcpy(currentPtrChunk, lastPtrTemp, len);
 				max = getChunkMinOrMax(chunkTriple, soType);
 				currentPtrChunk += len;
@@ -926,6 +927,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 				if (currentPtrChunk == startPtrChunk) {
 					min = getChunkMinOrMax(tempTriple, soType);
 				}
+				assert(false);
 				partitionChunkManager[soType]->writeXY(currentPtrChunk,
 						tempTriple->subjectID, tempTriple->object,
 						tempTriple->objType);
