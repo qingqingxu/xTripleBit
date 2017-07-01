@@ -939,7 +939,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 				if (currentTempBuffer < endTempBuffer) {
 					tempTriple = currentTempBuffer;
 				}
-				cout << "7" << endl;
 			}
 		}
 	}
@@ -1003,7 +1002,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		if (currentPtrChunk == startPtrChunk) {
 			min = getChunkMinOrMax(tempTriple, soType);
 		}
-		cout << tempTriple->subjectID << "\t" << tempTriple->object << endl;
+		//cout << tempTriple->subjectID << "\t" << tempTriple->object << endl;
 		partitionChunkManager[soType]->writeXY(currentPtrChunk,
 				tempTriple->subjectID, tempTriple->object, tempTriple->objType);
 		max = getChunkMinOrMax(tempTriple, soType);
