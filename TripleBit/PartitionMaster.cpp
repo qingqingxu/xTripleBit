@@ -942,6 +942,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		}
 	}
 
+	assert(lastPtrTemp == endPtrTemp);
 	while (lastPtrTemp < endPtrTemp) {
 		if (chunkTriple->subjectID == 0) {
 			readIDInTempPage(currentPtrTemp, endPtrTemp, startPtrTemp, tempPage,
@@ -988,6 +989,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		}
 	}
 
+	assert(lastTempBuffer == buffer->getBuffer());
 	while (lastTempBuffer < endTempBuffer) {
 		uint len = sizeof(ID) + sizeof(char)
 				+ Chunk::getLen(tempTriple->objType);
