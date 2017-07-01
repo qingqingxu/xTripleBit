@@ -802,23 +802,23 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 #endif
 	buffer->sort(soType);
 #ifdef MYDEBUG
-	ofstream out("tempbuffer_sort", ios::app);
+	ofstream out2("tempbuffer_sort", ios::app);
 	temp = buffer->getBuffer();
 	while(temp < buffer->getEnd()){
-		out << temp->subjectID << "," << partitionID << "," << temp->object << endl;
+		out2 << temp->subjectID << "," << partitionID << "," << temp->object << endl;
 		temp++;
 	}
-	out.close();
+	out2.close();
 #endif
 	buffer->uniqe();
 #ifdef MYDEBUG
-	ofstream out("tempbuffer_uniqe", ios::app);
+	ofstream out1("tempbuffer_uniqe", ios::app);
 	temp = buffer->getBuffer();
 	while(temp < buffer->getEnd()){
-		out << temp->subjectID << "," << partitionID << "," << temp->object << endl;
+		out1 << temp->subjectID << "," << partitionID << "," << temp->object << endl;
 		temp++;
 	}
-	out.close();
+	out1.close();
 #endif
 
 	if (buffer->isEmpty())
