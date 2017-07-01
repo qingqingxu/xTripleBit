@@ -797,6 +797,14 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 
 	if (buffer->isEmpty())
 		return;
+#ifdef MYDEBUG
+	ofstream out("tempbuffer", ios::app);
+	ChunkTriple *temp = buffer->getBuffer();
+	while(temp < buffer->getEnd()){
+		out << temp->subjectID << "," << partitionID << "," << temp->object << endl;
+	}
+	out.close();
+#endif
 
 	char *tempPage = (char*) malloc(MemoryBuffer::pagesize);
 	char *tempPage2 = (char*) malloc(MemoryBuffer::pagesize);
@@ -895,8 +903,8 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 				if (currentPtrChunk == startPtrChunk) {
 					min = getChunkMinOrMax(chunkTriple, soType);
 				}
-				cout << "chunkTriple: " << chunkTriple->subjectID << "\t" << chunkTriple->object << endl;
-				cout << "tempTriple: " << tempTriple->subjectID << "\t" << tempTriple->object << endl;
+				//cout << "chunkTriple: " << chunkTriple->subjectID << "\t" << chunkTriple->object << endl;
+				//cout << "tempTriple: " << tempTriple->subjectID << "\t" << tempTriple->object << endl;
 				assert(false);
 				memcpy(currentPtrChunk, lastPtrTemp, len);
 				max = getChunkMinOrMax(chunkTriple, soType);
