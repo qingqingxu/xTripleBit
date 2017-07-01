@@ -892,9 +892,11 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 							tempPage, tempPage2, isInTempPage,
 							theOtherPageEmpty, min, max, soType, chunkID);
 				}
-				if (lastPtrTemp == startPtrChunk) {
+				if (currentPtrChunk == startPtrChunk) {
 					min = getChunkMinOrMax(chunkTriple, soType);
 				}
+				cout << "chunkTriple: " << chunkTriple->subjectID << "\t" << chunkTriple->object << endl;
+				cout << "tempTriple: " << tempTriple->subjectID << "\t" << tempTriple->object << endl;
 				assert(false);
 				memcpy(currentPtrChunk, lastPtrTemp, len);
 				max = getChunkMinOrMax(chunkTriple, soType);
