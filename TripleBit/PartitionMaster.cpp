@@ -802,6 +802,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	ChunkTriple *temp = buffer->getBuffer();
 	while(temp < buffer->getEnd()){
 		out << temp->subjectID << "," << partitionID << "," << temp->object << endl;
+		temp++;
 	}
 	out.close();
 #endif
