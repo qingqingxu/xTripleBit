@@ -405,7 +405,7 @@ static bool transformInsertData(IRepository& repo, const SPARQLParser::PatternGr
 	for(std::vector<SPARQLParser::Pattern>::const_iterator iter = group.patterns.begin(), limit = group.patterns.end(); iter != limit; ++iter, ++tr_id)
 	{
 		//Encode a triple pattern
-		if(!encodeTripleNodeUpdate(repo, (*iter), tripleNode)) return false;
+		if(!encodeTripleNode(repo, (*iter), tripleNode)) return false;
 		tripleNode.tripleNodeID = tr_id;
 		output.tripleNodes.push_back(tripleNode);
 	}

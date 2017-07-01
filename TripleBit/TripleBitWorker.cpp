@@ -126,9 +126,11 @@ Status TripleBitWorker::Execute(string& queryString) {
 		}
 		uriMutex->unlock();
 
+/*
 #ifdef MYDEBUG
 		Print();
 #endif
+*/
 
 		workerQuery->query(queryGraph, resultSet, trans->transTime);
 
