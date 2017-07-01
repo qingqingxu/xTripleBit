@@ -791,12 +791,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 #endif
 
 	assert(buffer != NULL);
-
-	buffer->sort(soType);
-	buffer->uniqe();
-
-	if (buffer->isEmpty())
-		return;
 #ifdef MYDEBUG
 	ofstream out("tempbuffer", ios::app);
 	ChunkTriple *temp = buffer->getBuffer();
@@ -806,6 +800,30 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	}
 	out.close();
 #endif
+	buffer->sort(soType);
+#ifdef MYDEBUG
+	ofstream out("tempbuffer_sort", ios::app);
+	ChunkTriple *temp = buffer->getBuffer();
+	while(temp < buffer->getEnd()){
+		out << temp->subjectID << "," << partitionID << "," << temp->object << endl;
+		temp++;
+	}
+	out.close();
+#endif
+	buffer->uniqe();
+#ifdef MYDEBUG
+	ofstream out("tempbuffer_uniqe", ios::app);
+	ChunkTriple *temp = buffer->getBuffer();
+	while(temp < buffer->getEnd()){
+		out << temp->subjectID << "," << partitionID << "," << temp->object << endl;
+		temp++;
+	}
+	out.close();
+#endif
+
+	if (buffer->isEmpty())
+		return;
+
 
 	char *tempPage = (char*) malloc(MemoryBuffer::pagesize);
 	char *tempPage2 = (char*) malloc(MemoryBuffer::pagesize);
