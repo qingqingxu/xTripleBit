@@ -794,7 +794,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 
 	buffer->sort(soType);
 	buffer->uniqe();
-	buffer->Print();
 
 	if (buffer->isEmpty())
 		return;

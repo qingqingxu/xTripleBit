@@ -287,8 +287,6 @@ bool static encodeJoinVariableNodes(TripleBitQueryGraph::SubQuery& query)
 	for(unsigned int i = 0;i < limit;i ++) {
 		query.joinVariableNodes[i].value = query.joinVariables[i];
 
-		//cout<<"asdfasdf"<<endl;
-
 		//check if has an edge with  triple node  j.
 		std::vector< TripleNode>::size_type triplenodes_size = query.tripleNodes.size();
 		for(unsigned int j = 0; j < triplenodes_size; ++ j) {
