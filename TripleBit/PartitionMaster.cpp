@@ -897,7 +897,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 				}
 				memcpy(currentPtrChunk, lastPtrTemp, len);
 				max = getChunkMinOrMax(chunkTriple, soType);
-
 				currentPtrChunk += len;
 				//					assert(currentPtrChunk <= endPtrChunk);
 
@@ -931,6 +930,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 						tempTriple->subjectID, tempTriple->object,
 						tempTriple->objType);
 				max = getChunkMinOrMax(tempTriple, soType);
+				currentPtrChunk += len;
 				//					assert(currentPtrChunk <= endPtrChunk);
 
 				lastTempBuffer = currentTempBuffer;
@@ -1005,6 +1005,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		partitionChunkManager[soType]->writeXY(currentPtrChunk,
 				tempTriple->subjectID, tempTriple->object, tempTriple->objType);
 		max = getChunkMinOrMax(tempTriple, soType);
+		currentPtrChunk += len;
 		//			assert(currentPtrChunk <= endPtrChunk);
 
 		lastTempBuffer = currentTempBuffer;
