@@ -1023,7 +1023,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		}
 	}
 
-	assert(lastTempBuffer == buffer->getBuffer());
 	while (lastTempBuffer < endTempBuffer) {
 		uint len = sizeof(ID) + sizeof(char)
 				+ Chunk::getLen(tempTriple->objType);
