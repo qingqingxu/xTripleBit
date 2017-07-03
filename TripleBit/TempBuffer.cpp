@@ -9,7 +9,6 @@
 #include "MemoryBuffer.h"
 #include <math.h>
 #include <pthread.h>
-#define MYDEBUG
 
 TempBuffer::TempBuffer() {
 	// TODO Auto-generated constructor stub
@@ -28,12 +27,6 @@ TempBuffer::~TempBuffer() {
 
 Status TempBuffer::insertTriple(ID subjectID, double object, char objType)
 {
-#ifdef MYDEBUG
-	ofstream out("tempbuffer_insertTriple", ios::app);
-	out << subjectID << "," << object << endl;
-	out.close();
-#endif
-
 	buffer[pos].subjectID = subjectID;
 	buffer[pos].object = object;
 	buffer[pos].objType = objType;

@@ -930,7 +930,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 				}
 				//cout << "chunkTriple: " << chunkTriple->subjectID << "\t" << chunkTriple->object << endl;
 				//cout << "tempTriple: " << tempTriple->subjectID << "\t" << tempTriple->object << endl;
-				assert(false);
 				memcpy(currentPtrChunk, lastPtrTemp, len);
 				max = getChunkMinOrMax(chunkTriple, soType);
 				currentPtrChunk += len;
@@ -979,7 +978,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		}
 	}
 
-	assert(lastPtrTemp == endPtrTemp);
 	while (lastPtrTemp < endPtrTemp) {
 		if (chunkTriple->subjectID == 0) {
 			readIDInTempPage(currentPtrTemp, endPtrTemp, startPtrTemp, tempPage,
