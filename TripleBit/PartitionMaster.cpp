@@ -961,7 +961,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 				if (currentPtrChunk == startPtrChunk) {
 					min = getChunkMinOrMax(tempTriple, soType);
 				}
-				assert(false);
 				partitionChunkManager[soType]->writeXY(currentPtrChunk,
 						tempTriple->subjectID, tempTriple->object,
 						tempTriple->objType);
