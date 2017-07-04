@@ -53,42 +53,42 @@ PartitionMaster::PartitionMaster(TripleBitRepository*& repo, const ID parID) {
 		chunkSizeAll += xChunkNumber[type];
 		ID chunkID = 0;
 		xChunkQueue[type][0] = new TasksQueueChunk(startPtr, chunkID, type);
-/*
-#ifdef MYDEBUG
-		ofstream out;
-		if (type == ORDERBYS) {
-			out.open("chunkidmetadata_s", ios::app);
-		} else {
-			out.open("chunkidmetadata_o", ios::app);
-		}
-		MetaData* metaData0 = (MetaData*) xChunkQueue[type][0]->getChunkBegin();
-		out << "partitionID," << partitionID << ",chunkID," << chunkID
-				<< ",metaData.min," << metaData0->min << ",metaData.max,"
-				<< metaData0->max << ",metaData.pageNo," << metaData0->pageNo
-				<< endl;
-#endif
-*/
+		/*
+		 #ifdef MYDEBUG
+		 ofstream out;
+		 if (type == ORDERBYS) {
+		 out.open("chunkidmetadata_s", ios::app);
+		 } else {
+		 out.open("chunkidmetadata_o", ios::app);
+		 }
+		 MetaData* metaData0 = (MetaData*) xChunkQueue[type][0]->getChunkBegin();
+		 out << "partitionID," << partitionID << ",chunkID," << chunkID
+		 << ",metaData.min," << metaData0->min << ",metaData.max,"
+		 << metaData0->max << ",metaData.pageNo," << metaData0->pageNo
+		 << endl;
+		 #endif
+		 */
 		xChunkTempBuffer[type][0] = new TempBuffer;
 		for (chunkID = 1; chunkID < xChunkNumber[type]; chunkID++) {
 			xChunkQueue[type][chunkID] = new TasksQueueChunk(
 					startPtr + chunkID * MemoryBuffer::pagesize
 							- sizeof(ChunkManagerMeta), chunkID, type);
-/*
-#ifdef MYDEBUG
-			metaData0 = (MetaData*) xChunkQueue[type][chunkID]->getChunkBegin();
-			out << "partitionID," << partitionID << ",chunkID," << chunkID
-					<< ",metaData.min," << metaData0->min << ",metaData.max,"
-					<< metaData0->max << ",metaData.pageNo,"
-					<< metaData0->pageNo << endl;
-#endif
-*/
+			/*
+			 #ifdef MYDEBUG
+			 metaData0 = (MetaData*) xChunkQueue[type][chunkID]->getChunkBegin();
+			 out << "partitionID," << partitionID << ",chunkID," << chunkID
+			 << ",metaData.min," << metaData0->min << ",metaData.max,"
+			 << metaData0->max << ",metaData.pageNo,"
+			 << metaData0->pageNo << endl;
+			 #endif
+			 */
 			xChunkTempBuffer[type][chunkID] = new TempBuffer;
 		}
-/*
-#ifdef MYDEBUG
-		out.close();
-#endif
-*/
+		/*
+		 #ifdef MYDEBUG
+		 out.close();
+		 #endif
+		 */
 	}
 
 	partitionBufferManager = new PartitionBufferManager(chunkSizeAll);
@@ -417,24 +417,24 @@ void PartitionMaster::executeInsertData(SubTrans* subTransaction) {
 	shared_ptr<subTaskPackage> taskPackage(new subTaskPackage);
 
 	/*ofstream s("searchChunkIDByS", ios::app);
-	s << "partitionID, " << partitionID << ",subjectID, " << subjectID
-			<< ",object, " << object;*/
+	 s << "partitionID, " << partitionID << ",subjectID, " << subjectID
+	 << ",object, " << object;*/
 	chunkID = partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
 			subjectID, object);
 	/*s << ",chunkID, " << chunkID << endl;
-	s.close();*/
+	 s.close();*/
 	ChunkTask *chunkTask1 = new ChunkTask(subTransaction->operationType,
 			subjectID, object, objType, subTransaction->triple.scanOperation,
 			taskPackage, subTransaction->indexForTT);
 	taskEnQueue(chunkTask1, xChunkQueue[ORDERBYS][chunkID]);
 
 	/*ofstream o("searchChunkIDByO", ios::app);
-	o << "partitionID, " << partitionID << ",object, " << object
-			<< ",subjectID, " << subjectID;*/
+	 o << "partitionID, " << partitionID << ",object, " << object
+	 << ",subjectID, " << subjectID;*/
 	chunkID = partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(
 			object, subjectID);
 	/*o << ",chunkID, " << chunkID << endl;
-	o.close();*/
+	 o.close();*/
 
 	ChunkTask *chunkTask2 = new ChunkTask(subTransaction->operationType,
 			subjectID, object, objType, subTransaction->triple.scanOperation,
@@ -792,30 +792,48 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 
 	assert(buffer != NULL);
 #ifdef MYDEBUG
-	ofstream out("tempbuffer", ios::app);
+	ofstream out;
+	if (soType == ORDERBYS) {
+		out.open("tempbuffer_sp", ios::app);
+	} else {
+		out.open("tempbuffer_op", ios::app);
+	}
 	ChunkTriple *temp = buffer->getBuffer();
-	while(temp < buffer->getEnd()){
-		out << temp->subjectID << "," << partitionID << "," << temp->object << endl;
+	while (temp < buffer->getEnd()) {
+		out << temp->subjectID << "," << partitionID << "," << temp->object
+				<< endl;
 		temp++;
 	}
 	out.close();
 #endif
 	buffer->sort(soType);
 #ifdef MYDEBUG
-	ofstream out2("tempbuffer_sort", ios::app);
+	ofstream out2;
+	if (soType == ORDERBYS) {
+		out2.open("tempbuffer_sort_sp", ios::app);
+	} else {
+		out2.open("tempbuffer_sort_op", ios::app);
+	}
 	temp = buffer->getBuffer();
-	while(temp < buffer->getEnd()){
-		out2 << temp->subjectID << "," << partitionID << "," << temp->object << endl;
+	while (temp < buffer->getEnd()) {
+		out2 << temp->subjectID << "," << partitionID << "," << temp->object
+				<< endl;
 		temp++;
 	}
 	out2.close();
 #endif
 	buffer->uniqe();
 #ifdef MYDEBUG
-	ofstream out1("tempbuffer_uniqe", ios::app);
+	ofstream out1;
+	if (soType == ORDERBYS) {
+		out1.open("tempbuffer_uniqe_sp", ios::app);
+	} else {
+		out1.open("tempbuffer_uniqe_op", ios::app);
+	}
 	temp = buffer->getBuffer();
-	while(temp < buffer->getEnd()){
-		out1 << chunkID << "," << temp->subjectID << "," << partitionID << "," << temp->object << endl;
+	while (temp < buffer->getEnd()) {
+		out1 << chunkID << "," << temp->subjectID << "," << partitionID << ","
+				<< temp->object << endl;
 		temp++;
 	}
 	out1.close();
@@ -823,7 +841,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 
 	if (buffer->isEmpty())
 		return;
-
 
 	char *tempPage = (char*) malloc(MemoryBuffer::pagesize);
 	char *tempPage2 = (char*) malloc(MemoryBuffer::pagesize);
@@ -874,7 +891,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	memset(chunkTriple, 0, sizeof(ChunkTriple));
 	tempTriple = currentTempBuffer;
 	double max = DBL_MIN, min = DBL_MIN;
-
 
 	if (currentPtrTemp >= endPtrTemp) {
 		chunkTriple->subjectID = 0;
