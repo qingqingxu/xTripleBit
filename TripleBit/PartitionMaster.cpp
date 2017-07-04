@@ -680,6 +680,18 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
 		const ID chunkID, const uchar *startPtr, const bool soType) {
 //	chunkTask->indexForTT->completeOneTriple();
+#ifdef MYDEBUG
+	ofstream out;
+	if (soType == ORDERBYS) {
+		out.open("tempbuffer_sp_brefore", ios::app);
+	} else {
+		out.open("tempbuffer_op_brefore", ios::app);
+	}
+	out << chunkTask->Triple.subjectID << "," << partitionID << "," << chunkTask->Triple.object
+					<< endl;
+	out.close();
+#endif
+
 
 	xChunkTempBuffer[soType][chunkID]->insertTriple(chunkTask->Triple.subjectID,
 			chunkTask->Triple.object, chunkTask->Triple.objType);
