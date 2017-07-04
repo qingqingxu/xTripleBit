@@ -11,6 +11,7 @@
 #include "BitmapBuffer.h"
 #include "MMapBuffer.h"
 #include "MemoryBuffer.h"
+#include "TempMMapBuffer.h"
 #include <fstream>
 
 using namespace std;
