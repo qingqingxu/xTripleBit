@@ -747,7 +747,6 @@ void PartitionMaster::handleEndofChunk(const uchar *startPtr,
 		metaData->max = max;
 	}
 
-
 	if (metaData->NextPageNo) {
 		MetaData *metaDataTemp = (MetaData*) startPtrTemp;
 		size_t pageNo = metaData->NextPageNo;
@@ -816,17 +815,15 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 #endif
 */
 	buffer->uniqe();
-/*
 #ifdef MYDEBUG
-	ofstream out1("tempbuffer_uniqe", ios::app);
-	temp = buffer->getBuffer();
+	ofstream out1("tempbuffer_uniqe7", ios::app);
+	ChunkTriple* temp = buffer->getBuffer();
 	while(temp < buffer->getEnd()){
 		out1 << temp->subjectID << "," << partitionID << "," << temp->object << endl;
 		temp++;
 	}
 	out1.close();
 #endif
-*/
 
 	if (buffer->isEmpty())
 		return;
