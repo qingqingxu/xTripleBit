@@ -743,9 +743,10 @@ void PartitionMaster::handleEndofChunk(const uchar *startPtr,
 	} else {
 		metaData = (MetaData*) chunkBegin;
 		metaData->usedSpace = currentPtrChunk - chunkBegin;
+		metaData->min = min;
+		metaData->max = max;
 	}
-	metaData->min = min;
-	metaData->max = max;
+
 
 	if (metaData->NextPageNo) {
 		MetaData *metaDataTemp = (MetaData*) startPtrTemp;
