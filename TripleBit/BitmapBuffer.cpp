@@ -734,7 +734,7 @@ void ChunkManager::insertXY(ID x, double y, char objType) {
 		MetaData *metaData = (MetaData*) (meta->startPtr);
 		memset((char*) metaData, 0, sizeof(MetaData));
 		setMetaDataMin(metaData, x, y);
-		metaData->NextPageNo = usedPages.back();
+		metaData->NextPageNo = 0;
 		metaData->usedSpace = 0;
 
 		writeXY(meta->endPtr + sizeof(MetaData), x, y, objType);

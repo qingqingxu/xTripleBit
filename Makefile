@@ -79,7 +79,7 @@ define one-compile-rule
 endef
 
 
-modules      := TripleBit BuildTripleBitFromN3 TestStat TestBitmapBuffer TripleBitQuery
+modules      := TripleBit BuildTripleBitFromN3 TestStat TestBitmapBuffer TripleBitQuery TestBitmapBufferTemp
 programs     := 
 libraries    :=
 sources      :=
