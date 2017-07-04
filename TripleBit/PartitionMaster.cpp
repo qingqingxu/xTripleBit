@@ -819,7 +819,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	ofstream out1("tempbuffer_uniqe7", ios::app);
 	ChunkTriple* temp = buffer->getBuffer();
 	while(temp < buffer->getEnd()){
-		out1 << temp->subjectID << "," << partitionID << "," << temp->object << endl;
+		out1 << chunkID << "," << temp->subjectID << "," << partitionID << "," << temp->object << endl;
 		temp++;
 	}
 	out1.close();
