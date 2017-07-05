@@ -151,7 +151,7 @@ bool static encodeTripleNode(IRepository& repo, const SPARQLParser::Pattern& tri
 	 case SPARQLParser::Element::IRI:
 		 if(repo.find_soid_by_string(objectID, triplePattern.object.value)){
 			 tripleNode.object = objectID;
-			 tripleNode.objType = STRING;//temp
+			 tripleNode.objType = STRING;
 			 tripleNode.constObject = true;
 			 break;
 		 }else{
@@ -217,6 +217,8 @@ static bool encodeTripleNodeUpdate(IRepository& repo,const SPARQLParser::Pattern
 		objectID = (SOID)tripleNode.object;
 		if(repo.find_soid_by_string_update(objectID, triplePattern.object.value))
 		{
+			tripleNode.object = objectID;
+			tripleNode.objType = STRING;
 			tripleNode.constObject = true;
 			break;
 		}else return false;
@@ -400,13 +402,16 @@ static bool transformInsertData(IRepository& repo, const SPARQLParser::PatternGr
 {
 	TripleNode tripleNode;
 	unsigned int tr_id = 0;
+	ofstream out("insertTripleNode", ios::app);
 	for(std::vector<SPARQLParser::Pattern>::const_iterator iter = group.patterns.begin(), limit = group.patterns.end(); iter != limit; ++iter, ++tr_id)
 	{
 		//Encode a triple pattern
-		if(!encodeTripleNode(repo, (*iter), tripleNode)) return false;
+		if(!encodeTripleNodeUpdate(repo, (*iter), tripleNode)) return false;
 		tripleNode.tripleNodeID = tr_id;
 		output.tripleNodes.push_back(tripleNode);
+		out << tripleNode.subjectID << "\t" << tripleNode.predicateID << "\t" << tripleNode.object << endl;
 	}
+	out.close();
 	return true;
 }
 //---------------------------------------------------------------------------
