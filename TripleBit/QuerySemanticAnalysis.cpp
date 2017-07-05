@@ -402,16 +402,13 @@ static bool transformInsertData(IRepository& repo, const SPARQLParser::PatternGr
 {
 	TripleNode tripleNode;
 	unsigned int tr_id = 0;
-	ofstream out("insertTripleNode", ios::app);
 	for(std::vector<SPARQLParser::Pattern>::const_iterator iter = group.patterns.begin(), limit = group.patterns.end(); iter != limit; ++iter, ++tr_id)
 	{
 		//Encode a triple pattern
 		if(!encodeTripleNodeUpdate(repo, (*iter), tripleNode)) return false;
 		tripleNode.tripleNodeID = tr_id;
 		output.tripleNodes.push_back(tripleNode);
-		out << tripleNode.subjectID << "\t" << tripleNode.predicateID << "\t" << tripleNode.object << endl;
 	}
-	out.close();
 	return true;
 }
 //---------------------------------------------------------------------------

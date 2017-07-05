@@ -275,7 +275,7 @@ int TripleBitBuilder::compare213(const uchar* left, const uchar* right) {
 	loadTriple(left, l1, l2, l3, l4);
 	loadTriple(right, r1, r2, r3, r4);
 
-	return cmpTriples(l2, l1, l3, r2, r1, r3);
+	return cmpTriples(l2, l1, l3, l4, r2, r1, r3, r4);
 }
 
 int TripleBitBuilder::compare231(const uchar* left, const uchar* right) {
@@ -285,7 +285,7 @@ int TripleBitBuilder::compare231(const uchar* left, const uchar* right) {
 	loadTriple(left, l1, l2, l3, l4);
 	loadTriple(right, r1, r2, r3, r4);
 
-	return cmpTriples(l2, l3, l1, r2, r3, r1);
+	return cmpTriples(l2, l3, l1, l4, r2, r3, r1, r4);
 }
 
 int TripleBitBuilder::compare123(const uchar* left, const uchar* right) {
@@ -295,7 +295,7 @@ int TripleBitBuilder::compare123(const uchar* left, const uchar* right) {
 	loadTriple(left, l1, l2, l3, l4);
 	loadTriple(right, r1, r2, r3, r4);
 
-	return cmpTriples(l1, l2, l3, r1, r2, r3);
+	return cmpTriples(l1, l2, l3, l4, r1, r2, r3, r4);
 }
 
 int TripleBitBuilder::compare321(const uchar* left, const uchar* right) {
@@ -305,7 +305,7 @@ int TripleBitBuilder::compare321(const uchar* left, const uchar* right) {
 	loadTriple(left, l1, l2, l3, l4);
 	loadTriple(right, r1, r2, r3, r4);
 
-	return cmpTriples(l3, l2, l1, r3, r2, r1);
+	return cmpTriples(l3, l2, l1, l4, r3, r2, r1, r4);
 }
 
 void print(TempFile& infile, char* outfile) {

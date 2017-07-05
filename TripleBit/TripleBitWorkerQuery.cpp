@@ -307,22 +307,22 @@ Status TripleBitWorkerQuery::excuteInsertData() {
 
 	TripleBitQueryGraph::OpType operationType = TripleBitQueryGraph::INSERT_DATA;
 
-	ofstream out("insertTriple_confirm", ios::app);
 	map<ID, set<TripleNode*> >::iterator iter = tripleNodeMap.begin();
+	long long num = 0;
 	for (; iter != tripleNodeMap.end(); ++iter) {
 		size_t tripleNodeSize = iter->second.size();
+		num += tripleNodeSize;
 		ID partitionID = iter->first;
 		set<TripleNode*>::iterator tripleNodeIter = iter->second.begin();
 
 		tasksQueueWPMutex[partitionID - 1]->lock();
 		for (; tripleNodeIter != iter->second.end(); ++tripleNodeIter) {
-			out << (*tripleNodeIter)->subjectID << "\t" << partitionID << "\t" << (*tripleNodeIter)->object << endl;
 			SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0, operationType, tripleNodeSize, *(*tripleNodeIter), indexForTT);
 			tasksEnQueue(partitionID, subTrans);
 		}
 		tasksQueueWPMutex[partitionID - 1]->unlock();
 	}
-	out.close();
+	cout << num << endl;
 
 	indexForTT->wait();
 	return OK;
