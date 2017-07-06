@@ -571,6 +571,7 @@ void TripleBitRepository::cmd_line_sm(FILE* fin, FILE *fout,
 				continue;
 			transQueSW->EnQueue(queryStr);
 			endForWorker();
+			break;
 		}
 	}
 	ThreadPool::getChunkPool().wait();
