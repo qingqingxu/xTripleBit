@@ -95,13 +95,18 @@ PartitionMaster::PartitionMaster(TripleBitRepository*& repo, const ID parID) {
 }
 
 void PartitionMaster::endupdate() {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 	for (int soType = 0; soType < 2; ++soType) {
 		const uchar *startPtr = partitionChunkManager[soType]->getStartPtr();
 		ID chunkID = 0;
 		combineTempBufferToSource(xChunkTempBuffer[soType][chunkID], startPtr,
 				chunkID, soType);
+		insertData[soType] += xChunkTempBuffer[soType][chunkID]->getSize();
 		for (chunkID = 1; chunkID < xChunkNumber[soType]; ++chunkID) {
 			if (!xChunkTempBuffer[soType][chunkID]->isEmpty()) {
+				insertData[soType] += xChunkTempBuffer[soType][chunkID]->getSize();
 				combineTempBufferToSource(xChunkTempBuffer[soType][chunkID],
 						startPtr - sizeof(ChunkManagerMeta)
 								+ chunkID * MemoryBuffer::pagesize, chunkID,
@@ -699,6 +704,7 @@ void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
 			chunkTask->Triple.object, chunkTask->Triple.objType);
 	if (xChunkTempBuffer[soType][chunkID]->isFull()) {
 		//combine the data in tempbuffer into the source data
+		insertData[soType] += xChunkTempBuffer[soType][chunkID]->getSize();
 		combineTempBufferToSource(xChunkTempBuffer[soType][chunkID], startPtr,
 				chunkID, soType);
 	}
@@ -798,19 +804,20 @@ void PartitionMaster::handleEndofChunk(const uchar *startPtr,
 	assert(currentPtrChunk <= endPtrChunk);
 }
 
-size_t PartitionMaster::insertDataS = 0;
-size_t PartitionMaster::insertDataO = 0;
+size_t PartitionMaster::insertData[0] = 0;
+size_t PartitionMaster::insertData[1] = 0;
 void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		const uchar *startPtr, const ID chunkID, const bool soType) {
+/*
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
 #endif
+*/
 
 	assert(buffer != NULL);
 #ifdef MYDEBUG
 	ofstream out;
 	if (soType == ORDERBYS) {
-		insertDataS += buffer->getSize();
 		out.open("tempbuffer_sp", ios::app);
 	} else {
 		out.open("tempbuffer_op", ios::app);
