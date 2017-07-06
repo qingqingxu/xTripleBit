@@ -643,6 +643,7 @@ void PrintChunkTaskPart(ChunkTask* chunkTask) {
 			<< chunkTask->Triple.operation << endl;
 }
 
+int PartitionMaster::triplenum = 0;
 void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 	/*
 	 #ifdef MYDEBUG
@@ -662,6 +663,7 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 			//executeChunkTaskQuery(chunkTask, chunkID, chunkBegin, xyType);
 			break;
 		case TripleBitQueryGraph::INSERT_DATA:
+			triplenum++;
 			executeChunkTaskInsertData(chunkTask, chunkID, chunkBegin, soType);
 			break;
 		case TripleBitQueryGraph::DELETE_DATA:

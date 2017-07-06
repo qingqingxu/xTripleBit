@@ -54,8 +54,8 @@ private:
 	unsigned xChunkNumber[2];
 	unsigned xyChunkNumber[2];
 	PartitionBufferManager *partitionBufferManager;
-
 public:
+	static int triplenum;
 	PartitionMaster(TripleBitRepository *&repo, const ID parID);
 	virtual ~PartitionMaster();
 	void Work();

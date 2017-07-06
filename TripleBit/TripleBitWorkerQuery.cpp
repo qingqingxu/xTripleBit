@@ -308,10 +308,8 @@ Status TripleBitWorkerQuery::excuteInsertData() {
 	TripleBitQueryGraph::OpType operationType = TripleBitQueryGraph::INSERT_DATA;
 
 	map<ID, set<TripleNode*> >::iterator iter = tripleNodeMap.begin();
-	long long num = 0;
 	for (; iter != tripleNodeMap.end(); ++iter) {
 		size_t tripleNodeSize = iter->second.size();
-		num += tripleNodeSize;
 		ID partitionID = iter->first;
 		set<TripleNode*>::iterator tripleNodeIter = iter->second.begin();
 
@@ -322,9 +320,10 @@ Status TripleBitWorkerQuery::excuteInsertData() {
 		}
 		tasksQueueWPMutex[partitionID - 1]->unlock();
 	}
-	cout << num << endl;
 
+	cout << "excuteInsertData--------indexForTT->wait()" << endl;
 	indexForTT->wait();
+	cout << "excuteInsertData--------indexForTT->wait-----" << endl;
 	return OK;
 }
 
