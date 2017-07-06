@@ -420,12 +420,11 @@ Status TripleBitRepository::sharedMemoryResultWPDestroy() {
 }
 
 Status TripleBitRepository::tempMMapDestroy() {
+	endPartitionMaster();
 	if (TempMMapBuffer::getInstance().getUsedPage() == 0) {
 		TempMMapBuffer::deleteInstance();
 		return OK;
 	}
-
-	endPartitionMaster();
 
 	bitmapBuffer->endUpdate(bitmapPredicateImage, bitmapImage);
 	TempMMapBuffer::deleteInstance();

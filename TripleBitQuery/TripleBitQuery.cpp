@@ -27,7 +27,6 @@ int main(int argc, char* argv[]) {
 	}
 
 	if (argc == 3) {
-		cout << "1" << endl;
 		repo->cmd_line_sm(stdin, stdout, argv[2]);
 	} else if (argc == 5 && strcmp(argv[4], "--cold") == 0) {
 		repo->cmd_line_cold(stdin, stderr, argv[3]);
