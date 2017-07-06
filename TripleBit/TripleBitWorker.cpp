@@ -133,7 +133,6 @@ Status TripleBitWorker::Execute(string& queryString) {
 */
 
 		workerQuery->query(queryGraph, resultSet, trans->transTime);
-		cout << "triplenum: " << PartitionMaster::triplenum << endl;
 
 #ifdef TOTAL_TIME
 		gettimeofday(&end, NULL);

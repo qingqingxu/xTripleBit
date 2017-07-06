@@ -321,9 +321,7 @@ Status TripleBitWorkerQuery::excuteInsertData() {
 		tasksQueueWPMutex[partitionID - 1]->unlock();
 	}
 
-	cout << "excuteInsertData--------indexForTT->wait()" << endl;
 	indexForTT->wait();
-	cout << "excuteInsertData--------indexForTT->wait-----" << endl;
 	return OK;
 }
 
