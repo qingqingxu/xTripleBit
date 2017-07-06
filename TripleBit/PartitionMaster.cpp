@@ -830,7 +830,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 				<< temp->object << endl;
 		temp++;
 	}
-	out2 << "----" << endl;
 	out2.close();
 #endif
 	buffer->sort(soType);
@@ -847,7 +846,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 				<< endl;
 		temp++;
 	}
-	out << "----" << endl;
 	out.close();
 #endif
 	buffer->uniqe();
@@ -864,7 +862,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 				<< temp->object << endl;
 		temp++;
 	}
-	out1 << "----" << endl;
 	out1.close();
 #endif
 
