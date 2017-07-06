@@ -652,16 +652,16 @@ ChunkManager::~ChunkManager() {
 
 void ChunkManager::writeXY(uchar* reader, ID x, double y, char objType) {
 	if (meta->soType == ORDERBYS) {
-		ofstream p("bitmapbuffer_sp_writeXY", ios::app);
+		/*ofstream p("bitmapbuffer_sp_writeXY", ios::app);
 		p << x << "\t" << meta->pid << "\t" << y << endl;
-		p.close();
+		p.close();*/
 		Chunk::writeID(reader, x);
 		Chunk::write(reader, objType, CHAR);
 		Chunk::write(reader, y, objType);
 	} else if (meta->soType == ORDERBYO) {
-		ofstream p("bitmapbuffer_op_writeXY", ios::app);
+		/*ofstream p("bitmapbuffer_op_writeXY", ios::app);
 		p << x << "\t" << meta->pid << "\t" << y << endl;
-		p.close();
+		p.close();*/
 		Chunk::write(reader, objType, CHAR);
 		Chunk::write(reader, y, objType);
 		Chunk::writeID(reader, x);

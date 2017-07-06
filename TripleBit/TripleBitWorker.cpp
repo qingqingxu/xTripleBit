@@ -133,7 +133,8 @@ Status TripleBitWorker::Execute(string& queryString) {
 */
 
 		workerQuery->query(queryGraph, resultSet, trans->transTime);
-
+		cout << PartitionMaster::insertDataS << endl;
+		cout << PartitionMaster::insertDataO << endl;
 #ifdef TOTAL_TIME
 		gettimeofday(&end, NULL);
 		cout << " time elapsed: " << ((end.tv_sec - start.tv_sec) * 1000000 + end.tv_usec - start.tv_usec) / 1000000.0 << " s" << endl;
