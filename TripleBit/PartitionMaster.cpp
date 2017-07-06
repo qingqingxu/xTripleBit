@@ -798,6 +798,8 @@ void PartitionMaster::handleEndofChunk(const uchar *startPtr,
 	assert(currentPtrChunk <= endPtrChunk);
 }
 
+size_t PartitionMaster::insertDataS = 0;
+size_t PartitionMaster::insertDataO = 0;
 void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		const uchar *startPtr, const ID chunkID, const bool soType) {
 #ifdef MYDEBUG
@@ -808,6 +810,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 #ifdef MYDEBUG
 	ofstream out;
 	if (soType == ORDERBYS) {
+		insertDataS += buffer->getSize();
 		out.open("tempbuffer_sp", ios::app);
 	} else {
 		out.open("tempbuffer_op", ios::app);
@@ -821,21 +824,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	out.close();
 #endif
 	buffer->sort(soType);
-#ifdef MYDEBUG
-	ofstream out2;
-	if (soType == ORDERBYS) {
-		out2.open("tempbuffer_sort_sp", ios::app);
-	} else {
-		out2.open("tempbuffer_sort_op", ios::app);
-	}
-	temp = buffer->getBuffer();
-	while (temp < buffer->getEnd()) {
-		out2 << temp->subjectID << "," << partitionID << "," << temp->object
-				<< endl;
-		temp++;
-	}
-	out2.close();
-#endif
 	buffer->uniqe();
 #ifdef MYDEBUG
 	ofstream out1;
