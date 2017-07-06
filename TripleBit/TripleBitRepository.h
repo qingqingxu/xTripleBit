@@ -145,6 +145,8 @@ public:
 	void cmd_line_sm(FILE* fin, FILE* fout, const string query_path);
 	void cmd_line_cold(FILE* fin, FILE* fout, const string cmd);
 	void cmd_line_warm(FILE* fin, FILE* fout, const string cmd);
+
+	void cmd_line_insert(const string cmd);
 	static int colNo;
 };
 
