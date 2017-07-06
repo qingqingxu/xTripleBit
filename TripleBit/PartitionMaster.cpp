@@ -106,7 +106,8 @@ void PartitionMaster::endupdate() {
 		insertData[soType] += xChunkTempBuffer[soType][chunkID]->getSize();
 		for (chunkID = 1; chunkID < xChunkNumber[soType]; ++chunkID) {
 			if (!xChunkTempBuffer[soType][chunkID]->isEmpty()) {
-				insertData[soType] += xChunkTempBuffer[soType][chunkID]->getSize();
+				insertData[soType] +=
+						xChunkTempBuffer[soType][chunkID]->getSize();
 				combineTempBufferToSource(xChunkTempBuffer[soType][chunkID],
 						startPtr - sizeof(ChunkManagerMeta)
 								+ chunkID * MemoryBuffer::pagesize, chunkID,
@@ -680,25 +681,29 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 			break;
 		}
 	}
+	if (xChunkTempBuffer[soType][chunkID]->getSize() != 0) {
+		insertData[soType] += xChunkTempBuffer[soType][chunkID]->getSize();
+		combineTempBufferToSource(xChunkTempBuffer[soType][chunkID], chunkBegin,
+				chunkID, soType);
+	}
 }
 
 void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
 		const ID chunkID, const uchar *startPtr, const bool soType) {
 //	chunkTask->indexForTT->completeOneTriple();
-/*
-#ifdef MYDEBUG
-	ofstream out;
-	if (soType == ORDERBYS) {
-		out.open("tempbuffer_sp_brefore", ios::app);
-	} else {
-		out.open("tempbuffer_op_brefore", ios::app);
-	}
-	out << chunkTask->Triple.subjectID << "," << partitionID << "," << chunkTask->Triple.object
-					<< endl;
-	out.close();
-#endif
-*/
-
+	/*
+	 #ifdef MYDEBUG
+	 ofstream out;
+	 if (soType == ORDERBYS) {
+	 out.open("tempbuffer_sp_brefore", ios::app);
+	 } else {
+	 out.open("tempbuffer_op_brefore", ios::app);
+	 }
+	 out << chunkTask->Triple.subjectID << "," << partitionID << "," << chunkTask->Triple.object
+	 << endl;
+	 out.close();
+	 #endif
+	 */
 
 	xChunkTempBuffer[soType][chunkID]->insertTriple(chunkTask->Triple.subjectID,
 			chunkTask->Triple.object, chunkTask->Triple.objType);
@@ -804,7 +809,7 @@ void PartitionMaster::handleEndofChunk(const uchar *startPtr,
 	assert(currentPtrChunk <= endPtrChunk);
 }
 
-size_t PartitionMaster::insertData[2] = {0};
+size_t PartitionMaster::insertData[2] = { 0 };
 void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		const uchar *startPtr, const ID chunkID, const bool soType) {
 #ifdef MYDEBUG
