@@ -133,6 +133,7 @@ Status TripleBitWorker::Execute(string& queryString) {
 */
 
 		workerQuery->query(queryGraph, resultSet, trans->transTime);
+		cout << "111111111" << endl;
 		cout << PartitionMaster::insertData[0] << endl;
 		cout << PartitionMaster::insertData[1] << endl;
 #ifdef TOTAL_TIME
