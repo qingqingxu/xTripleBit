@@ -804,8 +804,7 @@ void PartitionMaster::handleEndofChunk(const uchar *startPtr,
 	assert(currentPtrChunk <= endPtrChunk);
 }
 
-size_t PartitionMaster::insertData[0] = 0;
-size_t PartitionMaster::insertData[1] = 0;
+size_t PartitionMaster::insertData[2] = {0};
 void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		const uchar *startPtr, const ID chunkID, const bool soType) {
 /*
