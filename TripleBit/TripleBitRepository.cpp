@@ -570,7 +570,7 @@ void TripleBitRepository::cmd_line_sm(FILE* fin, FILE *fout,
 			if (queryStr.length() == 0)
 				continue;
 			transQueSW->EnQueue(queryStr);
-			tempMMapDestroy();
+			endPartitionMaster();
 		}
 	}
 	ThreadPool::getChunkPool().wait();
