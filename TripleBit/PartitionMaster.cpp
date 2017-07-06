@@ -817,6 +817,22 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 #endif
 
 	assert(buffer != NULL);
+#ifdef MYDEBUG
+	ofstream out2;
+	if (soType == ORDERBYS) {
+		out2.open("tempbuffer_sp", ios::app);
+	} else {
+		out2.open("tempbuffer_op", ios::app);
+	}
+	ChunkTriple *temp = buffer->getBuffer();
+	while (temp < buffer->getEnd()) {
+		out2 << chunkID << "," << temp->subjectID << "," << partitionID << ","
+				<< temp->object << endl;
+		temp++;
+	}
+	out2 << "----" << endl;
+	out2.close();
+#endif
 	buffer->sort(soType);
 #ifdef MYDEBUG
 	ofstream out;
@@ -825,7 +841,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	} else {
 		out.open("tempbuffer_op_sort", ios::app);
 	}
-	ChunkTriple *temp = buffer->getBuffer();
+	temp = buffer->getBuffer();
 	while (temp < buffer->getEnd()) {
 		out << chunkID << "," << temp->subjectID << "," << partitionID << "," << temp->object
 				<< endl;
