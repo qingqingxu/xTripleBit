@@ -420,6 +420,9 @@ Status TripleBitRepository::sharedMemoryResultWPDestroy() {
 }
 
 Status TripleBitRepository::tempMMapDestroy() {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 	endPartitionMaster();
 	if (TempMMapBuffer::getInstance().getUsedPage() == 0) {
 		TempMMapBuffer::deleteInstance();
@@ -432,6 +435,9 @@ Status TripleBitRepository::tempMMapDestroy() {
 }
 
 void TripleBitRepository::endPartitionMaster() {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 	for (size_t i = 1; i < partitionNum; ++i) {
 		partitionMaster[i]->endupdate();
 	}
