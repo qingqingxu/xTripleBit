@@ -351,6 +351,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 		lastSubjectID = subjectID;
 		lastPredicateID = predicateID;
 		lastObject = object;
+		lastObjType = objType;
 		reader = skipIdIdId(reader);
 		bitmap->insertTriple(predicateID, subjectID, object, ORDERBYS, objType);
 		count1 = 1;
@@ -358,7 +359,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 		while (reader < limit) {
 			loadTriple(reader, subjectID, predicateID, object, objType);
 			if (lastSubjectID == subjectID && lastPredicateID == predicateID
-					&& lastObject == object) {
+					&& lastObject == object && lastObjType == objType) {
 				reader = skipIdIdId(reader);
 				continue;
 			}
@@ -369,15 +370,19 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 				lastPredicateID = predicateID;
 				lastSubjectID = subjectID;
 				lastObject = object;
+				lastObjType = objType;
 				count1 = 1;
 			} else if (predicateID != lastPredicateID) {
 				spStatisBuffer->addStatis(lastSubjectID, lastPredicateID,
 						count1);
 				lastPredicateID = predicateID;
+				lastObject = object;
+				lastObjType = objType;
 				count1 = 1;
 			} else {
 				count1++;
 				lastObject = object;
+				lastObjType = objType;
 			}
 
 			reader = skipIdIdId(reader);
@@ -414,15 +419,16 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 		while (reader < limit) {
 			loadTriple(reader, subjectID, predicateID, object, objType);
 			if (lastSubjectID == subjectID && lastPredicateID == predicateID
-					&& lastObject == object) {
+					&& lastObject == object && lastObjType == objType) {
 				reader = skipIdIdId(reader);
 				continue;
 			}
 
-			if (object != lastObject) {
+			if (object != lastObject || objType != lastObjType) {
 				opStatisBuffer->addStatis(lastObject, lastPredicateID, count1,
 						lastObjType);
 				lastPredicateID = predicateID;
+				lastSubjectID = subjectID;
 				lastObject = object;
 				lastObjType = objType;
 				count1 = 1;
@@ -430,6 +436,7 @@ Status TripleBitBuilder::resolveTriples(TempFile& rawFacts, TempFile& facts) {
 				opStatisBuffer->addStatis(lastObject, lastPredicateID, count1,
 						lastObjType);
 				lastPredicateID = predicateID;
+				lastSubjectID = subjectID;
 				count1 = 1;
 			} else {
 				lastSubjectID = subjectID;
