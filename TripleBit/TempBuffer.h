@@ -27,7 +27,7 @@ public:
 	Status clear();
 	ChunkTriple& operator[](const size_t index);
 	bool isEquals(ChunkTriple* lTriple, ChunkTriple* rTriple);
-	bool isFull() { return usedSize > totalSize; }
+	bool isFull() { return usedSize >= totalSize; }
 	bool isEmpty() { return usedSize == 0; }
 	size_t getSize() const{
 		return usedSize;
