@@ -68,9 +68,6 @@ void TripleBitWorkerQuery::releaseBuffer() {
 
 	BufferManager::getInstance()->reserveBuffer();
 	EntityIDList.clear();
-#ifdef MYDEBUG
-	cout << __FUNCTION__ << endl;
-#endif
 }
 
 Status TripleBitWorkerQuery::query(TripleBitQueryGraph* queryGraph, vector<string>& resultSet, timeval& transTime) {

@@ -118,6 +118,6 @@ void TempBuffer::uniqe()
 			currentPtr++;
 		}
 	}
-	usedSize = lastPtr - buffer;
+	usedSize = lastPtr - buffer + 1;
 }
 
