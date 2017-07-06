@@ -660,8 +660,10 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 	ID chunkID = tasksQueue->getChunkID();
 	int soType = tasksQueue->getSOType();
 	const uchar* chunkBegin = tasksQueue->getChunkBegin();
+	TripleBitQueryGraph::OpType lastPperationType;
 
 	while ((chunkTask = tasksQueue->Dequeue()) != NULL) {
+		lastPperationType = chunkTask->operationType;
 		switch (chunkTask->operationType) {
 		case TripleBitQueryGraph::QUERY:
 			//executeChunkTaskQuery(chunkTask, chunkID, chunkBegin, xyType);
@@ -680,7 +682,7 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 			break;
 		}
 	}
-	if (xChunkTempBuffer[soType][chunkID]->getSize() != 0) {
+	if (lastPperationType == TripleBitQueryGraph::INSERT_DATA && xChunkTempBuffer[soType][chunkID]->getSize() != 0) {
 		insertData[soType] += xChunkTempBuffer[soType][chunkID]->getSize();
 		combineTempBufferToSource(xChunkTempBuffer[soType][chunkID], chunkBegin,
 				chunkID, soType);
@@ -812,11 +814,9 @@ void PartitionMaster::handleEndofChunk(const uchar *startPtr,
 size_t PartitionMaster::insertData[2] = { 0 };
 void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		const uchar *startPtr, const ID chunkID, const bool soType) {
-/*
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
 #endif
-*/
 
 	assert(buffer != NULL);
 #ifdef MYDEBUG
@@ -1112,6 +1112,9 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	tempPage2 = NULL;
 
 	buffer->clear();
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << " end: " << endl;
+#endif
 }
 
 void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
