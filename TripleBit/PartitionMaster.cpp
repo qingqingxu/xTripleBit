@@ -685,6 +685,7 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 		combineTempBufferToSource(xChunkTempBuffer[soType][chunkID], chunkBegin,
 				chunkID, soType);
 	}
+	cout << PartitionMaster::insertData[0] << "\t" << PartitionMaster::insertData[1] << endl;
 }
 
 void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
