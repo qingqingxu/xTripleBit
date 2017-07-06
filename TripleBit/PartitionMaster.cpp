@@ -807,11 +807,9 @@ void PartitionMaster::handleEndofChunk(const uchar *startPtr,
 size_t PartitionMaster::insertData[2] = {0};
 void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		const uchar *startPtr, const ID chunkID, const bool soType) {
-/*
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
 #endif
-*/
 
 	assert(buffer != NULL);
 #ifdef MYDEBUG
