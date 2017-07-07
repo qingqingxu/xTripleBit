@@ -697,7 +697,7 @@ void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << endl;
 #endif
-//	chunkTask->indexForTT->completeOneTriple();
+	chunkTask->indexForTT->completeOneTriple();
 	xChunkTempBuffer[soType][chunkID]->insertTriple(chunkTask->Triple.subjectID,
 			chunkTask->Triple.object, chunkTask->Triple.objType);
 	if (xChunkTempBuffer[soType][chunkID]->isFull()) {
