@@ -902,12 +902,8 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	startPtrTemp = lastPtrTemp - sizeof(MetaData);
 	endPtrTemp = startPtrTemp + ((MetaData*) startPtrTemp)->usedSpace;
 
-	ChunkTriple *bufferTriple, *tempTriple;
-	ChunkTriple *endTempBuffer;
-	ChunkTriple *start = buffer->getBuffer(), *end = buffer->getEnd();
-	bufferTriple = start;
-	endTempBuffer = end;
-
+	ChunkTriple *tempTriple, *bufferTriple = buffer->getBuffer(),
+			*endTempBuffer = buffer->getEnd();
 	tempTriple = (ChunkTriple*) malloc(sizeof(ChunkTriple));
 	if (tempTriple == NULL) {
 		cout << "malloc a ChunkTriple error" << endl;
@@ -995,6 +991,8 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 					min = getChunkMinOrMax(bufferTriple, soType);
 				}
 
+				/*cout << bufferTriple->subjectID << "\t" << bufferTriple->object
+						<< endl;*/
 				partitionChunkManager[soType]->writeXY(currentPtrChunk,
 						bufferTriple->subjectID, bufferTriple->object,
 						bufferTriple->objType);
@@ -1003,11 +1001,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 				currentPtrChunk += len;
 
 				bufferTriple++;
-				/*lastTempBuffer = currentTempBuffer;
-				 currentTempBuffer++;
-				 if (currentTempBuffer < endTempBuffer) {
-				 bufferTriple = currentTempBuffer;
-				 }*/
 			}
 		}
 	}
@@ -1074,6 +1067,9 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		if (currentPtrChunk == startPtrChunk) {
 			min = getChunkMinOrMax(bufferTriple, soType);
 		}
+		partitionChunkManager[soType]->writeXY(currentPtrChunk,
+				bufferTriple->subjectID, bufferTriple->object,
+				bufferTriple->objType);
 
 		max = getChunkMinOrMax(bufferTriple, soType) > max ?
 				getChunkMinOrMax(bufferTriple, soType) : max;
