@@ -66,8 +66,10 @@ int cmpByS(const void *lhs, const void *rhs)
 	ChunkTriple* rTriple = (ChunkTriple*) rhs;
 	if(lTriple->subjectID != rTriple->subjectID){
 		return lTriple->subjectID - rTriple->subjectID;
-	}else {
+	}else if(lTriple->object != rTriple->object){
 		return lTriple->object - rTriple->object;
+	}else{
+		return lTriple->objType - rTriple->objType;
 	}
 }
 
@@ -77,8 +79,10 @@ int cmpByO(const void *lhs, const void *rhs)
 	ChunkTriple* rTriple = (ChunkTriple*) rhs;
 	if(lTriple->object != rTriple->object){
 		return lTriple->object - rTriple->object;
-	}else {
+	}else if(lTriple->subjectID != rTriple->subjectID){
 		return lTriple->subjectID - rTriple->subjectID;
+	}else{
+		return lTriple->objType - rTriple->objType;
 	}
 }
 
