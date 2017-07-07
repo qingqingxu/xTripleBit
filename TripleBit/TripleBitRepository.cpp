@@ -440,7 +440,7 @@ Status TripleBitRepository::tempMMapDestroy() {
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << endl;
 #endif
-	endPartitionMaster();
+	//endPartitionMaster();
 	if (TempMMapBuffer::getInstance().getUsedPage() == 0) {
 		TempMMapBuffer::deleteInstance();
 		return OK;
