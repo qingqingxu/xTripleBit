@@ -683,12 +683,12 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 			break;
 		}
 	}
-	if (lastPperationType == TripleBitQueryGraph::INSERT_DATA
+	/*if (lastPperationType == TripleBitQueryGraph::INSERT_DATA
 			&& xChunkTempBuffer[soType][chunkID]->getSize() != 0) {
 		insertData[soType] += xChunkTempBuffer[soType][chunkID]->getSize();
 		combineTempBufferToSource(xChunkTempBuffer[soType][chunkID], chunkBegin,
 				chunkID, soType);
-	}
+	}*/
 }
 
 void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
