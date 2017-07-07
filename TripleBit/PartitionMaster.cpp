@@ -167,6 +167,7 @@ void PartitionMaster::Work() {
 			break;
 		case TripleBitQueryGraph::INSERT_DATA:
 			executeInsertData(subTransaction);
+			endupdate();
 			delete subTransaction;
 			break;
 		case TripleBitQueryGraph::DELETE_DATA:

@@ -570,7 +570,6 @@ void TripleBitRepository::cmd_line_sm(FILE* fin, FILE *fout,
 			if (queryStr.length() == 0)
 				continue;
 			transQueSW->EnQueue(queryStr);
-			transQueSW->EnQueue("exit");
 		}
 	}
 	ThreadPool::getChunkPool().wait();
@@ -611,7 +610,7 @@ void TripleBitRepository::cmd_line_warm(FILE *fin, FILE *fout,
 }
 
 void TripleBitRepository::cmd_line_insert(const string cmd) {
-	/*ThreadPool::createAllPool();
+	ThreadPool::createAllPool();
 
 	string s;
 	::getQuery(s, string(cmd).c_str());
@@ -621,5 +620,5 @@ void TripleBitRepository::cmd_line_insert(const string cmd) {
 	transQueSW->EnQueue(s);
 	ThreadPool::getChunkPool().wait();
 	tempMMapDestroy();
-	ThreadPool::deleteAllPool();*/
+	ThreadPool::deleteAllPool();
 }
