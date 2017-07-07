@@ -650,11 +650,10 @@ void PrintChunkTaskPart(ChunkTask* chunkTask) {
 }
 
 void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
-	/*
-	 #ifdef MYDEBUG
-	 cout << __FUNCTION__ << " partitionID: " << partitionID<< endl;
-	 #endif
-	 */
+
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
+#endif
 
 	ChunkTask* chunkTask = NULL;
 	ID chunkID = tasksQueue->getChunkID();
@@ -688,10 +687,16 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 		combineTempBufferToSource(xChunkTempBuffer[soType][chunkID], chunkBegin,
 				chunkID, soType);
 	}
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << " end " << endl;
+#endif
 }
 
 void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
 		const ID chunkID, const uchar *startPtr, const bool soType) {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 //	chunkTask->indexForTT->completeOneTriple();
 	xChunkTempBuffer[soType][chunkID]->insertTriple(chunkTask->Triple.subjectID,
 			chunkTask->Triple.object, chunkTask->Triple.objType);
@@ -703,6 +708,9 @@ void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
 	}
 
 	chunkTask->indexForTT->completeOneTriple();
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << "           end" << endl;
+#endif
 }
 
 void PartitionMaster::readIDInTempPage(const uchar *&currentPtrTemp,
@@ -800,338 +808,346 @@ void PartitionMaster::handleEndofChunk(const uchar *startPtr,
 size_t PartitionMaster::insertData[2] = { 0 };
 void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		const uchar *startPtr, const ID chunkID, const bool soType) {
+
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
+#endif
+
+	assert(buffer != NULL);
 	/*
 	 #ifdef MYDEBUG
-	 cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
+	 ofstream out2;
+	 if (soType == ORDERBYS) {
+	 out2.open("tempbuffer_sp", ios::app);
+	 } else {
+	 out2.open("tempbuffer_op", ios::app);
+	 }
+	 ChunkTriple *temp = buffer->getBuffer();
+	 while (temp < buffer->getEnd()) {
+	 out2 << chunkID << "," << temp->subjectID << "," << partitionID << ","
+	 << temp->object << endl;
+	 temp++;
+	 }
+	 out2.close();
+	 #endif
+	 */
+	buffer->sort(soType);
+	/*
+	 #ifdef MYDEBUG
+	 ofstream out;
+	 if (soType == ORDERBYS) {
+	 out.open("tempbuffer_sp_sort", ios::app);
+	 } else {
+	 out.open("tempbuffer_op_sort", ios::app);
+	 }
+	 temp = buffer->getBuffer();
+	 while (temp < buffer->getEnd()) {
+	 out << chunkID << "," << temp->subjectID << "," << partitionID << ","
+	 << temp->object << endl;
+	 temp++;
+	 }
+	 out << "---" << endl;
+	 out.close();
+	 #endif
+	 */
+	buffer->uniqe();
+	/*
+	 #ifdef MYDEBUG
+	 ofstream out1;
+	 if (soType == ORDERBYS) {
+	 out1.open("tempbuffer_uniqe_sp", ios::app);
+	 } else {
+	 out1.open("tempbuffer_uniqe_op", ios::app);
+	 }
+	 temp = buffer->getBuffer();
+	 while (temp < buffer->getEnd()) {
+	 out1 << chunkID << "," << temp->subjectID << "," << partitionID << ","
+	 << temp->object << endl;
+	 temp++;
+	 }
+	 out1 << "---" << endl;
+	 out1.close();
 	 #endif
 	 */
 
-	assert(buffer != NULL);
-#ifdef MYDEBUG
-	ofstream out2;
-	if (soType == ORDERBYS) {
-		out2.open("tempbuffer_sp", ios::app);
-	} else {
-		out2.open("tempbuffer_op", ios::app);
-	}
-	ChunkTriple *temp = buffer->getBuffer();
-	while (temp < buffer->getEnd()) {
-		out2 << chunkID << "," << temp->subjectID << "," << partitionID << ","
-				<< temp->object << endl;
-		temp++;
-	}
-	out2.close();
-#endif
-	buffer->sort(soType);
-#ifdef MYDEBUG
-	ofstream out;
-	if (soType == ORDERBYS) {
-		out.open("tempbuffer_sp_sort", ios::app);
-	} else {
-		out.open("tempbuffer_op_sort", ios::app);
-	}
-	temp = buffer->getBuffer();
-	while (temp < buffer->getEnd()) {
-		out << chunkID << "," << temp->subjectID << "," << partitionID << ","
-				<< temp->object << endl;
-		temp++;
-	}
-	out << "---" << endl;
-	out.close();
-#endif
-	buffer->uniqe();
-#ifdef MYDEBUG
-	ofstream out1;
-	if (soType == ORDERBYS) {
-		out1.open("tempbuffer_uniqe_sp", ios::app);
-	} else {
-		out1.open("tempbuffer_uniqe_op", ios::app);
-	}
-	temp = buffer->getBuffer();
-	while (temp < buffer->getEnd()) {
-		out1 << chunkID << "," << temp->subjectID << "," << partitionID << ","
-				<< temp->object << endl;
-		temp++;
-	}
-	out1 << "---" << endl;
-	out1.close();
-#endif
-
 	if (buffer->isEmpty())
 		return;
-/*
-	char *tempPage = (char*) malloc(MemoryBuffer::pagesize);
-	char *tempPage2 = (char*) malloc(MemoryBuffer::pagesize);
+	/*
+	 char *tempPage = (char*) malloc(MemoryBuffer::pagesize);
+	 char *tempPage2 = (char*) malloc(MemoryBuffer::pagesize);
 
-	if (tempPage == NULL || tempPage2 == NULL) {
-		cout << "malloc a tempPage error" << endl;
-		free(tempPage);
-		free(tempPage2);
-		return;
-	}
-	memset(tempPage, 0, MemoryBuffer::pagesize);
-	memset(tempPage2, 0, MemoryBuffer::pagesize);
+	 if (tempPage == NULL || tempPage2 == NULL) {
+	 cout << "malloc a tempPage error" << endl;
+	 free(tempPage);
+	 free(tempPage2);
+	 return;
+	 }
+	 memset(tempPage, 0, MemoryBuffer::pagesize);
+	 memset(tempPage2, 0, MemoryBuffer::pagesize);
 
-	uchar *currentPtrChunk, *endPtrChunk, *chunkBegin, *startPtrChunk;
-	const uchar *lastPtrTemp, *currentPtrTemp, *endPtrTemp, *startPtrTemp;
-	bool isInTempPage = true, theOtherPageEmpty = true;
+	 uchar *currentPtrChunk, *endPtrChunk, *chunkBegin, *startPtrChunk;
+	 const uchar *lastPtrTemp, *currentPtrTemp, *endPtrTemp, *startPtrTemp;
+	 bool isInTempPage = true, theOtherPageEmpty = true;
 
-	if (chunkID == 0) {
-		chunkBegin = const_cast<uchar*>(startPtr) - sizeof(ChunkManagerMeta);
-		memcpy(tempPage, chunkBegin, MemoryBuffer::pagesize);
-		startPtrChunk = currentPtrChunk = chunkBegin + sizeof(ChunkManagerMeta)
-				+ sizeof(MetaData);
-		lastPtrTemp = currentPtrTemp = reinterpret_cast<uchar*>(tempPage)
-				+ sizeof(ChunkManagerMeta) + sizeof(MetaData);
-	} else {
-		chunkBegin = const_cast<uchar*>(startPtr);
-		memcpy(tempPage, chunkBegin, MemoryBuffer::pagesize);
-		startPtrChunk = currentPtrChunk = chunkBegin + sizeof(MetaData);
-		lastPtrTemp = currentPtrTemp = reinterpret_cast<uchar*>(tempPage)
-				+ sizeof(MetaData);
-	}
-	endPtrChunk = chunkBegin + MemoryBuffer::pagesize;
-	startPtrTemp = lastPtrTemp - sizeof(MetaData);
-	endPtrTemp = startPtrTemp + ((MetaData*) startPtrTemp)->usedSpace;
+	 if (chunkID == 0) {
+	 chunkBegin = const_cast<uchar*>(startPtr) - sizeof(ChunkManagerMeta);
+	 memcpy(tempPage, chunkBegin, MemoryBuffer::pagesize);
+	 startPtrChunk = currentPtrChunk = chunkBegin + sizeof(ChunkManagerMeta)
+	 + sizeof(MetaData);
+	 lastPtrTemp = currentPtrTemp = reinterpret_cast<uchar*>(tempPage)
+	 + sizeof(ChunkManagerMeta) + sizeof(MetaData);
+	 } else {
+	 chunkBegin = const_cast<uchar*>(startPtr);
+	 memcpy(tempPage, chunkBegin, MemoryBuffer::pagesize);
+	 startPtrChunk = currentPtrChunk = chunkBegin + sizeof(MetaData);
+	 lastPtrTemp = currentPtrTemp = reinterpret_cast<uchar*>(tempPage)
+	 + sizeof(MetaData);
+	 }
+	 endPtrChunk = chunkBegin + MemoryBuffer::pagesize;
+	 startPtrTemp = lastPtrTemp - sizeof(MetaData);
+	 endPtrTemp = startPtrTemp + ((MetaData*) startPtrTemp)->usedSpace;
 
-	ChunkTriple* chunkTriple, *bufferTriple, *tempTriple;
-	ChunkTriple *lastTempBuffer, *currentTempBuffer, *endTempBuffer;
-	ChunkTriple *start = buffer->getBuffer(), *end = buffer->getEnd();
-	lastTempBuffer = currentTempBuffer = start;
-	endTempBuffer = end;
+	 ChunkTriple* chunkTriple, *bufferTriple, *tempTriple;
+	 ChunkTriple *lastTempBuffer, *currentTempBuffer, *endTempBuffer;
+	 ChunkTriple *start = buffer->getBuffer(), *end = buffer->getEnd();
+	 lastTempBuffer = currentTempBuffer = start;
+	 endTempBuffer = end;
 
-	chunkTriple = (ChunkTriple*) malloc(sizeof(ChunkTriple));
-	if (chunkTriple == NULL) {
-		cout << "malloc a ChunkTriple error" << endl;
-		free(chunkTriple);
-		return;
-	}
-	chunkTriple->subjectID = 0;
-	chunkTriple->object = 0;
-	chunkTriple->objType = NONE;
+	 chunkTriple = (ChunkTriple*) malloc(sizeof(ChunkTriple));
+	 if (chunkTriple == NULL) {
+	 cout << "malloc a ChunkTriple error" << endl;
+	 free(chunkTriple);
+	 return;
+	 }
+	 chunkTriple->subjectID = 0;
+	 chunkTriple->object = 0;
+	 chunkTriple->objType = NONE;
 
-	tempTriple = (ChunkTriple*) malloc(sizeof(ChunkTriple));
-	if (tempTriple == NULL) {
-		cout << "malloc a ChunkTriple error" << endl;
-		free(tempTriple);
-		return;
-	}
-	memset(tempTriple, 0, sizeof(ChunkTriple));
-	bufferTriple = currentTempBuffer;
-	double max = DBL_MIN, min = DBL_MIN;
+	 tempTriple = (ChunkTriple*) malloc(sizeof(ChunkTriple));
+	 if (tempTriple == NULL) {
+	 cout << "malloc a ChunkTriple error" << endl;
+	 free(tempTriple);
+	 return;
+	 }
+	 memset(tempTriple, 0, sizeof(ChunkTriple));
+	 bufferTriple = currentTempBuffer;
+	 double max = DBL_MIN, min = DBL_MIN;
 
-	if (currentPtrTemp >= endPtrTemp) {
-		tempTriple->subjectID = 0;
-		tempTriple->object = 0;
-		tempTriple->objType = NONE;
-	} else {
-		currentPtrTemp = partitionChunkManager[soType]->readXY(currentPtrTemp,
-				tempTriple->subjectID, tempTriple->object, tempTriple->objType);
-	}
-	while (lastPtrTemp < endPtrTemp && lastTempBuffer < endTempBuffer) {
-		//the Ptr not reach the end
-		if (tempTriple->subjectID == 0
-				|| (tempTriple->subjectID == bufferTriple->subjectID
-						&& tempTriple->object == bufferTriple->object
-						&& tempTriple->objType == bufferTriple->objType)) {
-			//the data is 0 or the data in chunk and tempbuffer are same,so must dismiss it
+	 if (currentPtrTemp >= endPtrTemp) {
+	 tempTriple->subjectID = 0;
+	 tempTriple->object = 0;
+	 tempTriple->objType = NONE;
+	 } else {
+	 currentPtrTemp = partitionChunkManager[soType]->readXY(currentPtrTemp,
+	 tempTriple->subjectID, tempTriple->object, tempTriple->objType);
+	 }
+	 while (lastPtrTemp < endPtrTemp && lastTempBuffer < endTempBuffer) {
+	 //the Ptr not reach the end
+	 if (tempTriple->subjectID == 0
+	 || (tempTriple->subjectID == bufferTriple->subjectID
+	 && tempTriple->object == bufferTriple->object
+	 && tempTriple->objType == bufferTriple->objType)) {
+	 //the data is 0 or the data in chunk and tempbuffer are same,so must dismiss it
 
-			readIDInTempPage(currentPtrTemp, endPtrTemp, startPtrTemp, tempPage,
-					tempPage2, theOtherPageEmpty, isInTempPage);
-			lastPtrTemp = currentPtrTemp;
-			if (currentPtrTemp >= endPtrTemp) {
-				tempTriple->subjectID = 0;
-				tempTriple->object = 0;
-				tempTriple->objType = NONE;
-			} else {
-				currentPtrTemp = partitionChunkManager[soType]->readXY(
-						currentPtrTemp, tempTriple->subjectID,
-						tempTriple->object, tempTriple->objType);
-			}
-		} else {
-			if (tempTriple->subjectID < bufferTriple->subjectID
-					|| (tempTriple->subjectID == bufferTriple->subjectID
-							&& tempTriple->object < bufferTriple->object)
-					|| (tempTriple->subjectID == bufferTriple->subjectID
-							&& tempTriple->object == bufferTriple->object
-							&& tempTriple->objType != bufferTriple->objType)) {
-				uint len = currentPtrTemp - lastPtrTemp;
-				if (currentPtrChunk + len > endPtrChunk) {
-					handleEndofChunk(startPtr, chunkBegin, startPtrChunk,
-							currentPtrChunk, endPtrChunk, startPtrTemp,
-							tempPage, tempPage2, isInTempPage,
-							theOtherPageEmpty, min, max, soType, chunkID);
-				}
-				if (currentPtrChunk == startPtrChunk) {
-					min = getChunkMinOrMax(tempTriple, soType);
-				}
+	 readIDInTempPage(currentPtrTemp, endPtrTemp, startPtrTemp, tempPage,
+	 tempPage2, theOtherPageEmpty, isInTempPage);
+	 lastPtrTemp = currentPtrTemp;
+	 if (currentPtrTemp >= endPtrTemp) {
+	 tempTriple->subjectID = 0;
+	 tempTriple->object = 0;
+	 tempTriple->objType = NONE;
+	 } else {
+	 currentPtrTemp = partitionChunkManager[soType]->readXY(
+	 currentPtrTemp, tempTriple->subjectID,
+	 tempTriple->object, tempTriple->objType);
+	 }
+	 } else {
+	 if (tempTriple->subjectID < bufferTriple->subjectID
+	 || (tempTriple->subjectID == bufferTriple->subjectID
+	 && tempTriple->object < bufferTriple->object)
+	 || (tempTriple->subjectID == bufferTriple->subjectID
+	 && tempTriple->object == bufferTriple->object
+	 && tempTriple->objType != bufferTriple->objType)) {
+	 uint len = currentPtrTemp - lastPtrTemp;
+	 if (currentPtrChunk + len > endPtrChunk) {
+	 handleEndofChunk(startPtr, chunkBegin, startPtrChunk,
+	 currentPtrChunk, endPtrChunk, startPtrTemp,
+	 tempPage, tempPage2, isInTempPage,
+	 theOtherPageEmpty, min, max, soType, chunkID);
+	 }
+	 if (currentPtrChunk == startPtrChunk) {
+	 min = getChunkMinOrMax(tempTriple, soType);
+	 }
 
-				if (chunkTriple->subjectID != tempTriple->subjectID
-						&& chunkTriple->object != tempTriple->object
-						&& chunkTriple->objType != tempTriple->objType) {
-					memcpy(currentPtrChunk, lastPtrTemp, len);
-					max = getChunkMinOrMax(tempTriple, soType) > max ?
-							getChunkMinOrMax(tempTriple, soType) : max;
-					currentPtrChunk += len;
-				}
+	 if (chunkTriple->subjectID != tempTriple->subjectID
+	 && chunkTriple->object != tempTriple->object
+	 && chunkTriple->objType != tempTriple->objType) {
+	 memcpy(currentPtrChunk, lastPtrTemp, len);
+	 max = getChunkMinOrMax(tempTriple, soType) > max ?
+	 getChunkMinOrMax(tempTriple, soType) : max;
+	 currentPtrChunk += len;
+	 }
 
-				//continue read data from tempPage
-				readIDInTempPage(currentPtrTemp, endPtrTemp, startPtrTemp,
-						tempPage, tempPage2, theOtherPageEmpty, isInTempPage);
-				lastPtrTemp = currentPtrTemp;
-				if (currentPtrTemp >= endPtrTemp) {
-					tempTriple->subjectID = 0;
-					tempTriple->object = 0;
-					tempTriple->objType = NONE;
-				} else {
-					currentPtrTemp = partitionChunkManager[soType]->readXY(
-							currentPtrTemp, tempTriple->subjectID,
-							tempTriple->object, tempTriple->objType);
-				}
-			} else {
-				//insert data read from tempbuffer
-				uint len = sizeof(ID) + sizeof(char)
-						+ Chunk::getLen(bufferTriple->objType);
-				if (currentPtrChunk + len > endPtrChunk) {
-					handleEndofChunk(startPtr, chunkBegin, startPtrChunk,
-							currentPtrChunk, endPtrChunk, startPtrTemp,
-							tempPage, tempPage2, isInTempPage,
-							theOtherPageEmpty, min, max, soType, chunkID);
-				}
-				if (currentPtrChunk == startPtrChunk) {
-					min = getChunkMinOrMax(bufferTriple, soType);
-				}
+	 //continue read data from tempPage
+	 readIDInTempPage(currentPtrTemp, endPtrTemp, startPtrTemp,
+	 tempPage, tempPage2, theOtherPageEmpty, isInTempPage);
+	 lastPtrTemp = currentPtrTemp;
+	 if (currentPtrTemp >= endPtrTemp) {
+	 tempTriple->subjectID = 0;
+	 tempTriple->object = 0;
+	 tempTriple->objType = NONE;
+	 } else {
+	 currentPtrTemp = partitionChunkManager[soType]->readXY(
+	 currentPtrTemp, tempTriple->subjectID,
+	 tempTriple->object, tempTriple->objType);
+	 }
+	 } else {
+	 //insert data read from tempbuffer
+	 uint len = sizeof(ID) + sizeof(char)
+	 + Chunk::getLen(bufferTriple->objType);
+	 if (currentPtrChunk + len > endPtrChunk) {
+	 handleEndofChunk(startPtr, chunkBegin, startPtrChunk,
+	 currentPtrChunk, endPtrChunk, startPtrTemp,
+	 tempPage, tempPage2, isInTempPage,
+	 theOtherPageEmpty, min, max, soType, chunkID);
+	 }
+	 if (currentPtrChunk == startPtrChunk) {
+	 min = getChunkMinOrMax(bufferTriple, soType);
+	 }
 
-				if (chunkTriple->subjectID != bufferTriple->subjectID
-						&& chunkTriple->object != bufferTriple->object
-						&& chunkTriple->objType != bufferTriple->objType) {
-					partitionChunkManager[soType]->writeXY(currentPtrChunk,
-							bufferTriple->subjectID, bufferTriple->object,
-							bufferTriple->objType);
-					max = getChunkMinOrMax(bufferTriple, soType) > max ?
-							getChunkMinOrMax(bufferTriple, soType) : max;
-					currentPtrChunk += len;
-				}
+	 if (chunkTriple->subjectID != bufferTriple->subjectID
+	 && chunkTriple->object != bufferTriple->object
+	 && chunkTriple->objType != bufferTriple->objType) {
+	 partitionChunkManager[soType]->writeXY(currentPtrChunk,
+	 bufferTriple->subjectID, bufferTriple->object,
+	 bufferTriple->objType);
+	 max = getChunkMinOrMax(bufferTriple, soType) > max ?
+	 getChunkMinOrMax(bufferTriple, soType) : max;
+	 currentPtrChunk += len;
+	 }
 
-				//					assert(currentPtrChunk <= endPtrChunk);
+	 //					assert(currentPtrChunk <= endPtrChunk);
 
-				lastTempBuffer = currentTempBuffer;
-				currentTempBuffer++;
-				if (currentTempBuffer < endTempBuffer) {
-					bufferTriple = currentTempBuffer;
-				}
-			}
-		}
-	}
+	 lastTempBuffer = currentTempBuffer;
+	 currentTempBuffer++;
+	 if (currentTempBuffer < endTempBuffer) {
+	 bufferTriple = currentTempBuffer;
+	 }
+	 }
+	 }
+	 }
 
-	while (lastPtrTemp < endPtrTemp) {
-		if (tempTriple->subjectID == 0) {
-			readIDInTempPage(currentPtrTemp, endPtrTemp, startPtrTemp, tempPage,
-					tempPage2, theOtherPageEmpty, isInTempPage);
-			lastPtrTemp = currentPtrTemp;
-			if (currentPtrTemp >= endPtrTemp) {
-				tempTriple->subjectID = 0;
-				tempTriple->object = 0;
-				tempTriple->objType = NONE;
-			} else {
-				currentPtrTemp = partitionChunkManager[soType]->readXY(
-						currentPtrTemp, tempTriple->subjectID,
-						tempTriple->object, tempTriple->objType);
-			}
-		} else {
-			unsigned len = currentPtrTemp - lastPtrTemp;
-			if (currentPtrChunk + len > endPtrChunk) {
-				handleEndofChunk(startPtr, chunkBegin, startPtrChunk,
-						currentPtrChunk, endPtrChunk, startPtrTemp, tempPage,
-						tempPage2, isInTempPage, theOtherPageEmpty, min, max,
-						soType, chunkID);
-			}
-			if (currentPtrChunk == startPtrChunk) {
-				min = getChunkMinOrMax(tempTriple, soType);
-			}
+	 while (lastPtrTemp < endPtrTemp) {
+	 if (tempTriple->subjectID == 0) {
+	 readIDInTempPage(currentPtrTemp, endPtrTemp, startPtrTemp, tempPage,
+	 tempPage2, theOtherPageEmpty, isInTempPage);
+	 lastPtrTemp = currentPtrTemp;
+	 if (currentPtrTemp >= endPtrTemp) {
+	 tempTriple->subjectID = 0;
+	 tempTriple->object = 0;
+	 tempTriple->objType = NONE;
+	 } else {
+	 currentPtrTemp = partitionChunkManager[soType]->readXY(
+	 currentPtrTemp, tempTriple->subjectID,
+	 tempTriple->object, tempTriple->objType);
+	 }
+	 } else {
+	 unsigned len = currentPtrTemp - lastPtrTemp;
+	 if (currentPtrChunk + len > endPtrChunk) {
+	 handleEndofChunk(startPtr, chunkBegin, startPtrChunk,
+	 currentPtrChunk, endPtrChunk, startPtrTemp, tempPage,
+	 tempPage2, isInTempPage, theOtherPageEmpty, min, max,
+	 soType, chunkID);
+	 }
+	 if (currentPtrChunk == startPtrChunk) {
+	 min = getChunkMinOrMax(tempTriple, soType);
+	 }
 
-			if (chunkTriple->subjectID != tempTriple->subjectID
-					&& chunkTriple->object != tempTriple->object
-					&& chunkTriple->objType != tempTriple->objType) {
-				memcpy(currentPtrChunk, lastPtrTemp, len);
-				max = getChunkMinOrMax(tempTriple, soType) > max ?
-						getChunkMinOrMax(tempTriple, soType) : max;
-				currentPtrChunk += len;
-			}
+	 if (chunkTriple->subjectID != tempTriple->subjectID
+	 && chunkTriple->object != tempTriple->object
+	 && chunkTriple->objType != tempTriple->objType) {
+	 memcpy(currentPtrChunk, lastPtrTemp, len);
+	 max = getChunkMinOrMax(tempTriple, soType) > max ?
+	 getChunkMinOrMax(tempTriple, soType) : max;
+	 currentPtrChunk += len;
+	 }
 
-			//				assert(currentPtrChunk <= endPtrChunk);
+	 //				assert(currentPtrChunk <= endPtrChunk);
 
-			//continue read data from tempPage
-			readIDInTempPage(currentPtrTemp, endPtrTemp, startPtrTemp, tempPage,
-					tempPage2, theOtherPageEmpty, isInTempPage);
-			lastPtrTemp = currentPtrTemp;
-			if (currentPtrTemp >= endPtrTemp) {
-				tempTriple->subjectID = 0;
-				tempTriple->object = 0;
-				tempTriple->objType = NONE;
-			} else {
-				currentPtrTemp = partitionChunkManager[soType]->readXY(
-						currentPtrTemp, tempTriple->subjectID,
-						tempTriple->object, tempTriple->objType);
-			}
-		}
-	}
+	 //continue read data from tempPage
+	 readIDInTempPage(currentPtrTemp, endPtrTemp, startPtrTemp, tempPage,
+	 tempPage2, theOtherPageEmpty, isInTempPage);
+	 lastPtrTemp = currentPtrTemp;
+	 if (currentPtrTemp >= endPtrTemp) {
+	 tempTriple->subjectID = 0;
+	 tempTriple->object = 0;
+	 tempTriple->objType = NONE;
+	 } else {
+	 currentPtrTemp = partitionChunkManager[soType]->readXY(
+	 currentPtrTemp, tempTriple->subjectID,
+	 tempTriple->object, tempTriple->objType);
+	 }
+	 }
+	 }
 
-	while (lastTempBuffer < endTempBuffer) {
-		uint len = sizeof(ID) + sizeof(char)
-				+ Chunk::getLen(bufferTriple->objType);
+	 while (lastTempBuffer < endTempBuffer) {
+	 uint len = sizeof(ID) + sizeof(char)
+	 + Chunk::getLen(bufferTriple->objType);
 
-		if (currentPtrChunk + len > endPtrChunk) {
-			handleEndofChunk(startPtr, chunkBegin, startPtrChunk,
-					currentPtrChunk, endPtrChunk, startPtrTemp, tempPage,
-					tempPage2, isInTempPage, theOtherPageEmpty, min, max,
-					soType, chunkID);
-		}
-		if (currentPtrChunk == startPtrChunk) {
-			min = getChunkMinOrMax(bufferTriple, soType);
-		}
+	 if (currentPtrChunk + len > endPtrChunk) {
+	 handleEndofChunk(startPtr, chunkBegin, startPtrChunk,
+	 currentPtrChunk, endPtrChunk, startPtrTemp, tempPage,
+	 tempPage2, isInTempPage, theOtherPageEmpty, min, max,
+	 soType, chunkID);
+	 }
+	 if (currentPtrChunk == startPtrChunk) {
+	 min = getChunkMinOrMax(bufferTriple, soType);
+	 }
 
-		if (chunkTriple->subjectID != bufferTriple->subjectID
-				&& chunkTriple->object != bufferTriple->object
-				&& chunkTriple->objType != bufferTriple->objType) {
-			partitionChunkManager[soType]->writeXY(currentPtrChunk,
-					bufferTriple->subjectID, bufferTriple->object,
-					bufferTriple->objType);
-			max = getChunkMinOrMax(bufferTriple, soType) > max ?
-					getChunkMinOrMax(bufferTriple, soType) : max;
-			currentPtrChunk += len;
-		}
+	 if (chunkTriple->subjectID != bufferTriple->subjectID
+	 && chunkTriple->object != bufferTriple->object
+	 && chunkTriple->objType != bufferTriple->objType) {
+	 partitionChunkManager[soType]->writeXY(currentPtrChunk,
+	 bufferTriple->subjectID, bufferTriple->object,
+	 bufferTriple->objType);
+	 max = getChunkMinOrMax(bufferTriple, soType) > max ?
+	 getChunkMinOrMax(bufferTriple, soType) : max;
+	 currentPtrChunk += len;
+	 }
 
-		lastTempBuffer = currentTempBuffer;
-		currentTempBuffer++;
-		if (currentTempBuffer < endTempBuffer) {
-			bufferTriple = currentTempBuffer;
-		}
-	}
+	 lastTempBuffer = currentTempBuffer;
+	 currentTempBuffer++;
+	 if (currentTempBuffer < endTempBuffer) {
+	 bufferTriple = currentTempBuffer;
+	 }
+	 }
 
-	if (chunkBegin == startPtr - sizeof(ChunkManagerMeta)) {
-		MetaData *metaData = (MetaData*) startPtr;
-		metaData->usedSpace = currentPtrChunk - startPtr;
-	} else {
-		MetaData *metaData = (MetaData*) chunkBegin;
-		metaData->min = min;
-		metaData->max = max;
-		metaData->usedSpace = currentPtrChunk - chunkBegin;
-	}
+	 if (chunkBegin == startPtr - sizeof(ChunkManagerMeta)) {
+	 MetaData *metaData = (MetaData*) startPtr;
+	 metaData->usedSpace = currentPtrChunk - startPtr;
+	 } else {
+	 MetaData *metaData = (MetaData*) chunkBegin;
+	 metaData->min = min;
+	 metaData->max = max;
+	 metaData->usedSpace = currentPtrChunk - chunkBegin;
+	 }
 
-	partitionChunkManager[soType]->getChunkIndex()->updateChunkMetaData(
-			chunkID);
+	 partitionChunkManager[soType]->getChunkIndex()->updateChunkMetaData(
+	 chunkID);
 
-	free(chunkTriple);
-	chunkTriple = NULL;
-	free(tempTriple);
-	tempTriple = NULL;
-	free(tempPage);
-	tempPage = NULL;
-	free(tempPage2);
-	tempPage2 = NULL;*/
+	 free(chunkTriple);
+	 chunkTriple = NULL;
+	 free(tempTriple);
+	 tempTriple = NULL;
+	 free(tempPage);
+	 tempPage = NULL;
+	 free(tempPage2);
+	 tempPage2 = NULL;*/
 
 	buffer->clear();
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << " end " << endl;
+#endif
 }
 
 void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
