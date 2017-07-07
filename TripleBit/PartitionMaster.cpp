@@ -98,6 +98,7 @@ void PartitionMaster::endupdate() {
 	for (int soType = 0; soType < 2; ++soType) {
 		const uchar *startPtr = partitionChunkManager[soType]->getStartPtr();
 		ID chunkID = 0;
+		PartitionMaster::insertData[soType] += xChunkTempBuffer[soType][chunkID]->getSize();
 		combineTempBufferToSource(xChunkTempBuffer[soType][chunkID], startPtr,
 				chunkID, soType);
 		insertData[soType] += xChunkTempBuffer[soType][chunkID]->getSize();
