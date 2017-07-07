@@ -115,7 +115,6 @@ void PartitionMaster::endupdate() {
 			}
 		}
 	}
-	cout << insertData[0] << "\t" << insertData[1] << endl;
 }
 
 PartitionMaster::~PartitionMaster() {

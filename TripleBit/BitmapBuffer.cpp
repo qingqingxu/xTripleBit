@@ -671,13 +671,12 @@ void ChunkManager::writeXY(uchar* reader, ID x, double y, char objType) {
 const uchar* ChunkManager::readXY(const uchar* reader, ID& subjectID,
 		double& object, char& objType) {
 	if (meta->soType == ORDERBYS) {
-		reader = Chunk::read(Chunk::read(reader, subjectID, STRING), objType,
+		reader = Chunk::read(Chunk::readID(reader, subjectID), objType,
 				CHAR);
 		reader = Chunk::read(reader, object, objType);
 	} else if (meta->soType == ORDERBYO) {
 		reader = Chunk::read(reader, objType, CHAR);
-		reader = Chunk::read(Chunk::read(reader, object, objType), subjectID,
-				STRING);
+		reader = Chunk::readID(Chunk::read(reader, object, objType), subjectID);
 	}
 	return reader;
 }
