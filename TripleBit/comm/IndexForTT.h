@@ -47,6 +47,7 @@ public:
 	void wait(){
 		pthread_mutex_lock(&mutex);
 		while(referenceCount != 0){
+			cout << "....." << endl;
 			pthread_cond_wait(&cond, &mutex);
 		}
 		pthread_mutex_unlock(&mutex);
