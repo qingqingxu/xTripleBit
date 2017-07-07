@@ -859,7 +859,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 
 	if (buffer->isEmpty())
 		return;
-
+/*
 	char *tempPage = (char*) malloc(MemoryBuffer::pagesize);
 	char *tempPage2 = (char*) malloc(MemoryBuffer::pagesize);
 
@@ -1129,7 +1129,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	free(tempPage);
 	tempPage = NULL;
 	free(tempPage2);
-	tempPage2 = NULL;
+	tempPage2 = NULL;*/
 
 	buffer->clear();
 }
