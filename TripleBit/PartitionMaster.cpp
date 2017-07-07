@@ -651,9 +651,11 @@ void PrintChunkTaskPart(ChunkTask* chunkTask) {
 
 void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 
+/*
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
 #endif
+*/
 
 	ChunkTask* chunkTask = NULL;
 	ID chunkID = tasksQueue->getChunkID();
@@ -687,17 +689,11 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 		combineTempBufferToSource(xChunkTempBuffer[soType][chunkID], chunkBegin,
 				chunkID, soType);
 	}
-#ifdef MYDEBUG
-	cout << __FUNCTION__ << " end " << endl;
-#endif
 }
 
 void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
 		const ID chunkID, const uchar *startPtr, const bool soType) {
-#ifdef MYDEBUG
-	cout << __FUNCTION__ << endl;
-#endif
-	chunkTask->indexForTT->completeOneTriple();
+	//chunkTask->indexForTT->completeOneTriple();
 	xChunkTempBuffer[soType][chunkID]->insertTriple(chunkTask->Triple.subjectID,
 			chunkTask->Triple.object, chunkTask->Triple.objType);
 	if (xChunkTempBuffer[soType][chunkID]->isFull()) {
@@ -708,9 +704,6 @@ void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
 	}
 
 	chunkTask->indexForTT->completeOneTriple();
-#ifdef MYDEBUG
-	cout << __FUNCTION__ << "           end" << endl;
-#endif
 }
 
 void PartitionMaster::readIDInTempPage(const uchar *&currentPtrTemp,
@@ -809,9 +802,11 @@ size_t PartitionMaster::insertData[2] = { 0 };
 void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		const uchar *startPtr, const ID chunkID, const bool soType) {
 
+/*
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
 #endif
+*/
 
 	assert(buffer != NULL);
 	/*
@@ -1145,9 +1140,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	 tempPage2 = NULL;*/
 
 	buffer->clear();
-#ifdef MYDEBUG
-	cout << __FUNCTION__ << " end " << endl;
-#endif
 }
 
 void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
