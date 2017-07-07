@@ -98,10 +98,12 @@ void PartitionMaster::endupdate() {
 	for (int soType = 0; soType < 2; ++soType) {
 		const uchar *startPtr = partitionChunkManager[soType]->getStartPtr();
 		ID chunkID = 0;
-		PartitionMaster::insertData[soType] += xChunkTempBuffer[soType][chunkID]->getSize();
-		combineTempBufferToSource(xChunkTempBuffer[soType][chunkID], startPtr,
-				chunkID, soType);
-		insertData[soType] += xChunkTempBuffer[soType][chunkID]->getSize();
+		if (!xChunkTempBuffer[soType][chunkID]->isEmpty()) {
+			insertData[soType] += xChunkTempBuffer[soType][chunkID]->getSize();
+			combineTempBufferToSource(xChunkTempBuffer[soType][chunkID],
+					startPtr, chunkID, soType);
+		}
+
 		for (chunkID = 1; chunkID < xChunkNumber[soType]; ++chunkID) {
 			if (!xChunkTempBuffer[soType][chunkID]->isEmpty()) {
 				insertData[soType] +=
@@ -682,12 +684,6 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 		}
 	}
 	endupdate();
-	/*if (lastPperationType == TripleBitQueryGraph::INSERT_DATA
-	 && xChunkTempBuffer[soType][chunkID]->getSize() != 0) {
-	 insertData[soType] += xChunkTempBuffer[soType][chunkID]->getSize();
-	 combineTempBufferToSource(xChunkTempBuffer[soType][chunkID], chunkBegin,
-	 chunkID, soType);
-	 }*/
 }
 
 void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
@@ -809,59 +805,65 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 
 	assert(buffer != NULL);
 
-#ifdef MYDEBUG
-	ofstream out2;
-	if (soType == ORDERBYS) {
-		out2.open("tempbuffer_sp", ios::app);
-	} else {
-		out2.open("tempbuffer_op", ios::app);
-	}
-	ChunkTriple *temp = buffer->getBuffer();
-	while (temp < buffer->getEnd()) {
-		out2 << chunkID << "," << temp->subjectID << "," << partitionID << ","
-				<< temp->object << endl;
-		temp++;
-	}
-	out2.close();
-#endif
+	/*
+	 #ifdef MYDEBUG
+	 ofstream out2;
+	 if (soType == ORDERBYS) {
+	 out2.open("tempbuffer_sp", ios::app);
+	 } else {
+	 out2.open("tempbuffer_op", ios::app);
+	 }
+	 ChunkTriple *temp = buffer->getBuffer();
+	 while (temp < buffer->getEnd()) {
+	 out2 << chunkID << "," << temp->subjectID << "," << partitionID << ","
+	 << temp->object << endl;
+	 temp++;
+	 }
+	 out2.close();
+	 #endif
+	 */
 
 	buffer->sort(soType);
 
-#ifdef MYDEBUG
-	ofstream out;
-	if (soType == ORDERBYS) {
-		out.open("tempbuffer_sp_sort", ios::app);
-	} else {
-		out.open("tempbuffer_op_sort", ios::app);
-	}
-	temp = buffer->getBuffer();
-	while (temp < buffer->getEnd()) {
-		out << chunkID << "," << temp->subjectID << "," << partitionID << ","
-				<< temp->object << endl;
-		temp++;
-	}
-	out << "---" << endl;
-	out.close();
-#endif
+	/*
+	 #ifdef MYDEBUG
+	 ofstream out;
+	 if (soType == ORDERBYS) {
+	 out.open("tempbuffer_sp_sort", ios::app);
+	 } else {
+	 out.open("tempbuffer_op_sort", ios::app);
+	 }
+	 temp = buffer->getBuffer();
+	 while (temp < buffer->getEnd()) {
+	 out << chunkID << "," << temp->subjectID << "," << partitionID << ","
+	 << temp->object << endl;
+	 temp++;
+	 }
+	 out << "---" << endl;
+	 out.close();
+	 #endif
+	 */
 
 	buffer->uniqe();
 
-#ifdef MYDEBUG
-	ofstream out1;
-	if (soType == ORDERBYS) {
-		out1.open("tempbuffer_uniqe_sp", ios::app);
-	} else {
-		out1.open("tempbuffer_uniqe_op", ios::app);
-	}
-	temp = buffer->getBuffer();
-	while (temp < buffer->getEnd()) {
-		out1 << chunkID << "," << temp->subjectID << "," << partitionID << ","
-				<< temp->object << endl;
-		temp++;
-	}
-	out1 << "---" << endl;
-	out1.close();
-#endif
+	/*
+	 #ifdef MYDEBUG
+	 ofstream out1;
+	 if (soType == ORDERBYS) {
+	 out1.open("tempbuffer_uniqe_sp", ios::app);
+	 } else {
+	 out1.open("tempbuffer_uniqe_op", ios::app);
+	 }
+	 temp = buffer->getBuffer();
+	 while (temp < buffer->getEnd()) {
+	 out1 << chunkID << "," << temp->subjectID << "," << partitionID << ","
+	 << temp->object << endl;
+	 temp++;
+	 }
+	 out1 << "---" << endl;
+	 out1.close();
+	 #endif
+	 */
 
 	if (buffer->isEmpty())
 		return;
@@ -900,21 +902,11 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	startPtrTemp = lastPtrTemp - sizeof(MetaData);
 	endPtrTemp = startPtrTemp + ((MetaData*) startPtrTemp)->usedSpace;
 
-	ChunkTriple* chunkTriple, *bufferTriple, *tempTriple;
-	ChunkTriple *lastTempBuffer, *currentTempBuffer, *endTempBuffer;
+	ChunkTriple *bufferTriple, *tempTriple;
+	ChunkTriple *endTempBuffer;
 	ChunkTriple *start = buffer->getBuffer(), *end = buffer->getEnd();
-	lastTempBuffer = currentTempBuffer = start;
+	bufferTriple = start;
 	endTempBuffer = end;
-
-	chunkTriple = (ChunkTriple*) malloc(sizeof(ChunkTriple));
-	if (chunkTriple == NULL) {
-		cout << "malloc a ChunkTriple error" << endl;
-		free(chunkTriple);
-		return;
-	}
-	chunkTriple->subjectID = 0;
-	chunkTriple->object = 0;
-	chunkTriple->objType = NONE;
 
 	tempTriple = (ChunkTriple*) malloc(sizeof(ChunkTriple));
 	if (tempTriple == NULL) {
@@ -923,7 +915,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		return;
 	}
 	memset(tempTriple, 0, sizeof(ChunkTriple));
-	bufferTriple = currentTempBuffer;
 	double max = DBL_MIN, min = DBL_MIN;
 
 	if (currentPtrTemp >= endPtrTemp) {
@@ -934,7 +925,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		currentPtrTemp = partitionChunkManager[soType]->readXY(currentPtrTemp,
 				tempTriple->subjectID, tempTriple->object, tempTriple->objType);
 	}
-	while (lastPtrTemp < endPtrTemp && lastTempBuffer < endTempBuffer) {
+	while (lastPtrTemp < endPtrTemp && bufferTriple < endTempBuffer) {
 		//the Ptr not reach the end
 		if (tempTriple->subjectID == 0
 				|| (tempTriple->subjectID == bufferTriple->subjectID
@@ -960,7 +951,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 							&& tempTriple->object < bufferTriple->object)
 					|| (tempTriple->subjectID == bufferTriple->subjectID
 							&& tempTriple->object == bufferTriple->object
-							&& tempTriple->objType != bufferTriple->objType)) {
+							&& tempTriple->objType < bufferTriple->objType)) {
 				uint len = currentPtrTemp - lastPtrTemp;
 				if (currentPtrChunk + len > endPtrChunk) {
 					handleEndofChunk(startPtr, chunkBegin, startPtrChunk,
@@ -972,14 +963,10 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 					min = getChunkMinOrMax(tempTriple, soType);
 				}
 
-				if (chunkTriple->subjectID != tempTriple->subjectID
-						&& chunkTriple->object != tempTriple->object
-						&& chunkTriple->objType != tempTriple->objType) {
-					memcpy(currentPtrChunk, lastPtrTemp, len);
-					max = getChunkMinOrMax(tempTriple, soType) > max ?
-							getChunkMinOrMax(tempTriple, soType) : max;
-					currentPtrChunk += len;
-				}
+				memcpy(currentPtrChunk, lastPtrTemp, len);
+									max = getChunkMinOrMax(tempTriple, soType) > max ?
+											getChunkMinOrMax(tempTriple, soType) : max;
+									currentPtrChunk += len;
 
 				//continue read data from tempPage
 				readIDInTempPage(currentPtrTemp, endPtrTemp, startPtrTemp,
@@ -1008,24 +995,20 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 					min = getChunkMinOrMax(bufferTriple, soType);
 				}
 
-				if (chunkTriple->subjectID != bufferTriple->subjectID
-						&& chunkTriple->object != bufferTriple->object
-						&& chunkTriple->objType != bufferTriple->objType) {
-					partitionChunkManager[soType]->writeXY(currentPtrChunk,
-							bufferTriple->subjectID, bufferTriple->object,
-							bufferTriple->objType);
-					max = getChunkMinOrMax(bufferTriple, soType) > max ?
-							getChunkMinOrMax(bufferTriple, soType) : max;
-					currentPtrChunk += len;
-				}
+				partitionChunkManager[soType]->writeXY(currentPtrChunk,
+											bufferTriple->subjectID, bufferTriple->object,
+											bufferTriple->objType);
+									max = getChunkMinOrMax(bufferTriple, soType) > max ?
+											getChunkMinOrMax(bufferTriple, soType) : max;
+									currentPtrChunk += len;
 
-				//					assert(currentPtrChunk <= endPtrChunk);
 
-				lastTempBuffer = currentTempBuffer;
+				bufferTriple++;
+				/*lastTempBuffer = currentTempBuffer;
 				currentTempBuffer++;
 				if (currentTempBuffer < endTempBuffer) {
 					bufferTriple = currentTempBuffer;
-				}
+				}*/
 			}
 		}
 	}
@@ -1056,14 +1039,10 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 				min = getChunkMinOrMax(tempTriple, soType);
 			}
 
-			if (chunkTriple->subjectID != tempTriple->subjectID
-					&& chunkTriple->object != tempTriple->object
-					&& chunkTriple->objType != tempTriple->objType) {
-				memcpy(currentPtrChunk, lastPtrTemp, len);
-				max = getChunkMinOrMax(tempTriple, soType) > max ?
-						getChunkMinOrMax(tempTriple, soType) : max;
-				currentPtrChunk += len;
-			}
+			memcpy(currentPtrChunk, lastPtrTemp, len);
+							max = getChunkMinOrMax(tempTriple, soType) > max ?
+									getChunkMinOrMax(tempTriple, soType) : max;
+							currentPtrChunk += len;
 
 			//				assert(currentPtrChunk <= endPtrChunk);
 
@@ -1083,7 +1062,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		}
 	}
 
-	while (lastTempBuffer < endTempBuffer) {
+	while (bufferTriple < endTempBuffer) {
 		uint len = sizeof(ID) + sizeof(char)
 				+ Chunk::getLen(bufferTriple->objType);
 
@@ -1097,22 +1076,11 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 			min = getChunkMinOrMax(bufferTriple, soType);
 		}
 
-		if (chunkTriple->subjectID != bufferTriple->subjectID
-				&& chunkTriple->object != bufferTriple->object
-				&& chunkTriple->objType != bufferTriple->objType) {
-			partitionChunkManager[soType]->writeXY(currentPtrChunk,
-					bufferTriple->subjectID, bufferTriple->object,
-					bufferTriple->objType);
-			max = getChunkMinOrMax(bufferTriple, soType) > max ?
-					getChunkMinOrMax(bufferTriple, soType) : max;
-			currentPtrChunk += len;
-		}
+		max = getChunkMinOrMax(bufferTriple, soType) > max ?
+							getChunkMinOrMax(bufferTriple, soType) : max;
+					currentPtrChunk += len;
 
-		lastTempBuffer = currentTempBuffer;
-		currentTempBuffer++;
-		if (currentTempBuffer < endTempBuffer) {
-			bufferTriple = currentTempBuffer;
-		}
+		bufferTriple++;
 	}
 
 	if (chunkBegin == startPtr - sizeof(ChunkManagerMeta)) {
@@ -1128,8 +1096,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	partitionChunkManager[soType]->getChunkIndex()->updateChunkMetaData(
 			chunkID);
 
-	free(chunkTriple);
-	chunkTriple = NULL;
 	free(tempTriple);
 	tempTriple = NULL;
 	free(tempPage);
