@@ -52,6 +52,7 @@ void TripleBitWorker::Work() {
 */
 		string queryString = trans->transInfo;
 		if(queryString == "exit"){
+			cout << "exit" << endl;
 			delete trans;
 			tripleBitRepo->workerComplete();
 			break;
