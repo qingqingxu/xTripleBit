@@ -99,14 +99,14 @@ void PartitionMaster::endupdate() {
 		const uchar *startPtr = partitionChunkManager[soType]->getStartPtr();
 		ID chunkID = 0;
 		if (!xChunkTempBuffer[soType][chunkID]->isEmpty()) {
-			insertData[soType] += xChunkTempBuffer[soType][chunkID]->getSize();
+			operateTripleNum[soType] += xChunkTempBuffer[soType][chunkID]->getSize();
 			combineTempBufferToSource(xChunkTempBuffer[soType][chunkID],
 					startPtr, chunkID, soType);
 		}
 
 		for (chunkID = 1; chunkID < xChunkNumber[soType]; ++chunkID) {
 			if (!xChunkTempBuffer[soType][chunkID]->isEmpty()) {
-				insertData[soType] +=
+				operateTripleNum[soType] +=
 						xChunkTempBuffer[soType][chunkID]->getSize();
 				combineTempBufferToSource(xChunkTempBuffer[soType][chunkID],
 						startPtr - sizeof(ChunkManagerMeta)
@@ -684,7 +684,9 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 			break;
 		}
 	}
-	endupdate();
+	if(lastPperationType == TripleBitQueryGraph::INSERT_DATA){
+		endupdate();
+	}
 }
 
 void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
@@ -695,7 +697,7 @@ void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
 
 	if (xChunkTempBuffer[soType][chunkID]->isFull()) {
 		//combine the data in tempbuffer into the source data
-		insertData[soType] += xChunkTempBuffer[soType][chunkID]->getSize();
+		operateTripleNum[soType] += xChunkTempBuffer[soType][chunkID]->getSize();
 		combineTempBufferToSource(xChunkTempBuffer[soType][chunkID], startPtr,
 				chunkID, soType);
 	}
@@ -795,7 +797,7 @@ void PartitionMaster::handleEndofChunk(const uchar *startPtr,
 	assert(currentPtrChunk <= endPtrChunk);
 }
 
-size_t PartitionMaster::insertData[2] = { 0, 0 };
+size_t PartitionMaster::operateTripleNum[2] = { 0, 0 };
 void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		const uchar *startPtr, const ID chunkID, const bool soType) {
 
@@ -1128,8 +1130,8 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		metaData->usedSpace = currentPtrChunk - chunkBegin;
 	}
 
-	partitionChunkManager[soType]->getChunkIndex()->updateChunkMetaData(
-			chunkID);
+	/*partitionChunkManager[soType]->getChunkIndex()->updateChunkMetaData(
+			chunkID);*/
 
 	free(tempTriple);
 	tempTriple = NULL;
@@ -1178,6 +1180,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					&& tempObjType == objType) {
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						objType);
+				PartitionMaster::operateTripleNum[soType]++;
 				return;
 			} else {
 				return;
@@ -1203,6 +1206,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 						&& tempObjType == objType) {
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							objType);
+					PartitionMaster::operateTripleNum[soType]++;
 					return;
 				} else {
 					return;
@@ -1223,6 +1227,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					&& tempSubjectID == subjectID) {
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						objType);
+				PartitionMaster::operateTripleNum[soType]++;
 				return;
 			} else {
 				return;
@@ -1248,6 +1253,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 						&& tempSubjectID == subjectID) {
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							objType);
+					PartitionMaster::operateTripleNum[soType]++;
 					return;
 				} else {
 					return;

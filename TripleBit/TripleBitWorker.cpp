@@ -43,15 +43,15 @@ TripleBitWorker::TripleBitWorker(TripleBitRepository* repo, ID workID) {
 void TripleBitWorker::Work() {
 	while (1) {
 		trans = transQueSW->DeQueue();
-/*
-#ifdef MYDEBUG
-		cout << "transTime(sec): " << trans->transTime.tv_sec << endl;
-		cout << "transTime(usec): " << trans->transTime.tv_usec << endl;
-		cout << "transInfo: " << trans->transInfo << endl;
-#endif
-*/
+		/*
+		 #ifdef MYDEBUG
+		 cout << "transTime(sec): " << trans->transTime.tv_sec << endl;
+		 cout << "transTime(usec): " << trans->transTime.tv_usec << endl;
+		 cout << "transInfo: " << trans->transInfo << endl;
+		 #endif
+		 */
 		string queryString = trans->transInfo;
-		if(queryString == "exit"){
+		if (queryString == "exit") {
 			cout << "exit" << endl;
 			delete trans;
 			tripleBitRepo->workerComplete();
@@ -105,8 +105,8 @@ Status TripleBitWorker::Execute(string& queryString) {
 		resultSet.clear();
 		workerQuery->query(queryGraph, resultSet, trans->transTime);
 
-		for(uint i = 0; i < resultSet.size(); i++){
-			if(i < 5 || i > resultSet.size() - 6){
+		for (uint i = 0; i < resultSet.size(); i++) {
+			if (i < 5 || i > resultSet.size() - 6) {
 				cout << i << "\t" << resultSet[i] << endl;
 			}
 		}
@@ -114,14 +114,16 @@ Status TripleBitWorker::Execute(string& queryString) {
 
 #ifdef TOTAL_TIME
 		gettimeofday(&end, NULL);
-		cout << " time elapsed: " << ((end.tv_sec - start.tv_sec) * 1000000 + end.tv_usec - start.tv_usec) / 1000000.0 << " s" << endl;
+		cout << " time elapsed: "
+				<< ((end.tv_sec - start.tv_sec) * 1000000 + end.tv_usec
+						- start.tv_usec) / 1000000.0 << " s" << endl;
 #endif
 
 		workerQuery->releaseBuffer();
 	} else {
 		/*if(parser->getOperationType() == SPARQLParser::INSERT_DATA){
-			transQueSW->EnQueue("exit");
-		}*/
+		 transQueSW->EnQueue("exit");
+		 }*/
 		queryGraph->Clear();
 
 		uriMutex->lock();
@@ -130,20 +132,24 @@ Status TripleBitWorker::Execute(string& queryString) {
 		}
 		uriMutex->unlock();
 
-/*
-#ifdef MYDEBUG
-		Print();
-#endif
-*/
+		/*
+		 #ifdef MYDEBUG
+		 Print();
+		 #endif
+		 */
 
-		PartitionMaster::insertData[0] = 0;
-		PartitionMaster::insertData[1] = 0;
+		PartitionMaster::operateTripleNum[0] = 0;
+		PartitionMaster::operateTripleNum[1] = 0;
+
 		workerQuery->query(queryGraph, resultSet, trans->transTime);
-		cout << PartitionMaster::insertData[0] << endl;
-		cout << PartitionMaster::insertData[1] << endl;
+		cout << "the number of operating order by subject: " << PartitionMaster::operateTripleNum[0] << endl;
+		cout << "the number of operating order by object: "  << PartitionMaster::operateTripleNum[1] << endl;
+
 #ifdef TOTAL_TIME
 		gettimeofday(&end, NULL);
-		cout << " time elapsed: " << ((end.tv_sec - start.tv_sec) * 1000000 + end.tv_usec - start.tv_usec) / 1000000.0 << " s" << endl;
+		cout << " time elapsed: "
+				<< ((end.tv_sec - start.tv_sec) * 1000000 + end.tv_usec
+						- start.tv_usec) / 1000000.0 << " s" << endl;
 #endif
 
 		workerQuery->releaseBuffer();
@@ -163,33 +169,38 @@ void TripleBitWorker::Print() {
 	for (i = 0; i < size; i++) {
 		cout << i << " triple: " << endl;
 		cout << triples[i].constSubject << " " << triples[i].subjectID << endl;
-		cout << triples[i].constPredicate << " " << triples[i].predicateID << endl;
+		cout << triples[i].constPredicate << " " << triples[i].predicateID
+				<< endl;
 		cout << triples[i].constObject << " " << triples[i].object << endl;
 		cout << endl;
 	}
 
 	size = query.joinVariables.size();
 	cout << "join variables size: " << size << endl;
-	vector<TripleBitQueryGraph::JoinVariableNodeID>& variables = query.joinVariables;
+	vector<TripleBitQueryGraph::JoinVariableNodeID>& variables =
+			query.joinVariables;
 	for (i = 0; i < size; i++) {
 		cout << variables[i] << endl;
 	}
 
-	vector<TripleBitQueryGraph::JoinVariableNode>& nodes = query.joinVariableNodes;
+	vector<TripleBitQueryGraph::JoinVariableNode>& nodes =
+			query.joinVariableNodes;
 	size = nodes.size();
 	cout << "join variable nodes size: " << size << endl;
 	for (i = 0; i < size; i++) {
 		cout << i << "variable nodes" << endl;
 		cout << nodes[i].value << endl;
 		for (j = 0; j < nodes[i].appear_tpnodes.size(); j++) {
-			cout << nodes[i].appear_tpnodes[j].first << " " << nodes[i].appear_tpnodes[j].second << endl;
+			cout << nodes[i].appear_tpnodes[j].first << " "
+					<< nodes[i].appear_tpnodes[j].second << endl;
 		}
 		cout << endl;
 	}
 
 	size = query.joinVariableEdges.size();
 	cout << "join variable edges size: " << size << endl;
-	vector<TripleBitQueryGraph::JoinVariableNodesEdge>& edge = query.joinVariableEdges;
+	vector<TripleBitQueryGraph::JoinVariableNodesEdge>& edge =
+			query.joinVariableEdges;
 	for (i = 0; i < size; i++) {
 		cout << i << " edge" << endl;
 		cout << "From: " << edge[i].from << "To: " << edge[i].to << endl;
