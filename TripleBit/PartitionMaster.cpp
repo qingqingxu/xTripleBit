@@ -795,7 +795,7 @@ void PartitionMaster::handleEndofChunk(const uchar *startPtr,
 	assert(currentPtrChunk <= endPtrChunk);
 }
 
-size_t PartitionMaster::insertData[2] = { 0 , 0};
+size_t PartitionMaster::insertData[2] = { 0, 0 };
 void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		const uchar *startPtr, const ID chunkID, const bool soType) {
 
@@ -848,23 +848,23 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 
 	buffer->uniqe();
 
-/*
-#ifdef MYDEBUG
-	ofstream out1;
-	if (soType == ORDERBYS) {
-		out1.open("tempbuffer_uniqe_sp", ios::app);
-	} else {
-		out1.open("tempbuffer_uniqe_op", ios::app);
-	}
-	ChunkTriple *temp = buffer->getBuffer();
-	while (temp < buffer->getEnd()) {
-		out1 << chunkID << "," << temp->subjectID << "," << partitionID << ","
-				<< temp->object << endl;
-		temp++;
-	}
-	out1.close();
-#endif
-*/
+	/*
+	 #ifdef MYDEBUG
+	 ofstream out1;
+	 if (soType == ORDERBYS) {
+	 out1.open("tempbuffer_uniqe_sp", ios::app);
+	 } else {
+	 out1.open("tempbuffer_uniqe_op", ios::app);
+	 }
+	 ChunkTriple *temp = buffer->getBuffer();
+	 while (temp < buffer->getEnd()) {
+	 out1 << chunkID << "," << temp->subjectID << "," << partitionID << ","
+	 << temp->object << endl;
+	 temp++;
+	 }
+	 out1.close();
+	 #endif
+	 */
 
 	if (buffer->isEmpty())
 		return;
@@ -904,7 +904,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	endPtrTemp = startPtrTemp + ((MetaData*) startPtrTemp)->usedSpace;
 
 	ChunkTriple *tempTriple, *bufferTriple = buffer->getBuffer(),
-			*endTempBuffer = buffer->getEnd();
+			*endTempBuffer = buffer->getEnd(), *lastCombineTriple;
 	tempTriple = (ChunkTriple*) malloc(sizeof(ChunkTriple));
 	if (tempTriple == NULL) {
 		cout << "malloc a ChunkTriple error" << endl;
@@ -912,6 +912,14 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		return;
 	}
 	memset(tempTriple, 0, sizeof(ChunkTriple));
+
+	lastCombineTriple = (ChunkTriple*) malloc(sizeof(ChunkTriple));
+	if (lastCombineTriple == NULL) {
+		cout << "malloc a ChunkTriple error" << endl;
+		free(lastCombineTriple);
+		return;
+	}
+	memset(lastCombineTriple, 0, sizeof(ChunkTriple));
 	double max = DBL_MIN, min = DBL_MIN;
 
 	if (currentPtrTemp >= endPtrTemp) {
@@ -943,18 +951,27 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 						tempTriple->object, tempTriple->objType);
 			}
 		} else {
-			if ((soType == ORDERBYS && (tempTriple->subjectID < bufferTriple->subjectID
-					|| (tempTriple->subjectID == bufferTriple->subjectID
-							&& tempTriple->object < bufferTriple->object)
-					|| (tempTriple->subjectID == bufferTriple->subjectID
-							&& tempTriple->object == bufferTriple->object
-							&& tempTriple->objType < bufferTriple->objType)))
-					|| (soType == ORDERBYO && (tempTriple->object < bufferTriple->object
-									|| (tempTriple->object == bufferTriple->object
-											&& tempTriple->subjectID < bufferTriple->subjectID)
-									|| (tempTriple->object == bufferTriple->object
-											&& tempTriple->subjectID == bufferTriple->subjectID
-											&& tempTriple->objType < bufferTriple->objType)))) {
+			if ((soType == ORDERBYS
+					&& (tempTriple->subjectID < bufferTriple->subjectID
+							|| (tempTriple->subjectID == bufferTriple->subjectID
+									&& tempTriple->object < bufferTriple->object)
+							|| (tempTriple->subjectID == bufferTriple->subjectID
+									&& tempTriple->object
+											== bufferTriple->object
+									&& tempTriple->objType
+											< bufferTriple->objType)))
+					|| (soType == ORDERBYO
+							&& (tempTriple->object < bufferTriple->object
+									|| (tempTriple->object
+											== bufferTriple->object
+											&& tempTriple->subjectID
+													< bufferTriple->subjectID)
+									|| (tempTriple->object
+											== bufferTriple->object
+											&& tempTriple->subjectID
+													== bufferTriple->subjectID
+											&& tempTriple->objType
+													< bufferTriple->objType)))) {
 				uint len = currentPtrTemp - lastPtrTemp;
 				if (currentPtrChunk + len > endPtrChunk) {
 					handleEndofChunk(startPtr, chunkBegin, startPtrChunk,
@@ -970,6 +987,9 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 				max = getChunkMinOrMax(tempTriple, soType) > max ?
 						getChunkMinOrMax(tempTriple, soType) : max;
 				currentPtrChunk += len;
+				lastCombineTriple->subjectID = tempTriple->subjectID;
+				lastCombineTriple->object = tempTriple->object;
+				lastCombineTriple->objType = tempTriple->objType;
 
 				//continue read data from tempPage
 				readIDInTempPage(currentPtrTemp, endPtrTemp, startPtrTemp,
@@ -998,14 +1018,15 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 					min = getChunkMinOrMax(bufferTriple, soType);
 				}
 
-				/*cout << bufferTriple->subjectID << "\t" << bufferTriple->object
-						<< endl;*/
 				partitionChunkManager[soType]->writeXY(currentPtrChunk,
 						bufferTriple->subjectID, bufferTriple->object,
 						bufferTriple->objType);
 				max = getChunkMinOrMax(bufferTriple, soType) > max ?
 						getChunkMinOrMax(bufferTriple, soType) : max;
 				currentPtrChunk += len;
+				lastCombineTriple->subjectID = bufferTriple->subjectID;
+				lastCombineTriple->object = bufferTriple->object;
+				lastCombineTriple->objType = bufferTriple->objType;
 
 				bufferTriple++;
 			}
@@ -1013,7 +1034,11 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	}
 
 	while (lastPtrTemp < endPtrTemp) {
-		if (tempTriple->subjectID == 0) {
+		if (tempTriple->subjectID == 0 || (tempTriple->subjectID == lastCombineTriple->subjectID
+						&& tempTriple->object
+								== lastCombineTriple->object
+						&& tempTriple->objType
+								== lastCombineTriple->objType)) {
 			readIDInTempPage(currentPtrTemp, endPtrTemp, startPtrTemp, tempPage,
 					tempPage2, theOtherPageEmpty, isInTempPage);
 			lastPtrTemp = currentPtrTemp;
@@ -1062,6 +1087,14 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	}
 
 	while (bufferTriple < endTempBuffer) {
+		if(bufferTriple->subjectID == lastCombineTriple->subjectID
+				&& bufferTriple->object
+						== lastCombineTriple->object
+				&& bufferTriple->objType
+						== lastCombineTriple->objType){
+			bufferTriple++;
+			continue;
+		}
 		uint len = sizeof(ID) + sizeof(char)
 				+ Chunk::getLen(bufferTriple->objType);
 
