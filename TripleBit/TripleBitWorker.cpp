@@ -136,6 +136,8 @@ Status TripleBitWorker::Execute(string& queryString) {
 #endif
 */
 
+		PartitionMaster::insertData[0] = 0;
+		PartitionMaster::insertData[1] = 0;
 		workerQuery->query(queryGraph, resultSet, trans->transTime);
 		cout << PartitionMaster::insertData[0] << endl;
 		cout << PartitionMaster::insertData[1] << endl;
