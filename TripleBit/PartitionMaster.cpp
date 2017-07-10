@@ -684,7 +684,7 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 			break;
 		}
 	}
-	//endupdate();
+	endupdate();
 }
 
 void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
@@ -692,6 +692,7 @@ void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
 	//chunkTask->indexForTT->completeOneTriple();
 	xChunkTempBuffer[soType][chunkID]->insertTriple(chunkTask->Triple.subjectID,
 			chunkTask->Triple.object, chunkTask->Triple.objType);
+	chunkTask->indexForTT->completeOneTriple();
 	if (xChunkTempBuffer[soType][chunkID]->isFull()) {
 		//combine the data in tempbuffer into the source data
 		insertData[soType] += xChunkTempBuffer[soType][chunkID]->getSize();
@@ -699,7 +700,7 @@ void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
 				chunkID, soType);
 	}
 
-	chunkTask->indexForTT->completeOneTriple();
+
 }
 
 void PartitionMaster::readIDInTempPage(const uchar *&currentPtrTemp,
