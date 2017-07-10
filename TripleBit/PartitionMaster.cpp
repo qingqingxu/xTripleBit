@@ -700,7 +700,7 @@ void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
 				chunkID, soType);
 	}
 
-	chunkTask->indexForTT->completeOneTriple();
+	//chunkTask->indexForTT->completeOneTriple();
 }
 
 void PartitionMaster::readIDInTempPage(const uchar *&currentPtrTemp,
@@ -848,6 +848,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 
 	buffer->uniqe();
 
+/*
 #ifdef MYDEBUG
 	ofstream out1;
 	if (soType == ORDERBYS) {
@@ -863,6 +864,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	}
 	out1.close();
 #endif
+*/
 
 	if (buffer->isEmpty())
 		return;

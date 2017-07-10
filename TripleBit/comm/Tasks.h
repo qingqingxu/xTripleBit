@@ -27,10 +27,10 @@ public:
 
 	SubTrans(timeval &transtime, ID sWorkerID, ID miID, ID maID,
 			TripleBitQueryGraph::OpType &opType, size_t triNumber,
-			TripleNode &trip, shared_ptr<IndexForTT> index_forTT) :
+			TripleNode &trip/*, shared_ptr<IndexForTT> index_forTT*/) :
 			transTime(transtime), sourceWorkerID(sWorkerID), minID(miID), maxID(
 					maID), operationType(opType), tripleNumber(triNumber), triple(
-					trip) , indexForTT(index_forTT){
+					trip) /*, indexForTT(index_forTT)*/{
 	}
 };
 
