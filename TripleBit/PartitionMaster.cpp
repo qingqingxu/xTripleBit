@@ -112,7 +112,6 @@ void PartitionMaster::endupdate() {
 			}
 		}
 	}
-	//cout << insertData[0] << "\t" << insertData[1] << endl;
 }
 
 PartitionMaster::~PartitionMaster() {
@@ -659,10 +658,8 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 	ID chunkID = tasksQueue->getChunkID();
 	int soType = tasksQueue->getSOType();
 	const uchar* chunkBegin = tasksQueue->getChunkBegin();
-	TripleBitQueryGraph::OpType lastPperationType;
 
 	while ((chunkTask = tasksQueue->Dequeue()) != NULL) {
-		lastPperationType = chunkTask->operationType;
 		switch (chunkTask->operationType) {
 		case TripleBitQueryGraph::QUERY:
 			//executeChunkTaskQuery(chunkTask, chunkID, chunkBegin, xyType);
@@ -681,9 +678,7 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 			break;
 		}
 	}
-	if (lastPperationType == TripleBitQueryGraph::INSERT_DATA) {
-		endupdate();
-	}
+	endupdate();
 }
 
 void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
