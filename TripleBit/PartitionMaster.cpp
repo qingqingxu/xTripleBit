@@ -941,12 +941,18 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 						tempTriple->object, tempTriple->objType);
 			}
 		} else {
-			if (tempTriple->subjectID < bufferTriple->subjectID
+			if ((soType == ORDERBYS && (tempTriple->subjectID < bufferTriple->subjectID
 					|| (tempTriple->subjectID == bufferTriple->subjectID
 							&& tempTriple->object < bufferTriple->object)
 					|| (tempTriple->subjectID == bufferTriple->subjectID
 							&& tempTriple->object == bufferTriple->object
-							&& tempTriple->objType < bufferTriple->objType)) {
+							&& tempTriple->objType < bufferTriple->objType)))
+					|| (soType == ORDERBYO && (tempTriple->object < bufferTriple->object
+									|| (tempTriple->object == bufferTriple->object
+											&& tempTriple->subjectID < bufferTriple->subjectID)
+									|| (tempTriple->object == bufferTriple->object
+											&& tempTriple->subjectID == bufferTriple->subjectID
+											&& tempTriple->objType < bufferTriple->objType)))) {
 				uint len = currentPtrTemp - lastPtrTemp;
 				if (currentPtrChunk + len > endPtrChunk) {
 					handleEndofChunk(startPtr, chunkBegin, startPtrChunk,
