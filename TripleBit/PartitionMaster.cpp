@@ -840,23 +840,21 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 
 	buffer->uniqe();
 
-	/*
-	 #ifdef MYDEBUG
-	 ofstream out1;
-	 if (soType == ORDERBYS) {
-	 out1.open("tempbuffer_uniqe_sp", ios::app);
-	 } else {
-	 out1.open("tempbuffer_uniqe_op", ios::app);
-	 }
-	 ChunkTriple *temp = buffer->getBuffer();
-	 while (temp < buffer->getEnd()) {
-	 out1 << chunkID << "," << temp->subjectID << "," << partitionID << ","
-	 << temp->object << endl;
-	 temp++;
-	 }
-	 out1.close();
-	 #endif
-	 */
+#ifdef MYDEBUG
+	ofstream out1;
+	if (soType == ORDERBYS) {
+		out1.open("tempbuffer_uniqe_sp", ios::app);
+	} else {
+		out1.open("tempbuffer_uniqe_op", ios::app);
+	}
+	ChunkTriple *temp = buffer->getBuffer();
+	while (temp < buffer->getEnd()) {
+		out1 << chunkID << "," << temp->subjectID << "," << partitionID << ","
+				<< temp->object << endl;
+		temp++;
+	}
+	out1.close();
+#endif
 
 	if (buffer->isEmpty())
 		return;
@@ -1094,7 +1092,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	}
 
 	partitionChunkManager[soType]->getChunkIndex()->updateChunkMetaData(
-	 chunkID);
+			chunkID);
 
 	free(tempTriple);
 	tempTriple = NULL;
