@@ -301,7 +301,7 @@ void TripleBitWorkerQuery::tasksEnQueue(ID partitionID, SubTrans *subTrans) {
 
 Status TripleBitWorkerQuery::excuteInsertData() {
 	size_t tripleSize = _query->tripleNodes.size();
-	shared_ptr<IndexForTT> indexForTT(new IndexForTT(tripleSize * 2));
+	//shared_ptr<IndexForTT> indexForTT(new IndexForTT(tripleSize * 2));
 
 	classifyTripleNode();
 
@@ -315,13 +315,13 @@ Status TripleBitWorkerQuery::excuteInsertData() {
 
 		tasksQueueWPMutex[partitionID - 1]->lock();
 		for (; tripleNodeIter != iter->second.end(); ++tripleNodeIter) {
-			SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0, operationType, tripleNodeSize, *(*tripleNodeIter), indexForTT);
+			SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0, operationType, tripleNodeSize, *(*tripleNodeIter)/*, indexForTT*/);
 			tasksEnQueue(partitionID, subTrans);
 		}
 		tasksQueueWPMutex[partitionID - 1]->unlock();
 	}
 
-	indexForTT->wait();
+	//indexForTT->wait();
 	return OK;
 }
 
