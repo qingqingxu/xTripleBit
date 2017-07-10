@@ -137,13 +137,7 @@ Status TripleBitWorker::Execute(string& queryString) {
 		 Print();
 		 #endif
 		 */
-
-		PartitionMaster::operateTripleNum[0] = 0;
-		PartitionMaster::operateTripleNum[1] = 0;
-
 		workerQuery->query(queryGraph, resultSet, trans->transTime);
-		cout << "the number of operating order by subject: " << PartitionMaster::operateTripleNum[0] << endl;
-		cout << "the number of operating order by object: "  << PartitionMaster::operateTripleNum[1] << endl;
 
 #ifdef TOTAL_TIME
 		gettimeofday(&end, NULL);

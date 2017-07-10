@@ -99,15 +99,12 @@ void PartitionMaster::endupdate() {
 		const uchar *startPtr = partitionChunkManager[soType]->getStartPtr();
 		ID chunkID = 0;
 		if (!xChunkTempBuffer[soType][chunkID]->isEmpty()) {
-			operateTripleNum[soType] += xChunkTempBuffer[soType][chunkID]->getSize();
 			combineTempBufferToSource(xChunkTempBuffer[soType][chunkID],
 					startPtr, chunkID, soType);
 		}
 
 		for (chunkID = 1; chunkID < xChunkNumber[soType]; ++chunkID) {
 			if (!xChunkTempBuffer[soType][chunkID]->isEmpty()) {
-				operateTripleNum[soType] +=
-						xChunkTempBuffer[soType][chunkID]->getSize();
 				combineTempBufferToSource(xChunkTempBuffer[soType][chunkID],
 						startPtr - sizeof(ChunkManagerMeta)
 								+ chunkID * MemoryBuffer::pagesize, chunkID,
@@ -684,7 +681,7 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 			break;
 		}
 	}
-	if(lastPperationType == TripleBitQueryGraph::INSERT_DATA){
+	if (lastPperationType == TripleBitQueryGraph::INSERT_DATA) {
 		endupdate();
 	}
 }
@@ -697,7 +694,6 @@ void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
 
 	if (xChunkTempBuffer[soType][chunkID]->isFull()) {
 		//combine the data in tempbuffer into the source data
-		operateTripleNum[soType] += xChunkTempBuffer[soType][chunkID]->getSize();
 		combineTempBufferToSource(xChunkTempBuffer[soType][chunkID], startPtr,
 				chunkID, soType);
 	}
@@ -797,7 +793,6 @@ void PartitionMaster::handleEndofChunk(const uchar *startPtr,
 	assert(currentPtrChunk <= endPtrChunk);
 }
 
-size_t PartitionMaster::operateTripleNum[2] = { 0, 0 };
 void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		const uchar *startPtr, const ID chunkID, const bool soType) {
 
@@ -906,7 +901,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	endPtrTemp = startPtrTemp + ((MetaData*) startPtrTemp)->usedSpace;
 
 	ChunkTriple *tempTriple, *bufferTriple = buffer->getBuffer(),
-			*endTempBuffer = buffer->getEnd(), *lastCombineTriple;
+			*endTempBuffer = buffer->getEnd();
 	tempTriple = (ChunkTriple*) malloc(sizeof(ChunkTriple));
 	if (tempTriple == NULL) {
 		cout << "malloc a ChunkTriple error" << endl;
@@ -914,14 +909,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		return;
 	}
 	memset(tempTriple, 0, sizeof(ChunkTriple));
-
-	lastCombineTriple = (ChunkTriple*) malloc(sizeof(ChunkTriple));
-	if (lastCombineTriple == NULL) {
-		cout << "malloc a ChunkTriple error" << endl;
-		free(lastCombineTriple);
-		return;
-	}
-	memset(lastCombineTriple, 0, sizeof(ChunkTriple));
 	double max = DBL_MIN, min = DBL_MIN;
 
 	if (currentPtrTemp >= endPtrTemp) {
@@ -989,9 +976,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 				max = getChunkMinOrMax(tempTriple, soType) > max ?
 						getChunkMinOrMax(tempTriple, soType) : max;
 				currentPtrChunk += len;
-				lastCombineTriple->subjectID = tempTriple->subjectID;
-				lastCombineTriple->object = tempTriple->object;
-				lastCombineTriple->objType = tempTriple->objType;
 
 				//continue read data from tempPage
 				readIDInTempPage(currentPtrTemp, endPtrTemp, startPtrTemp,
@@ -1026,21 +1010,13 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 				max = getChunkMinOrMax(bufferTriple, soType) > max ?
 						getChunkMinOrMax(bufferTriple, soType) : max;
 				currentPtrChunk += len;
-				lastCombineTriple->subjectID = bufferTriple->subjectID;
-				lastCombineTriple->object = bufferTriple->object;
-				lastCombineTriple->objType = bufferTriple->objType;
-
 				bufferTriple++;
 			}
 		}
 	}
 
 	while (lastPtrTemp < endPtrTemp) {
-		if (tempTriple->subjectID == 0 || (tempTriple->subjectID == lastCombineTriple->subjectID
-						&& tempTriple->object
-								== lastCombineTriple->object
-						&& tempTriple->objType
-								== lastCombineTriple->objType)) {
+		if (tempTriple->subjectID == 0) {
 			readIDInTempPage(currentPtrTemp, endPtrTemp, startPtrTemp, tempPage,
 					tempPage2, theOtherPageEmpty, isInTempPage);
 			lastPtrTemp = currentPtrTemp;
@@ -1089,14 +1065,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	}
 
 	while (bufferTriple < endTempBuffer) {
-		if(bufferTriple->subjectID == lastCombineTriple->subjectID
-				&& bufferTriple->object
-						== lastCombineTriple->object
-				&& bufferTriple->objType
-						== lastCombineTriple->objType){
-			bufferTriple++;
-			continue;
-		}
 		uint len = sizeof(ID) + sizeof(char)
 				+ Chunk::getLen(bufferTriple->objType);
 
@@ -1130,8 +1098,8 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		metaData->usedSpace = currentPtrChunk - chunkBegin;
 	}
 
-	/*partitionChunkManager[soType]->getChunkIndex()->updateChunkMetaData(
-			chunkID);*/
+	partitionChunkManager[soType]->getChunkIndex()->updateChunkMetaData(
+	 chunkID);
 
 	free(tempTriple);
 	tempTriple = NULL;
@@ -1180,7 +1148,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					&& tempObjType == objType) {
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						objType);
-				PartitionMaster::operateTripleNum[soType]++;
 				return;
 			} else {
 				return;
@@ -1206,7 +1173,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 						&& tempObjType == objType) {
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							objType);
-					PartitionMaster::operateTripleNum[soType]++;
 					return;
 				} else {
 					return;
@@ -1227,7 +1193,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					&& tempSubjectID == subjectID) {
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						objType);
-				PartitionMaster::operateTripleNum[soType]++;
 				return;
 			} else {
 				return;
@@ -1253,7 +1218,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 						&& tempSubjectID == subjectID) {
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							objType);
-					PartitionMaster::operateTripleNum[soType]++;
 					return;
 				} else {
 					return;
