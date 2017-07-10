@@ -860,7 +860,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 				<< temp->object << endl;
 		temp++;
 	}
-	out1 << "---" << endl;
 	out1.close();
 #endif
 
