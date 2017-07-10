@@ -326,7 +326,7 @@ Status TripleBitWorkerQuery::excuteInsertData() {
 }
 
 Status TripleBitWorkerQuery::excuteDeleteData() {
-	shared_ptr<IndexForTT> indexForTT(new IndexForTT);
+	/*shared_ptr<IndexForTT> indexForTT(new IndexForTT);*/
 
 	classifyTripleNode();
 
@@ -340,7 +340,7 @@ Status TripleBitWorkerQuery::excuteDeleteData() {
 
 		tasksQueueWPMutex[partitionID - 1]->lock();
 		for (; tripleNodeIter != iter->second.end(); ++tripleNodeIter) {
-			SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0, operationType, tripleNodeSize, *(*tripleNodeIter), indexForTT);
+			SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0, operationType, tripleNodeSize, *(*tripleNodeIter)/*, indexForTT*/);
 			tasksEnQueue(partitionID, subTrans);
 		}
 		tasksQueueWPMutex[partitionID - 1]->unlock();
