@@ -840,6 +840,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 
 	buffer->uniqe();
 
+/*
 #ifdef MYDEBUG
 	ofstream out1;
 	if (soType == ORDERBYS) {
@@ -855,6 +856,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	}
 	out1.close();
 #endif
+*/
 
 	if (buffer->isEmpty())
 		return;
