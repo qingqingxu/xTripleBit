@@ -684,7 +684,7 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 			break;
 		}
 	}
-	endupdate();
+	//endupdate();
 }
 
 void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
