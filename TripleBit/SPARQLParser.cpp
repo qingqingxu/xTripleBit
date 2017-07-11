@@ -254,7 +254,7 @@ void SPARQLParser::parseDeleteClause()
 	if(token == SPARQLLexer::Eof)
 	{
 		QueryOperation = SPARQLParser::DELETE_CLAUSE;
-//		PrintPatterns(patterns);
+		PrintPatterns(patterns);
 	}
 	else if((token == SPARQLLexer::Identifier) && (lexer.isKeyword("insert")))
 	{
