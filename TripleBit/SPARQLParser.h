@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include "TripleBit.h"
 //---------------------------------------------------------------------------
 class SPARQLLexer;
 //---------------------------------------------------------------------------
@@ -36,13 +37,16 @@ public:
    /// An element in a graph pattern
    struct Element {
       /// Possible types
-      enum Type { Variable, String, IRI };
+      enum Type { Variable, Constant };
       /// The type
       Type type;
+      //the data type of constant
+      DataType dataType;
       /// The string value
       std::string value;
+      double dValue;
       /// The id for variables
-      unsigned id;
+      uint id;
    };
 
    /// A graph pattern

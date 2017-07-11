@@ -83,9 +83,9 @@ Status TripleBitWorkerQuery::query(TripleBitQueryGraph* queryGraph, vector<strin
 		return excuteInsertData();
 	case TripleBitQueryGraph::DELETE_DATA:
 		return excuteDeleteData();
-/*	case TripleBitQueryGraph::DELETE_CLAUSE:
+	case TripleBitQueryGraph::DELETE_CLAUSE:
 		return excuteDeleteClause();
-	case TripleBitQueryGraph::UPDATE:
+		/*case TripleBitQueryGraph::UPDATE:
 		return excuteUpdate();*/
 	}
 }
@@ -301,7 +301,7 @@ void TripleBitWorkerQuery::tasksEnQueue(ID partitionID, SubTrans *subTrans) {
 
 Status TripleBitWorkerQuery::excuteInsertData() {
 	size_t tripleSize = _query->tripleNodes.size();
-	//shared_ptr<IndexForTT> indexForTT(new IndexForTT(tripleSize * 2));
+	shared_ptr<IndexForTT> indexForTT(new IndexForTT(tripleSize * 2));
 
 	classifyTripleNode();
 
@@ -315,13 +315,13 @@ Status TripleBitWorkerQuery::excuteInsertData() {
 
 		tasksQueueWPMutex[partitionID - 1]->lock();
 		for (; tripleNodeIter != iter->second.end(); ++tripleNodeIter) {
-			SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0, operationType, tripleNodeSize, *(*tripleNodeIter)/*, indexForTT*/);
+			SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0, operationType, tripleNodeSize, *(*tripleNodeIter), indexForTT);
 			tasksEnQueue(partitionID, subTrans);
 		}
 		tasksQueueWPMutex[partitionID - 1]->unlock();
 	}
 
-	//indexForTT->wait();
+	indexForTT->wait();
 	return OK;
 }
 
@@ -340,7 +340,7 @@ Status TripleBitWorkerQuery::excuteDeleteData() {
 
 		tasksQueueWPMutex[partitionID - 1]->lock();
 		for (; tripleNodeIter != iter->second.end(); ++tripleNodeIter) {
-			SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0, operationType, tripleNodeSize, *(*tripleNodeIter)/*, indexForTT*/);
+			SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0, operationType, tripleNodeSize, *(*tripleNodeIter), indexForTT);
 			tasksEnQueue(partitionID, subTrans);
 		}
 		tasksQueueWPMutex[partitionID - 1]->unlock();
@@ -349,12 +349,12 @@ Status TripleBitWorkerQuery::excuteDeleteData() {
 	return OK;
 }
 
-/*
+
 Status TripleBitWorkerQuery::excuteDeleteClause() {
 	shared_ptr<IndexForTT> indexForTT(new IndexForTT);
 
 	vector<TripleNode>::iterator iter = _query->tripleNodes.begin();
-	ID partitionID = iter->predicate;
+	ID partitionID = iter->predicateID;
 	TripleBitQueryGraph::OpType operationType = TripleBitQueryGraph::DELETE_CLAUSE;
 
 	SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0, operationType, 1, *iter, indexForTT);
@@ -363,7 +363,7 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 	return OK;
 }
 
-Status TripleBitWorkerQuery::excuteUpdate() {
+/*Status TripleBitWorkerQuery::excuteUpdate() {
 	shared_ptr<IndexForTT> indexForTT(new IndexForTT);
 
 	vector<TripleNode>::iterator iter = _query->tripleNodes.begin();

@@ -69,6 +69,7 @@ class TurtleParser
       /// Lex a number
       Token lexNumber(std::string& token,char c);
       Token getNumberType(std::string &s);
+      bool lexDate(std::string &str, double& date);
 
       public:
       /// Constructor

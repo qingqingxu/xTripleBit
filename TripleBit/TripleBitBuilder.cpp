@@ -193,9 +193,12 @@ void TripleBitBuilder::NTriplesParse(const char* subject, const char* predicate,
 				MessageEngine::showMessage("data convert to double error",
 						MessageEngine::ERROR);
 				cout << "object: " << object << endl;
+				objType = NONE;
 				return;
 			} else if (tempObject >= FLT_MIN && tempObject <= FLT_MAX) {
 				objType = FLOAT;
+			}else if(tempObject >= DBL_MIN && tempObject <= DBL_MAX){
+				objType = DOUBLE;
 			}
 			break;
 

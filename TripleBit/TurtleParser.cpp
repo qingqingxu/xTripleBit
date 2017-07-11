@@ -164,6 +164,43 @@ TurtleParser::Lexer::Token TurtleParser::Lexer::lexNumber(std::string& token,
 
 	throw Exception();
 }
+
+bool TurtleParser::Lexer::lexDate(std::string &str, double& date) {
+	if (str.empty()) {
+		return false;
+	}
+	TurtleParser::strim(str);
+	if(str.empty()|| str.length() != 19){
+		return false;
+	}
+	if (str[0] >= '0' && str[0] <= '9' && str[1] >= '0' && str[1] <= '9'
+			&& str[2] >= '0' && str[2] <= '9' && str[3] >= '0' && str[3] <= '9'
+			&& str[4] == '-' && str[5] >= '0' && str[5] <= '1' && str[6] >= '0'
+			&& str[6] <= '9' && str[7] == '-' && str[8] >= '0' && str[8] <= '3'
+			&& str[9] >= '0' && str[9] <= '9' && str[10] == ' '
+			&& str[11] >= '0' && str[11] <= '2' && str[12] >= '0'
+			&& str[12] <= '9' && str[13] == ':' && str[14] >= '0'
+			&& str[14] <= '5' && str[15] >= '0' && str[15] <= '9'
+			&& str[16] == ':' && str[17] >= '0' && str[17] <= '5'
+			&& str[18] >= '0' && str[18] <= '9') {
+		date = (str[0] - '0');
+		date = date * 10 + (str[1] - '0');
+		date = date * 10 + (str[2] - '0');
+		date = date * 10 + (str[3] - '0');
+		date = date * 10 + (str[5] - '0');
+		date = date * 10 + (str[6] - '0');
+		date = date * 10 + (str[8] - '0');
+		date = date * 10 + (str[9] - '0');
+		date = date * 10 + (str[11] - '0');
+		date = date * 10 + (str[12] - '0');
+		date = date * 10 + (str[14] - '0');
+		date = date * 10 + (str[15] - '0');
+		date = date * 10 + (str[17] - '0');
+		date = date * 10 + (str[18] - '0');
+		return true;
+	}
+	return false;
+}
 //---------------------------------------------------------------------------
 unsigned TurtleParser::Lexer::lexHexCode(unsigned len)
 // Parse a hex code

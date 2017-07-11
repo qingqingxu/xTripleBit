@@ -15,139 +15,146 @@ using namespace std;
 
 #define MYDEBUG
 //---------------------------------------------------------------------------
-SPARQLParser::ParserException::ParserException(const string& message)
-  : message(message)
-   // Constructor
+SPARQLParser::ParserException::ParserException(const string& message) :
+		message(message)
+// Constructor
 {
 }
 //---------------------------------------------------------------------------
-SPARQLParser::ParserException::ParserException(const char* message)
-  : message(message)
-   // Constructor
+SPARQLParser::ParserException::ParserException(const char* message) :
+		message(message)
+// Constructor
 {
 }
 //---------------------------------------------------------------------------
 SPARQLParser::ParserException::~ParserException()
-   // Destructor
+// Destructor
 {
 }
 //---------------------------------------------------------------------------
-SPARQLParser::Pattern::Pattern(Element subject,Element predicate,Element object)
-   : subject(subject),predicate(predicate),object(object)
-   // Constructor
+SPARQLParser::Pattern::Pattern(Element subject, Element predicate,
+		Element object) :
+		subject(subject), predicate(predicate), object(object)
+// Constructor
 {
 }
 //---------------------------------------------------------------------------
 SPARQLParser::Pattern::~Pattern()
-   // Destructor
+// Destructor
 {
 }
 //---------------------------------------------------------------------------
-SPARQLParser::SPARQLParser(SPARQLLexer& lexer)
-   : lexer(lexer),variableCount(1),projectionModifier(Modifier_None),limit(~0u)
-   // Constructor
+SPARQLParser::SPARQLParser(SPARQLLexer& lexer) :
+		lexer(lexer), variableCount(1), projectionModifier(Modifier_None), limit(
+				~0u)
+// Constructor
 {
 }
 //---------------------------------------------------------------------------
 SPARQLParser::~SPARQLParser()
-   // Destructor
+// Destructor
 {
 }
 //---------------------------------------------------------------------------
 unsigned SPARQLParser::nameVariable(const string& name)
-   // Lookup or create a named variable
-{
-   if (namedVariables.count(name))
-      return namedVariables[name];
+// Lookup or create a named variable
+		{
+	if (namedVariables.count(name))
+		return namedVariables[name];
 
-   unsigned result=variableCount++;
-   namedVariables[name]=result;
-   return result;
+	unsigned result = variableCount++;
+	namedVariables[name] = result;
+	return result;
 }
 
-void PrintPatterns(const SPARQLParser::PatternGroup& group)
-{
-	std::vector<SPARQLParser::Pattern>::const_iterator iter = group.patterns.begin();
-	std::vector<SPARQLParser::Pattern>::const_iterator limit = group.patterns.end();
+void PrintPatterns(const SPARQLParser::PatternGroup& group) {
+	std::vector<SPARQLParser::Pattern>::const_iterator iter =
+			group.patterns.begin();
+	std::vector<SPARQLParser::Pattern>::const_iterator limit =
+			group.patterns.end();
 
-	for(; iter != limit; ++iter)
-	{
-		if((*iter).subject.type == SPARQLParser::Element::IRI)
+	for (; iter != limit; ++iter) {
+		if ((*iter).subject.type == SPARQLParser::Element::Constant)
 			std::cout << (*iter).subject.value << "  ";
-		else if((*iter).subject.type == SPARQLParser::Element::Variable)
+		else if ((*iter).subject.type == SPARQLParser::Element::Variable)
 			std::cout << "Variable" << "  ";
-		if((*iter).predicate.type == SPARQLParser::Element::IRI)
+		if ((*iter).predicate.type == SPARQLParser::Element::Constant)
 			std::cout << (*iter).predicate.value << "  ";
-		else if((*iter).predicate.type == SPARQLParser::Element::Variable)
+		else if ((*iter).predicate.type == SPARQLParser::Element::Variable)
 			std::cout << "Variable" << "  ";
-		if((*iter).object.type == SPARQLParser::Element::IRI)
-			std::cout << (*iter).object.value << std::endl;
-		else if((*iter).object.type == SPARQLParser::Element::Variable)
+		if ((*iter).object.type == SPARQLParser::Element::Constant) {
+			switch ((*iter).object.dataType) {
+			case STRING:
+				std::cout << (*iter).object.value << std::endl;
+				break;
+			case BOOL:
+			case CHAR:
+			case INT:
+			case UNSIGNED_INT:
+			case FLOAT:
+			case DATE:
+			case LONGLONG:
+			case DOUBLE:
+				std::cout << (*iter).object.dValue << std::endl;
+				break;
+			default:
+				break;
+			}
+		} else if ((*iter).object.type == SPARQLParser::Element::Variable)
 			std::cout << "Variable" << std::endl;
 	}
 }
 
 //---------------------------------------------------------------------------
 void SPARQLParser::parsePrefix()
-   // Parse the prefix part if any
+// Parse the prefix part if any
 {
-   while (true) {
-      SPARQLLexer::Token token=lexer.getNext();
+	while (true) {
+		SPARQLLexer::Token token = lexer.getNext();
 
-      if ((token==SPARQLLexer::Identifier)&&(lexer.isKeyword("prefix"))) {
-         // Parse the prefix entry
-         if (lexer.getNext()!=SPARQLLexer::Identifier)
-            throw ParserException("prefix name expected");
-         string name=lexer.getTokenValue();
-         if (lexer.getNext()!=SPARQLLexer::Colon)
-            throw ParserException("':' expected");
-         if (lexer.getNext()!=SPARQLLexer::IRI)
-            throw ParserException("IRI expected");
-         string iri=lexer.getTokenValue();
+		if ((token == SPARQLLexer::Identifier) && (lexer.isKeyword("prefix"))) {
+			// Parse the prefix entry
+			if (lexer.getNext() != SPARQLLexer::Identifier)
+				throw ParserException("prefix name expected");
+			string name = lexer.getTokenValue();
+			if (lexer.getNext() != SPARQLLexer::Colon)
+				throw ParserException("':' expected");
+			if (lexer.getNext() != SPARQLLexer::IRI)
+				throw ParserException("IRI expected");
+			string iri = lexer.getTokenValue();
 
-         // Register the new prefix
-         if (prefixes.count(name))
-            throw ParserException("duplicate prefix '"+name+"'");
-         prefixes[name]=iri;
-      } else {
-         lexer.unget(token);
-         return;
-      }
-   }
+			// Register the new prefix
+			if (prefixes.count(name))
+				throw ParserException("duplicate prefix '" + name + "'");
+			prefixes[name] = iri;
+		} else {
+			lexer.unget(token);
+			return;
+		}
+	}
 }
 //--------------------------------------------------------------------------
 void SPARQLParser::parseQueryString()
-		// Parse the QueryString
+// Parse the QueryString
 {
-	if ((lexer.getNext() == SPARQLLexer::Identifier))
-	{
-		if(lexer.isKeyword("select"))
-		{
+	if ((lexer.getNext() == SPARQLLexer::Identifier)) {
+		if (lexer.isKeyword("select")) {
 			parseQuery();
-		}
-		else if(lexer.isKeyword("insert"))
-		{
+		} else if (lexer.isKeyword("insert")) {
 //			std::cout << "Insert data" << std::endl;
 			parseInsert();
-		}
-		else if(lexer.isKeyword("delete"))
-		{
+		} else if (lexer.isKeyword("delete")) {
 			parseDelete();
-		}
-		else
-		{
+		} else {
 			throw ParserException("'select' or 'insert' or 'delete' expected");
 		}
-	}
-	else
-	{
+	} else {
 		throw ParserException("'select' or 'insert' or 'delete' expected");
 	}
 }
 
 //---------------------------------------------------------
-void SPARQLParser::parseQuery()
-{
+void SPARQLParser::parseQuery() {
 
 	QueryOperation = SPARQLParser::QUERY;
 
@@ -164,12 +171,14 @@ void SPARQLParser::parseQuery()
 	parseLimit();
 
 	// Check that the input is done
-	if (lexer.getNext()!=SPARQLLexer::Eof)
+	if (lexer.getNext() != SPARQLLexer::Eof)
 		throw ParserException("syntax error");
 
 	// Fixup empty projections (i.e. *)
-	if (!projection.size()){
-		for (map<string,unsigned>::const_iterator iter=namedVariables.begin(),limit=namedVariables.end();iter!=limit;++iter)
+	if (!projection.size()) {
+		for (map<string, unsigned>::const_iterator iter =
+				namedVariables.begin(), limit = namedVariables.end();
+				iter != limit; ++iter)
 			projection.push_back((*iter).second);
 	}
 }
@@ -179,10 +188,11 @@ void SPARQLParser::parseInsert()
 {
 	QueryOperation = SPARQLParser::INSERT_DATA;
 
-	if((lexer.getNext() != SPARQLLexer::Identifier) || (!lexer.isKeyword("data")))
+	if ((lexer.getNext() != SPARQLLexer::Identifier)
+			|| (!lexer.isKeyword("data")))
 		throw ParserException(" 'data' expected");
 
-	if(lexer.getNext() != SPARQLLexer::LCurly)
+	if (lexer.getNext() != SPARQLLexer::LCurly)
 		throw ParserException(" '{' expected");
 
 //	std::cout << "before parseGroupGrappattern" << std::endl;
@@ -190,9 +200,8 @@ void SPARQLParser::parseInsert()
 	patterns = PatternGroup();
 	parseGroupGraphPattern(patterns);
 
-	if(lexer.getNext() != SPARQLLexer::Eof)
+	if (lexer.getNext() != SPARQLLexer::Eof)
 		throw ParserException(" syntax error ");
-
 
 //	PrintPatterns(patterns);
 
@@ -206,16 +215,11 @@ void SPARQLParser::parseDelete()
 #endif
 	SPARQLLexer::Token token = lexer.getNext();
 
-	if((token == SPARQLLexer::Identifier) && (lexer.isKeyword("data")))
-	{
+	if ((token == SPARQLLexer::Identifier) && (lexer.isKeyword("data"))) {
 		parseDeleteData();
-	}
-	else if(token == SPARQLLexer::LCurly)
-	{
+	} else if (token == SPARQLLexer::LCurly) {
 		parseDeleteClause();
-	}
-	else
-	{
+	} else {
 		throw ParserException("delete syntax error");
 	}
 }
@@ -228,13 +232,13 @@ void SPARQLParser::parseDeleteData()
 #endif
 	QueryOperation = SPARQLParser::DELETE_DATA;
 
-	if(lexer.getNext() != SPARQLLexer::LCurly)
-			throw ParserException(" '{' expected");
+	if (lexer.getNext() != SPARQLLexer::LCurly)
+		throw ParserException(" '{' expected");
 
 	patterns = PatternGroup();
 	parseGroupGraphPattern(patterns);
 
-	if(lexer.getNext() != SPARQLLexer::Eof)
+	if (lexer.getNext() != SPARQLLexer::Eof)
 		throw ParserException(" syntax error");
 
 //	PrintPatterns(patterns);
@@ -251,17 +255,13 @@ void SPARQLParser::parseDeleteClause()
 
 	SPARQLLexer::Token token = lexer.getNext();
 
-	if(token == SPARQLLexer::Eof)
-	{
+	if (token == SPARQLLexer::Eof) {
 		QueryOperation = SPARQLParser::DELETE_CLAUSE;
 		PrintPatterns(patterns);
-	}
-	else if((token == SPARQLLexer::Identifier) && (lexer.isKeyword("insert")))
-	{
+	} else if ((token == SPARQLLexer::Identifier)
+			&& (lexer.isKeyword("insert"))) {
 		parseUpdate();
-	}
-	else
-	{
+	} else {
 		throw ParserException("syntax error");
 	}
 }
@@ -273,13 +273,12 @@ void SPARQLParser::parseUpdate()
 	cout << __FUNCTION__ << endl;
 #endif
 	QueryOperation = SPARQLParser::UPDATE;
-	if(lexer.getNext() != SPARQLLexer::LCurly)
+	if (lexer.getNext() != SPARQLLexer::LCurly)
 		throw ParserException(" '{' expected");
 
 	parseGroupGraphPattern(patterns);
 
-	if(lexer.getNext() != SPARQLLexer::Eof)
-	{
+	if (lexer.getNext() != SPARQLLexer::Eof) {
 		throw ParserException(" syntax error ");
 	}
 
@@ -287,369 +286,448 @@ void SPARQLParser::parseUpdate()
 }
 //---------------------------------------------------------------------------
 void SPARQLParser::parseProjection()
-   // Parse the projection
+// Parse the projection
 {
 //   // Parse the projection
 //   if ((lexer.getNext()!=SPARQLLexer::Identifier)||(!lexer.isKeyword("select")))
 //      throw ParserException("'select' expected");
 
-   // Parse modifiers, if any
-   {
-      SPARQLLexer::Token token=lexer.getNext();
-      if (token==SPARQLLexer::Identifier) {
-         if (lexer.isKeyword("distinct")) projectionModifier=Modifier_Distinct; else
-         if (lexer.isKeyword("reduced")) projectionModifier=Modifier_Reduced; else
-         if (lexer.isKeyword("count")) projectionModifier=Modifier_Count; else
-         if (lexer.isKeyword("duplicates")) projectionModifier=Modifier_Duplicates; else
-            lexer.unget(token);
-      } else lexer.unget(token);
-   }
+// Parse modifiers, if any
+	{
+		SPARQLLexer::Token token = lexer.getNext();
+		if (token == SPARQLLexer::Identifier) {
+			if (lexer.isKeyword("distinct"))
+				projectionModifier = Modifier_Distinct;
+			else if (lexer.isKeyword("reduced"))
+				projectionModifier = Modifier_Reduced;
+			else if (lexer.isKeyword("count"))
+				projectionModifier = Modifier_Count;
+			else if (lexer.isKeyword("duplicates"))
+				projectionModifier = Modifier_Duplicates;
+			else
+				lexer.unget(token);
+		} else
+			lexer.unget(token);
+	}
 
-   // Parse the projection clause
-   bool first=true;
-   while (true) {
-      SPARQLLexer::Token token=lexer.getNext();
-      if (token==SPARQLLexer::Variable) {
-         projection.push_back(nameVariable(lexer.getTokenValue()));
-      } else if (token==SPARQLLexer::Star) {
-         // We do nothing here. Empty projections will be filled with all
-         // named variables after parsing
-      } else {
-         if (first)
-            throw ParserException("projection required after select");
-         lexer.unget(token);
-         break;
-      }
-      first=false;
-   }
+	// Parse the projection clause
+	bool first = true;
+	while (true) {
+		SPARQLLexer::Token token = lexer.getNext();
+		if (token == SPARQLLexer::Variable) {
+			projection.push_back(nameVariable(lexer.getTokenValue()));
+		} else if (token == SPARQLLexer::Star) {
+			// We do nothing here. Empty projections will be filled with all
+			// named variables after parsing
+		} else {
+			if (first)
+				throw ParserException("projection required after select");
+			lexer.unget(token);
+			break;
+		}
+		first = false;
+	}
 }
 //---------------------------------------------------------------------------
 void SPARQLParser::parseFrom()
-   // Parse the from part if any
+// Parse the from part if any
 {
-   while (true) {
-      SPARQLLexer::Token token=lexer.getNext();
+	while (true) {
+		SPARQLLexer::Token token = lexer.getNext();
 
-      if ((token==SPARQLLexer::Identifier)&&(lexer.isKeyword("from"))) {
-         throw ParserException("from clause currently not implemented");
-      } else {
-         lexer.unget(token);
-         return;
-      }
-   }
+		if ((token == SPARQLLexer::Identifier) && (lexer.isKeyword("from"))) {
+			throw ParserException("from clause currently not implemented");
+		} else {
+			lexer.unget(token);
+			return;
+		}
+	}
 }
 //---------------------------------------------------------------------------
-void SPARQLParser::parseFilter(PatternGroup& group,map<string,unsigned>& localVars)
-   // Parse a filter condition
-{
-   // '('
-   if (lexer.getNext()!=SPARQLLexer::LParen)
-      throw ParserException("'(' expected");
+void SPARQLParser::parseFilter(PatternGroup& group,
+		map<string, unsigned>& localVars)
+		// Parse a filter condition
+		{
+	// '('
+	if (lexer.getNext() != SPARQLLexer::LParen)
+		throw ParserException("'(' expected");
 
-   // Variable
-   Element var=parsePatternElement(group,localVars);
-   if (var.type!=Element::Variable)
-      throw ParserException("filter variable expected");
+	// Variable
+	Element var = parsePatternElement(group, localVars);
+	if (var.type != Element::Variable)
+		throw ParserException("filter variable expected");
 
-   // Prepare the setuo
-   vector<Element> values;
-   Filter::Type type;
+	// Prepare the setuo
+	vector<Element> values;
+	Filter::Type type;
 
-   // 'in'?
-   SPARQLLexer::Token token=lexer.getNext();
-   if ((token==SPARQLLexer::Identifier)&&(lexer.isKeyword("in"))) {
-      // The values
-      while (true) {
-         Element e=parsePatternElement(group,localVars);
-         if (e.type==Element::Variable)
-            throw ParserException("constant values required in 'in' filter");
-         values.push_back(e);
+	// 'in'?
+	SPARQLLexer::Token token = lexer.getNext();
+	if ((token == SPARQLLexer::Identifier) && (lexer.isKeyword("in"))) {
+		// The values
+		while (true) {
+			Element e = parsePatternElement(group, localVars);
+			if (e.type == Element::Variable)
+				throw ParserException(
+						"constant values required in 'in' filter");
+			values.push_back(e);
 
-         SPARQLLexer::Token token=lexer.getNext();
-         if (token==SPARQLLexer::Comma)
-            continue;
-         if (token==SPARQLLexer::RParen)
-            break;
-         throw ParserException("',' or ')' expected");
-      }
-      type=Filter::Normal;
-   } else if ((token==SPARQLLexer::Identifier)&&(lexer.isKeyword("reaches"))) {
-      Element target=parsePatternElement(group,localVars);
-      if (target.type==Element::Variable)
-         throw ParserException("constant values required in 'reaches' filter");
+			SPARQLLexer::Token token = lexer.getNext();
+			if (token == SPARQLLexer::Comma)
+				continue;
+			if (token == SPARQLLexer::RParen)
+				break;
+			throw ParserException("',' or ')' expected");
+		}
+		type = Filter::Normal;
+	} else if ((token == SPARQLLexer::Identifier)
+			&& (lexer.isKeyword("reaches"))) {
+		Element target = parsePatternElement(group, localVars);
+		if (target.type == Element::Variable)
+			throw ParserException(
+					"constant values required in 'reaches' filter");
 
-       token=lexer.getNext();
-      if ((token!=SPARQLLexer::Identifier)||(!lexer.isKeyword("via")))
-         throw ParserException("'via' expected");
+		token = lexer.getNext();
+		if ((token != SPARQLLexer::Identifier) || (!lexer.isKeyword("via")))
+			throw ParserException("'via' expected");
 
-      Element path=parsePatternElement(group,localVars);
-      if (target.type==Element::Variable)
-         throw ParserException("constant values required in 'reaches' filter");
+		Element path = parsePatternElement(group, localVars);
+		if (target.type == Element::Variable)
+			throw ParserException(
+					"constant values required in 'reaches' filter");
 
-      values.push_back(target);
-      values.push_back(path);
-      type=Filter::Path;
+		values.push_back(target);
+		values.push_back(path);
+		type = Filter::Path;
 
-      if (lexer.getNext()!=SPARQLLexer::RParen)
-         throw ParserException("')' expected");
-   } else if ((token==SPARQLLexer::Equal)||(token==SPARQLLexer::NotEqual)) {
-      Element e=parsePatternElement(group,localVars);
-      values.push_back(e);
-      if (lexer.getNext()!=SPARQLLexer::RParen)
-         throw ParserException("')' expected");
-      type=(token==SPARQLLexer::Equal)?Filter::Normal:Filter::Exclude;
-   } else throw ParserException("'=', '!=', 'in', or 'reachable' expected");
+		if (lexer.getNext() != SPARQLLexer::RParen)
+			throw ParserException("')' expected");
+	} else if ((token == SPARQLLexer::Equal)
+			|| (token == SPARQLLexer::NotEqual)) {
+		Element e = parsePatternElement(group, localVars);
+		values.push_back(e);
+		if (lexer.getNext() != SPARQLLexer::RParen)
+			throw ParserException("')' expected");
+		type = (token == SPARQLLexer::Equal) ? Filter::Normal : Filter::Exclude;
+	} else
+		throw ParserException("'=', '!=', 'in', or 'reachable' expected");
 
-   // Remember the filter
-   Filter f;
-   f.id=var.id;
-   f.values=values;
-   f.type=type;
-   group.filters.push_back(f);
+	// Remember the filter
+	Filter f;
+	f.id = var.id;
+	f.values = values;
+	f.type = type;
+	group.filters.push_back(f);
 }
 //---------------------------------------------------------------------------
-SPARQLParser::Element SPARQLParser::parseBlankNode(PatternGroup& group,map<string,unsigned>& localVars)
-   // Parse blank node patterns
-{
-   // The subject is a blank node
-   Element subject;
-   subject.type=Element::Variable;
-   subject.id=variableCount++;
+SPARQLParser::Element SPARQLParser::parseBlankNode(PatternGroup& group,
+		map<string, unsigned>& localVars)
+		// Parse blank node patterns
+		{
+	// The subject is a blank node
+	Element subject;
+	subject.type = Element::Variable;
+	subject.id = variableCount++;
 
-   // Parse the the remaining part of the pattern
-   SPARQLParser::Element predicate=parsePatternElement(group,localVars);
-   SPARQLParser::Element object=parsePatternElement(group,localVars);
-   group.patterns.push_back(Pattern(subject,predicate,object));
+	// Parse the the remaining part of the pattern
+	SPARQLParser::Element predicate = parsePatternElement(group, localVars);
+	SPARQLParser::Element object = parsePatternElement(group, localVars);
+	group.patterns.push_back(Pattern(subject, predicate, object));
 
-   // Check for the tail
-   while (true) {
-      SPARQLLexer::Token token=lexer.getNext();
-      if (token==SPARQLLexer::Semicolon) {
-         predicate=parsePatternElement(group,localVars);
-         object=parsePatternElement(group,localVars);
-         group.patterns.push_back(Pattern(subject,predicate,object));
-         continue;
-      } else if (token==SPARQLLexer::Comma) {
-         object=parsePatternElement(group,localVars);
-         group.patterns.push_back(Pattern(subject,predicate,object));
-         continue;
-      } else if (token==SPARQLLexer::Dot) {
-         return subject;
-      } else if (token==SPARQLLexer::RBracket) {
-         lexer.unget(token);
-         return subject;
-      } else if (token==SPARQLLexer::Identifier) {
-         if (!lexer.isKeyword("filter"))
-            throw ParserException("'filter' expected");
-         parseFilter(group,localVars);
-         continue;
-      } else {
-         // Error while parsing, let out caller handle it
-         lexer.unget(token);
-         return subject;
-      }
-   }
+	// Check for the tail
+	while (true) {
+		SPARQLLexer::Token token = lexer.getNext();
+		if (token == SPARQLLexer::Semicolon) {
+			predicate = parsePatternElement(group, localVars);
+			object = parsePatternElement(group, localVars);
+			group.patterns.push_back(Pattern(subject, predicate, object));
+			continue;
+		} else if (token == SPARQLLexer::Comma) {
+			object = parsePatternElement(group, localVars);
+			group.patterns.push_back(Pattern(subject, predicate, object));
+			continue;
+		} else if (token == SPARQLLexer::Dot) {
+			return subject;
+		} else if (token == SPARQLLexer::RBracket) {
+			lexer.unget(token);
+			return subject;
+		} else if (token == SPARQLLexer::Identifier) {
+			if (!lexer.isKeyword("filter"))
+				throw ParserException("'filter' expected");
+			parseFilter(group, localVars);
+			continue;
+		} else {
+			// Error while parsing, let out caller handle it
+			lexer.unget(token);
+			return subject;
+		}
+	}
 }
 //---------------------------------------------------------------------------
-SPARQLParser::Element SPARQLParser::parsePatternElement(PatternGroup& group,map<string,unsigned>& localVars)
-   // Parse an entry in a pattern
-{
-   Element result;
-   SPARQLLexer::Token token=lexer.getNext();
-   if (token==SPARQLLexer::Variable) {
-      result.type=Element::Variable;
-      result.id=nameVariable(lexer.getTokenValue());
-   } else if (token==SPARQLLexer::String) {
-      result.type=Element::String;
-      result.value=lexer.getTokenValue();
-   } else if (token==SPARQLLexer::IRI) {
-      result.type=Element::IRI;
-      result.value=lexer.getTokenValue();
-   } else if (token==SPARQLLexer::Anon) {
-      result.type=Element::Variable;
-      result.id=variableCount++;
-   } else if (token==SPARQLLexer::LBracket) {
-      result=parseBlankNode(group,localVars);
-      if (lexer.getNext()!=SPARQLLexer::RBracket)
-         throw ParserException("']' expected");
-   } else if (token==SPARQLLexer::Underscore) {
-      // _:variable
-      if (lexer.getNext()!=SPARQLLexer::Colon)
-         throw ParserException("':' expected");
-      if (lexer.getNext()!=SPARQLLexer::Identifier)
-         throw ParserException("identifier expected after ':'");
-      result.type=Element::Variable;
-      if (localVars.count(lexer.getTokenValue()))
-         result.id=localVars[lexer.getTokenValue()]; else
-         result.id=localVars[lexer.getTokenValue()]=variableCount++;
-   } else if (token==SPARQLLexer::Colon) {
-      // :identifier. Should reference the base
-      if (lexer.getNext()!=SPARQLLexer::Identifier)
-         throw ParserException("identifier expected after ':'");
-      result.type=Element::IRI;
-      result.value=lexer.getTokenValue();
-   } else if (token==SPARQLLexer::Identifier) {
-      string prefix=lexer.getTokenValue();
-      // Handle the keyword 'a'
-      if (prefix=="a") {
-         result.type=Element::IRI;
-         result.value="http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
-      } else {
-         // prefix:suffix
-         if (lexer.getNext()!=SPARQLLexer::Colon)
-            throw ParserException("':' expected after '"+prefix+"'");
-         if (!prefixes.count(prefix))
-            throw ParserException("unknown prefix '"+prefix+"'");
-         if (lexer.getNext()!=SPARQLLexer::Identifier)
-            throw ParserException("identifier expected after ':'");
-         result.type=Element::IRI;
-         result.value=prefixes[prefix]+lexer.getTokenValue();
-      }
-   } else {
-      throw ParserException("invalid pattern element");
-   }
-   return result;
+SPARQLParser::Element SPARQLParser::parsePatternElement(PatternGroup& group,
+		map<string, unsigned>& localVars)
+		// Parse an entry in a pattern
+		{
+	Element result;
+	SPARQLLexer::Token token = lexer.getNext();
+	if (token == SPARQLLexer::Variable) {
+		result.type = Element::Variable;
+		result.id = nameVariable(lexer.getTokenValue());
+	} else if (token == SPARQLLexer::String) {
+		result.type = Element::Constant;
+		result.dataType = STRING;
+		string str = lexer.getTokenValue();
+		result.dValue = lexer.getValueFromToken(str, result.dataType);
+		if (result.dataType == STRING) {
+			result.value = str;
+		} else if (result.dataType == NONE) {
+			throw ParserException("invalid pattern element");
+		}
+	} else if (token == SPARQLLexer::IRI) {
+		result.type = Element::Constant;
+		result.dataType = STRING;
+		result.value = lexer.getTokenValue();
+	} else if (token == SPARQLLexer::Bool) {
+		result.type = Element::Constant;
+		result.dataType = BOOL;
+		string str = lexer.getTokenValue();
+		result.dValue = lexer.getValueFromToken(str, result.dataType);
+		if (result.dataType == NONE) {
+			throw ParserException("invalid pattern element");
+		}
+	} else if (token == SPARQLLexer::Char) {
+		result.type = Element::Constant;
+		result.dataType = CHAR;
+		string str = lexer.getTokenValue();
+		result.dValue = lexer.getValueFromToken(str, result.dataType);
+		if (result.dataType == NONE) {
+			throw ParserException("invalid pattern element");
+		}
+	} else if (token == SPARQLLexer::Integer) {
+		result.type = Element::Constant;
+		result.dataType = INT;
+		string str = lexer.getTokenValue();
+		result.dValue = lexer.getValueFromToken(str, result.dataType);
+		if (result.dataType == NONE) {
+			throw ParserException("invalid pattern element");
+		}
+	} else if (token == SPARQLLexer::Double) {
+		result.type = Element::Constant;
+		result.dataType = DOUBLE;
+		string str = lexer.getTokenValue();
+		result.dValue = lexer.getValueFromToken(str, result.dataType);
+		if (result.dataType == NONE) {
+			throw ParserException("invalid pattern element");
+		}
+	} else if (token == SPARQLLexer::Anon) {
+		result.type = Element::Variable;
+		result.id = variableCount++;
+	} else if (token == SPARQLLexer::LBracket) {
+		result = parseBlankNode(group, localVars);
+		if (lexer.getNext() != SPARQLLexer::RBracket)
+			throw ParserException("']' expected");
+	} else if (token == SPARQLLexer::Underscore) {
+		// _:variable
+		if (lexer.getNext() != SPARQLLexer::Colon)
+			throw ParserException("':' expected");
+		if (lexer.getNext() != SPARQLLexer::Identifier)
+			throw ParserException("identifier expected after ':'");
+		result.type = Element::Variable;
+		if (localVars.count(lexer.getTokenValue()))
+			result.id = localVars[lexer.getTokenValue()];
+		else
+			result.id = localVars[lexer.getTokenValue()] = variableCount++;
+	} else if (token == SPARQLLexer::Colon) {
+		// :identifier. Should reference the base
+		if (lexer.getNext() != SPARQLLexer::Identifier)
+			throw ParserException("identifier expected after ':'");
+		result.type = Element::Constant;
+		result.dataType = STRING;
+		result.value = lexer.getTokenValue();
+	} else if (token == SPARQLLexer::Identifier) {
+		string prefix = lexer.getTokenValue();
+		// Handle the keyword 'a'
+		if (prefix == "a") {
+			result.type = Element::Constant;
+			result.dataType = STRING;
+			result.value = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+		} else {
+			// prefix:suffix
+			if (lexer.getNext() != SPARQLLexer::Colon)
+				throw ParserException("':' expected after '" + prefix + "'");
+			if (!prefixes.count(prefix))
+				throw ParserException("unknown prefix '" + prefix + "'");
+			if (lexer.getNext() != SPARQLLexer::Identifier)
+				throw ParserException("identifier expected after ':'");
+			result.type = Element::Constant;
+			result.dataType = STRING;
+			result.value = prefixes[prefix] + lexer.getTokenValue();
+		}
+	} else {
+		throw ParserException("invalid pattern element");
+	}
+	return result;
 }
 //---------------------------------------------------------------------------
 void SPARQLParser::parseGraphPattern(PatternGroup& group)
-   // Parse a graph pattern
-{
-   map<string,unsigned> localVars;
+// Parse a graph pattern
+		{
+	map<string, unsigned> localVars;
 
-   // Parse the first pattern
-   Element subject=parsePatternElement(group,localVars);
-   Element predicate=parsePatternElement(group,localVars);
-   Element object=parsePatternElement(group,localVars);
-   group.patterns.push_back(Pattern(subject,predicate,object));
+	// Parse the first pattern
+	Element subject = parsePatternElement(group, localVars);
+	Element predicate = parsePatternElement(group, localVars);
+	Element object = parsePatternElement(group, localVars);
+	group.patterns.push_back(Pattern(subject, predicate, object));
 
-   // Check for the tail
-   while (true) {
-      SPARQLLexer::Token token=lexer.getNext();
-      if (token==SPARQLLexer::Semicolon) {
-         predicate=parsePatternElement(group,localVars);
-         object=parsePatternElement(group,localVars);
-         group.patterns.push_back(Pattern(subject,predicate,object));
-         continue;
-      } else if (token==SPARQLLexer::Comma) {
-         object=parsePatternElement(group,localVars);
-         group.patterns.push_back(Pattern(subject,predicate,object));
-         continue;
-      } else if (token==SPARQLLexer::Dot) {
-         return;
-      } else if (token==SPARQLLexer::RCurly) {
-         lexer.unget(token);
-         return;
-      } else if (token==SPARQLLexer::Identifier) {
-         if (!lexer.isKeyword("filter"))
-            throw ParserException("'filter' expected");
-         parseFilter(group,localVars);
-         continue;
-      } else {
-         // Error while parsing, let our caller handle it
-         lexer.unget(token);
-         return;
-      }
-   }
+	// Check for the tail
+	while (true) {
+		SPARQLLexer::Token token = lexer.getNext();
+		if (token == SPARQLLexer::Semicolon) {
+			predicate = parsePatternElement(group, localVars);
+			object = parsePatternElement(group, localVars);
+			group.patterns.push_back(Pattern(subject, predicate, object));
+			continue;
+		} else if (token == SPARQLLexer::Comma) {
+			object = parsePatternElement(group, localVars);
+			group.patterns.push_back(Pattern(subject, predicate, object));
+			continue;
+		} else if (token == SPARQLLexer::Dot) {
+			return;
+		} else if (token == SPARQLLexer::RCurly) {
+			lexer.unget(token);
+			return;
+		} else if (token == SPARQLLexer::Identifier) {
+			if (!lexer.isKeyword("filter"))
+				throw ParserException("'filter' expected");
+			parseFilter(group, localVars);
+			continue;
+		} else {
+			// Error while parsing, let our caller handle it
+			lexer.unget(token);
+			return;
+		}
+	}
 }
 //---------------------------------------------------------------------------
 void SPARQLParser::parseGroupGraphPattern(PatternGroup& group)
-   // Parse a group of patterns
-{
+// Parse a group of patterns
+		{
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << endl;
 #endif
-   while (true) {
-      SPARQLLexer::Token token=lexer.getNext();
+	while (true) {
+		SPARQLLexer::Token token = lexer.getNext();
 
-      if (token==SPARQLLexer::LCurly) {
-         // Parse the group
-         PatternGroup newGroup;
-         parseGroupGraphPattern(newGroup);
+		if (token == SPARQLLexer::LCurly) {
+			// Parse the group
+			PatternGroup newGroup;
+			parseGroupGraphPattern(newGroup);
 
-         // Union statement?
-         token=lexer.getNext();
-         if ((token==SPARQLLexer::Identifier)&&(lexer.isKeyword("union"))) {
-            group.unions.push_back(vector<PatternGroup>());
-            vector<PatternGroup>& currentUnion=group.unions.back();
-            currentUnion.push_back(newGroup);
-            while (true) {
-               if (lexer.getNext()!=SPARQLLexer::LCurly)
-                  throw ParserException("'{' expected");
-               PatternGroup subGroup;
-               parseGroupGraphPattern(subGroup);
-               currentUnion.push_back(subGroup);
+			// Union statement?
+			token = lexer.getNext();
+			if ((token == SPARQLLexer::Identifier)
+					&& (lexer.isKeyword("union"))) {
+				group.unions.push_back(vector<PatternGroup>());
+				vector<PatternGroup>& currentUnion = group.unions.back();
+				currentUnion.push_back(newGroup);
+				while (true) {
+					if (lexer.getNext() != SPARQLLexer::LCurly)
+						throw ParserException("'{' expected");
+					PatternGroup subGroup;
+					parseGroupGraphPattern(subGroup);
+					currentUnion.push_back(subGroup);
 
-               // Another union?
-               token=lexer.getNext();
-               if ((token==SPARQLLexer::Identifier)&&(lexer.isKeyword("union")))
-                  continue;
-               break;
-            }
-         } else {
-            // No, simply merge it
-            group.patterns.insert(group.patterns.end(),newGroup.patterns.begin(),newGroup.patterns.end());
-            group.filters.insert(group.filters.end(),newGroup.filters.begin(),newGroup.filters.end());
-            group.optional.insert(group.optional.end(),newGroup.optional.begin(),newGroup.optional.end());
-            group.unions.insert(group.unions.end(),newGroup.unions.begin(),newGroup.unions.end());
-         }
-         if (token!=SPARQLLexer::Dot)
-            lexer.unget(token);
-      } else if ((token==SPARQLLexer::IRI)||(token==SPARQLLexer::Variable)||(token==SPARQLLexer::Identifier)||(token==SPARQLLexer::String)||(token==SPARQLLexer::Underscore)||(token==SPARQLLexer::Colon)||(token==SPARQLLexer::LBracket)||(token==SPARQLLexer::Anon)) {
-         // Distinguish filter conditions
-         if ((token==SPARQLLexer::Identifier)&&(lexer.isKeyword("filter"))) {
-            map<string,unsigned> localVars;
-            parseFilter(group,localVars);
-         } else {
-            lexer.unget(token);
-            parseGraphPattern(group);
-         }
-      } else if (token==SPARQLLexer::RCurly) {
-         break;
-      } else {
-         throw ParserException("'}' expected");
-      }
-   }
+					// Another union?
+					token = lexer.getNext();
+					if ((token == SPARQLLexer::Identifier)
+							&& (lexer.isKeyword("union")))
+						continue;
+					break;
+				}
+			} else {
+				// No, simply merge it
+				group.patterns.insert(group.patterns.end(),
+						newGroup.patterns.begin(), newGroup.patterns.end());
+				group.filters.insert(group.filters.end(),
+						newGroup.filters.begin(), newGroup.filters.end());
+				group.optional.insert(group.optional.end(),
+						newGroup.optional.begin(), newGroup.optional.end());
+				group.unions.insert(group.unions.end(), newGroup.unions.begin(),
+						newGroup.unions.end());
+			}
+			if (token != SPARQLLexer::Dot)
+				lexer.unget(token);
+		} else if ((token == SPARQLLexer::IRI)
+				|| (token == SPARQLLexer::Variable)
+				|| (token == SPARQLLexer::Identifier)
+				|| (token == SPARQLLexer::String)
+				|| (token == SPARQLLexer::Bool)
+				|| (token == SPARQLLexer::Char)
+				|| (token == SPARQLLexer::Integer)
+				|| (token == SPARQLLexer::Double)
+				|| (token == SPARQLLexer::Underscore)
+				|| (token == SPARQLLexer::Colon)
+				|| (token == SPARQLLexer::LBracket)
+				|| (token == SPARQLLexer::Anon)) {
+			// Distinguish filter conditions
+			if ((token == SPARQLLexer::Identifier)
+					&& (lexer.isKeyword("filter"))) {
+				map<string, unsigned> localVars;
+				parseFilter(group, localVars);
+			}else {
+				lexer.unget(token);
+				parseGraphPattern(group);
+			}
+		} else if (token == SPARQLLexer::RCurly) {
+			break;
+		} else if(token == SPARQLLexer::Error || token == SPARQLLexer::None){
+			throw ParserException("invalid syntax");
+		}else {
+			throw ParserException("'}' expected");
+		}
+	}
 }
 //---------------------------------------------------------------------------
 void SPARQLParser::parseWhere()
-   // Parse the where part if any
+// Parse the where part if any
 {
-   while (true) {
-      SPARQLLexer::Token token=lexer.getNext();
+	while (true) {
+		SPARQLLexer::Token token = lexer.getNext();
 
-      if ((token==SPARQLLexer::Identifier)&&(lexer.isKeyword("where"))) {
-         if (lexer.getNext()!=SPARQLLexer::LCurly)
-            throw ParserException("'{' expected");
+		if ((token == SPARQLLexer::Identifier) && (lexer.isKeyword("where"))) {
+			if (lexer.getNext() != SPARQLLexer::LCurly)
+				throw ParserException("'{' expected");
 
-         patterns=PatternGroup();
-         parseGroupGraphPattern(patterns);
-      } else {
-         lexer.unget(token);
-         return;
-      }
-   }
+			patterns = PatternGroup();
+			parseGroupGraphPattern(patterns);
+		} else {
+			lexer.unget(token);
+			return;
+		}
+	}
 }
 //---------------------------------------------------------------------------
 void SPARQLParser::parseLimit()
-   // Parse the limit part if any
+// Parse the limit part if any
 {
-   SPARQLLexer::Token token=lexer.getNext();
+	SPARQLLexer::Token token = lexer.getNext();
 
-   if ((token==SPARQLLexer::Identifier)&&(lexer.isKeyword("limit"))) {
-      if (lexer.getNext()!=SPARQLLexer::Identifier)
-         throw ParserException("number expected after 'limit'");
-      limit=atoi(lexer.getTokenValue().c_str());
-      if (limit==0)
-         throw ParserException("invalid limit specifier");
-   } else {
-      lexer.unget(token);
-   }
+	if ((token == SPARQLLexer::Identifier) && (lexer.isKeyword("limit"))) {
+		if (lexer.getNext() != SPARQLLexer::Identifier)
+			throw ParserException("number expected after 'limit'");
+		limit = atoi(lexer.getTokenValue().c_str());
+		if (limit == 0)
+			throw ParserException("invalid limit specifier");
+	} else {
+		lexer.unget(token);
+	}
 }
 //---------------------------------------------------------------------------
 void SPARQLParser::parse()
-   // Parse the input
+// Parse the input
 {
-   // Parse the prefix part
+	// Parse the prefix part
 	parsePrefix();
 
 	// Parser the QueryString

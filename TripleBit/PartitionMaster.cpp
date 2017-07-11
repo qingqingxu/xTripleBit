@@ -171,7 +171,7 @@ void PartitionMaster::Work() {
 			delete subTransaction;
 			break;
 		case TripleBitQueryGraph::DELETE_CLAUSE:
-			//executeDeleteClause(subTransaction);
+			executeDeleteClause(subTransaction);
 			delete subTransaction;
 			break;
 		case TripleBitQueryGraph::UPDATE:
@@ -454,99 +454,70 @@ void PartitionMaster::executeDeleteData(SubTrans* subTransaction) {
 	executeInsertData(subTransaction);
 }
 
-/*
- void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
- #ifdef MYDEBUG
- cout << __FUNCTION__ << endl;
- #endif
- ID subjectID = subTransaction->triple.subject;
- ID objectID = subTransaction->triple.object;
- int soType, xyType;
- size_t xChunkIDMin, xChunkIDMax, xyChunkIDMin, xyChunkIDMax;
- size_t chunkCount, xChunkCount, xyChunkCount;
- xChunkIDMin = xChunkIDMax = xyChunkIDMin = xyChunkIDMax = 0;
- chunkCount = xChunkCount = xyChunkCount = 0;
+void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
+	ID subjectID = subTransaction->triple.subjectID;
+	double object = subTransaction->triple.object;
+	char objType = subTransaction->triple.objType;
 
- if (subTransaction->triple.constSubject) {
- soType = 0;
- xyType = 1;
- if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(subjectID, subjectID + 1, xChunkIDMin)) {
- xChunkIDMax = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(subjectID, UINT_MAX);
- assert(xChunkIDMax >= xChunkIDMin);
- xChunkCount = xChunkIDMax - xChunkIDMin + 1;
- } else
- xChunkCount = 0;
+	size_t chunkCount = 0, chunkIDMin = 0, chunkIDMax = 0;
 
- xyType = 2;
- if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(subjectID, 0, xyChunkIDMin)) {
- xyChunkIDMax = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(subjectID, subjectID - 1);
- assert(xyChunkIDMax >= xyChunkIDMin);
- xyChunkCount = xyChunkIDMax - xyChunkIDMin + 1;
- } else {
- xyChunkCount = 0;
- }
+	if (subTransaction->triple.constSubject) {
+		if (partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
+				subjectID, subjectID + 1, chunkIDMin)) {
+			chunkIDMax =
+					partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
+							subjectID, UINT_MAX);
+			assert(chunkIDMax >= chunkIDMin);
+			chunkCount = chunkIDMax - chunkIDMin + 1;
+		} else {
+			return;
+		}
 
- if (xChunkCount + xyChunkCount == 0)
- return;
+		shared_ptr<subTaskPackage> taskPackage(
+				new subTaskPackage(chunkCount, subTransaction->operationType, 0,
+						0, 0, subjectID, 0, partitionBufferManager));
+		if (chunkCount != 0) {
+			for (size_t offsetID = chunkIDMin; offsetID <= chunkIDMax;
+					offsetID++) {
+				ChunkTask *chunkTask = new ChunkTask(
+						subTransaction->operationType, subjectID, object,
+						objType, subTransaction->triple.scanOperation,
+						taskPackage, subTransaction->indexForTT);
+				taskEnQueue(chunkTask, xChunkQueue[ORDERBYS][offsetID]);
+			}
+		}
+	} else {
+		if (partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(
+				object, object + 1, chunkIDMin)) {
+			chunkIDMax =
+					partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(
+							object, UINT_MAX);
+			assert(chunkIDMax >= chunkIDMin);
+			chunkCount = chunkIDMax - chunkIDMin + 1;
+		} else {
+			return;
+		}
 
- chunkCount = xChunkCount + xyChunkCount;
- shared_ptr<subTaskPackage> taskPackage(
- new subTaskPackage(chunkCount, subTransaction->operationType, 0, 0, 0, subjectID, 0, partitionBufferManager));
- if (xChunkCount != 0) {
- for (size_t offsetID = xChunkIDMin; offsetID <= xChunkIDMax; offsetID++) {
- ChunkTask *chunkTask = new ChunkTask(subTransaction->operationType, subjectID, objectID, subTransaction->triple.scanOperation,
- taskPackage, subTransaction->indexForTT);
- taskEnQueue(chunkTask, xChunkQueue[soType][offsetID]);
- }
- }
- if (xyChunkCount != 0) {
- for (size_t offsetID = xyChunkIDMin; offsetID <= xyChunkIDMax; offsetID++) {
- ChunkTask *chunkTask = new ChunkTask(subTransaction->operationType, subjectID, objectID, subTransaction->triple.scanOperation,
- taskPackage, subTransaction->indexForTT);
- taskEnQueue(chunkTask, xyChunkQueue[soType][offsetID]);
- }
- }
- } else {
- soType = 1;
- xyType = 1;
- if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(objectID, objectID + 1, xChunkIDMin)) {
- xChunkIDMax = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(objectID, UINT_MAX);
- assert(xChunkIDMax >= xChunkIDMin);
- xChunkCount = xChunkIDMax - xChunkIDMin + 1;
- } else
- xChunkCount = 0;
+		shared_ptr<subTaskPackage> taskPackage(
+				new subTaskPackage(chunkCount, subTransaction->operationType, 0,
+						0, 0, object, 0, partitionBufferManager));
+		if (chunkCount != 0) {
+			for (size_t offsetID = chunkIDMin; offsetID <= chunkIDMax;
+					offsetID++) {
+				ChunkTask *chunkTask = new ChunkTask(
+						subTransaction->operationType, subjectID, object,
+						objType, subTransaction->triple.scanOperation,
+						taskPackage, subTransaction->indexForTT);
+				taskEnQueue(chunkTask, xChunkQueue[ORDERBYO][offsetID]);
+			}
+		}
+	}
+}
 
- xyType = 2;
- if (partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(objectID, 0, xyChunkIDMin)) {
- xyChunkIDMax = partitionChunkManager[soType]->getChunkIndex(xyType)->searchChunk(objectID, objectID - 1);
- assert(xyChunkIDMax >= xyChunkIDMin);
- xyChunkCount = xyChunkIDMax - xyChunkIDMin + 1;
- } else
- xyChunkCount = 0;
-
- if (xChunkCount + xyChunkCount == 0)
- return;
- chunkCount = xChunkCount + xyChunkCount;
- shared_ptr<subTaskPackage> taskPackage(
- new subTaskPackage(chunkCount, subTransaction->operationType, 0, 0, 0, objectID, 0, partitionBufferManager));
- if (xChunkCount != 0) {
- for (size_t offsetID = xChunkIDMin; offsetID <= xChunkIDMax; offsetID++) {
- ChunkTask *chunkTask = new ChunkTask(subTransaction->operationType, subjectID, objectID, subTransaction->triple.scanOperation,
- taskPackage, subTransaction->indexForTT);
- taskEnQueue(chunkTask, xChunkQueue[soType][offsetID]);
- }
- }
- if (xyChunkCount != 0) {
- for (size_t offsetID = xyChunkIDMin; offsetID <= xyChunkIDMax; offsetID++) {
- ChunkTask *chunkTask = new ChunkTask(subTransaction->operationType, subjectID, objectID, subTransaction->triple.scanOperation,
- taskPackage, subTransaction->indexForTT);
- taskEnQueue(chunkTask, xyChunkQueue[soType][offsetID]);
- }
- }
- }
- }
-
- void PartitionMaster::executeUpdate(SubTrans *subTransfirst, SubTrans *subTranssecond) {
+/*void PartitionMaster::executeUpdate(SubTrans *subTransfirst, SubTrans *subTranssecond) {
  #ifdef MYDEBUG
  cout << __FUNCTION__ << endl;
  #endif
@@ -671,7 +642,7 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 			executeChunkTaskDeleteData(chunkTask, chunkID, chunkBegin, soType);
 			break;
 		case TripleBitQueryGraph::DELETE_CLAUSE:
-			//executeChunkTaskDeleteClause(chunkTask, chunkID, chunkBegin, xyType, soType);
+			executeChunkTaskDeleteClause(chunkTask, chunkID, chunkBegin, soType);
 			break;
 		case TripleBitQueryGraph::UPDATE:
 			//executeChunkTaskUpdate(chunkTask, chunkID, chunkBegin, xyType, soType);
@@ -1265,115 +1236,84 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
  xyChunkQueue[deleteSOType][chunkID]->EnQueue(chunkTask);
  }
  }
- }
+ }*/
 
- void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask, const ID chunkID, const uchar *startPtr, const int xyType,
- const int soType) {
- ID deleteXID = 0, deleteXYID = 0;
- if (soType == 0) {
- if (xyType == 1) {
- //sort by S,x < y
- deleteXID = chunkTask->Triple.subject;
- } else if (xyType == 2) {
- //sort by S,x > y
- deleteXYID = chunkTask->Triple.subject;
- }
- } else if (soType == 1) {
- if (xyType == 1) {
- //sort by O, x<y
- deleteXID = chunkTask->Triple.object;
- } else if (xyType == 2) {
- //sort by O, x>y
- deleteXYID = chunkTask->Triple.object;
- }
- }
- EntityIDBuffer *retBuffer = new EntityIDBuffer;
- retBuffer->empty();
- retBuffer->setIDCount(1);
- retBuffer->setSortKey(0);
- register ID x, y;
- const uchar *reader, *limit, *chunkBegin = startPtr;
- uchar *temp;
- if (xyType == 1) {
- //x<y
- MetaData *metaData = (MetaData*) chunkBegin;
- reader = chunkBegin + sizeof(MetaData);
- limit = chunkBegin + metaData->usedSpace;
- while (reader < limit) {
- temp = const_cast<uchar*>(reader);
- reader = Chunk::readYId(Chunk::readXId(reader, x), y);
- if (x < deleteXID)
- continue;
- else if (x == deleteXID) {
- retBuffer->insertID(y);
- temp = Chunk::deleteYId(Chunk::deleteXId(temp));
- } else
- goto END;
- }
- while (metaData->haveNextPage) {
- chunkBegin = reinterpret_cast<uchar*>(TempMMapBuffer::getInstance().getAddress()) + metaData->NextPageNo * MemoryBuffer::pagesize;
- metaData = (MetaData*) chunkBegin;
- reader = chunkBegin + sizeof(MetaData);
- limit = chunkBegin + metaData->usedSpace;
- while (reader < limit) {
- temp = const_cast<uchar*>(reader);
- reader = Chunk::readYId(Chunk::readXId(reader, x), y);
- if (x < deleteXID)
- continue;
- else if (x == deleteXID) {
- retBuffer->insertID(y);
- temp = Chunk::deleteYId(Chunk::deleteXId(temp));
- } else
- goto END;
- }
- }
- } else if (xyType == 2) {
- //x>y
- MetaData *metaData = (MetaData*) chunkBegin;
- reader = chunkBegin + sizeof(MetaData);
- limit = chunkBegin + metaData->usedSpace;
- while (reader < limit) {
- temp = const_cast<uchar*>(reader);
- reader = Chunk::readYId(Chunk::readXId(reader, x), y);
- if (y < deleteXYID)
- continue;
- else if (y == deleteXYID) {
- retBuffer->insertID(x);
- temp = Chunk::deleteYId(Chunk::deleteXId(temp));
- } else
- goto END;
- }
- while (metaData->haveNextPage) {
- chunkBegin = reinterpret_cast<uchar*>(TempMMapBuffer::getInstance().getAddress()) + metaData->NextPageNo * MemoryBuffer::pagesize;
- metaData = (MetaData*) chunkBegin;
- reader = chunkBegin + sizeof(MetaData);
- limit = chunkBegin + metaData->usedSpace;
- while (reader < limit) {
- temp = const_cast<uchar*>(reader);
- reader = Chunk::readYId(Chunk::readXId(reader, x), y);
- if (y < deleteXYID)
- continue;
- else if (y == deleteXYID) {
- retBuffer->insertID(x);
- temp = Chunk::deleteYId(Chunk::deleteXId(temp));
- } else
- goto END;
- }
- }
- }
+void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
+		const ID chunkID, const uchar *startPtr,
+		const bool soType) {
+	ID deleteXID = 0, deleteXYID = 0;
+	if (soType == 0) {
+		if (xyType == 1) {
+			//sort by S,x < y
+			deleteXID = chunkTask->Triple.subject;
+		} else if (xyType == 2) {
+			//sort by S,x > y
+			deleteXYID = chunkTask->Triple.subject;
+		}
+	} else if (soType == 1) {
+		if (xyType == 1) {
+			//sort by O, x<y
+			deleteXID = chunkTask->Triple.object;
+		} else if (xyType == 2) {
+			//sort by O, x>y
+			deleteXYID = chunkTask->Triple.object;
+		}
+	}
+	EntityIDBuffer *retBuffer = new EntityIDBuffer;
+	retBuffer->empty();
+	retBuffer->setIDCount(1);
+	retBuffer->setSortKey(0);
+	register ID x, y;
+	const uchar *reader, *limit, *chunkBegin = startPtr;
+	uchar *temp;
 
- END:
- //	chunkTask->taskPackage->completeSubTask(chunkID, retBuffer, xyType);
- if (chunkTask->taskPackage->completeSubTask(chunkID, retBuffer, xyType)) {
- EntityIDBuffer *buffer = chunkTask->taskPackage->getTaskResult();
- ID deleteID = chunkTask->taskPackage->deleteID;
- deleteDataForDeleteClause(buffer, deleteID, soType);
+		MetaData *metaData = (MetaData*) chunkBegin;
+		reader = chunkBegin + sizeof(MetaData);
+		limit = chunkBegin + metaData->usedSpace;
+		while (reader < limit) {
+			temp = const_cast<uchar*>(reader);
+			reader = Chunk::readYId(Chunk::readXId(reader, x), y);
+			if (x < deleteXID)
+				continue;
+			else if (x == deleteXID) {
+				retBuffer->insertID(y);
+				temp = Chunk::deleteYId(Chunk::deleteXId(temp));
+			} else
+				goto END;
+		}
+		while (metaData->haveNextPage) {
+			chunkBegin =
+					reinterpret_cast<uchar*>(TempMMapBuffer::getInstance().getAddress())
+							+ metaData->NextPageNo * MemoryBuffer::pagesize;
+			metaData = (MetaData*) chunkBegin;
+			reader = chunkBegin + sizeof(MetaData);
+			limit = chunkBegin + metaData->usedSpace;
+			while (reader < limit) {
+				temp = const_cast<uchar*>(reader);
+				reader = Chunk::readYId(Chunk::readXId(reader, x), y);
+				if (x < deleteXID)
+					continue;
+				else if (x == deleteXID) {
+					retBuffer->insertID(y);
+					temp = Chunk::deleteYId(Chunk::deleteXId(temp));
+				} else
+					goto END;
+			}
+		}
 
- partitionBufferManager->freeBuffer(buffer);
- }
- retBuffer = NULL;
- }
 
+	END:
+	//	chunkTask->taskPackage->completeSubTask(chunkID, retBuffer, xyType);
+	if (chunkTask->taskPackage->completeSubTask(chunkID, retBuffer)) {
+		EntityIDBuffer *buffer = chunkTask->taskPackage->getTaskResult();
+		ID deleteID = chunkTask->taskPackage->deleteID;
+		deleteDataForDeleteClause(buffer, deleteID, soType);
+
+		partitionBufferManager->freeBuffer(buffer);
+	}
+	retBuffer = NULL;
+}
+/*
  void PartitionMaster::updateDataForUpdate(EntityIDBuffer *buffer, const ID deleteID, const ID updateID, const int soType) {
  size_t size = buffer->getSize();
  ID *retBuffer = buffer->getBuffer();
