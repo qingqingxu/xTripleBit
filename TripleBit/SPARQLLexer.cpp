@@ -218,7 +218,7 @@ SPARQLLexer::Token SPARQLLexer::getNext()
 			}
 			tokenEnd = pos;
 			hasTokenEnd = true;
-			string value = getTokenValue();
+			value = getTokenValue();
 			if (strcasecmp(value.c_str(), "true") == 0) {
 				return Bool;
 			}
