@@ -642,7 +642,8 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 			executeChunkTaskDeleteData(chunkTask, chunkID, chunkBegin, soType);
 			break;
 		case TripleBitQueryGraph::DELETE_CLAUSE:
-			executeChunkTaskDeleteClause(chunkTask, chunkID, chunkBegin, soType);
+			executeChunkTaskDeleteClause(chunkTask, chunkID, chunkBegin,
+					soType);
 			break;
 		case TripleBitQueryGraph::UPDATE:
 			//executeChunkTaskUpdate(chunkTask, chunkID, chunkBegin, xyType, soType);
@@ -1191,83 +1192,102 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 	}
 }
 
-/*
- void PartitionMaster::deleteDataForDeleteClause(EntityIDBuffer *buffer, const ID deleteID, const bool soType) {
- size_t size = buffer->getSize();
- ID *retBuffer = buffer->getBuffer();
- size_t index;
- int chunkID;
- shared_ptr<subTaskPackage> taskPackage(new subTaskPackage);
- shared_ptr<IndexForTT> indexForTT(new IndexForTT);
- TripleBitQueryGraph::OpType operationType = TripleBitQueryGraph::DELETE_DATA;
- TripleNode::Op scanType = TripleNode::NOOP;
+void PartitionMaster::deleteDataForDeleteClause(EntityIDBuffer *buffer,
+		const ID deleteID, const bool soType) {
+	size_t size = buffer->getSize();
+	ID *retBuffer = buffer->getBuffer();
+	size_t index;
+	int chunkID;
+	shared_ptr<subTaskPackage> taskPackage(new subTaskPackage);
+	shared_ptr<IndexForTT> indexForTT(new IndexForTT);
+	TripleBitQueryGraph::OpType operationType = TripleBitQueryGraph::DELETE_DATA;
+	TripleNode::Op scanType = TripleNode::NOOP;
 
- for (index = 0; index < size; ++index)
- if (retBuffer[index] > deleteID)
- break;
- if (soType == 0) {
- //deleteID -->subject
- int deleteSOType = 1;
- for (size_t i = 0; i < index; ++i) {
- //object < subject == x<y
- chunkID = partitionChunkManager[deleteSOType]->getChunkIndex(1)->searchChunk(retBuffer[i], deleteID);
- ChunkTask *chunkTask = new ChunkTask(operationType, deleteID, retBuffer[i], scanType, taskPackage, indexForTT);
- xChunkQueue[deleteSOType][chunkID]->EnQueue(chunkTask);
- }
- for (size_t i = index; i < size; ++i) {
- //object >subject == x>y
- chunkID = partitionChunkManager[deleteSOType]->getChunkIndex(2)->searchChunk(retBuffer[i], deleteID);
- ChunkTask *chunkTask = new ChunkTask(operationType, deleteID, retBuffer[i], scanType, taskPackage, indexForTT);
- xyChunkQueue[deleteSOType][chunkID]->EnQueue(chunkTask);
- }
- } else if (soType == 1) {
- //deleteID -->object
- int deleteSOType = 0;
- for (size_t i = 0; i < index; ++i) {
- //subject <object== x<y
- chunkID = partitionChunkManager[deleteSOType]->getChunkIndex(1)->searchChunk(retBuffer[i], deleteID);
- ChunkTask *chunkTask = new ChunkTask(operationType, retBuffer[i], deleteID, scanType, taskPackage, indexForTT);
- xChunkQueue[deleteSOType][chunkID]->EnQueue(chunkTask);
- }
- for (size_t i = index; i < size; ++i) {
- //subject > object == x >y
- chunkID = partitionChunkManager[deleteSOType]->getChunkIndex(2)->searchChunk(retBuffer[i], deleteID);
- ChunkTask *chunkTask = new ChunkTask(operationType, retBuffer[i], deleteID, scanType, taskPackage, indexForTT);
- xyChunkQueue[deleteSOType][chunkID]->EnQueue(chunkTask);
- }
- }
- }*/
-
-void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
-		const ID chunkID, const uchar *startPtr,
-		const bool soType) {
-	ID deleteXID = 0, deleteXYID = 0;
+	for (index = 0; index < size; ++index)
+		if (retBuffer[index] > deleteID)
+			break;
 	if (soType == 0) {
-		if (xyType == 1) {
-			//sort by S,x < y
-			deleteXID = chunkTask->Triple.subject;
-		} else if (xyType == 2) {
-			//sort by S,x > y
-			deleteXYID = chunkTask->Triple.subject;
+		//deleteID -->subject
+		int deleteSOType = 1;
+		for (size_t i = 0; i < index; ++i) {
+			//object < subject == x<y
+			chunkID =
+					partitionChunkManager[deleteSOType]->getChunkIndex(1)->searchChunk(
+							retBuffer[i], deleteID);
+			ChunkTask *chunkTask = new ChunkTask(operationType, deleteID,
+					retBuffer[i], scanType, taskPackage, indexForTT);
+			xChunkQueue[deleteSOType][chunkID]->EnQueue(chunkTask);
+		}
+		for (size_t i = index; i < size; ++i) {
+			//object >subject == x>y
+			chunkID =
+					partitionChunkManager[deleteSOType]->getChunkIndex(2)->searchChunk(
+							retBuffer[i], deleteID);
+			ChunkTask *chunkTask = new ChunkTask(operationType, deleteID,
+					retBuffer[i], scanType, taskPackage, indexForTT);
+			xyChunkQueue[deleteSOType][chunkID]->EnQueue(chunkTask);
 		}
 	} else if (soType == 1) {
-		if (xyType == 1) {
-			//sort by O, x<y
-			deleteXID = chunkTask->Triple.object;
-		} else if (xyType == 2) {
-			//sort by O, x>y
-			deleteXYID = chunkTask->Triple.object;
+		//deleteID -->object
+		int deleteSOType = 0;
+		for (size_t i = 0; i < index; ++i) {
+			//subject <object== x<y
+			chunkID =
+					partitionChunkManager[deleteSOType]->getChunkIndex(1)->searchChunk(
+							retBuffer[i], deleteID);
+			ChunkTask *chunkTask = new ChunkTask(operationType, retBuffer[i],
+					deleteID, scanType, taskPackage, indexForTT);
+			xChunkQueue[deleteSOType][chunkID]->EnQueue(chunkTask);
+		}
+		for (size_t i = index; i < size; ++i) {
+			//subject > object == x >y
+			chunkID =
+					partitionChunkManager[deleteSOType]->getChunkIndex(2)->searchChunk(
+							retBuffer[i], deleteID);
+			ChunkTask *chunkTask = new ChunkTask(operationType, retBuffer[i],
+					deleteID, scanType, taskPackage, indexForTT);
+			xyChunkQueue[deleteSOType][chunkID]->EnQueue(chunkTask);
 		}
 	}
+}
+
+void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
+		const ID chunkID, const uchar *startPtr, const bool soType) {
+	ID subjectID = chunkTask->Triple.subjectID;
+	double object = chunkTask->Triple.object;
+	char objType = chunkTask->Triple.objType;
+
 	EntityIDBuffer *retBuffer = new EntityIDBuffer;
 	retBuffer->empty();
 	retBuffer->setIDCount(1);
 	retBuffer->setSortKey(0);
-	register ID x, y;
+	ID tempSubjectID;
+	double tempObject;
+	char tempObjType;
 	const uchar *reader, *limit, *chunkBegin = startPtr;
 	uchar *temp;
 
-		MetaData *metaData = (MetaData*) chunkBegin;
+	MetaData *metaData = (MetaData*) chunkBegin;
+	reader = chunkBegin + sizeof(MetaData);
+	limit = chunkBegin + metaData->usedSpace;
+	while (reader < limit) {
+		temp = const_cast<uchar*>(reader);
+		reader = partitionChunkManager[soType]->readXY(reader, tempSubjectID,
+				tempObject, tempObjType);
+		if (soType)
+			if (x < deleteXID)
+				continue;
+			else if (x == deleteXID) {
+				retBuffer->insertID(y);
+				temp = Chunk::deleteYId(Chunk::deleteXId(temp));
+			} else
+				goto END;
+	}
+	while (metaData->NextPageNo) {
+		chunkBegin =
+				reinterpret_cast<uchar*>(TempMMapBuffer::getInstance().getAddress())
+						+ metaData->NextPageNo * MemoryBuffer::pagesize;
+		metaData = (MetaData*) chunkBegin;
 		reader = chunkBegin + sizeof(MetaData);
 		limit = chunkBegin + metaData->usedSpace;
 		while (reader < limit) {
@@ -1281,26 +1301,7 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 			} else
 				goto END;
 		}
-		while (metaData->haveNextPage) {
-			chunkBegin =
-					reinterpret_cast<uchar*>(TempMMapBuffer::getInstance().getAddress())
-							+ metaData->NextPageNo * MemoryBuffer::pagesize;
-			metaData = (MetaData*) chunkBegin;
-			reader = chunkBegin + sizeof(MetaData);
-			limit = chunkBegin + metaData->usedSpace;
-			while (reader < limit) {
-				temp = const_cast<uchar*>(reader);
-				reader = Chunk::readYId(Chunk::readXId(reader, x), y);
-				if (x < deleteXID)
-					continue;
-				else if (x == deleteXID) {
-					retBuffer->insertID(y);
-					temp = Chunk::deleteYId(Chunk::deleteXId(temp));
-				} else
-					goto END;
-			}
-		}
-
+	}
 
 	END:
 	//	chunkTask->taskPackage->completeSubTask(chunkID, retBuffer, xyType);
