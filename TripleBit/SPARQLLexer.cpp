@@ -37,6 +37,8 @@ SPARQLLexer::Token SPARQLLexer::getNext()
 
 	// Reset the token end
 	hasTokenEnd = false;
+	int num = 0;
+	string value;
 
 	// Read the string
 	while (pos != input.end()) {
@@ -128,7 +130,7 @@ SPARQLLexer::Token SPARQLLexer::getNext()
 			// Char
 		case '\'':
 			tokenStart = pos;
-			int num = 0;
+			num = 0;
 			pos++;
 			while (pos != input.end() && (*pos) != '\'') {
 				++pos;
@@ -175,7 +177,6 @@ SPARQLLexer::Token SPARQLLexer::getNext()
 		case '8':
 		case '9':
 			tokenStart = pos;
-			bool isHasPoint = false;
 			while (pos != input.end()) {
 				if ((*pos) == '\n') {
 					while ((*pos) != '.') {
@@ -186,7 +187,7 @@ SPARQLLexer::Token SPARQLLexer::getNext()
 			}
 			tokenEnd = pos;
 			hasTokenEnd = true;
-			string value = getTokenValue();
+			value = getTokenValue();
 			return getNumberType(value);
 			//Bool
 		case 'F':
