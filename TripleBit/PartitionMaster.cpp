@@ -1194,7 +1194,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 
 void PartitionMaster::deleteDataForDeleteClause(EntityIDBuffer *buffer,
 		const ID deleteID, const bool soType) {
-	size_t size = buffer->getSize();
+	/*size_t size = buffer->getSize();
 	ID *retBuffer = buffer->getBuffer();
 	size_t index;
 	int chunkID;
@@ -1248,12 +1248,12 @@ void PartitionMaster::deleteDataForDeleteClause(EntityIDBuffer *buffer,
 					deleteID, scanType, taskPackage, indexForTT);
 			xyChunkQueue[deleteSOType][chunkID]->EnQueue(chunkTask);
 		}
-	}
+	}*/
 }
 
 void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 		const ID chunkID, const uchar *startPtr, const bool soType) {
-	ID subjectID = chunkTask->Triple.subjectID;
+	/*ID subjectID = chunkTask->Triple.subjectID;
 	double object = chunkTask->Triple.object;
 	char objType = chunkTask->Triple.objType;
 
@@ -1312,7 +1312,7 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 
 		partitionBufferManager->freeBuffer(buffer);
 	}
-	retBuffer = NULL;
+	retBuffer = NULL;*/
 }
 /*
  void PartitionMaster::updateDataForUpdate(EntityIDBuffer *buffer, const ID deleteID, const ID updateID, const int soType) {
