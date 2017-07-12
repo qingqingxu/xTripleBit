@@ -17,6 +17,7 @@
 #include <tr1/memory>
 #include <float.h>
 #include <assert.h>
+#include <limits.h>
 
 using namespace std;
 

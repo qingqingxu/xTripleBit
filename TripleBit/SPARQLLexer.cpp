@@ -202,7 +202,7 @@ SPARQLLexer::Token SPARQLLexer::getNext()
 
 			tokenEnd = pos;
 			hasTokenEnd = true;
-			string value = getTokenValue();
+			value = getTokenValue();
 			if (strcasecmp(value.c_str(), "false") == 0) {
 				return Bool;
 			}
@@ -361,6 +361,8 @@ SPARQLLexer::Token SPARQLLexer::getNumberType(string& s) {
 
 double SPARQLLexer::getValueFromToken(const std::string& value,
 		DataType& dataType) {
+	double tmp;
+	string tmpValue;
 	switch (dataType) {
 	case BOOL:
 	case CHAR:
@@ -377,7 +379,7 @@ double SPARQLLexer::getValueFromToken(const std::string& value,
 		return (double) ll;
 	}
 	case DOUBLE:
-		double tmp = atof(value.c_str());
+		tmp = atof(value.c_str());
 		if (tmp == HUGE_VAL) {
 			MessageEngine::showMessage("data convert to double error",
 					MessageEngine::ERROR);
@@ -390,8 +392,7 @@ double SPARQLLexer::getValueFromToken(const std::string& value,
 		}
 		return tmp;
 	case STRING:
-		double tmp;
-		string tmpValue(value);
+		tmpValue = value;
 		if (lexDate(tmpValue, tmp)) {
 			dataType = DATE;
 			return tmp;
