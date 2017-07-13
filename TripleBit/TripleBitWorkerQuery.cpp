@@ -378,8 +378,37 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 						0, operationType, 1, *iter, indexForTT);
 				tasksEnQueue(i, subTrans);
 			}
-		}
-		if(iter->constSubject) {
+		} else if (iter->constSubject && iter->constObject) {
+			size_t subjectCounts = 0, objectCounts = 0;
+			tripleBitRepo->spStatisBuffer->getStatisBySO(iter->subjectID,
+					subjectCounts, STRING);
+			tripleBitRepo->spStatisBuffer->getStatisBySO(iter->object,
+					objectCounts, iter->objType);
+			//若S的triple数少，根据sp匹配o进行删除
+			if (subjectCounts <= objectCounts) {
+				vector<ID> pids;
+				tripleBitRepo->spStatisBuffer->findAllPredicateBySO(
+						iter->subjectID, pids, STRING);
+				for (vector<ID>::iterator it = pids.begin(); it != pids.end();
+						it++) {
+					SubTrans *subTrans = new SubTrans(*transactionTime,
+							workerID, 0, 0, operationType, 1, *iter,
+							indexForTT);
+					tasksEnQueue(*it, subTrans);
+				}
+			} else {
+				vector<ID> pids;
+				tripleBitRepo->spStatisBuffer->findAllPredicateBySO(
+						iter->object, pids, iter->objType);
+				for (vector<ID>::iterator it = pids.begin(); it != pids.end();
+						it++) {
+					SubTrans *subTrans = new SubTrans(*transactionTime,
+							workerID, 0, 0, operationType, 1, *iter,
+							indexForTT);
+					tasksEnQueue(*it, subTrans);
+				}
+			}
+		} else if (iter->constSubject) {
 			//subject已知
 			vector<ID> pids;
 			tripleBitRepo->spStatisBuffer->findAllPredicateBySO(iter->subjectID,
@@ -390,8 +419,7 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 						0, operationType, 1, *iter, indexForTT);
 				tasksEnQueue(*it, subTrans);
 			}
-		}
-		if (iter->constObject) {
+		}else if (iter->constObject) {
 			//object已知
 			vector<ID> pids;
 			tripleBitRepo->spStatisBuffer->findAllPredicateBySO(iter->object,

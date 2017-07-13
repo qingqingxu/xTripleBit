@@ -63,6 +63,10 @@ const unsigned int STATISTICS_BUFFER_INCREMENT_PAGE_COUNT = 1;
 const unsigned int ENTITY_BUFFER_INIT_PAGE_COUNT = 1;
 const unsigned int ENTITY_BUFFER_INCREMENT_PAGE_COUNT = 2;
 
+//middle result buffer settings
+const unsigned int MIDRESULT_BUFFER_INIT_PAGE_COUNT = 1;
+const unsigned int MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT = 2;
+
 //temp buffer settings
 const unsigned int TEMPMMAPBUFFER_INIT_PAGE = 1000;
 const unsigned int TEMPBUFFER_INIT_PAGE_COUNT = 1;

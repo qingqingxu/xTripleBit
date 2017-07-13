@@ -464,17 +464,29 @@ void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
 
 	size_t chunkCount = 0, chunkIDMin = 0, chunkIDMax = 0;
 
-	if (subTransaction->triple.constSubject) {
-		if (partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
-				subjectID, subjectID + 1, chunkIDMin)) {
+	if ((!subTransaction->triple.constSubject
+			&& !subTransaction->triple.constObject)
+			|| subTransaction->triple.constSubject) {
+		//subject已知、object无论是否已知，均先处理subject的删除
+		if (!subTransaction->triple.constSubject
+				&& !subTransaction->triple.constObject) {
 			chunkIDMax =
-					partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
-							subjectID, UINT_MAX);
-			assert(chunkIDMax >= chunkIDMin);
-			chunkCount = chunkIDMax - chunkIDMin + 1;
+					partitionChunkManager[ORDERBYS]->getChunkIndex()->getTableSize()
+							- 1;
 		} else {
-			return;
+			if (partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
+					subjectID, subjectID + 1, chunkIDMin)) {
+				chunkIDMax =
+						partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
+								subjectID, UINT_MAX);
+				assert(chunkIDMax >= chunkIDMin);
+
+			} else {
+				return;
+			}
 		}
+
+		chunkCount = chunkIDMax - chunkIDMin + 1;
 
 		shared_ptr<subTaskPackage> taskPackage(
 				new subTaskPackage(chunkCount, subTransaction->operationType, 0,
@@ -489,7 +501,8 @@ void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
 				taskEnQueue(chunkTask, xChunkQueue[ORDERBYS][offsetID]);
 			}
 		}
-	} else {
+	} else if (!subTransaction->triple.constSubject
+			&& subTransaction->triple.constObject) {
 		if (partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(
 				object, object + 1, chunkIDMin)) {
 			chunkIDMax =
@@ -1194,7 +1207,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 
 void PartitionMaster::deleteDataForDeleteClause(EntityIDBuffer *buffer,
 		const ID deleteID, const bool soType) {
-	/*size_t size = buffer->getSize();
+	size_t size = buffer->getSize();
 	ID *retBuffer = buffer->getBuffer();
 	size_t index;
 	int chunkID;
@@ -1248,12 +1261,12 @@ void PartitionMaster::deleteDataForDeleteClause(EntityIDBuffer *buffer,
 					deleteID, scanType, taskPackage, indexForTT);
 			xyChunkQueue[deleteSOType][chunkID]->EnQueue(chunkTask);
 		}
-	}*/
+	}
 }
 
 void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 		const ID chunkID, const uchar *startPtr, const bool soType) {
-	/*ID subjectID = chunkTask->Triple.subjectID;
+	ID subjectID = chunkTask->Triple.subjectID;
 	double object = chunkTask->Triple.object;
 	char objType = chunkTask->Triple.objType;
 
@@ -1312,7 +1325,7 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 
 		partitionBufferManager->freeBuffer(buffer);
 	}
-	retBuffer = NULL;*/
+	retBuffer = NULL;
 }
 /*
  void PartitionMaster::updateDataForUpdate(EntityIDBuffer *buffer, const ID deleteID, const ID updateID, const int soType) {
