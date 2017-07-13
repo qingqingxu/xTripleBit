@@ -115,6 +115,105 @@ void MidResultBuffer::resize(size_t size) {
 	}
 }
 
+Status MidResultBuffer::insertSIGNALID(ID id) {
+	if (usedSize == totalSize) {
+		spIDs = (ID*) realloc((char*) spIDs,
+				totalSize * sizeof(ID)
+						+ MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT
+								* getpagesize());
+		pSpIDs = spIDs + totalSize;
+		totalSize = totalSize
+				+ MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT * sizePerPage;
+		pos = 0;
+	}
+
+	pSpIDs[pos] = id;
+	usedSize++;
+	pos++;
+
+	return OK;
+}
+Status MidResultBuffer::insertObject(double object, char objType) {
+	if (usedSize == totalSize) {
+		objects = (SignalO*) realloc((char*) objects,
+				totalSize * sizeof(SignalO)
+						+ MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT
+								* getpagesize());
+		pObjects = objects + totalSize;
+		totalSize = totalSize
+				+ MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT * sizePerPage;
+		pos = 0;
+	}
+
+	pObjects[pos].object = object;
+	pObjects[pos].objType = objType;
+	usedSize++;
+	pos++;
+
+	return OK;
+}
+Status MidResultBuffer::insertSOPO(ID id, double object, char objType) {
+	if (usedSize == totalSize) {
+		sopos = (SOPO*) realloc((char*) sopos,
+				totalSize * sizeof(SOPO)
+						+ MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT
+								* getpagesize());
+		pSopos = sopos + totalSize;
+		totalSize = totalSize
+				+ MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT * sizePerPage;
+		pos = 0;
+	}
+
+	pSopos[pos].spID = id;
+	pSopos[pos].object = object;
+	pSopos[pos].objType = objType;
+	usedSize++;
+	pos++;
+
+	return OK;
+}
+Status MidResultBuffer::insertSP(ID subjectID, ID predicateID) {
+	if (usedSize == totalSize) {
+		sps = (SP*) realloc((char*) sps,
+				totalSize * sizeof(SP)
+						+ MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT
+								* getpagesize());
+		pSps = sps + totalSize;
+		totalSize = totalSize
+				+ MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT * sizePerPage;
+		pos = 0;
+	}
+
+	pSps[pos].sID = subjectID;
+	pSps[pos].pID = predicateID;
+	usedSize++;
+	pos++;
+
+	return OK;
+}
+Status MidResultBuffer::insertSPO(ID subjectID, ID predicateID, double object,
+		char objType) {
+	if (usedSize == totalSize) {
+		spos = (SPO*) realloc((char*) spos,
+				totalSize * sizeof(SPO)
+						+ MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT
+								* getpagesize());
+		pSpos = spos + totalSize;
+		totalSize = totalSize
+				+ MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT * sizePerPage;
+		pos = 0;
+	}
+
+	pSpos[pos].sID = subjectID;
+	pSpos[pos].pID = predicateID;
+	pSpos[pos].object = object;
+	pSpos[pos].objType = objType;
+	usedSize++;
+	pos++;
+
+	return OK;
+}
+
 EntityIDBuffer::EntityIDBuffer() {
 	// TODO Auto-generated constructor stub
 	buffer = (ID*) malloc(ENTITY_BUFFER_INIT_PAGE_COUNT * getpagesize());

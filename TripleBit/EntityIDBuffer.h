@@ -43,7 +43,7 @@ public:
 	};
 	struct SP {
 		ID sID;
-		ID PID;
+		ID pID;
 	};
 
 	struct SPO {
@@ -63,7 +63,11 @@ public:
 	MidResultBuffer(ResultType resultType);
 	virtual ~MidResultBuffer();
 	void resize(size_t size);
-	Status insertData(ID subject = 0, ID predicateID = 0, double object, char objType = STRING);
+	Status insertSIGNALID(ID id);
+	Status insertObject(double object, char objType);
+	Status insertSOPO(ID id, double object, char objType);
+	Status insertSP(ID subjectID, ID predicateID);
+	Status insertSPO(ID subjectID, ID predicateID, double object, char objType);
 	size_t getUsedSize() const {
 		return usedSize;
 	}
