@@ -154,15 +154,6 @@ Status PredicateTable::getIDByPredicate(const char* str,ID& id)
 	return OK;
 }
 
-Status PredicateTable::getAllPredicateIDs(vector<ID>& ids){
-	FixedObjectPool* idStroffPool =  suffix_segment->idStroffPool;
-	size_t size = idStroffPool->size();
-	for(size_t i = 0; i < size; i++){
-		ids.push_back(idStroffPool->next_id());
-	}
-	return OK;
-}
-
 size_t PredicateTable::getPredicateNo()
 {
 	return suffix_segment->idStroffPool->size();

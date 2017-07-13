@@ -160,6 +160,67 @@ void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
 	}
 }
 
+void StatisticsBuffer::findAllPredicateBySO(const uchar* begin, const uchar* end,
+		double soValue, vector<ID>& pids, char objType) {
+	ID predicateID;
+	size_t tempCount = 0;
+	if (statType == SUBJECTPREDICATE_STATIS) {
+		ID subjectID;
+		while (begin + sizeof(ID) < end) {
+			begin = readData(begin, subjectID);
+			if (subjectID && begin + sizeof(ID) < end) {
+				begin = readData(begin, predicateID);
+				if (predicateID && begin + sizeof(size_t) <= end) {
+					begin = readData(begin, tempCount);
+					if (subjectID == soValue && tempCount != 0) {
+						pids.push_back(predicateID);
+					} else if (subjectID > soValue) {
+						break;
+					}
+				} else {
+					break;
+				}
+			} else {
+				break;
+			}
+		}
+	} else if (statType == OBJECTPREDICATE_STATIS) {
+		char tempObjType;
+		double object;
+		uint moveByteNum;
+		int status;
+		while (begin + sizeof(char) < end) {
+			status = Chunk::getObjTypeStatus(begin, moveByteNum);
+			if (status == DATA_EXSIT) {
+				begin -= moveByteNum;
+				begin = readData(begin, tempObjType);
+				if (begin + Chunk::getLen(objType) < end) {
+					begin = Chunk::read(begin, object, objType);
+					if (begin + sizeof(ID) < end) {
+						begin = readData(begin, predicateID);
+						if (predicateID && begin + sizeof(size_t) <= end) {
+							begin = readData(begin, tempCount);
+							if (soValue == object && objType == tempObjType && tempCount != 0) {
+								pids.push_back(predicateID);
+							} else if (soValue > object) {
+								break;
+							}
+						} else {
+							break;
+						}
+					} else {
+						break;
+					}
+				} else {
+					break;
+				}
+			} else {
+				break;
+			}
+		}
+	}
+}
+
 static inline bool greaterCouple(ID a1, double a2, ID b1, double b2) {
 	return (a1 > b1) || ((a1 == b1) && (a2 > b2));
 }

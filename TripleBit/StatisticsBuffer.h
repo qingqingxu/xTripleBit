@@ -105,7 +105,7 @@ public:
 	Status addStatis(T soValue, ID predicateID, size_t count, char objType =
 			STRING) {
 		unsigned len = Chunk::getLen(objType) + sizeof(ID) + sizeof(size_t);
-		if(statType == OBJECTPREDICATE_STATIS){
+		if (statType == OBJECTPREDICATE_STATIS) {
 			len += sizeof(char);
 		}
 		if (first || usedSpace + len > buffer->getSize()) {
@@ -179,6 +179,35 @@ public:
 
 		return NOT_FOUND;
 	}
+
+	template<typename T>
+	Status findAllPredicateBySO(T soValue, vector<ID>& pids, char objType =
+			STRING) {
+		pids.clear();
+		pos = index, posLimit = index + indexPos;
+		findLocation(soValue);
+		if (pos->soValue >= soValue) {
+			pos--;
+		}
+
+		uint start = pos->count;
+		while (pos <= posLimit && pos->soValue <= soValue) {
+			pos++;
+		}
+
+		uint end = pos->count; // count is usedspace
+		if (pos == (index + indexPos))
+			end = usedSpace;
+
+		const uchar* begin = (uchar*) buffer->getBuffer() + start, *limit =
+				(uchar*) buffer->getBuffer() + end;
+		decodeStatis(begin, limit, soValue, count, objType);
+
+		if (pids.size() != 0) {
+			return OK;
+		}
+		return NOT_FOUND;
+	}
 	//定位SP或OP初始位置,pos: the start address of the first triple;posLimit: the end address of last triple;
 	bool findLocation(ID predicateID, double soValue);
 	//定位S或O初始位置,pos: the start address of the first triple;posLimit: the end address of last triple;
@@ -194,5 +223,7 @@ private:
 			ID predicateID, size_t& count, char objType = STRING);
 	void decodeStatis(const uchar* begin, const uchar* end, double soValue,
 			size_t & count, char objType = STRING);
+	void findAllPredicateBySO(const uchar* begin, const uchar* end, double soValue,
+			vector<ID>& pids, char objType = STRING);
 };
 #endif /* STATISTICSBUFFER_H_ */

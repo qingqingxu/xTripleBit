@@ -29,7 +29,6 @@ public:
 	Status insertTable(const char* str, ID& id);
 	Status getPredicateByID(string& URI, ID id);
 	Status getIDByPredicate(const char* str, ID& id);
-	Status getAllPredicateIDs(vector<ID> & ids);
 	size_t getSize() {
 		return prefix_segment->getSize() + suffix_segment->getSize();
 	}

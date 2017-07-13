@@ -371,15 +371,37 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 		tasksEnQueue(partitionID, subTrans);
 	} else {
 		//predicate未知
-		if(!iter->constSubject && !iter->constObject){
+		if (!iter->constSubject && !iter->constObject) {
 			//subject、object未知
-
-		}else if(iter->constSubject && !iter->constObject){
-			//subject已知、Object未知
-		}else if(!iter->constSubject && iter->constObject){
-			//subject未知、object已知
-		}else{
-			//subject、object均已知
+			for (size_t i = 1; i <= tripleBitRepo->partitionNum; i++) {
+				SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0,
+						0, operationType, 1, *iter, indexForTT);
+				tasksEnQueue(i, subTrans);
+			}
+		}
+		if(iter->constSubject) {
+			//subject已知
+			vector<ID> pids;
+			tripleBitRepo->spStatisBuffer->findAllPredicateBySO(iter->subjectID,
+					pids, STRING);
+			for (vector<ID>::iterator it = pids.begin(); it != pids.end();
+					it++) {
+				SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0,
+						0, operationType, 1, *iter, indexForTT);
+				tasksEnQueue(*it, subTrans);
+			}
+		}
+		if (iter->constObject) {
+			//object已知
+			vector<ID> pids;
+			tripleBitRepo->spStatisBuffer->findAllPredicateBySO(iter->object,
+					pids, iter->objType);
+			for (vector<ID>::iterator it = pids.begin(); it != pids.end();
+					it++) {
+				SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0,
+						0, operationType, 1, *iter, indexForTT);
+				tasksEnQueue(*it, subTrans);
+			}
 		}
 	}
 
