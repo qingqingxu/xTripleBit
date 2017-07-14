@@ -16,6 +16,66 @@
 using namespace std;
 using namespace boost;
 
+class SubTaskPackageForDelete {
+public:
+	size_t referenceCount;
+	TripleBitQueryGraph::OpType operationType;
+	ID spID, minID, maxID;
+	double object, minObject, maxObject;
+	char objType;
+	map<ID, MidResultBuffer> tempBuffer;
+	pthread_mutex_t subTaskMutex;
+public:
+	SubTaskPackageForDelete() {
+	}
+	SubTaskPackageForDelete(size_t reCount, TripleBitQueryGraph::OpType opType,
+			ID spID, ID minID, ID maxID) :
+			referenceCount(reCount), operationType(opType), spID(spID), minID(
+					minID), maxID(maxID) {
+		pthread_mutex_init(&subTaskMutex, NULL);
+	}
+	SubTaskPackageForDelete(size_t reCount, TripleBitQueryGraph::OpType opType,
+			double object, char objType, double minObject, double maxObject) :
+			referenceCount(reCount), operationType(opType), object(object), objType(
+					objType), minObject(minObject), maxObject(maxObject) {
+		pthread_mutex_init(&subTaskMutex, NULL);
+	}
+	~SubTaskPackageForDelete() {
+		tempBuffer.clear();
+		pthread_mutex_destroy(&subTaskMutex);
+	}
+
+	bool completeSubTask(ID chunkID, MidResultBuffer* result) {
+		pthread_mutex_lock(&subTaskMutex);
+		tempBuffer[chunkID] = result;
+		referenceCount--;
+
+		if (referenceCount == 0) {
+			pthread_mutex_unlock(&subTaskMutex);
+			return true;
+		} else {
+			pthread_mutex_unlock(&subTaskMutex);
+			return false;
+		}
+	}
+
+	MidResultBuffer *getTaskResult() {
+		MidResultBuffer *resultBuffer = new MidResultBuffer;
+			map<ID, MidResultBuffer*>::iterator iter = tempBuffer.begin();
+			size_t totalSize = 0;
+			for (iter = tempBuffer.begin(); iter != tempBuffer.end(); iter++) {
+				totalSize += iter->second->getUsedSize();
+			}
+			resultBuffer->resize(totalSize);
+			for (iter = tempBuffer.begin(); iter != tempBuffer.end(); iter++) {
+				resultBuffer->appendBuffer(iter->second);
+				delete iter->second;
+				iter->second = NULL;
+			}
+			return resultBuffer;
+		}
+};
+
 class subTaskPackage {
 public:
 	size_t referenceCount;

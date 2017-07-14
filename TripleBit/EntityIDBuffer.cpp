@@ -93,21 +93,21 @@ void MidResultBuffer::resize(size_t size) {
 		totalSize = usedSize + size;
 		break;
 	case OBJECT:
-		objects = (SignalO*) realloc(spIDs,
+		objects = (SignalO*) realloc(objects,
 				(usedSize + size) * sizeof(SignalO));
 		totalSize = usedSize + size;
 		break;
 	case SUBJECTOBJECT:
 	case PREDICATEOBJECT:
-		sopos = (SOPO*) realloc(spIDs, (usedSize + size) * sizeof(SOPO));
+		sopos = (SOPO*) realloc(sopos, (usedSize + size) * sizeof(SOPO));
 		totalSize = usedSize + size;
 		break;
 	case SUBJECTPREDICATE:
-		sps = (SP*) realloc(spIDs, (usedSize + size) * sizeof(SP));
+		sps = (SP*) realloc(sps, (usedSize + size) * sizeof(SP));
 		totalSize = usedSize + size;
 		break;
 	case SUBJECTPREDICATEOBJECT:
-		spos = (SPO*) realloc(spIDs, (usedSize + size) * sizeof(SPO));
+		spos = (SPO*) realloc(spos, (usedSize + size) * sizeof(SPO));
 		totalSize = usedSize + size;
 		break;
 	default:
@@ -214,8 +214,87 @@ Status MidResultBuffer::insertSPO(ID subjectID, ID predicateID, double object,
 	return OK;
 }
 
+Status MidResultBuffer::appendBuffer(const MidResultBuffer *otherBuffer) {
+	if (otherBuffer != NULL) {
+		switch (otherBuffer->resultType) {
+		case SIGNALID:
+			if (usedSize + otherBuffer->usedSize > totalSize) {
+				spIDs = (ID*) realloc(spIDs,
+						(usedSize + otherBuffer->usedSize) * sizeof(ID));
+				totalSize = usedSize + otherBuffer->usedSize;
+				if (spIDs == NULL) {
+					perror(__FUNCTION__);
+					return ERROR;
+				}
+			}
+			memcpy(spIDs + usedSize, otherBuffer->getSignalIDBuffer(),
+					otherBuffer->getUsedSize() * sizeof(ID));
+			break;
+		case OBJECT:
+			if (usedSize + otherBuffer->usedSize > totalSize) {
+				objects = (SignalO*) realloc(objects,
+						(usedSize + otherBuffer->usedSize) * sizeof(SignalO));
+				totalSize = usedSize + otherBuffer->usedSize;
+				if (objects == NULL) {
+					perror(__FUNCTION__);
+					return ERROR;
+				}
+			}
+			memcpy(objects + usedSize, otherBuffer->getObjectBuffer(),
+					otherBuffer->getUsedSize() * sizeof(SignalO));
+			break;
+		case SUBJECTOBJECT:
+		case PREDICATEOBJECT:
+			if (usedSize + otherBuffer->usedSize > totalSize) {
+				sopos = (SOPO*) realloc(sopos,
+						(usedSize + otherBuffer->usedSize) * sizeof(SOPO));
+				totalSize = usedSize + otherBuffer->usedSize;
+				if (sopos == NULL) {
+					perror(__FUNCTION__);
+					return ERROR;
+				}
+			}
+			memcpy(sopos + usedSize, otherBuffer->getSOPOBuffer(),
+					otherBuffer->getUsedSize() * sizeof(SOPO));
+			break;
+		case SUBJECTPREDICATE:
+			if (usedSize + otherBuffer->usedSize > totalSize) {
+				sps = (SP*) realloc(sps,
+						(usedSize + otherBuffer->usedSize) * sizeof(SP));
+				totalSize = usedSize + otherBuffer->usedSize;
+				if (sps == NULL) {
+					perror(__FUNCTION__);
+					return ERROR;
+				}
+			}
+			memcpy(sps + usedSize, otherBuffer->getSPBuffer(),
+					otherBuffer->getUsedSize() * sizeof(SP));
+			break;
+		case SUBJECTPREDICATEOBJECT:
+			if (usedSize + otherBuffer->usedSize > totalSize) {
+				spos = (SPO*) realloc(spos,
+						(usedSize + otherBuffer->usedSize) * sizeof(SPO));
+				totalSize = usedSize + otherBuffer->usedSize;
+				if (spos == NULL) {
+					perror(__FUNCTION__);
+					return ERROR;
+				}
+			}
+			memcpy(spos + usedSize, otherBuffer->getSPOBuffer(),
+					otherBuffer->getUsedSize() * sizeof(SPO));
+			break;
+		default:
+			break;
+		}
+		usedSize += otherBuffer->usedSize;
+		pos += otherBuffer->usedSize;
+	}
+
+	return OK;
+}
+
 EntityIDBuffer::EntityIDBuffer() {
-	// TODO Auto-generated constructor stub
+// TODO Auto-generated constructor stub
 	buffer = (ID*) malloc(ENTITY_BUFFER_INIT_PAGE_COUNT * getpagesize());
 	p = buffer;
 
@@ -261,7 +340,7 @@ ID& EntityIDBuffer::operator [](const size_t index) {
 }
 
 EntityIDBuffer::~EntityIDBuffer() {
-	// TODO Auto-generated destructor stub
+// TODO Auto-generated destructor stub
 	if (buffer != NULL)
 		free(buffer);
 	buffer = NULL;
@@ -312,7 +391,7 @@ Status EntityIDBuffer::sort() {
 	}
 	ThreadPool::getWorkPool().wait();
 
-	//TODO merge the chunks into a buffer.
+//TODO merge the chunks into a buffer.
 	ID* tempBuffer = (ID*) malloc(totalSize * 4);
 	if (tempBuffer == NULL) {
 		cout << totalSize * 4 << endl;

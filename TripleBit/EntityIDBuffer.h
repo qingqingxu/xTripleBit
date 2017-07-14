@@ -68,6 +68,7 @@ public:
 	Status insertSOPO(ID id, double object, char objType);
 	Status insertSP(ID subjectID, ID predicateID);
 	Status insertSPO(ID subjectID, ID predicateID, double object, char objType);
+	Status appendBuffer(const MidResultBuffer *otherBuffer);
 	size_t getUsedSize() const {
 		return usedSize;
 	}
@@ -78,6 +79,25 @@ public:
 	size_t getCapacity() const {
 		return totalSize;
 	}
+	ResultType getResultType() const{
+		return resultType;
+	}
+	ID* getSignalIDBuffer() const{
+		return spIDs;
+	}
+	SignalO* getObjectBuffer() const{
+		return objects;
+	}
+	SOPO* getSOPOBuffer()  const{
+		return sopos;
+	}
+	SP* getSPBuffer() const{
+		return sps;
+	}
+	SPO* getSPOBuffer() const{
+		return spos;
+	}
+
 private:
 	size_t usedSize;
 	size_t totalSize;
