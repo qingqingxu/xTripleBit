@@ -515,7 +515,7 @@ void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
 			return;
 		}
 
-		shared_ptr<subTaskPackage> taskPackage(
+		shared_ptr<SubTaskPackageForDelete> taskPackage(
 				new SubTaskPackageForDelete(chunkCount,
 						subTransaction->operationType, object, objType));
 		if (chunkCount != 0) {
