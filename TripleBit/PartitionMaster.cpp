@@ -1223,7 +1223,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 	}
 }
 
-void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *&buffer,
+void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 		const bool soType, const bool constSubject, const ID subjectID,
 		const double object, const char objType) {
 	int chunkID;
@@ -1651,7 +1651,7 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
  }*/
 
 void PartitionMaster::findObjectByPredicateAndSubject(const ID subjectID,
-		MidResultBuffer *&midResultBuffer, const double min, const double max,
+		MidResultBuffer *midResultBuffer, const double min, const double max,
 		const uchar* startPtr) {
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
@@ -1718,7 +1718,7 @@ void PartitionMaster::findObjectByPredicateAndSubject(const ID subjectID,
 }
 
 void PartitionMaster::findObjectByPredicateAndSubject(const ID subjectID,
-		MidResultBuffer *&midResultBuffer, const uchar *startPtr) {
+		MidResultBuffer *midResultBuffer, const uchar *startPtr) {
 	ID tmpSubjectID;
 	double tmpObject;
 	char tmpObjType;
@@ -1760,7 +1760,7 @@ void PartitionMaster::findObjectByPredicateAndSubject(const ID subjectID,
 }
 
 void PartitionMaster::findSubjectIDByPredicateAndObject(const double object,
-		const char objType, MidResultBuffer *&midResultBuffer, const ID minID,
+		const char objType, MidResultBuffer *midResultBuffer, const ID minID,
 		const ID maxID, const uchar* startPtr) {
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
@@ -1829,7 +1829,7 @@ void PartitionMaster::findSubjectIDByPredicateAndObject(const double object,
 }
 
 void PartitionMaster::findSubjectIDByPredicateAndObject(const double object,
-		const char objType, MidResultBuffer *&midResultBuffer,
+		const char objType, MidResultBuffer *midResultBuffer,
 		const uchar *startPtr) {
 	ID tmpSubjectID;
 	double tmpObject;

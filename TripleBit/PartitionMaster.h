@@ -87,7 +87,7 @@ private:
 	void executeDeleteClause(SubTrans *subTransaction);
 	/*	void executeUpdate(SubTrans *subTransfirst, SubTrans *subTranssecond);*/
 
-	void deleteDataForDeleteClause(MidResultBuffer *&buffer, const bool soType, const bool constSubject, const ID subjectID, const double object, const char objType);
+	void deleteDataForDeleteClause(MidResultBuffer *buffer, const bool soType, const bool constSubject, const ID subjectID, const double object, const char objType);
 	/*	void updateDataForUpdate(EntityIDBuffer *buffer, const ID deleteID, const ID updateID, const int soType);*/
 
 	void handleTasksQueueChunk(TasksQueueChunk *tasksQueue);
@@ -105,10 +105,10 @@ private:
 	void findSubjectIDAndObjectIDByPredicate(EntityIDBuffer *retBuffer, const uchar *startPtr, const int xyType);
 	void findObjectIDAndSubjectIDByPredicate(EntityIDBuffer *retBuffer, const ID minID, const ID maxID, const uchar *startPtr, const int xyType);
 	void findObjectIDAndSubjectIDByPredicate(EntityIDBuffer *retBuffer, const uchar *startPtr, const int xyType);*/
-	void findObjectByPredicateAndSubject(const ID subject, MidResultBuffer *&midResultBuffer, const double min, const double max, const uchar* startPtr);
-	void findSubjectIDByPredicateAndObject(const double object, const char objType, MidResultBuffer *&midResultBuffer, const ID minID, const ID maxID, const uchar* startPtr);
-	void findObjectByPredicateAndSubject(const ID subject, MidResultBuffer *&midResultBuffer, const uchar* startPtr);
-	void findSubjectIDByPredicateAndObject(const double object, const char objType, MidResultBuffer *&midResultBuffer, const uchar* startPtr);
+	void findObjectByPredicateAndSubject(const ID subject, MidResultBuffer *midResultBuffer, const double min, const double max, const uchar* startPtr);
+	void findSubjectIDByPredicateAndObject(const double object, const char objType, MidResultBuffer *midResultBuffer, const ID minID, const ID maxID, const uchar* startPtr);
+	void findObjectByPredicateAndSubject(const ID subject, MidResultBuffer *midResultBuffer, const uchar* startPtr);
+	void findSubjectIDByPredicateAndObject(const double object, const char objType, MidResultBuffer *midResultBuffer, const uchar* startPtr);
 	double getChunkMinOrMax(const ChunkTriple* triple, const bool soType);
 };
 
