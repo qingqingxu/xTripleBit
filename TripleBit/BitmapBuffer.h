@@ -105,8 +105,9 @@ public:
 	void writeXY(uchar* reader, ID x, double y, char objType = STRING);
 	//读取subjectID、object、objType
 	const uchar* readXY(const uchar* reader, ID& subjectID, double& object, char& objType);
+	uchar* deleteTriple(uchar* reader);
 	//根据数据类型删除在指定位置数据，返回删除后位置，删除将该位置0
-	uchar* deleteTriple(uchar* reader, char objType = STRING);
+	uchar* deleteTriple(uchar* reader, char objType);
 	//获取新的Chunk
 	Status resize(size_t& pageNo);
 	//判断添加len长度数据后Chunk是否溢出

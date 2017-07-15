@@ -681,6 +681,22 @@ const uchar* ChunkManager::readXY(const uchar* reader, ID& subjectID,
 	return reader;
 }
 
+uchar* ChunkManager::deleteTriple(uchar* reader){
+	char objType;
+	if (meta->soType == ORDERBYS) {
+			*(ID*) reader = 0; //s
+			reader += sizeof(ID);
+			reader = Chunk::read(reader, objType, CHAR);
+			return Chunk::deleteData(reader, objType); //o
+		} else if (meta->soType == ORDERBYO) {
+			reader = Chunk::read(reader, objType, CHAR);
+			reader = Chunk::deleteData(reader, objType); //o
+			*(ID*) reader = 0; //s
+			reader += sizeof(ID);
+			return reader;
+		}
+		return reader; //无操作
+}
 uchar* ChunkManager::deleteTriple(uchar* reader, char objType) {
 	if (meta->soType == ORDERBYS) {
 		*(ID*) reader = 0; //s

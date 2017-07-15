@@ -87,7 +87,7 @@ private:
 	void executeDeleteClause(SubTrans *subTransaction);
 	/*	void executeUpdate(SubTrans *subTransfirst, SubTrans *subTranssecond);*/
 
-	void deleteDataForDeleteClause(EntityIDBuffer *buffer, const ID deleteID, const bool soType);
+	void deleteDataForDeleteClause(MidResultBuffer *&buffer, const bool soType, const bool constSubject, const ID subjectID, const double object, const char objType);
 	/*	void updateDataForUpdate(EntityIDBuffer *buffer, const ID deleteID, const ID updateID, const int soType);*/
 
 	void handleTasksQueueChunk(TasksQueueChunk *tasksQueue);

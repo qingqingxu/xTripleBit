@@ -20,8 +20,9 @@ class SubTaskPackageForDelete {
 public:
 	size_t referenceCount;
 	TripleBitQueryGraph::OpType operationType;
-	ID spID, minID, maxID;
-	double object, minObject, maxObject;
+	ID sID;
+	bool constSubject;//subject是否已知
+	double object;
 	char objType;
 	map<ID, MidResultBuffer> tempBuffer;
 	pthread_mutex_t subTaskMutex;
@@ -29,15 +30,14 @@ public:
 	SubTaskPackageForDelete() {
 	}
 	SubTaskPackageForDelete(size_t reCount, TripleBitQueryGraph::OpType opType,
-			ID spID, ID minID, ID maxID) :
-			referenceCount(reCount), operationType(opType), spID(spID), minID(
-					minID), maxID(maxID) {
+			ID sID, bool constSubject) :
+			referenceCount(reCount), operationType(opType), sID(sID), constSubject(constSubject) {
 		pthread_mutex_init(&subTaskMutex, NULL);
 	}
 	SubTaskPackageForDelete(size_t reCount, TripleBitQueryGraph::OpType opType,
-			double object, char objType, double minObject, double maxObject) :
+			double object, char objType) :
 			referenceCount(reCount), operationType(opType), object(object), objType(
-					objType), minObject(minObject), maxObject(maxObject) {
+					objType) {
 		pthread_mutex_init(&subTaskMutex, NULL);
 	}
 	~SubTaskPackageForDelete() {

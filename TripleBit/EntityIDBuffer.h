@@ -72,10 +72,6 @@ public:
 	size_t getUsedSize() const {
 		return usedSize;
 	}
-	size_t getSize() const {
-		return usedSize;
-	}
-
 	size_t getCapacity() const {
 		return totalSize;
 	}
