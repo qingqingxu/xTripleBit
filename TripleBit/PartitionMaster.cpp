@@ -1650,7 +1650,7 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
  retBuffer = NULL;
  }*/
 
-void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID,
+void PartitionMaster::findObjectByPredicateAndSubject(const ID subjectID,
 		MidResultBuffer *&midResultBuffer, const double min, const double max,
 		const uchar* startPtr) {
 #ifdef MYDEBUG
@@ -1659,7 +1659,7 @@ void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID,
 #endif
 
 	if (min == DBL_MIN && max == DBL_MAX) {
-		findObjectIDByPredicateAndSubject(subjectID, midResultBuffer, startPtr);
+		findObjectByPredicateAndSubject(subjectID, midResultBuffer, startPtr);
 		return;
 	}
 
@@ -1717,7 +1717,7 @@ void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID,
 	}
 }
 
-void PartitionMaster::findObjectIDByPredicateAndSubject(const ID subjectID,
+void PartitionMaster::findObjectByPredicateAndSubject(const ID subjectID,
 		MidResultBuffer *&midResultBuffer, const uchar *startPtr) {
 	ID tmpSubjectID;
 	double tmpObject;

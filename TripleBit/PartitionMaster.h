@@ -105,9 +105,9 @@ private:
 	void findSubjectIDAndObjectIDByPredicate(EntityIDBuffer *retBuffer, const uchar *startPtr, const int xyType);
 	void findObjectIDAndSubjectIDByPredicate(EntityIDBuffer *retBuffer, const ID minID, const ID maxID, const uchar *startPtr, const int xyType);
 	void findObjectIDAndSubjectIDByPredicate(EntityIDBuffer *retBuffer, const uchar *startPtr, const int xyType);*/
-	void findObjectIDByPredicateAndSubject(const ID subject, MidResultBuffer *&midResultBuffer, const double min, const double max, const uchar* startPtr);
+	void findObjectByPredicateAndSubject(const ID subject, MidResultBuffer *&midResultBuffer, const double min, const double max, const uchar* startPtr);
 	void findSubjectIDByPredicateAndObject(const double object, const char objType, MidResultBuffer *&midResultBuffer, const ID minID, const ID maxID, const uchar* startPtr);
-	void findObjectIDByPredicateAndSubject(const ID subject, MidResultBuffer *&midResultBuffer, const uchar* startPtr);
+	void findObjectByPredicateAndSubject(const ID subject, MidResultBuffer *&midResultBuffer, const uchar* startPtr);
 	void findSubjectIDByPredicateAndObject(const double object, const char objType, MidResultBuffer *&midResultBuffer, const uchar* startPtr);
 	double getChunkMinOrMax(const ChunkTriple* triple, const bool soType);
 };
