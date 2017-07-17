@@ -1252,21 +1252,18 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 	cout << constSubject << "\t" << soType << "\t" << subjectID << "\t" << object << endl;
 #endif
 	int chunkID;
-	cout << buffer << endl;
-	size_t size = buffer->getUsedSize();
 	shared_ptr<subTaskPackage> taskPackage(new subTaskPackage);
 	shared_ptr<IndexForTT> indexForTT(new IndexForTT);
 	TripleBitQueryGraph::OpType operationType = TripleBitQueryGraph::DELETE_DATA;
 	TripleNode::Op scanType = TripleNode::NOOP;
 	if (soType == ORDERBYS) {
-		MidResultBuffer::SignalO* objects = buffer->getObjectBuffer();
-		ChunkTask *chunkTask;
 		if (constSubject) { //subject是常量，仅删除对应的object
-			for (size_t i = 0; i < size; ++i) {
+			MidResultBuffer::SignalO* objects = buffer->getObjectBuffer();
+			for (size_t i = 0; i < buffer->getUsedSize(); ++i) {
 				chunkID =
 						partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(
 								subjectID, objects[i].object);
-				chunkTask = new ChunkTask(operationType, subjectID,
+				ChunkTask *chunkTask = new ChunkTask(operationType, subjectID,
 						objects[i].object, objects[i].objType, scanType,
 						taskPackage, indexForTT);
 				taskEnQueue(chunkTask, xChunkQueue[ORDERBYO][chunkID]);
@@ -1293,7 +1290,7 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 
 	} else if (soType == ORDERBYO) {
 		ID* subejctIDs = buffer->getSignalIDBuffer();
-		for (size_t i = 0; i < size; ++i) {
+		for (size_t i = 0; i < buffer->getUsedSize(); ++i) {
 			chunkID =
 					partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
 							subejctIDs[i], object);
@@ -1430,7 +1427,6 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 			midResultBuffer)) {
 		MidResultBuffer *buffer =
 				chunkTask->taskPackageForDelete->getTaskResult();
-		cout <<  buffer->getUsedSize() << endl;
 		deleteDataForDeleteClause(buffer, soType,
 				chunkTask->taskPackageForDelete->constSubject, subjectID,
 				object, objType);
