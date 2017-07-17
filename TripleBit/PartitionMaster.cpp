@@ -1190,7 +1190,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					continue;
 				else if (tempObject == object && tempObjType == objType
 						&& tempSubjectID == subjectID) {
-					cout << tempSubjectID << "\t" << partitionID << "\t" << tempObject << "\t" << (int)tempObjType << endl;
+					cout << __FUNCTION__<< "\t" << tempSubjectID << "\t" << partitionID << "\t" << tempObject << "\t" << (int)tempObjType << endl;
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							objType);
 					return;
@@ -1216,7 +1216,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 						continue;
 					else if (tempObject == object && tempObjType == objType
 							&& tempSubjectID == subjectID) {
-						cout << tempSubjectID << "\t" << partitionID << "\t" << tempObject << "\t" << (int)tempObjType << endl;
+						cout <<  __FUNCTION__ << "\t" << tempSubjectID << "\t" << partitionID << "\t" << tempObject << "\t" << (int)tempObjType << endl;
 						temp = partitionChunkManager[soType]->deleteTriple(temp,
 								objType);
 						return;
@@ -1328,7 +1328,7 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 			if (tempSubjectID < subjectID) {
 				continue;
 			} else if (tempSubjectID == subjectID) {
-				cout << tempObject << "\t" << (int)tempObjType << endl;
+				cout <<  __FUNCTION__<< "\t"  << tempObject << "\t" << (int)tempObjType << endl;
 				midResultBuffer->insertObject(tempObject, tempObjType);
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						tempObjType);
@@ -1374,7 +1374,7 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 				if (tempSubjectID < subjectID) {
 					continue;
 				} else if (tempSubjectID == subjectID) {
-					cout << tempObject << "\t" << (int)tempObjType << endl;
+					cout <<  __FUNCTION__<< "\t" << tempObject << "\t" << (int)tempObjType << endl;
 					midResultBuffer->insertObject(tempObject, tempObjType);
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							tempObjType);
