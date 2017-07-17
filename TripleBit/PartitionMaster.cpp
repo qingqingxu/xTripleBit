@@ -461,8 +461,8 @@ void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
 	ID subjectID =
 			subTransaction->triple.constSubject ?
 					subTransaction->triple.subjectID : 0;
-	double object = subTransaction->triple.object;
-	char objType = subTransaction->triple.objType;
+	double object = subTransaction->triple.constObject ? subTransaction->triple.object : 0;
+	char objType = subTransaction->triple.constObject ? subTransaction->triple.objType : NONE;
 
 	size_t chunkCount = 0, chunkIDMin = 0, chunkIDMax = 0;
 
@@ -497,7 +497,6 @@ void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
 		if (chunkCount != 0) {
 			for (size_t offsetID = chunkIDMin; offsetID <= chunkIDMax;
 					offsetID++) {
-				cout << "---------" << object << endl;
 				ChunkTask *chunkTask = new ChunkTask(
 						subTransaction->operationType, subjectID, object,
 						objType, subTransaction->triple.scanOperation,
@@ -1256,6 +1255,7 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 	if (soType == ORDERBYS) {
 		MidResultBuffer::SignalO* objects = buffer->getObjectBuffer();
 		ChunkTask *chunkTask;
+		cout << "++++++++++" << endl;
 		if (constSubject) { //subject是常量，仅删除对应的object
 			cout << size << endl;
 			for (size_t i = 0; i < size; ++i) {
