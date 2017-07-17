@@ -83,7 +83,6 @@ public:
 	ID sourceWorkerID;
 	ID minID;
 	ID maxID;
-	ID deleteID;
 	ID updateID;
 	map<ID, EntityIDBuffer*> xTempBuffer;
 	map<ID, EntityIDBuffer*> xyTempBuffer;
@@ -98,7 +97,7 @@ public:
 			ID sourceID, ID minid, ID maxid, ID deleteid, ID updateid,
 			PartitionBufferManager*& buffer) :
 			referenceCount(reCount), operationType(opType), sourceWorkerID(
-					sourceID), minID(minid), maxID(maxid), deleteID(deleteid), updateID(
+					sourceID), minID(minid), maxID(maxid), updateID(
 					updateid), partitionBuffer(buffer) {
 		pthread_mutex_init(&subTaskMutex, NULL);
 	}
