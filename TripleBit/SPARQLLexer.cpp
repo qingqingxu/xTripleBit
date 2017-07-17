@@ -37,7 +37,6 @@ SPARQLLexer::Token SPARQLLexer::getNext()
 
 	// Reset the token end
 	hasTokenEnd = false;
-	int num = 0;
 	string value;
 
 	// Read the string
@@ -134,6 +133,7 @@ SPARQLLexer::Token SPARQLLexer::getNext()
 			while (pos != input.end() && (*pos) != '\'') {
 				++pos;
 			}
+			cout << getTokenValue() << endl;
 			if((pos - tokenStart) != 2){
 				return Error;
 			}
