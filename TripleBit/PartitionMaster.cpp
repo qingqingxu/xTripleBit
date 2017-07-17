@@ -1332,8 +1332,8 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 	}
 	while (reader < limit) {
 		if (!chunkTask->taskPackageForDelete->constSubject) { //subject未知，即为已知predicate，删除subject、object
-			/*reader = (const uchar*) partitionChunkManager[soType]->deleteTriple(
-					const_cast<uchar*>(reader), tempObjType);*/
+			reader = (const uchar*) partitionChunkManager[soType]->deleteTriple(
+					const_cast<uchar*>(reader), tempObjType);
 			continue;
 		}
 
@@ -1380,9 +1380,9 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 		limit = chunkBegin + metaData->usedSpace;
 		while (reader < limit) {
 			if (!chunkTask->taskPackageForDelete->constSubject) { //subject未知，即为已知predicate，删除subject、object
-				/*reader =
+				reader =
 						(const uchar*) partitionChunkManager[soType]->deleteTriple(
-								const_cast<uchar*>(reader), tempObjType);*/
+								const_cast<uchar*>(reader), tempObjType);
 				continue;
 			}
 			temp = const_cast<uchar*>(reader);
