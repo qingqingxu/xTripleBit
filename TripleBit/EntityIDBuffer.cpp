@@ -11,7 +11,7 @@
 #include <pthread.h>
 #define MYDEBUG
 
-MidResultBuffer::MidResultBuffer(ResultType resultType) {
+MidResultBuffer::MidResultBuffer(ResultType resultType): resultType(resultType) {
 	switch (resultType) {
 	case SIGNALID:
 		spIDs = (ID*) malloc(MIDRESULT_BUFFER_INIT_PAGE_COUNT * getpagesize());
