@@ -22,6 +22,7 @@ class TasksQueueChunk;
 class subTaskPackage;
 class IndexForTT;
 class ChunkTask;
+class MidResultBuffer;
 
 #include "TripleBit.h"
 #include "TripleBitQueryGraph.h"
