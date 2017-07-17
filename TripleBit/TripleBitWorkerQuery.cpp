@@ -358,8 +358,10 @@ Status TripleBitWorkerQuery::excuteDeleteData() {
 }
 
 Status TripleBitWorkerQuery::excuteDeleteClause() {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 	shared_ptr<IndexForTT> indexForTT(new IndexForTT);
-
 	vector<TripleNode>::iterator iter = _query->tripleNodes.begin();
 	TripleBitQueryGraph::OpType operationType =
 			TripleBitQueryGraph::DELETE_CLAUSE;
