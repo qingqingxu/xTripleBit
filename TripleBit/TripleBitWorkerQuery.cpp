@@ -380,14 +380,14 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 			}
 		} else if (iter->constSubject && iter->constObject) {
 			size_t subjectCounts = 0, objectCounts = 0;
-			tripleBitRepo->spStatisBuffer->getStatisBySO(iter->subjectID,
+			tripleBitRepo->getSpStatisBuffer()->getStatisBySO(iter->subjectID,
 					subjectCounts, STRING);
-			tripleBitRepo->spStatisBuffer->getStatisBySO(iter->object,
+			tripleBitRepo->getSpStatisBuffer()->getStatisBySO(iter->object,
 					objectCounts, iter->objType);
 			//若S的triple数少，根据sp匹配o进行删除
 			if (subjectCounts <= objectCounts) {
 				vector<ID> pids;
-				tripleBitRepo->spStatisBuffer->findAllPredicateBySO(
+				tripleBitRepo->getSpStatisBuffer()->findAllPredicateBySO(
 						iter->subjectID, pids, STRING);
 				for (vector<ID>::iterator it = pids.begin(); it != pids.end();
 						it++) {
@@ -398,7 +398,7 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 				}
 			} else {
 				vector<ID> pids;
-				tripleBitRepo->spStatisBuffer->findAllPredicateBySO(
+				tripleBitRepo->getSpStatisBuffer()->findAllPredicateBySO(
 						iter->object, pids, iter->objType);
 				for (vector<ID>::iterator it = pids.begin(); it != pids.end();
 						it++) {
@@ -411,7 +411,7 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 		} else if (iter->constSubject) {
 			//subject已知
 			vector<ID> pids;
-			tripleBitRepo->spStatisBuffer->findAllPredicateBySO(iter->subjectID,
+			tripleBitRepo->getSpStatisBuffer()->findAllPredicateBySO(iter->subjectID,
 					pids, STRING);
 			for (vector<ID>::iterator it = pids.begin(); it != pids.end();
 					it++) {
@@ -422,7 +422,7 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 		}else if (iter->constObject) {
 			//object已知
 			vector<ID> pids;
-			tripleBitRepo->spStatisBuffer->findAllPredicateBySO(iter->object,
+			tripleBitRepo->getOpStatisBuffer()->findAllPredicateBySO(iter->object,
 					pids, iter->objType);
 			for (vector<ID>::iterator it = pids.begin(); it != pids.end();
 					it++) {

@@ -92,6 +92,8 @@ public:
 	URITable* getURITable() const { return UriTable; }
 	BitmapBuffer* getBitmapBuffer() const { return bitmapBuffer; }
 	transQueueSW* getTransQueueSW() { return transQueSW; }
+	StatisticsBuffer* getSpStatisBuffer() const{ return spStatisBuffer;}
+	StatisticsBuffer* getOpStatisBuffer() const{ return opStatisBuffer;}
 	vector<TasksQueueWP*> getTasksQueueWP() { return tasksQueueWP; }
 	vector<ResultBuffer*> getResultWP() { return resultWP; }
 	vector<boost::mutex*> getTasksQueueWPMutex() { return tasksQueueWPMutex; }
