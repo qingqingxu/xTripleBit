@@ -149,7 +149,6 @@ void SPARQLParser::parseQueryString()
 			throw ParserException("'select' or 'insert' or 'delete' expected");
 		}
 	} else {
-		cout << "out\t" << lexer.getTokenValue() << endl;
 		throw ParserException("'select' or 'insert' or 'delete' expected");
 	}
 }
