@@ -9,6 +9,7 @@
 #include "MemoryBuffer.h"
 #include <math.h>
 #include <pthread.h>
+#define MYDEBUG
 
 MidResultBuffer::MidResultBuffer(ResultType resultType) {
 	switch (resultType) {
@@ -116,6 +117,9 @@ void MidResultBuffer::resize(size_t size) {
 }
 
 Status MidResultBuffer::insertSIGNALID(ID id) {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 	if (usedSize == totalSize) {
 		spIDs = (ID*) realloc((char*) spIDs,
 				totalSize * sizeof(ID)
@@ -134,6 +138,9 @@ Status MidResultBuffer::insertSIGNALID(ID id) {
 	return OK;
 }
 Status MidResultBuffer::insertObject(double object, char objType) {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 	if (usedSize == totalSize) {
 		objects = (SignalO*) realloc((char*) objects,
 				totalSize * sizeof(SignalO)
@@ -153,6 +160,9 @@ Status MidResultBuffer::insertObject(double object, char objType) {
 	return OK;
 }
 Status MidResultBuffer::insertSOPO(ID id, double object, char objType) {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 	if (usedSize == totalSize) {
 		sopos = (SOPO*) realloc((char*) sopos,
 				totalSize * sizeof(SOPO)
@@ -173,6 +183,9 @@ Status MidResultBuffer::insertSOPO(ID id, double object, char objType) {
 	return OK;
 }
 Status MidResultBuffer::insertSP(ID subjectID, ID predicateID) {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 	if (usedSize == totalSize) {
 		sps = (SP*) realloc((char*) sps,
 				totalSize * sizeof(SP)
@@ -193,6 +206,9 @@ Status MidResultBuffer::insertSP(ID subjectID, ID predicateID) {
 }
 Status MidResultBuffer::insertSPO(ID subjectID, ID predicateID, double object,
 		char objType) {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 	if (usedSize == totalSize) {
 		spos = (SPO*) realloc((char*) spos,
 				totalSize * sizeof(SPO)
