@@ -557,9 +557,10 @@ SPARQLParser::Element SPARQLParser::parsePatternElement(PatternGroup& group,
 				throw ParserException("':' expected after '" + prefix + "'");
 			if (!prefixes.count(prefix))
 				throw ParserException("unknown prefix '" + prefix + "'");
-			if (lexer.getNext() != SPARQLLexer::Identifier){
-				cout << lexer.getNext() << "\terror" << endl;
-				cout << lexer.getNext() << "\terror" << endl;
+			SPARQLLexer::Token t = lexer.getNext();
+			if ( t != SPARQLLexer::Identifier){
+				cout << t << "\terror" << endl;
+				cout << lexer.getTokenValue() << endl;
 				throw ParserException("identifier expected after ':'");
 			}
 			result.type = Element::Constant;
