@@ -373,7 +373,7 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 		//predicate未知
 		if (!iter->constSubject && !iter->constObject) {
 			//subject、object未知
-			for (size_t i = 1; i <= tripleBitRepo->partitionNum; i++) {
+			for (size_t i = 1; i <= tripleBitRepo->getPartitionNum(); i++) {
 				SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0,
 						0, operationType, 1, *iter, indexForTT);
 				tasksEnQueue(i, subTrans);
