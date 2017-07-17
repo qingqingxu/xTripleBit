@@ -1252,22 +1252,16 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 	cout << constSubject << "\t" << soType << "\t" << subjectID << "\t" << object << endl;
 #endif
 	int chunkID;
-	cout << "++++++00000000++++" << endl;
 	cout << buffer << endl;
 	size_t size = buffer->getUsedSize();
-	cout << "++++++1111111++++" << endl;
 	shared_ptr<subTaskPackage> taskPackage(new subTaskPackage);
-	cout << "++++++2222232++++" << endl;
 	shared_ptr<IndexForTT> indexForTT(new IndexForTT);
 	TripleBitQueryGraph::OpType operationType = TripleBitQueryGraph::DELETE_DATA;
 	TripleNode::Op scanType = TripleNode::NOOP;
-	cout << "++++++333333++++" << endl;
 	if (soType == ORDERBYS) {
 		MidResultBuffer::SignalO* objects = buffer->getObjectBuffer();
 		ChunkTask *chunkTask;
-		cout << "++++++++++" << endl;
 		if (constSubject) { //subject是常量，仅删除对应的object
-			cout << size << endl;
 			for (size_t i = 0; i < size; ++i) {
 				chunkID =
 						partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(
@@ -1275,7 +1269,8 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 				chunkTask = new ChunkTask(operationType, subjectID,
 						objects[i].object, objects[i].objType, scanType,
 						taskPackage, indexForTT);
-				xChunkQueue[ORDERBYO][chunkID]->EnQueue(chunkTask);
+				taskEnQueue(chunkTask, xChunkQueue[ORDERBYO][chunkID]);
+				//xChunkQueue[ORDERBYO][chunkID]->EnQueue(chunkTask);
 			}
 		} else { //subject是未知量，删除所有subject与object
 			size_t chunkCount = 0, chunkIDMin = 0, chunkIDMax = 0;
@@ -1304,7 +1299,8 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 							subejctIDs[i], object);
 			ChunkTask *chunkTask = new ChunkTask(operationType, subejctIDs[i],
 					object, objType, scanType, taskPackage, indexForTT);
-			xChunkQueue[ORDERBYS][chunkID]->EnQueue(chunkTask);
+			//xChunkQueue[ORDERBYS][chunkID]->EnQueue(chunkTask);
+			taskEnQueue(chunkTask, xChunkQueue[ORDERBYS][chunkID]);
 		}
 	}
 	delete buffer;
@@ -1435,7 +1431,6 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 			midResultBuffer)) {
 		MidResultBuffer *buffer =
 				chunkTask->taskPackageForDelete->getTaskResult();
-		cout << (buffer == NULL ? 0 : 1) << endl;
 		deleteDataForDeleteClause(buffer, soType,
 				chunkTask->taskPackageForDelete->constSubject, subjectID,
 				object, objType);
