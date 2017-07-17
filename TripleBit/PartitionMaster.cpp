@@ -1407,6 +1407,7 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 
 	END: if (chunkTask->taskPackageForDelete->completeSubTask(chunkID,
 			midResultBuffer)) {
+		cout << midResultBuffer->getResultType() << endl;
 		cout << "---1---" << endl;
 		MidResultBuffer *buffer =
 				chunkTask->taskPackageForDelete->getTaskResult();
