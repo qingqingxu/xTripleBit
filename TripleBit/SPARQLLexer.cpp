@@ -220,7 +220,7 @@ SPARQLLexer::Token SPARQLLexer::getNext()
 					pos--;
 				}
 				if (strcasecmp(getTokenValue().c_str(), "true") == 0
-						|| strcasecmp(getTokenValue().c_str(), "true") == 0) {
+						|| strcasecmp(getTokenValue().c_str(), "false") == 0) {
 					return Bool;
 				}
 
