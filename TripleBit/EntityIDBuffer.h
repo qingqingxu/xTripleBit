@@ -60,6 +60,7 @@ public:
 		SUBJECTPREDICATE,
 		SUBJECTPREDICATEOBJECT
 	};
+	MidResultBuffer(){}
 	MidResultBuffer(ResultType resultType);
 	virtual ~MidResultBuffer();
 	void resize(size_t size);
