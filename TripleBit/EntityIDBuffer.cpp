@@ -17,12 +17,14 @@ MidResultBuffer::MidResultBuffer(ResultType resultType) {
 		spIDs = (ID*) malloc(MIDRESULT_BUFFER_INIT_PAGE_COUNT * getpagesize());
 		sizePerPage = getpagesize() / sizeof(ID);
 		totalSize = MIDRESULT_BUFFER_INIT_PAGE_COUNT * sizePerPage;
+		pSpIDs = spIDs;
 		break;
 	case OBJECT:
 		objects = (SignalO*) malloc(
 				MIDRESULT_BUFFER_INIT_PAGE_COUNT * getpagesize());
 		sizePerPage = getpagesize() / sizeof(SignalO);
 		totalSize = MIDRESULT_BUFFER_INIT_PAGE_COUNT * sizePerPage;
+		pObjects = objects;
 		break;
 	case SUBJECTOBJECT:
 	case PREDICATEOBJECT:
@@ -30,16 +32,19 @@ MidResultBuffer::MidResultBuffer(ResultType resultType) {
 				MIDRESULT_BUFFER_INIT_PAGE_COUNT * getpagesize());
 		sizePerPage = getpagesize() / sizeof(SOPO);
 		totalSize = MIDRESULT_BUFFER_INIT_PAGE_COUNT * sizePerPage;
+		pSopos = sopos;
 		break;
 	case SUBJECTPREDICATE:
 		sps = (SP*) malloc(MIDRESULT_BUFFER_INIT_PAGE_COUNT * getpagesize());
 		sizePerPage = getpagesize() / sizeof(SP);
 		totalSize = MIDRESULT_BUFFER_INIT_PAGE_COUNT * sizePerPage;
+		pSps = sps;
 		break;
 	case SUBJECTPREDICATEOBJECT:
 		spos = (SPO*) malloc(MIDRESULT_BUFFER_INIT_PAGE_COUNT * getpagesize());
 		sizePerPage = getpagesize() / sizeof(SPO);
 		totalSize = MIDRESULT_BUFFER_INIT_PAGE_COUNT * sizePerPage;
+		pSpos = spos;
 		break;
 	default:
 		break;
@@ -156,7 +161,6 @@ Status MidResultBuffer::insertObject(double object, char objType) {
 	pObjects[pos].objType = objType;
 	usedSize++;
 	pos++;
-
 	return OK;
 }
 Status MidResultBuffer::insertSOPO(ID id, double object, char objType) {
