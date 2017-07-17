@@ -219,7 +219,7 @@ SPARQLLexer::Token SPARQLLexer::getNext()
 			if (pos == tokenStart){
 				return Error;
 			}else if(strcasecmp(getTokenValue().c_str(), "true") || strcasecmp(getTokenValue().c_str(), "true")){
-				cout << getTokenValue() << endl;
+				cout << getTokenValue() << "---------" << endl;
 				return Bool;
 			}
 			return Identifier;
