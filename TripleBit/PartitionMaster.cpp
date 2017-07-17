@@ -1254,7 +1254,7 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 			chunkCount = chunkIDMax - chunkIDMin + 1;
 
 			shared_ptr<SubTaskPackageForDelete> taskPackage(
-					new SubTaskPackageForDelete(true));
+					new SubTaskPackageForDelete());
 			if (chunkCount != 0) {
 				for (size_t offsetID = chunkIDMin; offsetID <= chunkIDMax;
 						offsetID++) {
