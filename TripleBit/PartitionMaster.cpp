@@ -1311,6 +1311,7 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 	limit = chunkBegin + metaData->usedSpace;
 
 	MidResultBuffer* midResultBuffer;
+	cout << "soType: " << soType << endl;
 	if (soType == ORDERBYS) {
 		midResultBuffer = new MidResultBuffer(MidResultBuffer::OBJECT);
 	} else if (soType == ORDERBYO) {
