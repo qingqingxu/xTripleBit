@@ -189,40 +189,6 @@ SPARQLLexer::Token SPARQLLexer::getNext()
 			hasTokenEnd = true;
 			value = getTokenValue();
 			return getNumberType(value);
-			//Bool
-		case 'F':
-		case 'f':
-			tokenStart = pos;
-			for (uint i = 0; i < 5 && pos != input.end(); i++) {
-				pos++;
-			}
-			if (pos > input.end()) {
-				return Error;
-			}
-
-			tokenEnd = pos;
-			hasTokenEnd = true;
-			value = getTokenValue();
-			if (strcasecmp(value.c_str(), "false") == 0) {
-				return Bool;
-			}
-			return Error;
-		case 'T':
-		case 't':
-			tokenStart = pos;
-			for (uint i = 0; i < 4 && pos != input.end(); i++) {
-				pos++;
-			}
-			if (pos > input.end()) {
-				return Error;
-			}
-			tokenEnd = pos;
-			hasTokenEnd = true;
-			value = getTokenValue();
-			if (strcasecmp(value.c_str(), "true") == 0) {
-				return Bool;
-			}
-			return Error;
 			// Variables
 		case '?':
 		case '$':
@@ -252,6 +218,9 @@ SPARQLLexer::Token SPARQLLexer::getNext()
 			}
 			if (pos == tokenStart)
 				return Error;
+			else if(strcasecmp(getTokenValue().c_str(), "true") || strcasecmp(getTokenValue().c_str(), "true")){
+				return Bool;
+			}
 			return Identifier;
 		}
 	}
