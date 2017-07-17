@@ -470,7 +470,6 @@ SPARQLParser::Element SPARQLParser::parsePatternElement(PatternGroup& group,
 		{
 	Element result;
 	SPARQLLexer::Token token = lexer.getNext();
-	cout << token << endl;
 	if (token == SPARQLLexer::Variable) {
 		result.type = Element::Variable;
 		result.id = nameVariable(lexer.getTokenValue());
@@ -500,9 +499,7 @@ SPARQLParser::Element SPARQLParser::parsePatternElement(PatternGroup& group,
 		result.type = Element::Constant;
 		result.dataType = CHAR;
 		string str = lexer.getTokenValue();
-		cout << str << endl;
 		result.dValue = lexer.getValueFromToken(str, result.dataType);
-		cout << result.dValue << endl;
 		if (result.dataType == NONE) {
 			throw ParserException("invalid pattern element");
 		}

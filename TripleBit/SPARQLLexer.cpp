@@ -133,8 +133,7 @@ SPARQLLexer::Token SPARQLLexer::getNext()
 			while (pos != input.end() && (*pos) != '\'') {
 				++pos;
 			}
-			cout << getTokenValue() << endl;
-			if((pos - tokenStart) != 1){
+			if ((pos - tokenStart) != 1) {
 				return Error;
 			}
 			tokenEnd = pos;
@@ -214,10 +213,17 @@ SPARQLLexer::Token SPARQLLexer::getNext()
 				} else
 					break;
 			}
-			if (pos == tokenStart){
+			if (pos == tokenStart) {
 				return Error;
-			}else if(strcasecmp(getTokenValue().c_str(), "true") == 0 || strcasecmp(getTokenValue().c_str(), "true") == 0){
-				return Bool;
+			} else {
+				while (pos != tokenStart && (*pos == ' ' || *pos == '.')) {
+					pos--;
+				}
+				if (strcasecmp(getTokenValue().c_str(), "true") == 0
+						|| strcasecmp(getTokenValue().c_str(), "true") == 0) {
+					return Bool;
+				}
+
 			}
 			return Identifier;
 		}
