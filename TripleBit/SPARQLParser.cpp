@@ -539,6 +539,7 @@ SPARQLParser::Element SPARQLParser::parsePatternElement(PatternGroup& group,
 			result.id = localVars[lexer.getTokenValue()] = variableCount++;
 	} else if (token == SPARQLLexer::Colon) {
 		// :identifier. Should reference the base
+		cout << "error" << endl;
 		if (lexer.getNext() != SPARQLLexer::Identifier)
 			throw ParserException("identifier expected after ':'");
 		result.type = Element::Constant;
