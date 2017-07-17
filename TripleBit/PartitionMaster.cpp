@@ -1161,7 +1161,9 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 	} else if (soType == ORDERBYO) {
 		if (subjectID == 0) { //删除所有记录，主要用于基于模式删除
 			while (reader < limit) {
-				reader = (const uchar*)partitionChunkManager[soType]->deleteTriple(const_cast<uchar*>(reader));
+				reader =
+						(const uchar*) partitionChunkManager[soType]->deleteTriple(
+								const_cast<uchar*>(reader));
 			}
 			while (metaData->NextPageNo) {
 				chunkBegin =
@@ -1171,7 +1173,9 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				reader = chunkBegin + sizeof(MetaData);
 				limit = chunkBegin + metaData->usedSpace;
 				while (reader < limit) {
-					reader = (const uchar*)partitionChunkManager[soType]->deleteTriple(const_cast<uchar*>(reader));
+					reader =
+							(const uchar*) partitionChunkManager[soType]->deleteTriple(
+									const_cast<uchar*>(reader));
 				}
 			}
 		} else {
@@ -1287,7 +1291,9 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 	ID subjectID = chunkTask->Triple.subjectID;
 	double object = chunkTask->Triple.object;
 	char objType = chunkTask->Triple.objType;
-	cout << subjectID << "\t" << object << "\t" << objType << "\t" << chunkID << "\t" << soType << endl;
+	cout << subjectID << "\t" << object << "\t" << objType << "\t" << chunkID
+			<< "\t" << soType << "\t"
+			<< chunkTask->taskPackageForDelete->constSubject << endl;
 
 	ID tempSubjectID;
 	double tempObject;
@@ -1306,26 +1312,27 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 		midResultBuffer = new MidResultBuffer(MidResultBuffer::SIGNALID);
 	}
 	while (reader < limit) {
+		if (!chunkTask->taskPackageForDelete->constSubject) { //subject未知，即为已知predicate，删除subject、object
+			reader = (const uchar*) partitionChunkManager[soType]->deleteTriple(
+					const_cast<uchar*>(reader), tempObjType);
+			continue;
+		}
+
 		temp = const_cast<uchar*>(reader);
 		reader = partitionChunkManager[soType]->readXY(reader, tempSubjectID,
 				tempObject, tempObjType);
 		if (soType == ORDERBYS) {
-			if (!chunkTask->taskPackageForDelete->constSubject) { //subject未知，即为已知predicate，删除subject、object
+			//已知predicate、subject，删除object
+			if (tempSubjectID < subjectID) {
+				continue;
+			} else if (tempSubjectID == subjectID) {
 				midResultBuffer->insertObject(tempObject, tempObjType);
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						tempObjType);
-			} else { //已知predicate、subject，删除object
-				if (tempSubjectID < subjectID) {
-					continue;
-				} else if (tempSubjectID == subjectID) {
-					midResultBuffer->insertObject(tempObject, tempObjType);
-					temp = partitionChunkManager[soType]->deleteTriple(temp,
-							tempObjType);
-					goto END;
-				} else {
-					delete midResultBuffer;
-					return;
-				}
+				goto END;
+			} else {
+				delete midResultBuffer;
+				return;
 			}
 		} else if (soType == ORDERBYO) {
 			if (tempObject < object
@@ -1350,27 +1357,28 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 		reader = chunkBegin + sizeof(MetaData);
 		limit = chunkBegin + metaData->usedSpace;
 		while (reader < limit) {
+			if (!chunkTask->taskPackageForDelete->constSubject) { //subject未知，即为已知predicate，删除subject、object
+				reader =
+						(const uchar*) partitionChunkManager[soType]->deleteTriple(
+								const_cast<uchar*>(reader), tempObjType);
+				continue;
+			}
 			temp = const_cast<uchar*>(reader);
 			reader = partitionChunkManager[soType]->readXY(reader,
 					tempSubjectID, tempObject, tempObjType);
 			if (soType == ORDERBYS) {
-				if (!chunkTask->taskPackageForDelete->constSubject) { //subject未知，即为已知predicate，删除subject、object
+				//已知predicate、subject，删除object
+				if (tempSubjectID < subjectID) {
+					continue;
+				} else if (tempSubjectID == subjectID) {
 					midResultBuffer->insertObject(tempObject, tempObjType);
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							tempObjType);
-				} else { //已知predicate、subject，删除object
-					if (tempSubjectID < subjectID) {
-						continue;
-					} else if (tempSubjectID == subjectID) {
-						midResultBuffer->insertObject(tempObject, tempObjType);
-						temp = partitionChunkManager[soType]->deleteTriple(temp,
-								tempObjType);
-						goto END;
-					} else {
-						delete midResultBuffer;
-						midResultBuffer = NULL;
-						return;
-					}
+					goto END;
+				} else {
+					delete midResultBuffer;
+					midResultBuffer = NULL;
+					return;
 				}
 			} else if (soType == ORDERBYO) {
 				if (tempObject < object
