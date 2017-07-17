@@ -44,6 +44,7 @@ SPARQLLexer::Token SPARQLLexer::getNext()
 	while (pos != input.end()) {
 		tokenStart = pos;
 		// Interpret the first character
+		cout << *pos;
 		switch (*(pos++)) {
 		// Whitespace
 		case ' ':
