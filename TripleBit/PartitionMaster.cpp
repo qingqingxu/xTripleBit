@@ -1130,8 +1130,11 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				continue;
 			else if (tempSubjectID == subjectID && tempObject == object
 					&& tempObjType == objType) {
-				temp = partitionChunkManager[soType]->deleteTriple(temp,
-						objType);
+				cout << __FUNCTION__ << "\t" << tempSubjectID << "\t"
+										<< partitionID << "\t" << tempObject << "\t"
+										<< (int) tempObjType << endl;
+				/*temp = partitionChunkManager[soType]->deleteTriple(temp,
+						objType);*/
 				return;
 			} else {
 				return;
@@ -1155,8 +1158,11 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					continue;
 				else if (tempSubjectID == subjectID && tempObject == object
 						&& tempObjType == objType) {
-					temp = partitionChunkManager[soType]->deleteTriple(temp,
-							objType);
+					cout << __FUNCTION__ << "\t" << tempSubjectID << "\t"
+											<< partitionID << "\t" << tempObject << "\t"
+											<< (int) tempObjType << endl;
+					/*temp = partitionChunkManager[soType]->deleteTriple(temp,
+							objType);*/
 					return;
 				} else {
 					return;

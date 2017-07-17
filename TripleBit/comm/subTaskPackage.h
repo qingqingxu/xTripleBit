@@ -70,6 +70,7 @@ public:
 			totalSize += iter->second->getUsedSize();
 		}
 		MidResultBuffer *resultBuffer = NULL;
+		cout << "totalSize: " << totalSize << endl;
 		if (totalSize != 0) {
 			iter = tempBuffer.begin();
 			MidResultBuffer *resultBuffer = new MidResultBuffer(
