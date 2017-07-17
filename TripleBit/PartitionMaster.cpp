@@ -1287,6 +1287,7 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 	ID subjectID = chunkTask->Triple.subjectID;
 	double object = chunkTask->Triple.object;
 	char objType = chunkTask->Triple.objType;
+	cout << subjectID << "\t" << object << "\t" << objType << "\t" << chunkID << "\t" << soType << endl;
 
 	ID tempSubjectID;
 	double tempObject;
