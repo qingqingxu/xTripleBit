@@ -1376,6 +1376,7 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 				} else if (tempSubjectID == subjectID) {
 					cout << __FUNCTION__<< "\t" << tempSubjectID << "\t" << partitionID << "\t" << tempObject << "\t" << (int)tempObjType << endl;
 					midResultBuffer->insertObject(tempObject, tempObjType);
+					cout << "sssssss" << endl;
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							tempObjType);
 					goto END;
