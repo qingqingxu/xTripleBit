@@ -24,7 +24,7 @@ public:
 	bool constSubject;//subject是否已知
 	double object;
 	char objType;
-	map<ID, MidResultBuffer> tempBuffer;
+	map<ID, MidResultBuffer*> tempBuffer;
 	pthread_mutex_t subTaskMutex;
 public:
 	SubTaskPackageForDelete() {
