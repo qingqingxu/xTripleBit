@@ -539,7 +539,6 @@ SPARQLParser::Element SPARQLParser::parsePatternElement(PatternGroup& group,
 			result.id = localVars[lexer.getTokenValue()] = variableCount++;
 	} else if (token == SPARQLLexer::Colon) {
 		// :identifier. Should reference the base
-		cout << "error" << endl;
 		if (lexer.getNext() != SPARQLLexer::Identifier)
 			throw ParserException("identifier expected after ':'");
 		result.type = Element::Constant;
@@ -558,8 +557,11 @@ SPARQLParser::Element SPARQLParser::parsePatternElement(PatternGroup& group,
 				throw ParserException("':' expected after '" + prefix + "'");
 			if (!prefixes.count(prefix))
 				throw ParserException("unknown prefix '" + prefix + "'");
-			if (lexer.getNext() != SPARQLLexer::Identifier)
+			if (lexer.getNext() != SPARQLLexer::Identifier){
+				cout << lexer.getNext() << "\terror" << endl;
+				cout << lexer.getNext() << "\terror" << endl;
 				throw ParserException("identifier expected after ':'");
+			}
 			result.type = Element::Constant;
 			result.dataType = STRING;
 			result.value = prefixes[prefix] + lexer.getTokenValue();
