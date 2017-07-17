@@ -69,7 +69,6 @@ public:
 			for (iter = tempBuffer.begin(); iter != tempBuffer.end(); iter++) {
 				totalSize += iter->second->getUsedSize();
 			}
-			cout << "totalSize: " << totalSize << endl;
 			resultBuffer->resize(totalSize);
 			for (iter = tempBuffer.begin(); iter != tempBuffer.end(); iter++) {
 				resultBuffer->appendBuffer(iter->second);

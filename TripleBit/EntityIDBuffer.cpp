@@ -239,7 +239,6 @@ Status MidResultBuffer::appendBuffer(const MidResultBuffer *otherBuffer) {
 		cout << __FUNCTION__ << endl;
 #endif
 	if (otherBuffer != NULL) {
-		cout << otherBuffer->resultType << "\t" << otherBuffer->objects->object << endl;
 		switch (otherBuffer->resultType) {
 		case SIGNALID:
 			if (usedSize + otherBuffer->usedSize > totalSize) {
@@ -265,6 +264,9 @@ Status MidResultBuffer::appendBuffer(const MidResultBuffer *otherBuffer) {
 				}
 			}
 			cout << "-----4-------" << endl;
+			cout << usedSize << endl;
+			cout << otherBuffer->getUsedSize() << endl;
+			cout << otherBuffer->getObjectBuffer()->object << endl;
 			memcpy(objects + usedSize, otherBuffer->getObjectBuffer(),
 					otherBuffer->getUsedSize() * sizeof(SignalO));
 			cout << "-----5-------" << endl;
