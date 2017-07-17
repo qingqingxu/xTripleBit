@@ -461,8 +461,12 @@ void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
 	ID subjectID =
 			subTransaction->triple.constSubject ?
 					subTransaction->triple.subjectID : 0;
-	double object = subTransaction->triple.constObject ? subTransaction->triple.object : 0;
-	char objType = subTransaction->triple.constObject ? subTransaction->triple.objType : NONE;
+	double object =
+			subTransaction->triple.constObject ?
+					subTransaction->triple.object : 0;
+	char objType =
+			subTransaction->triple.constObject ?
+					subTransaction->triple.objType : NONE;
 
 	size_t chunkCount = 0, chunkIDMin = 0, chunkIDMax = 0;
 
@@ -1131,8 +1135,8 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 			else if (tempSubjectID == subjectID && tempObject == object
 					&& tempObjType == objType) {
 				cout << __FUNCTION__ << "\t" << tempSubjectID << "\t"
-										<< partitionID << "\t" << tempObject << "\t"
-										<< (int) tempObjType << endl;
+						<< partitionID << "\t" << tempObject << "\t"
+						<< (int) tempObjType << endl;
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						objType);
 				return;
@@ -1159,8 +1163,8 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				else if (tempSubjectID == subjectID && tempObject == object
 						&& tempObjType == objType) {
 					cout << __FUNCTION__ << "\t" << tempSubjectID << "\t"
-											<< partitionID << "\t" << tempObject << "\t"
-											<< (int) tempObjType << endl;
+							<< partitionID << "\t" << tempObject << "\t"
+							<< (int) tempObjType << endl;
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							objType);
 					return;
@@ -1172,14 +1176,9 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 	} else if (soType == ORDERBYO) {
 		if (subjectID == 0) { //删除所有记录，主要用于基于模式删除
 			while (reader < limit) {
-				reader = partitionChunkManager[soType]->readXY(reader,
-										tempSubjectID, tempObject, tempObjType);
-				cout << __FUNCTION__ << "\t" << tempSubjectID << "\t"
-											<< partitionID << "\t" << tempObject << "\t"
-											<< (int) tempObjType << endl;
-				/*reader =
+				reader =
 						(const uchar*) partitionChunkManager[soType]->deleteTriple(
-								const_cast<uchar*>(reader));*/
+								const_cast<uchar*>(reader));
 			}
 			while (metaData->NextPageNo) {
 				chunkBegin =
@@ -1189,14 +1188,9 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				reader = chunkBegin + sizeof(MetaData);
 				limit = chunkBegin + metaData->usedSpace;
 				while (reader < limit) {
-					reader = partitionChunkManager[soType]->readXY(reader,
-															tempSubjectID, tempObject, tempObjType);
-									cout << __FUNCTION__ << "\t" << tempSubjectID << "\t"
-																<< partitionID << "\t" << tempObject << "\t"
-																<< (int) tempObjType << endl;
-					/*reader =
+					reader =
 							(const uchar*) partitionChunkManager[soType]->deleteTriple(
-									const_cast<uchar*>(reader));*/
+									const_cast<uchar*>(reader));
 				}
 			}
 		} else {
@@ -1259,7 +1253,8 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 		const double object, const char objType) {
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << endl;
-	cout << constSubject << "\t" << soType << "\t" << subjectID << "\t" << object << endl;
+	cout << constSubject << "\t" << soType << "\t" << subjectID << "\t"
+			<< object << endl;
 #endif
 	int chunkID;
 	shared_ptr<subTaskPackage> taskPackage(new subTaskPackage);
@@ -1360,7 +1355,7 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 						<< (int) tempObjType << endl;
 				midResultBuffer->insertObject(tempObject, tempObjType);
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
-				 tempObjType);
+						tempObjType);
 				goto END;
 			} else {
 				delete midResultBuffer;
