@@ -1247,11 +1247,13 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 #endif
 	int chunkID;
 	size_t size = buffer->getUsedSize();
+	cout << "++++++1111111++++" << endl;
 	shared_ptr<subTaskPackage> taskPackage(new subTaskPackage);
+	cout << "++++++2222232++++" << endl;
 	shared_ptr<IndexForTT> indexForTT(new IndexForTT);
 	TripleBitQueryGraph::OpType operationType = TripleBitQueryGraph::DELETE_DATA;
 	TripleNode::Op scanType = TripleNode::NOOP;
-	cout << "++++++1111111++++" << endl;
+	cout << "++++++333333++++" << endl;
 	if (soType == ORDERBYS) {
 		MidResultBuffer::SignalO* objects = buffer->getObjectBuffer();
 		ChunkTask *chunkTask;
