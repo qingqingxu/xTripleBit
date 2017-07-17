@@ -470,6 +470,7 @@ SPARQLParser::Element SPARQLParser::parsePatternElement(PatternGroup& group,
 		{
 	Element result;
 	SPARQLLexer::Token token = lexer.getNext();
+	cout << token << endl;
 	if (token == SPARQLLexer::Variable) {
 		result.type = Element::Variable;
 		result.id = nameVariable(lexer.getTokenValue());

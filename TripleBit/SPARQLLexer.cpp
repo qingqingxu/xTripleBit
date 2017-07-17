@@ -129,12 +129,12 @@ SPARQLLexer::Token SPARQLLexer::getNext()
 			return IRI;
 			// Char
 		case '\'':
-			pos++;
 			tokenStart = pos;
+			pos++;
 			while (pos != input.end() && (*pos) != '\'') {
 				++pos;
 			}
-			if((pos - tokenStart) != 1){
+			if((pos - tokenStart) != 2){
 				return Error;
 			}
 			tokenEnd = pos;
@@ -333,7 +333,7 @@ double SPARQLLexer::getValueFromToken(const std::string& value,
 	switch (dataType) {
 	case BOOL:
 	case CHAR:
-		return (double) value[0];
+		return (double) value[1];
 	case INT: {
 		longlong ll = atoll(value.c_str());
 		if (ll >= INT_MIN && ll <= INT_MAX) {
