@@ -129,14 +129,12 @@ SPARQLLexer::Token SPARQLLexer::getNext()
 			return IRI;
 			// Char
 		case '\'':
-			tokenStart = pos;
-			num = 0;
 			pos++;
+			tokenStart = pos;
 			while (pos != input.end() && (*pos) != '\'') {
 				++pos;
-				num++;
 			}
-			if(num != 1){
+			if((pos - tokenStart) != 1){
 				return Error;
 			}
 			tokenEnd = pos;
