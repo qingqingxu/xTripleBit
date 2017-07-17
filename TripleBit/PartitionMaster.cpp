@@ -1281,6 +1281,9 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 
 void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 		const ID chunkID, const uchar *startPtr, const bool soType) {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 	ID subjectID = chunkTask->Triple.subjectID;
 	double object = chunkTask->Triple.object;
 	char objType = chunkTask->Triple.objType;
