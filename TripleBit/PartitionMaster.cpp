@@ -458,7 +458,9 @@ void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << endl;
 #endif
-	ID subjectID = subTransaction->triple.constSubject ? subTransaction->triple.subjectID : 0;
+	ID subjectID =
+			subTransaction->triple.constSubject ?
+					subTransaction->triple.subjectID : 0;
 	double object = subTransaction->triple.object;
 	char objType = subTransaction->triple.objType;
 
@@ -1092,13 +1094,16 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 
 void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 		const ID chunkID, const uchar* startPtr, const bool soType) {
-	/*
-	 #ifdef MYDEBUG
-	 cout << __FUNCTION__ << endl;
-	 MetaData* metaData0 = (MetaData*)xChunkQueue[soType][chunkID]->getChunkBegin();
-	 cout << "metaData.min," << metaData0->min << ",metaData.max," << metaData0->max<< ",metaData.pageNo," << metaData0->pageNo << endl;
-	 #endif
-	 */
+
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+	MetaData* metaData0 =
+			(MetaData*) xChunkQueue[soType][chunkID]->getChunkBegin();
+	cout << "metaData.min," << metaData0->min << ",metaData.max,"
+			<< metaData0->max << ",metaData.pageNo," << metaData0->pageNo
+			<< endl;
+#endif
+
 	ID subjectID = chunkTask->Triple.subjectID;
 	ID tempSubjectID;
 	double object = chunkTask->Triple.object;
@@ -1190,7 +1195,9 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					continue;
 				else if (tempObject == object && tempObjType == objType
 						&& tempSubjectID == subjectID) {
-					cout << __FUNCTION__<< "\t" << tempSubjectID << "\t" << partitionID << "\t" << tempObject << "\t" << (int)tempObjType << endl;
+					cout << __FUNCTION__ << "\t" << tempSubjectID << "\t"
+							<< partitionID << "\t" << tempObject << "\t"
+							<< (int) tempObjType << endl;
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							objType);
 					return;
@@ -1216,7 +1223,9 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 						continue;
 					else if (tempObject == object && tempObjType == objType
 							&& tempSubjectID == subjectID) {
-						cout <<  __FUNCTION__ << "\t" << tempSubjectID << "\t" << partitionID << "\t" << tempObject << "\t" << (int)tempObjType << endl;
+						cout << __FUNCTION__ << "\t" << tempSubjectID << "\t"
+								<< partitionID << "\t" << tempObject << "\t"
+								<< (int) tempObjType << endl;
 						temp = partitionChunkManager[soType]->deleteTriple(temp,
 								objType);
 						return;
@@ -1233,7 +1242,7 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 		const bool soType, const bool constSubject, const ID subjectID,
 		const double object, const char objType) {
 #ifdef MYDEBUG
-		cout << __FUNCTION__ << endl;
+	cout << __FUNCTION__ << endl;
 #endif
 	int chunkID;
 	size_t size = buffer->getUsedSize();
@@ -1246,6 +1255,7 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 		MidResultBuffer::SignalO* objects = buffer->getObjectBuffer();
 		ChunkTask *chunkTask;
 		if (constSubject) { //subject是常量，仅删除对应的object
+			cout << size << endl;
 			for (size_t i = 0; i < size; ++i) {
 				chunkID =
 						partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(
@@ -1331,10 +1341,12 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 			if (tempSubjectID < subjectID) {
 				continue;
 			} else if (tempSubjectID == subjectID) {
-				cout << __FUNCTION__<< "\t" << tempSubjectID << "\t" << partitionID << "\t" << tempObject << "\t" << (int)tempObjType << endl;
+				cout << __FUNCTION__ << "\t" << tempSubjectID << "\t"
+						<< partitionID << "\t" << tempObject << "\t"
+						<< (int) tempObjType << endl;
 				midResultBuffer->insertObject(tempObject, tempObjType);
 				/*temp = partitionChunkManager[soType]->deleteTriple(temp,
-						tempObjType);*/
+				 tempObjType);*/
 				goto END;
 			} else {
 				delete midResultBuffer;
@@ -1377,7 +1389,9 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 				if (tempSubjectID < subjectID) {
 					continue;
 				} else if (tempSubjectID == subjectID) {
-					cout << __FUNCTION__<< "\t" << tempSubjectID << "\t" << partitionID << "\t" << tempObject << "\t" << (int)tempObjType << endl;
+					cout << __FUNCTION__ << "\t" << tempSubjectID << "\t"
+							<< partitionID << "\t" << tempObject << "\t"
+							<< (int) tempObjType << endl;
 					midResultBuffer->insertObject(tempObject, tempObjType);
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							tempObjType);
@@ -1409,7 +1423,6 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 			midResultBuffer)) {
 		MidResultBuffer *buffer =
 				chunkTask->taskPackageForDelete->getTaskResult();
-		cout << "---2---" << endl;
 		deleteDataForDeleteClause(buffer, soType,
 				chunkTask->taskPackageForDelete->constSubject, subjectID,
 				object, objType);

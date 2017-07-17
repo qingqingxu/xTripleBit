@@ -263,13 +263,8 @@ Status MidResultBuffer::appendBuffer(const MidResultBuffer *otherBuffer) {
 					return ERROR;
 				}
 			}
-			cout << "-----4-------" << endl;
-			cout << usedSize << endl;
-			cout << otherBuffer->getUsedSize() << endl;
-			cout << otherBuffer->getObjectBuffer()->object << endl;
 			memcpy(objects + usedSize, otherBuffer->getObjectBuffer(),
 					otherBuffer->getUsedSize() * sizeof(SignalO));
-			cout << "-----5-------" << endl;
 			break;
 		case SUBJECTOBJECT:
 		case PREDICATEOBJECT:
