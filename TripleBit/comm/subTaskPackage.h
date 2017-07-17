@@ -73,7 +73,7 @@ public:
 		if (totalSize != 0) {
 			iter = tempBuffer.begin();
 			MidResultBuffer *resultBuffer = new MidResultBuffer(
-					(*iter).second->resultType);
+					(*iter).second->getResultType());
 			resultBuffer->resize(totalSize);
 			for (; iter != tempBuffer.end(); iter++) {
 				resultBuffer->appendBuffer(iter->second);
