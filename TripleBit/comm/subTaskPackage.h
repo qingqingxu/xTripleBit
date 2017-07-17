@@ -76,6 +76,7 @@ public:
 					(*iter).second->getResultType());
 			resultBuffer->resize(totalSize);
 			for (; iter != tempBuffer.end(); iter++) {
+				cout << "aaaaaaaaaa" << endl;
 				resultBuffer->appendBuffer(iter->second);
 				delete iter->second;
 				iter->second = NULL;
