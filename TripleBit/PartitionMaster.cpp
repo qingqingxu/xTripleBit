@@ -1232,6 +1232,9 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 		const bool soType, const bool constSubject, const ID subjectID,
 		const double object, const char objType) {
+#ifdef MYDEBUG
+		cout << __FUNCTION__ << endl;
+#endif
 	int chunkID;
 	size_t size = buffer->getUsedSize();
 	shared_ptr<subTaskPackage> taskPackage(new subTaskPackage);
@@ -1405,11 +1408,14 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 
 	END: if (chunkTask->taskPackageForDelete->completeSubTask(chunkID,
 			midResultBuffer)) {
+		cout << "---1---" << endl;
 		MidResultBuffer *buffer =
 				chunkTask->taskPackageForDelete->getTaskResult();
+		cout << "---2---" << endl;
 		deleteDataForDeleteClause(buffer, soType,
 				chunkTask->taskPackageForDelete->constSubject, subjectID,
 				object, objType);
+		cout << "---2---" << endl;
 	}
 
 	midResultBuffer = NULL;

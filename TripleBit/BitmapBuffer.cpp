@@ -922,7 +922,6 @@ uchar* Chunk::deleteData(uchar* reader, char dataType) {
 		reader += sizeof(char);
 		*(uint*) reader = 0;
 		reader += sizeof(uint);
-		cout << "-----" << endl;
 		break;
 	}
 	return reader;
