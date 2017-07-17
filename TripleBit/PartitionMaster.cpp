@@ -1299,7 +1299,6 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 							subejctIDs[i], object);
 			ChunkTask *chunkTask = new ChunkTask(operationType, subejctIDs[i],
 					object, objType, scanType, taskPackage, indexForTT);
-			//xChunkQueue[ORDERBYS][chunkID]->EnQueue(chunkTask);
 			taskEnQueue(chunkTask, xChunkQueue[ORDERBYS][chunkID]);
 		}
 	}
@@ -1431,6 +1430,7 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 			midResultBuffer)) {
 		MidResultBuffer *buffer =
 				chunkTask->taskPackageForDelete->getTaskResult();
+		cout <<  buffer->getUsedSize() << endl;
 		deleteDataForDeleteClause(buffer, soType,
 				chunkTask->taskPackageForDelete->constSubject, subjectID,
 				object, objType);
