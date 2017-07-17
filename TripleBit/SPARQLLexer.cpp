@@ -218,9 +218,9 @@ SPARQLLexer::Token SPARQLLexer::getNext()
 			}
 			if (pos == tokenStart)
 				return Error;
-			else if(strcasecmp(getTokenValue().c_str(), "true") || strcasecmp(getTokenValue().c_str(), "true")){
+			/*else if(strcasecmp(getTokenValue().c_str(), "true") || strcasecmp(getTokenValue().c_str(), "true")){
 				return Bool;
-			}
+			}*/
 			return Identifier;
 		}
 	}
