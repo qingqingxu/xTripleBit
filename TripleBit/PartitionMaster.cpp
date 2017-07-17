@@ -497,6 +497,7 @@ void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
 		if (chunkCount != 0) {
 			for (size_t offsetID = chunkIDMin; offsetID <= chunkIDMax;
 					offsetID++) {
+				cout << "---------" << object << endl;
 				ChunkTask *chunkTask = new ChunkTask(
 						subTransaction->operationType, subjectID, object,
 						objType, subTransaction->triple.scanOperation,
