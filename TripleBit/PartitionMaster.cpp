@@ -1246,6 +1246,7 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 	cout << constSubject << "\t" << soType << "\t" << subjectID << "\t" << object << endl;
 #endif
 	int chunkID;
+	cout << "++++++00000000++++" << endl;
 	size_t size = buffer->getUsedSize();
 	cout << "++++++1111111++++" << endl;
 	shared_ptr<subTaskPackage> taskPackage(new subTaskPackage);
