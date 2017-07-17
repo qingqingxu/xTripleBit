@@ -1243,6 +1243,7 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 		const double object, const char objType) {
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << endl;
+	cout << constSubject << "\t" << soType << "\t" << subjectID << "\t" << object << endl;
 #endif
 	int chunkID;
 	size_t size = buffer->getUsedSize();

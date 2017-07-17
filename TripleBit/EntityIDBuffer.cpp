@@ -311,7 +311,6 @@ Status MidResultBuffer::appendBuffer(const MidResultBuffer *otherBuffer) {
 		}
 		usedSize += otherBuffer->usedSize;
 		pos += otherBuffer->usedSize;
-		cout << usedSize << "\t" << pos << endl;
 	}
 
 	return OK;
