@@ -201,7 +201,7 @@ public:
 
 		const uchar* begin = (uchar*) buffer->getBuffer() + start, *limit =
 				(uchar*) buffer->getBuffer() + end;
-		decodeStatis(begin, limit, soValue, count, objType);
+		findAllPredicateBySO(begin, limit, soValue, pids, objType);
 
 		if (pids.size() != 0) {
 			return OK;
@@ -222,7 +222,7 @@ private:
 	void decodeStatis(const uchar* begin, const uchar* end, double soValue,
 			ID predicateID, size_t& count, char objType = STRING);
 	void decodeStatis(const uchar* begin, const uchar* end, double soValue,
-			size_t & count, char objType = STRING);
+			size_t& count, char objType = STRING);
 	void findAllPredicateBySO(const uchar* begin, const uchar* end, double soValue,
 			vector<ID>& pids, char objType = STRING);
 };
