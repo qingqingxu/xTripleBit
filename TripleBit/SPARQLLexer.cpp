@@ -216,11 +216,12 @@ SPARQLLexer::Token SPARQLLexer::getNext()
 				} else
 					break;
 			}
-			if (pos == tokenStart)
+			if (pos == tokenStart){
 				return Error;
-			/*else if(strcasecmp(getTokenValue().c_str(), "true") || strcasecmp(getTokenValue().c_str(), "true")){
+			}else if(strcasecmp(getTokenValue().c_str(), "true") || strcasecmp(getTokenValue().c_str(), "true")){
+				cout << getTokenValue() << endl;
 				return Bool;
-			}*/
+			}
 			return Identifier;
 		}
 	}
