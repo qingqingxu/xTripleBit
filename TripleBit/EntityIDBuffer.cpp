@@ -235,6 +235,9 @@ Status MidResultBuffer::insertSPO(ID subjectID, ID predicateID, double object,
 }
 
 Status MidResultBuffer::appendBuffer(const MidResultBuffer *otherBuffer) {
+#ifdef MYDEBUG
+		cout << __FUNCTION__ << endl;
+#endif
 	if (otherBuffer != NULL) {
 		switch (otherBuffer->resultType) {
 		case SIGNALID:
@@ -260,8 +263,10 @@ Status MidResultBuffer::appendBuffer(const MidResultBuffer *otherBuffer) {
 					return ERROR;
 				}
 			}
+			cout << "-----4-------" << endl;
 			memcpy(objects + usedSize, otherBuffer->getObjectBuffer(),
 					otherBuffer->getUsedSize() * sizeof(SignalO));
+			cout << "-----5-------" << endl;
 			break;
 		case SUBJECTOBJECT:
 		case PREDICATEOBJECT:
@@ -308,6 +313,7 @@ Status MidResultBuffer::appendBuffer(const MidResultBuffer *otherBuffer) {
 		}
 		usedSize += otherBuffer->usedSize;
 		pos += otherBuffer->usedSize;
+		cout << usedSize << "\t" << pos << endl;
 	}
 
 	return OK;
