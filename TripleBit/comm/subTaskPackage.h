@@ -21,7 +21,7 @@ public:
 	size_t referenceCount;
 	TripleBitQueryGraph::OpType operationType;
 	ID sID;
-	bool constSubject;//subject是否已知
+	bool constSubject; //subject是否已知
 	double object;
 	char objType;
 	map<ID, MidResultBuffer*> tempBuffer;
@@ -31,7 +31,8 @@ public:
 	}
 	SubTaskPackageForDelete(size_t reCount, TripleBitQueryGraph::OpType opType,
 			ID sID, bool constSubject) :
-			referenceCount(reCount), operationType(opType), sID(sID), constSubject(constSubject) {
+			referenceCount(reCount), operationType(opType), sID(sID), constSubject(
+					constSubject) {
 		pthread_mutex_init(&subTaskMutex, NULL);
 	}
 	SubTaskPackageForDelete(size_t reCount, TripleBitQueryGraph::OpType opType,
@@ -63,20 +64,25 @@ public:
 #ifdef MYDEBUG
 		cout << __FUNCTION__ << endl;
 #endif
-		MidResultBuffer *resultBuffer = new MidResultBuffer;
-			map<ID, MidResultBuffer*>::iterator iter = tempBuffer.begin();
-			size_t totalSize = 0;
-			for (iter = tempBuffer.begin(); iter != tempBuffer.end(); iter++) {
-				totalSize += iter->second->getUsedSize();
-			}
+		map<ID, MidResultBuffer*>::iterator iter = tempBuffer.begin();
+		size_t totalSize = 0;
+		for (iter = tempBuffer.begin(); iter != tempBuffer.end(); iter++) {
+			totalSize += iter->second->getUsedSize();
+		}
+		MidResultBuffer *resultBuffer = NULL;
+		if (totalSize != 0) {
+			iter = tempBuffer.begin();
+			MidResultBuffer *resultBuffer = new MidResultBuffer(
+					(*iter).second->resultType);
 			resultBuffer->resize(totalSize);
-			for (iter = tempBuffer.begin(); iter != tempBuffer.end(); iter++) {
+			for (; iter != tempBuffer.end(); iter++) {
 				resultBuffer->appendBuffer(iter->second);
 				delete iter->second;
 				iter->second = NULL;
 			}
-			return resultBuffer;
 		}
+		return resultBuffer;
+	}
 };
 
 class subTaskPackage {
@@ -100,8 +106,8 @@ public:
 			ID sourceID, ID minid, ID maxid, ID deleteid, ID updateid,
 			PartitionBufferManager*& buffer) :
 			referenceCount(reCount), operationType(opType), sourceWorkerID(
-					sourceID), minID(minid), maxID(maxid), updateID(
-					updateid), partitionBuffer(buffer) {
+					sourceID), minID(minid), maxID(maxid), updateID(updateid), partitionBuffer(
+					buffer) {
 		pthread_mutex_init(&subTaskMutex, NULL);
 	}
 	~subTaskPackage() {
