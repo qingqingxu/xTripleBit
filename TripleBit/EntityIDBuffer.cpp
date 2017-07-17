@@ -239,6 +239,7 @@ Status MidResultBuffer::appendBuffer(const MidResultBuffer *otherBuffer) {
 		cout << __FUNCTION__ << endl;
 #endif
 	if (otherBuffer != NULL) {
+		cout << otherBuffer->resultType << endl;
 		switch (otherBuffer->resultType) {
 		case SIGNALID:
 			if (usedSize + otherBuffer->usedSize > totalSize) {
