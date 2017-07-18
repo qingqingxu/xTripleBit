@@ -1253,8 +1253,6 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 		const double object, const char objType) {
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << endl;
-	cout << constSubject << "\t" << soType << "\t" << subjectID << "\t"
-			<< object << endl;
 #endif
 	int chunkID;
 	shared_ptr<subTaskPackage> taskPackage(new subTaskPackage);
@@ -1271,6 +1269,8 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 				ChunkTask *chunkTask = new ChunkTask(operationType, subjectID,
 						objects[i].object, objects[i].objType, scanType,
 						taskPackage, indexForTT);
+
+				cout << subjectID << "\t" << partitionID << "\t" << objects[i].object << endl;
 				taskEnQueue(chunkTask, xChunkQueue[ORDERBYO][chunkID]);
 				//xChunkQueue[ORDERBYO][chunkID]->EnQueue(chunkTask);
 			}
