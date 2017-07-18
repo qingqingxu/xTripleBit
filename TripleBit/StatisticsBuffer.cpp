@@ -101,6 +101,7 @@ void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
 
 void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
 		double soValue, size_t& count, char objType) {
+	cout << __FUNCTION__ << endl;
 	ID predicateID;
 	size_t tempCount = 0;
 	if (statType == SUBJECTPREDICATE_STATIS) {

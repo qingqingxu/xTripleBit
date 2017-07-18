@@ -153,6 +153,7 @@ public:
 	//根据SP（OP）统计信息获取S（O）出现的次数
 	template<typename T>
 	Status getStatisBySO(T soValue, size_t& count, char objType = STRING) {
+		cout << __FUNCTION__ << endl;
 		count = 0;
 		pos = index, posLimit = index + indexPos;
 		findLocation(soValue);
