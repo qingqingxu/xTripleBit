@@ -384,9 +384,10 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 			size_t subjectCounts = 0, objectCounts = 0;
 			tripleBitRepo->getSpStatisBuffer()->getStatisBySO(iter->subjectID,
 					subjectCounts, STRING);
-			tripleBitRepo->getSpStatisBuffer()->getStatisBySO(iter->object,
+			tripleBitRepo->getOpStatisBuffer()->getStatisBySO(iter->object,
 					objectCounts, iter->objType);
 			//若S的triple数少，根据sp匹配o进行删除
+			cout << "subjectCounts: " << subjectCounts << "\tobjectCounts: " << objectCounts << endl;
 			if (subjectCounts <= objectCounts) {
 				vector<ID> pids;
 				tripleBitRepo->getSpStatisBuffer()->findAllPredicateBySO(
@@ -400,7 +401,7 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 				}
 			} else {
 				vector<ID> pids;
-				tripleBitRepo->getSpStatisBuffer()->findAllPredicateBySO(
+				tripleBitRepo->getOpStatisBuffer()->findAllPredicateBySO(
 						iter->object, pids, iter->objType);
 				for (vector<ID>::iterator it = pids.begin(); it != pids.end();
 						it++) {
