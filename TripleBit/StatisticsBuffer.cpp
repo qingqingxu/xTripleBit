@@ -131,6 +131,7 @@ void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
 		int status;
 		while (begin + sizeof(char) < end) {
 			status = Chunk::getObjTypeStatus(begin, moveByteNum);
+			cout << "moveByteNum: " << moveByteNum << endl;
 			if (status == DATA_EXSIT) {
 				begin -= moveByteNum;
 				begin = readData(begin, tempObjType);
