@@ -101,7 +101,7 @@ void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
 
 void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
 		double soValue, size_t& count, char objType) {
-	cout << __FUNCTION__ << endl;
+	cout << "soValue: " << soValue << "\tobjType: " << (int)objType << endl;
 	ID predicateID;
 	size_t tempCount = 0;
 	if (statType == SUBJECTPREDICATE_STATIS) {
@@ -130,14 +130,12 @@ void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
 		uint moveByteNum;
 		int status;
 		while (begin + sizeof(char) < end) {
-			readData(begin, tempObjType);
-			cout << "---------" << tempObjType << endl;
 			status = Chunk::getObjTypeStatus(begin, moveByteNum);
 			cout << "moveByteNum: " << moveByteNum << endl;
 			if (status == DATA_EXSIT) {
 				begin -= moveByteNum;
 				begin = readData(begin, tempObjType);
-				cout << "tempObjType: " << tempObjType << "\t";
+				cout << "tempObjType: " << (int)tempObjType << "\t";
 				if (tempObjType != NONE && begin + Chunk::getLen(tempObjType) < end) {
 					begin = Chunk::read(begin, object, tempObjType);
 					cout << "object: " << object << "\t";
