@@ -1278,7 +1278,9 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 				ChunkTask *chunkTask = new ChunkTask(operationType, subjectID,
 						objects[i].object, objects[i].objType, scanType,
 						taskPackage, indexForTT);
-
+				cout << __FUNCTION__ << "\t" << subjectID << "\t"
+										<< partitionID << "\t" << objects[i].object << "\t"
+										<< (int) objects[i].objType << endl;
 				taskEnQueue(chunkTask, xChunkQueue[ORDERBYO][chunkID]);
 				//xChunkQueue[ORDERBYO][chunkID]->EnQueue(chunkTask);
 			}
