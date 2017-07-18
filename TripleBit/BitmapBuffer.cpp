@@ -683,14 +683,15 @@ const uchar* ChunkManager::readXY(const uchar* reader, ID& subjectID,
 
 uchar* ChunkManager::deleteTriple(uchar* reader){
 	char objType;
+
 	if (meta->soType == ORDERBYS) {
 			*(ID*) reader = 0; //s
 			reader += sizeof(ID);
-			reader = const_cast<uchar*>(Chunk::read(reader, objType, CHAR));
+			Chunk::read(reader, objType, CHAR);
 			return Chunk::deleteData(reader, objType); //o
 		} else if (meta->soType == ORDERBYO) {
-			reader = const_cast<uchar*>(Chunk::read(reader, objType, CHAR));
-			cout << __FUNCTION__ << "\t" << (int)objType << endl;
+			Chunk::read(reader, objType, CHAR);
+			//cout << __FUNCTION__ << "\t" << (int)objType << endl;
 			reader = Chunk::deleteData(reader, objType); //o
 			*(ID*) reader = 0; //s
 			reader += sizeof(ID);
