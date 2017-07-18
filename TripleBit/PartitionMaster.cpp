@@ -1199,19 +1199,28 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				reader = partitionChunkManager[soType]->readXY(reader,
 						tempSubjectID, tempObject, tempObjType);
 				if (tempObject < object
-						|| (tempObject == object && tempObjType != objType)
+						|| (tempObject == object && tempObjType < objType)
 						|| (tempObject == object && tempObjType == objType
-								&& tempSubjectID < subjectID))
+								&& tempSubjectID < subjectID)){
+					cout << __FUNCTION__ << "\t" << tempSubjectID << "\t"
+												<< partitionID << "\t" << tempObject << "\t"
+												<< (int) tempObjType << endl;
+					cout << "-------1-------" << endl;
 					continue;
-				else if (tempObject == object && tempObjType == objType
+				}else if (tempObject == object && tempObjType == objType
 						&& tempSubjectID == subjectID) {
 					cout << __FUNCTION__ << "\t" << tempSubjectID << "\t"
 							<< partitionID << "\t" << tempObject << "\t"
 							<< (int) tempObjType << endl;
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							objType);
+					cout << "-------2-------" << endl;
 					return;
 				} else {
+					cout << __FUNCTION__ << "\t" << tempSubjectID << "\t"
+												<< partitionID << "\t" << tempObject << "\t"
+												<< (int) tempObjType << endl;
+					cout << "-------3-------" << endl;
 					return;
 				}
 			}
@@ -1227,7 +1236,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					reader = partitionChunkManager[soType]->readXY(reader,
 							tempSubjectID, tempObject, tempObjType);
 					if (tempObject < object
-							|| (tempObject == object && tempObjType != objType)
+							|| (tempObject == object && tempObjType < objType)
 							|| (tempObject == object && tempObjType == objType
 									&& tempSubjectID < subjectID))
 						continue;
@@ -1270,7 +1279,6 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 						objects[i].object, objects[i].objType, scanType,
 						taskPackage, indexForTT);
 
-				cout << subjectID << "\t" << partitionID << "\t" << objects[i].object << endl;
 				taskEnQueue(chunkTask, xChunkQueue[ORDERBYO][chunkID]);
 				//xChunkQueue[ORDERBYO][chunkID]->EnQueue(chunkTask);
 			}
