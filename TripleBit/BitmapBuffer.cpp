@@ -967,38 +967,46 @@ Status Chunk::getObjTypeStatus(const uchar*& reader, uint& moveByteNum) {
 		return DATA_NONE;
 	case BOOL:
 	case CHAR:
-		reader += sizeof(char) + sizeof(char);
+		moveByteNum = sizeof(char) + sizeof(char);
+		reader += moveByteNum;
 		return DATA_EXSIT;
 	case BOOL_DELETE:
 	case CHAR_DELETE:
-		reader += sizeof(char) + sizeof(char);
+		moveByteNum = sizeof(char) + sizeof(char);
+				reader += moveByteNum;
 		return DATA_DELETE;
 	case LONGLONG:
-		reader += sizeof(char) + sizeof(longlong);
+		moveByteNum = sizeof(char) + sizeof(longlong);
+		reader += moveByteNum;
 		return DATA_EXSIT;
 	case LONGLONG_DELETE:
-		reader += sizeof(char) + sizeof(longlong);
+		moveByteNum = sizeof(char) + sizeof(longlong);
+		reader += moveByteNum;
 		return DATA_DELETE;
 	case DATE:
 	case DOUBLE:
-		reader += sizeof(char) + sizeof(double);
+		moveByteNum = sizeof(char) + sizeof(double);
+		reader += moveByteNum;
 		return DATA_EXSIT;
 	case DATE_DELETE:
 	case DOUBLE_DELETE:
-		reader += sizeof(char) + sizeof(double);
+		moveByteNum = sizeof(char) + sizeof(double);
+		reader += moveByteNum;
 		return DATA_DELETE;
 	case FLOAT_DELETE:
 	case INT_DELETE:
 	case UNSIGNED_INT_DELETE:
 	case STRING_DELETE:
-		reader += sizeof(char) + sizeof(uint);
+		moveByteNum = sizeof(char) + sizeof(uint);
+		reader += moveByteNum;
 		return DATA_DELETE;
 	case FLOAT:
 	case INT:
 	case UNSIGNED_INT:
 	case STRING:
 	default:
-		reader += sizeof(char) + sizeof(uint);
+		moveByteNum = sizeof(char) + sizeof(uint);
+		reader += moveByteNum;
 		return DATA_EXSIT;
 	}
 }
