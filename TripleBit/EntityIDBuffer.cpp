@@ -9,7 +9,7 @@
 #include "MemoryBuffer.h"
 #include <math.h>
 #include <pthread.h>
-#define MYDEBUG
+//#define MYDEBUG
 
 MidResultBuffer::MidResultBuffer(ResultType resultType): resultType(resultType) {
 	switch (resultType) {

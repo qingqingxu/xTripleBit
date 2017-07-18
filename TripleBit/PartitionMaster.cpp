@@ -1331,9 +1331,6 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 	ID subjectID = chunkTask->Triple.subjectID;
 	double object = chunkTask->Triple.object;
 	char objType = chunkTask->Triple.objType;
-	cout << subjectID << "\t" << object << "\t" << objType << "\t" << chunkID
-			<< "\t" << soType << "\t"
-			<< chunkTask->taskPackageForDelete->constSubject << endl;
 
 	ID tempSubjectID;
 	double tempObject;
@@ -1404,8 +1401,6 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 					|| (tempObject == object && tempObjType < objType)) {
 				continue;
 			} else if (tempObject == object && tempObjType == objType) {
-				cout << tempSubjectID << "\t" << tempObject << "\t"
-						<< (int) tempObjType << endl;
 				midResultBuffer->insertSIGNALID(tempSubjectID);
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						tempObjType);
@@ -1473,7 +1468,6 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 		deleteDataForDeleteClause(buffer, soType,
 				chunkTask->taskPackageForDelete->constSubject, subjectID,
 				object, objType);
-		cout << "---7---" << endl;
 	}
 
 	midResultBuffer = NULL;
