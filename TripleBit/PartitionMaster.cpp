@@ -1367,7 +1367,10 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 			}
 
 		}
-		goto END;
+		deleteDataForDeleteClause(NULL, soType,
+						chunkTask->taskPackageForDelete->constSubject, subjectID,
+						object, objType);
+		return;
 	}
 
 	MidResultBuffer* midResultBuffer;
