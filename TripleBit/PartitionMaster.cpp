@@ -419,25 +419,25 @@ void PartitionMaster::executeInsertData(SubTrans* subTransaction) {
 	size_t chunkID;
 	shared_ptr<subTaskPackage> taskPackage(new subTaskPackage);
 
-	/*ofstream s("searchChunkIDByS", ios::app);
-	 s << "partitionID, " << partitionID << ",subjectID, " << subjectID
-	 << ",object, " << object;*/
+	ofstream s("searchChunkIDByS", ios::app);
+	s << "partitionID, " << partitionID << ",subjectID, " << subjectID
+			<< ",object, " << object;
 	chunkID = partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
 			subjectID, object);
-	/*s << ",chunkID, " << chunkID << endl;
-	 s.close();*/
+	s << ",chunkID, " << chunkID << endl;
+	s.close();
 	ChunkTask *chunkTask1 = new ChunkTask(subTransaction->operationType,
 			subjectID, object, objType, subTransaction->triple.scanOperation,
 			taskPackage, subTransaction->indexForTT);
 	taskEnQueue(chunkTask1, xChunkQueue[ORDERBYS][chunkID]);
 
-	/*ofstream o("searchChunkIDByO", ios::app);
-	 o << "partitionID, " << partitionID << ",object, " << object
-	 << ",subjectID, " << subjectID;*/
+	ofstream o("searchChunkIDByO", ios::app);
+	o << "partitionID, " << partitionID << ",object, " << object
+			<< ",subjectID, " << subjectID;
 	chunkID = partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(
 			object, subjectID);
-	/*o << ",chunkID, " << chunkID << endl;
-	 o.close();*/
+	o << ",chunkID, " << chunkID << endl;
+	o.close();
 
 	ChunkTask *chunkTask2 = new ChunkTask(subTransaction->operationType,
 			subjectID, object, objType, subTransaction->triple.scanOperation,
@@ -672,7 +672,7 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 			break;
 		}
 	}
-	if(lastOpType == TripleBitQueryGraph::INSERT_DATA){
+	if (lastOpType == TripleBitQueryGraph::INSERT_DATA) {
 		endupdate();
 	}
 }
@@ -1119,9 +1119,8 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 	char objType = chunkTask->Triple.objType;
 	char tempObjType;
 
-	cout << __FUNCTION__ << "\t" << subjectID << "\t"
-							<< partitionID << "\t" << object << "\t"
-							<< (int) objType << endl;
+	cout << __FUNCTION__ << "\t" << subjectID << "\t" << partitionID << "\t"
+			<< object << "\t" << (int) objType << endl;
 
 	const uchar *reader, *limit, *chunkBegin = startPtr;
 	uchar *temp;
@@ -1209,25 +1208,25 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				if (tempObject < object
 						|| (tempObject == object && tempObjType < objType)
 						|| (tempObject == object && tempObjType == objType
-								&& tempSubjectID < subjectID)){
+								&& tempSubjectID < subjectID)) {
 					cout << __FUNCTION__ << "\t" << tempSubjectID << "\t"
-												<< partitionID << "\t" << tempObject << "\t"
-												<< (int) tempObjType << endl;
+							<< partitionID << "\t" << tempObject << "\t"
+							<< (int) tempObjType << endl;
 					cout << "-------1-------" << endl;
 					continue;
-				}else if (tempObject == object && tempObjType == objType
+				} else if (tempObject == object && tempObjType == objType
 						&& tempSubjectID == subjectID) {
 					/*cout << __FUNCTION__ << "\t" << tempSubjectID << "\t"
-							<< partitionID << "\t" << tempObject << "\t"
-							<< (int) tempObjType << endl;*/
+					 << partitionID << "\t" << tempObject << "\t"
+					 << (int) tempObjType << endl;*/
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							objType);
 					cout << "-------2-------" << endl;
 					return;
 				} else {
 					cout << __FUNCTION__ << "\t" << tempSubjectID << "\t"
-												<< partitionID << "\t" << tempObject << "\t"
-												<< (int) tempObjType << endl;
+							<< partitionID << "\t" << tempObject << "\t"
+							<< (int) tempObjType << endl;
 					cout << "-------3-------" << endl;
 					return;
 				}
@@ -1251,8 +1250,8 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					else if (tempObject == object && tempObjType == objType
 							&& tempSubjectID == subjectID) {
 						/*cout << __FUNCTION__ << "\t" << tempSubjectID << "\t"
-								<< partitionID << "\t" << tempObject << "\t"
-								<< (int) tempObjType << endl;*/
+						 << partitionID << "\t" << tempObject << "\t"
+						 << (int) tempObjType << endl;*/
 						temp = partitionChunkManager[soType]->deleteTriple(temp,
 								objType);
 						return;
