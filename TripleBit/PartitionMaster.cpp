@@ -649,8 +649,10 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 	ID chunkID = tasksQueue->getChunkID();
 	int soType = tasksQueue->getSOType();
 	const uchar* chunkBegin = tasksQueue->getChunkBegin();
+	TripleBitQueryGraph::OpType lastOpType;
 
 	while ((chunkTask = tasksQueue->Dequeue()) != NULL) {
+		lastOpType = chunkTask->operationType;
 		switch (chunkTask->operationType) {
 		case TripleBitQueryGraph::QUERY:
 			//executeChunkTaskQuery(chunkTask, chunkID, chunkBegin, xyType);
@@ -670,7 +672,9 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 			break;
 		}
 	}
-	endupdate();
+	if(lastOpType == TripleBitQueryGraph::INSERT_DATA){
+		endupdate();
+	}
 }
 
 void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
@@ -1114,6 +1118,10 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 	double tempObject;
 	char objType = chunkTask->Triple.objType;
 	char tempObjType;
+
+	cout << __FUNCTION__ << "\t" << subjectID << "\t"
+							<< partitionID << "\t" << object << "\t"
+							<< (int) objType << endl;
 
 	const uchar *reader, *limit, *chunkBegin = startPtr;
 	uchar *temp;
