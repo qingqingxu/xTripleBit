@@ -101,7 +101,6 @@ void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
 
 void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
 		double soValue, size_t& count, char objType) {
-	//cout << "soValue: " << soValue << "\tobjType: " << (int)objType << endl;
 	ID predicateID;
 	size_t tempCount = 0;
 	if (statType == SUBJECTPREDICATE_STATIS) {
@@ -131,20 +130,15 @@ void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
 		int status;
 		while (begin + sizeof(char) < end) {
 			status = Chunk::getObjTypeStatus(begin, moveByteNum);
-			//cout << "moveByteNum: " << moveByteNum << endl;
 			if (status == DATA_EXSIT) {
 				begin -= moveByteNum;
 				begin = readData(begin, tempObjType);
-				//cout << "tempObjType: " << (int)tempObjType << "\t";
 				if (tempObjType != NONE && begin + Chunk::getLen(tempObjType) < end) {
 					begin = Chunk::read(begin, object, tempObjType);
-					//cout << "object: " << object << "\t";
 					if (begin + sizeof(ID) < end) {
 						begin = readData(begin, predicateID);
-						//cout << "predicateID: " << predicateID << "\t";
 						if (predicateID && begin + sizeof(size_t) <= end) {
 							begin = readData(begin, tempCount);
-							//cout << "tempCount: " << tempCount << endl;
 							if (soValue == object && objType == tempObjType) {
 								count += tempCount;
 							} else if (soValue < object || (soValue == object && objType < tempObjType)) {
@@ -200,15 +194,15 @@ void StatisticsBuffer::findAllPredicateBySO(const uchar* begin, const uchar* end
 			if (status == DATA_EXSIT) {
 				begin -= moveByteNum;
 				begin = readData(begin, tempObjType);
-				if (begin + Chunk::getLen(objType) < end) {
-					begin = Chunk::read(begin, object, objType);
+				if (begin + Chunk::getLen(tempObjType) < end) {
+					begin = Chunk::read(begin, object, tempObjType);
 					if (begin + sizeof(ID) < end) {
 						begin = readData(begin, predicateID);
 						if (predicateID && begin + sizeof(size_t) <= end) {
 							begin = readData(begin, tempCount);
 							if (soValue == object && objType == tempObjType && tempCount != 0) {
 								pids.push_back(predicateID);
-							} else if (soValue > object) {
+							} else if (soValue < object || (soValue == object && objType < tempObjType)) {
 								break;
 							}
 						} else {
@@ -229,10 +223,6 @@ void StatisticsBuffer::findAllPredicateBySO(const uchar* begin, const uchar* end
 
 static inline bool greaterCouple(ID a1, double a2, ID b1, double b2) {
 	return (a1 > b1) || ((a1 == b1) && (a2 > b2));
-}
-
-static inline bool less(double a1, ID a2, double b1, ID b2) { //useless
-	return (a1 < b1) || ((a1 == b1) && (a2 < b2));
 }
 
 bool StatisticsBuffer::findLocation(ID predicateID, double soValue) {
