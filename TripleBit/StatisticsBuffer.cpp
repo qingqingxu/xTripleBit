@@ -130,18 +130,23 @@ void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
 		uint moveByteNum;
 		int status;
 		while (begin + sizeof(char) < end) {
+			readData(begin, tempObjType);
+			cout << "---------" << tempObjType << endl;
 			status = Chunk::getObjTypeStatus(begin, moveByteNum);
 			cout << "moveByteNum: " << moveByteNum << endl;
 			if (status == DATA_EXSIT) {
 				begin -= moveByteNum;
 				begin = readData(begin, tempObjType);
 				cout << "tempObjType: " << tempObjType << "\t";
-				if (begin + Chunk::getLen(tempObjType) < end) {
+				if (tempObjType != NONE && begin + Chunk::getLen(tempObjType) < end) {
 					begin = Chunk::read(begin, object, tempObjType);
+					cout << "object: " << object << "\t";
 					if (begin + sizeof(ID) < end) {
 						begin = readData(begin, predicateID);
+						cout << "predicateID: " << predicateID << "\t";
 						if (predicateID && begin + sizeof(size_t) <= end) {
 							begin = readData(begin, tempCount);
+							cout << "tempCount: " << tempCount << endl;
 							if (soValue == object && objType == tempObjType) {
 								count += tempCount;
 							} else if (soValue > object || (soValue == object && objType < tempObjType)) {
