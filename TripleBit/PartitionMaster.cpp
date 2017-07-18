@@ -1282,9 +1282,8 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 			MidResultBuffer::SignalO* objects = buffer->getObjectBuffer();
 			for (size_t i = 0; i < buffer->getUsedSize(); ++i) {
 				chunkID =
-						partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(
-								subjectID, objects[i].object);
-				cout << "subjectID: " << subjectID << "\tobject: " << objects[i].object << "\tchunkID: " << chunkID << endl;
+						partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(objects[i].object,
+								subjectID);
 				ChunkTask *chunkTask = new ChunkTask(operationType, subjectID,
 						objects[i].object, objects[i].objType, scanType,
 						taskPackage, indexForTT);
