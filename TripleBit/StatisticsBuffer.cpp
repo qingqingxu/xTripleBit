@@ -101,7 +101,7 @@ void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
 
 void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
 		double soValue, size_t& count, char objType) {
-	cout << "soValue: " << soValue << "\tobjType: " << (int)objType << endl;
+	//cout << "soValue: " << soValue << "\tobjType: " << (int)objType << endl;
 	ID predicateID;
 	size_t tempCount = 0;
 	if (statType == SUBJECTPREDICATE_STATIS) {
@@ -131,23 +131,23 @@ void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
 		int status;
 		while (begin + sizeof(char) < end) {
 			status = Chunk::getObjTypeStatus(begin, moveByteNum);
-			cout << "moveByteNum: " << moveByteNum << endl;
+			//cout << "moveByteNum: " << moveByteNum << endl;
 			if (status == DATA_EXSIT) {
 				begin -= moveByteNum;
 				begin = readData(begin, tempObjType);
-				cout << "tempObjType: " << (int)tempObjType << "\t";
+				//cout << "tempObjType: " << (int)tempObjType << "\t";
 				if (tempObjType != NONE && begin + Chunk::getLen(tempObjType) < end) {
 					begin = Chunk::read(begin, object, tempObjType);
-					cout << "object: " << object << "\t";
+					//cout << "object: " << object << "\t";
 					if (begin + sizeof(ID) < end) {
 						begin = readData(begin, predicateID);
-						cout << "predicateID: " << predicateID << "\t";
+						//cout << "predicateID: " << predicateID << "\t";
 						if (predicateID && begin + sizeof(size_t) <= end) {
 							begin = readData(begin, tempCount);
-							cout << "tempCount: " << tempCount << endl;
+							//cout << "tempCount: " << tempCount << endl;
 							if (soValue == object && objType == tempObjType) {
 								count += tempCount;
-							} else if (soValue > object || (soValue == object && objType < tempObjType)) {
+							} else if (soValue < object || (soValue == object && objType < tempObjType)) {
 								break;
 							}
 						} else {
