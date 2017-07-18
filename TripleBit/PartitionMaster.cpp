@@ -1356,9 +1356,12 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 				midResultBuffer->insertObject(tempObject, tempObjType);
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						tempObjType);
-				goto END;
 			} else {
+				if (midResultBuffer->getUsedSize() > 0) {
+					goto END;
+				}
 				delete midResultBuffer;
+				midResultBuffer = NULL;
 				return;
 			}
 		} else if (soType == ORDERBYO) {
@@ -1369,9 +1372,12 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 				midResultBuffer->insertSIGNALID(tempSubjectID);
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						tempObjType);
-				goto END;
 			} else {
+				if (midResultBuffer->getUsedSize() > 0) {
+					goto END;
+				}
 				delete midResultBuffer;
+				midResultBuffer = NULL;
 				return;
 			}
 		}
@@ -1404,8 +1410,10 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 					midResultBuffer->insertObject(tempObject, tempObjType);
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							tempObjType);
-					goto END;
 				} else {
+					if (midResultBuffer->getUsedSize() > 0) {
+						goto END;
+					}
 					delete midResultBuffer;
 					midResultBuffer = NULL;
 					return;
@@ -1418,8 +1426,10 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 					midResultBuffer->insertSIGNALID(tempSubjectID);
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							tempObjType);
-					goto END;
 				} else {
+					if (midResultBuffer->getUsedSize() > 0) {
+						goto END;
+					}
 					delete midResultBuffer;
 					midResultBuffer = NULL;
 					return;

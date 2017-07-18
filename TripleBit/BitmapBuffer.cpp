@@ -691,7 +691,6 @@ uchar* ChunkManager::deleteTriple(uchar* reader){
 			return Chunk::deleteData(reader, objType); //o
 		} else if (meta->soType == ORDERBYO) {
 			Chunk::read(reader, objType, CHAR);
-			//cout << __FUNCTION__ << "\t" << (int)objType << endl;
 			reader = Chunk::deleteData(reader, objType); //o
 			*(ID*) reader = 0; //s
 			reader += sizeof(ID);
