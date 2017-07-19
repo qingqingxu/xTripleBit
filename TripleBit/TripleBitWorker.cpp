@@ -121,9 +121,6 @@ Status TripleBitWorker::Execute(string& queryString) {
 
 		workerQuery->releaseBuffer();
 	} else {
-		/*if(parser->getOperationType() == SPARQLParser::INSERT_DATA){
-		 transQueSW->EnQueue("exit");
-		 }*/
 		queryGraph->Clear();
 
 		uriMutex->lock();

@@ -25,7 +25,7 @@
 #include "util/Timestamp.h"
 
 #define QUERY_TIME
-#define MYDEBUG
+//#define MYDEBUG
 
 PartitionMaster::PartitionMaster(TripleBitRepository*& repo, const ID parID) {
 	tripleBitRepo = repo;
@@ -53,42 +53,13 @@ PartitionMaster::PartitionMaster(TripleBitRepository*& repo, const ID parID) {
 		chunkSizeAll += xChunkNumber[type];
 		ID chunkID = 0;
 		xChunkQueue[type][0] = new TasksQueueChunk(startPtr, chunkID, type);
-		/*
-		 #ifdef MYDEBUG
-		 ofstream out;
-		 if (type == ORDERBYS) {
-		 out.open("chunkidmetadata_s", ios::app);
-		 } else {
-		 out.open("chunkidmetadata_o", ios::app);
-		 }
-		 MetaData* metaData0 = (MetaData*) xChunkQueue[type][0]->getChunkBegin();
-		 out << "partitionID," << partitionID << ",chunkID," << chunkID
-		 << ",metaData.min," << metaData0->min << ",metaData.max,"
-		 << metaData0->max << ",metaData.pageNo," << metaData0->pageNo
-		 << endl;
-		 #endif
-		 */
 		xChunkTempBuffer[type][0] = new TempBuffer;
 		for (chunkID = 1; chunkID < xChunkNumber[type]; chunkID++) {
 			xChunkQueue[type][chunkID] = new TasksQueueChunk(
 					startPtr + chunkID * MemoryBuffer::pagesize
 							- sizeof(ChunkManagerMeta), chunkID, type);
-			/*
-			 #ifdef MYDEBUG
-			 metaData0 = (MetaData*) xChunkQueue[type][chunkID]->getChunkBegin();
-			 out << "partitionID," << partitionID << ",chunkID," << chunkID
-			 << ",metaData.min," << metaData0->min << ",metaData.max,"
-			 << metaData0->max << ",metaData.pageNo,"
-			 << metaData0->pageNo << endl;
-			 #endif
-			 */
 			xChunkTempBuffer[type][chunkID] = new TempBuffer;
 		}
-		/*
-		 #ifdef MYDEBUG
-		 out.close();
-		 #endif
-		 */
 	}
 
 	partitionBufferManager = new PartitionBufferManager(chunkSizeAll);
@@ -145,11 +116,10 @@ PartitionMaster::~PartitionMaster() {
 }
 
 void PartitionMaster::Work() {
-	/*
-	 #ifdef MYDEBUG
-	 cout << __FUNCTION__ << " partitionID: " << partitionID<< endl;
-	 #endif
-	 */
+
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
+#endif
 
 	while (1) {
 		SubTrans* subTransaction = tasksQueue->Dequeue();
@@ -408,11 +378,6 @@ void PartitionMaster::taskEnQueue(ChunkTask *chunkTask,
  */
 
 void PartitionMaster::executeInsertData(SubTrans* subTransaction) {
-	/*
-	 #ifdef MYDEBUG
-	 cout << __FUNCTION__ << endl;
-	 #endif
-	 */
 	ID subjectID = subTransaction->triple.subjectID;
 	double object = subTransaction->triple.object;
 	char objType = subTransaction->triple.objType;
@@ -446,11 +411,9 @@ void PartitionMaster::executeInsertData(SubTrans* subTransaction) {
 }
 
 void PartitionMaster::executeDeleteData(SubTrans* subTransaction) {
-	/*
-	 #ifdef MYDEBUG
-	 cout << __FUNCTION__ << endl;
-	 #endif
-	 */
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 	executeInsertData(subTransaction);
 }
 
@@ -737,9 +700,9 @@ void PartitionMaster::handleEndofChunk(const uchar *startPtr,
 		double min, double max, bool soType, const ID chunkID) {
 	assert(currentPtrChunk <= endPtrChunk);
 	MetaData *metaData = NULL;
-	if (chunkID == 0 && chunkBegin == startPtr - sizeof(ChunkManagerMeta)) {
+	if (chunkID == 0 && chunkBegin == const_cast<uchar*>(startPtr) - sizeof(ChunkManagerMeta)) {
 		metaData = (MetaData*) startPtr;
-		metaData->usedSpace = currentPtrChunk - startPtr;
+		metaData->usedSpace = currentPtrChunk - const_cast<uchar*>(startPtr);
 	} else {
 		metaData = (MetaData*) chunkBegin;
 		metaData->usedSpace = currentPtrChunk - chunkBegin;
@@ -836,6 +799,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 
 	buffer->uniqe();
 
+/*
 #ifdef MYDEBUG
 	ofstream out1;
 	if (soType == ORDERBYS) {
@@ -851,6 +815,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	}
 	out1.close();
 #endif
+*/
 
 	if (buffer->isEmpty())
 		return;
@@ -1004,7 +969,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		}
 	}
 
-	while (lastPtrTemp < endPtrTemp) {
+	while (lastPtrTemp < endPtrTemp && (lastPtrTemp >= endPtrTemp && ((MetaData*) startPtrTemp)->NextPageNo)) {
 		if (tempTriple->subjectID == 0) {
 			readIDInTempPage(currentPtrTemp, endPtrTemp, startPtrTemp, tempPage,
 					tempPage2, theOtherPageEmpty, isInTempPage);
@@ -1034,8 +999,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 			max = getChunkMinOrMax(tempTriple, soType) > max ?
 					getChunkMinOrMax(tempTriple, soType) : max;
 			currentPtrChunk += len;
-
-			//				assert(currentPtrChunk <= endPtrChunk);
 
 			//continue read data from tempPage
 			readIDInTempPage(currentPtrTemp, endPtrTemp, startPtrTemp, tempPage,
@@ -1073,13 +1036,12 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		max = getChunkMinOrMax(bufferTriple, soType) > max ?
 				getChunkMinOrMax(bufferTriple, soType) : max;
 		currentPtrChunk += len;
-
 		bufferTriple++;
 	}
 
-	if (chunkBegin == startPtr - sizeof(ChunkManagerMeta)) {
+	if (chunkBegin == const_cast<uchar*>(startPtr) - sizeof(ChunkManagerMeta)) {
 		MetaData *metaData = (MetaData*) startPtr;
-		metaData->usedSpace = currentPtrChunk - startPtr;
+		metaData->usedSpace = currentPtrChunk - const_cast<uchar*>(startPtr);
 	} else {
 		MetaData *metaData = (MetaData*) chunkBegin;
 		metaData->min = min;
@@ -1102,27 +1064,12 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 
 void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 		const ID chunkID, const uchar* startPtr, const bool soType) {
-
-	/*
-	 #ifdef MYDEBUG
-	 cout << __FUNCTION__ << endl;
-	 MetaData* metaData0 =
-	 (MetaData*) xChunkQueue[soType][chunkID]->getChunkBegin();
-	 cout << "metaData.min," << metaData0->min << ",metaData.max,"
-	 << metaData0->max << ",metaData.pageNo," << metaData0->pageNo
-	 << endl;
-	 #endif
-	 */
-
 	ID subjectID = chunkTask->Triple.subjectID;
 	ID tempSubjectID;
 	double object = chunkTask->Triple.object;
 	double tempObject;
 	char objType = chunkTask->Triple.objType;
 	char tempObjType;
-
-	/*cout << __FUNCTION__ << "\t" << subjectID << "\t" << partitionID << "\t"
-	 << object << "\t" << (int) objType << endl;*/
 
 	const uchar *reader, *limit, *chunkBegin = startPtr;
 	uchar *temp;
@@ -1143,9 +1090,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				continue;
 			else if (tempSubjectID == subjectID && tempObject == object
 					&& tempObjType == objType) {
-				/*cout << __FUNCTION__ << "\t" << tempSubjectID << "\t"
-				 << partitionID << "\t" << tempObject << "\t"
-				 << (int) tempObjType << endl;*/
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						objType);
 				return;
@@ -1171,9 +1115,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					continue;
 				else if (tempSubjectID == subjectID && tempObject == object
 						&& tempObjType == objType) {
-					/*cout << __FUNCTION__ << "\t" << tempSubjectID << "\t"
-					 << partitionID << "\t" << tempObject << "\t"
-					 << (int) tempObjType << endl;*/
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							objType);
 					return;
@@ -1211,25 +1152,13 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 						|| (tempObject == object && tempObjType < objType)
 						|| (tempObject == object && tempObjType == objType
 								&& tempSubjectID < subjectID)) {
-					/*cout << __FUNCTION__ << "\t" << tempSubjectID << "\t"
-					 << partitionID << "\t" << tempObject << "\t"
-					 << (int) tempObjType << endl;
-					 cout << "-------1-------" << endl;*/
 					continue;
 				} else if (tempObject == object && tempObjType == objType
 						&& tempSubjectID == subjectID) {
-					/*cout << __FUNCTION__ << "\t" << tempSubjectID << "\t"
-					 << partitionID << "\t" << tempObject << "\t"
-					 << (int) tempObjType << endl;*/
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							objType);
-					/*cout << "-------2-------" << endl;*/
 					return;
 				} else {
-					/*cout << __FUNCTION__ << "\t" << tempSubjectID << "\t"
-					 << partitionID << "\t" << tempObject << "\t"
-					 << (int) tempObjType << endl;
-					 cout << "-------3-------" << endl;*/
 					return;
 				}
 			}
@@ -1251,9 +1180,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 						continue;
 					else if (tempObject == object && tempObjType == objType
 							&& tempSubjectID == subjectID) {
-						/*cout << __FUNCTION__ << "\t" << tempSubjectID << "\t"
-						 << partitionID << "\t" << tempObject << "\t"
-						 << (int) tempObjType << endl;*/
 						temp = partitionChunkManager[soType]->deleteTriple(temp,
 								objType);
 						return;
@@ -1288,7 +1214,6 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 						objects[i].object, objects[i].objType, scanType,
 						taskPackage, indexForTT);
 				taskEnQueue(chunkTask, xChunkQueue[ORDERBYO][chunkID]);
-				//xChunkQueue[ORDERBYO][chunkID]->EnQueue(chunkTask);
 			}
 		} else { //subject是未知量，删除所有subject与object
 			size_t chunkCount = 0, chunkIDMin = 0, chunkIDMax = 0;
@@ -1365,8 +1290,8 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 
 		}
 		deleteDataForDeleteClause(NULL, soType,
-						chunkTask->taskPackageForDelete->constSubject, subjectID,
-						object, objType);
+				chunkTask->taskPackageForDelete->constSubject, subjectID,
+				object, objType);
 		return;
 	}
 
