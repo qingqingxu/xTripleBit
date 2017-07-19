@@ -1118,6 +1118,11 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 						objType);
 				return;
 			} else {
+				if(subjectID==58 && object==8 && partitionID==1){
+													ofstream o("skip", ios::app);
+													o << "----" << endl;
+													o.close();
+												}
 				cout << "s,chunkID," << chunkID << "," << subjectID << ": " << tempSubjectID << ","
 						<< partitionID << "," << object << ": " << tempObject << "," << (int)objType << ": " << (int)tempObjType  << endl;
 				return;
