@@ -1092,7 +1092,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 	MetaData *metaData = (MetaData*) chunkBegin;
 	reader = chunkBegin + sizeof(MetaData);
 	limit = chunkBegin + metaData->usedSpace;
-	cout << "-----------------" << endl;
 
 	if (soType == ORDERBYS) {
 		while (reader < limit) {
@@ -1106,6 +1105,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				continue;
 			} else if (tempSubjectID == subjectID && tempObject == object
 					&& tempObjType == objType) {
+				cout << "finds" << endl;
 				ofstream finds("finds", ios::app);
 				finds << "chunkID," << chunkID << "," << subjectID << ","
 						<< partitionID << "," << object << endl;
@@ -1179,6 +1179,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					continue;
 				} else if (tempObject == object && tempObjType == objType
 						&& tempSubjectID == subjectID) {
+					cout << "findo" << endl;
 					ofstream findo("findo", ios::app);
 					findo << "chunkID," << chunkID << "," << subjectID << ","
 							<< partitionID << "," << object << endl;
