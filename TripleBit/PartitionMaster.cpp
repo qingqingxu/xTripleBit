@@ -1109,7 +1109,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				return;
 			} else {
 				cout << "s,chunkID," << chunkID << "," << subjectID << ": " << tempSubjectID << ","
-						<< partitionID << "," << object << ": " << tempObject << (int)objType << ": " << (int)tempObjType  << endl;
+						<< partitionID << "," << object << ": " << tempObject << "," << (int)objType << ": " << (int)tempObjType  << endl;
 				return;
 			}
 		}
@@ -1136,7 +1136,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					return;
 				} else {
 					cout << "s,chunkID," << chunkID << "," << subjectID << ": " << tempSubjectID << ","
-											<< partitionID << "," << object << ": " << tempObject << (int)objType << ": " << (int)tempObjType  << endl;
+											<< partitionID << "," << object << ": " << tempObject << "," << (int)objType << ": " << (int)tempObjType  << endl;
 					return;
 				}
 			}
@@ -1178,7 +1178,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					return;
 				} else {
 					cout << "o,chunkID," << chunkID << "," << subjectID << ": " << tempSubjectID << ","
-											<< partitionID << "," << object << ": " << tempObject << (int)objType << ": " << (int)tempObjType  << endl;
+											<< partitionID << "," << object << ": " << tempObject << "," << (int)objType << ": " << (int)tempObjType  << endl;
 					return;
 				}
 			}
@@ -1207,7 +1207,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 						return;
 					} else {
 						cout << "o,chunkID," << chunkID << "," << subjectID << ": " << tempSubjectID << ","
-												<< partitionID << "," << object << ": " << tempObject << (int)objType << ": " << (int)tempObjType  << endl;
+												<< partitionID << "," << object << ": " << tempObject << "," << (int)objType << ": " << (int)tempObjType  << endl;
 						return;
 					}
 				}
