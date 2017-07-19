@@ -1094,7 +1094,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 	limit = chunkBegin + metaData->usedSpace;
 
 	if (soType == ORDERBYS) {
-		//cout << "delete by s" << endl;
 		while (reader < limit) {
 			temp = const_cast<uchar*>(reader);
 			reader = partitionChunkManager[soType]->readXY(reader,
@@ -1110,11 +1109,10 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				finds << "chunkID," << chunkID << "," << subjectID << ","
 						<< partitionID << "," << object << endl;
 				finds.close();
-				/*temp = partitionChunkManager[soType]->deleteTriple(temp,
-				 objType);*/
+				temp = partitionChunkManager[soType]->deleteTriple(temp,
+				 objType);
 				return;
 			} else {
-				cout << "not find in sp" << endl;
 				return;
 			}
 		}
@@ -1136,8 +1134,8 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					continue;
 				} else if (tempSubjectID == subjectID && tempObject == object
 						&& tempObjType == objType) {
-					/*temp = partitionChunkManager[soType]->deleteTriple(temp,
-							objType);*/
+					temp = partitionChunkManager[soType]->deleteTriple(temp,
+							objType);
 					return;
 				} else {
 					return;
@@ -1146,14 +1144,12 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 		}
 	} else if (soType == ORDERBYO) {
 		if (subjectID == 0) { //删除所有记录，主要用于基于模式删除
-			cout << "删除所有记录，主要用于基于模式删除" << endl;
 			while (reader < limit) {
 				reader =
 						(const uchar*) partitionChunkManager[soType]->deleteTriple(
 								const_cast<uchar*>(reader));
 			}
 			while (metaData->NextPageNo) {
-				cout << "删除所有记录，主要用于基于模式删除-----NextPageNo" << endl;
 				chunkBegin =
 						reinterpret_cast<uchar*>(TempMMapBuffer::getInstance().getAddress())
 								+ MemoryBuffer::pagesize * metaData->NextPageNo;
@@ -1161,14 +1157,12 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				reader = chunkBegin + sizeof(MetaData);
 				limit = chunkBegin + metaData->usedSpace;
 				while (reader < limit) {
-					cout << 3 << endl;
-					/*reader =
+					reader =
 							(const uchar*) partitionChunkManager[soType]->deleteTriple(
-									const_cast<uchar*>(reader));*/
+									const_cast<uchar*>(reader));
 				}
 			}
 		} else {
-			//cout << "delete by o" << endl;
 			while (reader < limit) {
 				temp = const_cast<uchar*>(reader);
 				reader = partitionChunkManager[soType]->readXY(reader,
@@ -1184,16 +1178,14 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					findo << "chunkID," << chunkID << "," << subjectID << ","
 							<< partitionID << "," << object << endl;
 					findo.close();
-					/*temp = partitionChunkManager[soType]->deleteTriple(temp,
-					 objType);*/
+					temp = partitionChunkManager[soType]->deleteTriple(temp,
+					 objType);
 					return;
 				} else {
-					cout << "not find in op" << endl;
 					return;
 				}
 			}
 			while (metaData->NextPageNo) {
-				cout << "op NextPageNo" << endl;
 				chunkBegin =
 						reinterpret_cast<uchar*>(TempMMapBuffer::getInstance().getAddress())
 								+ MemoryBuffer::pagesize * metaData->NextPageNo;
@@ -1213,8 +1205,8 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 						continue;
 					} else if (tempObject == object && tempObjType == objType
 							&& tempSubjectID == subjectID) {
-						/*temp = partitionChunkManager[soType]->deleteTriple(temp,
-								objType);*/
+						temp = partitionChunkManager[soType]->deleteTriple(temp,
+								objType);
 						return;
 					} else {
 						return;
