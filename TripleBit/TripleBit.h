@@ -91,8 +91,8 @@ extern char* DATABASE_PATH;
 //thread pool
 const unsigned int WORKERNUM = 1;
 const unsigned int WORK_THREAD_NUMBER = 1; //should be 2^n;old: 8
-const unsigned int PARTITION_THREAD_NUMBER = 6;//old:6
-const unsigned int CHUNK_THREAD_NUMBER = 1;//old:16
+const unsigned int PARTITION_THREAD_NUMBER = 6; //old:6
+const unsigned int CHUNK_THREAD_NUMBER = 1; //old:16
 
 enum Status {
 	OK = 1,
@@ -383,6 +383,21 @@ struct TripleNode {
 		scanOperation = orig.scanOperation;
 		selectivity = orig.selectivity;
 		return *this;
+	}
+
+	bool operator<(const struct TripleNode& orig) const {
+		if (this->subjectID == orig.subjectID
+				&& this->predicateID == orig.predicateID
+				&& this->object == orig.object && this->objType == orig.objType
+				&& this->constSubject == orig.constSubject
+				&& this->constPredicate == orig.constPredicate
+				&& this->constObject == orig.constObject
+				&& this->tripleNodeID == orig.tripleNodeID
+				&& this->scanOperation == orig.scanOperation
+				&& this->selectivity == orig.selectivity) {
+			return false;
+		}
+		return true;
 	}
 
 	void print() {

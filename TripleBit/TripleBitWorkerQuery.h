@@ -120,7 +120,7 @@ private:
 	bool getResult(ID key, std::vector<EntityIDBuffer*>& bufferlist, size_t buf_index);
 	void getResult_join(ID key, std::vector<EntityIDBuffer*>& bufferlist, size_t buf_index);*/
 
-	void classifyTripleNode();
+	void classifyTripleNode(size_t& tripleCounts = 0);
 };
 
 #endif /* TRIPLEBITWORKERQUERY_H_ */

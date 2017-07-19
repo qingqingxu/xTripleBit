@@ -332,10 +332,9 @@ Status TripleBitWorkerQuery::excuteInsertData() {
 }
 
 Status TripleBitWorkerQuery::excuteDeleteData() {
-	size_t tripleSize = _query->tripleNodes.size();
+	size_t tripleSize = 0;
+	classifyTripleNode(tripleSize);
 	shared_ptr<IndexForTT> indexForTT(new IndexForTT(tripleSize * 2));
-
-	classifyTripleNode();
 
 	TripleBitQueryGraph::OpType operationType = TripleBitQueryGraph::DELETE_DATA;
 
@@ -459,12 +458,13 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
  return OK;
  }*/
 
-void TripleBitWorkerQuery::classifyTripleNode() {
+void TripleBitWorkerQuery::classifyTripleNode(size_t& tripleCounts) {
 	tripleNodeMap.clear();
 	vector<TripleNode>::iterator iter = _query->tripleNodes.begin();
 
 	for (; iter != _query->tripleNodes.end(); ++iter) {
 		tripleNodeMap[iter->predicateID].insert(&(*iter));
+		tripleCounts += tripleNodeMap[iter->predicateID].size();
 	}
 }
 /*
