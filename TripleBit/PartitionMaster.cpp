@@ -697,7 +697,10 @@ void PartitionMaster::handleEndofChunk(const uchar *startPtr,
 		double min, double max, bool soType, const ID chunkID) {
 	assert(currentPtrChunk <= endPtrChunk);
 	MetaData *metaData = NULL;
-	if (chunkID == 0 && chunkBegin == const_cast<uchar*>(startPtr) - sizeof(ChunkManagerMeta)) {
+	if (chunkID == 0
+			&& chunkBegin
+					== const_cast<uchar*>(startPtr)
+							- sizeof(ChunkManagerMeta)) {
 		metaData = (MetaData*) startPtr;
 		metaData->usedSpace = currentPtrChunk - const_cast<uchar*>(startPtr);
 	} else {
@@ -796,23 +799,23 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 
 	buffer->uniqe();
 
-/*
-#ifdef MYDEBUG
-	ofstream out1;
-	if (soType == ORDERBYS) {
-		out1.open("tempbuffer_uniqe_sp", ios::app);
-	} else {
-		out1.open("tempbuffer_uniqe_op", ios::app);
-	}
-	ChunkTriple *temp = buffer->getBuffer();
-	while (temp < buffer->getEnd()) {
-		out1 << chunkID << "," << temp->subjectID << "," << partitionID << ","
-				<< temp->object << endl;
-		temp++;
-	}
-	out1.close();
-#endif
-*/
+	/*
+	 #ifdef MYDEBUG
+	 ofstream out1;
+	 if (soType == ORDERBYS) {
+	 out1.open("tempbuffer_uniqe_sp", ios::app);
+	 } else {
+	 out1.open("tempbuffer_uniqe_op", ios::app);
+	 }
+	 ChunkTriple *temp = buffer->getBuffer();
+	 while (temp < buffer->getEnd()) {
+	 out1 << chunkID << "," << temp->subjectID << "," << partitionID << ","
+	 << temp->object << endl;
+	 temp++;
+	 }
+	 out1.close();
+	 #endif
+	 */
 
 	if (buffer->isEmpty())
 		return;
@@ -966,7 +969,9 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		}
 	}
 
-	while (lastPtrTemp < endPtrTemp && (lastPtrTemp >= endPtrTemp && ((MetaData*) startPtrTemp)->NextPageNo)) {
+	while (lastPtrTemp < endPtrTemp
+			&& (lastPtrTemp >= endPtrTemp
+					&& ((MetaData*) startPtrTemp)->NextPageNo)) {
 		if (tempTriple->subjectID == 0) {
 			readIDInTempPage(currentPtrTemp, endPtrTemp, startPtrTemp, tempPage,
 					tempPage2, theOtherPageEmpty, isInTempPage);
@@ -1061,15 +1066,24 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 
 void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 		const ID chunkID, const uchar* startPtr, const bool soType) {
+
 	ID subjectID = chunkTask->Triple.subjectID;
-	if(subjectID == 0){
-		cout << subjectID << endl;
-	}
 	ID tempSubjectID;
 	double object = chunkTask->Triple.object;
 	double tempObject;
 	char objType = chunkTask->Triple.objType;
 	char tempObjType;
+	if (soType == ORDERBYS) {
+		ofstream s("dels", ios::app);
+		s << "chunkID," << chunkID << "," << subjectID << "," << partitionID
+				<< "," << object << endl;
+		s.close();
+	} else if (soType == ORDERBYO) {
+		ofstream o("delo", ios::app);
+		o << "chunkID," << chunkID << "," << subjectID << "," << partitionID
+				<< "," << object << endl;
+		o.close();
+	}
 
 	const uchar *reader, *limit, *chunkBegin = startPtr;
 	uchar *temp;
@@ -1174,11 +1188,13 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					reader = partitionChunkManager[soType]->readXY(reader,
 							tempSubjectID, tempObject, tempObjType);
 					if (tempObject < object
-							|| (tempObject == object && tempSubjectID < subjectID)
-							|| (tempObject == object && tempSubjectID == subjectID
-									&& tempObjType < objType)){
+							|| (tempObject == object
+									&& tempSubjectID < subjectID)
+							|| (tempObject == object
+									&& tempSubjectID == subjectID
+									&& tempObjType < objType)) {
 						continue;
-					}else if (tempObject == object && tempObjType == objType
+					} else if (tempObject == object && tempObjType == objType
 							&& tempSubjectID == subjectID) {
 						temp = partitionChunkManager[soType]->deleteTriple(temp,
 								objType);
