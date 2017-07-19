@@ -339,7 +339,6 @@ Status TripleBitWorkerQuery::excuteDeleteData() {
 	for (; iter != tripleNodeMap.end(); ++iter) {
 		tripleSize += iter->second.size();
 	}
-	cout << "tripleSize: " << tripleSize << endl;
 	shared_ptr<IndexForTT> indexForTT(new IndexForTT(tripleSize * 2));
 
 	iter = tripleNodeMap.begin();

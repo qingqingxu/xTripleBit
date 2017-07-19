@@ -1111,7 +1111,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				finds.close();*/
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 				 objType);
-				chunkTask->indexForTT->completeOneTriple();
 				return;
 			} else {
 				return;
@@ -1137,7 +1136,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 						&& tempObjType == objType) {
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							objType);
-					chunkTask->indexForTT->completeOneTriple();
 					return;
 				} else {
 					return;
@@ -1163,7 +1161,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					reader =
 							(const uchar*) partitionChunkManager[soType]->deleteTriple(
 									const_cast<uchar*>(reader));
-					chunkTask->indexForTT->completeOneTriple();
 				}
 			}
 		} else {
@@ -1184,7 +1181,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					findo.close();*/
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 					 objType);
-					chunkTask->indexForTT->completeOneTriple();
 					return;
 				} else {
 					return;
@@ -1212,7 +1208,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 							&& tempSubjectID == subjectID) {
 						temp = partitionChunkManager[soType]->deleteTriple(temp,
 								objType);
-						chunkTask->indexForTT->completeOneTriple();
 						return;
 					} else {
 						return;
@@ -1221,6 +1216,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 			}
 		}
 	}
+	chunkTask->indexForTT->completeOneTriple();
 }
 
 void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
