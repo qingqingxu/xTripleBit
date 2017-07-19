@@ -118,7 +118,8 @@ PartitionMaster::~PartitionMaster() {
 void PartitionMaster::Work() {
 
 #ifdef MYDEBUG
-	cout << __FUNCTION__ << " partitionID: " << partitionID << "-----------> " << pthread_self() << endl;
+	cout << __FUNCTION__ << " partitionID: " << partitionID << "-----------> "
+			<< pthread_self() << endl;
 #endif
 
 	while (1) {
@@ -1104,8 +1105,19 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				continue;
 			} else if (tempSubjectID == subjectID && tempObject == object
 					&& tempObjType == objType) {
-				temp = partitionChunkManager[soType]->deleteTriple(temp,
-						objType);
+				if (soType == ORDERBYS) {
+					ofstream s("finds", ios::app);
+					s << "chunkID," << chunkID << "," << subjectID << ","
+							<< partitionID << "," << object << endl;
+					s.close();
+				} else if (soType == ORDERBYO) {
+					ofstream o("findo", ios::app);
+					o << "chunkID," << chunkID << "," << subjectID << ","
+							<< partitionID << "," << object << endl;
+					o.close();
+				}
+				/*temp = partitionChunkManager[soType]->deleteTriple(temp,
+				 objType);*/
 				return;
 			} else {
 				return;
@@ -1169,8 +1181,19 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					continue;
 				} else if (tempObject == object && tempObjType == objType
 						&& tempSubjectID == subjectID) {
-					temp = partitionChunkManager[soType]->deleteTriple(temp,
-							objType);
+					if (soType == ORDERBYS) {
+						ofstream s("finds", ios::app);
+						s << "chunkID," << chunkID << "," << subjectID << ","
+								<< partitionID << "," << object << endl;
+						s.close();
+					} else if (soType == ORDERBYO) {
+						ofstream o("findo", ios::app);
+						o << "chunkID," << chunkID << "," << subjectID << ","
+								<< partitionID << "," << object << endl;
+						o.close();
+					}
+					/*temp = partitionChunkManager[soType]->deleteTriple(temp,
+					 objType);*/
 					return;
 				} else {
 					return;
