@@ -334,6 +334,7 @@ Status TripleBitWorkerQuery::excuteInsertData() {
 Status TripleBitWorkerQuery::excuteDeleteData() {
 	size_t tripleSize = 0;
 	classifyTripleNode(tripleSize);
+	cout << "tripleSize: " << tripleSize << endl;
 	shared_ptr<IndexForTT> indexForTT(new IndexForTT(tripleSize * 2));
 
 	TripleBitQueryGraph::OpType operationType = TripleBitQueryGraph::DELETE_DATA;
