@@ -333,13 +333,16 @@ Status TripleBitWorkerQuery::excuteInsertData() {
 
 Status TripleBitWorkerQuery::excuteDeleteData() {
 	size_t tripleSize = 0;
-	classifyTripleNode(tripleSize);
+	classifyTripleNode();
+	TripleBitQueryGraph::OpType operationType = TripleBitQueryGraph::DELETE_DATA;
+	map<ID, set<TripleNode*> >::iterator iter = tripleNodeMap.begin();
+	for (; iter != tripleNodeMap.end(); ++iter) {
+		tripleSize += iter->second.size();
+	}
 	cout << "tripleSize: " << tripleSize << endl;
 	shared_ptr<IndexForTT> indexForTT(new IndexForTT(tripleSize * 2));
 
-	TripleBitQueryGraph::OpType operationType = TripleBitQueryGraph::DELETE_DATA;
-
-	map<ID, set<TripleNode*> >::iterator iter = tripleNodeMap.begin();
+	iter = tripleNodeMap.begin();
 	for (; iter != tripleNodeMap.end(); ++iter) {
 		size_t tripleNodeSize = iter->second.size();
 		ID partitionID = iter->first;
@@ -466,15 +469,6 @@ void TripleBitWorkerQuery::classifyTripleNode() {
 
 	for (; iter != _query->tripleNodes.end(); ++iter) {
 		tripleNodeMap[iter->predicateID].insert(&(*iter));
-	}
-}
-void TripleBitWorkerQuery::classifyTripleNode(size_t& tripleCounts) {
-	tripleNodeMap.clear();
-	vector<TripleNode>::iterator iter = _query->tripleNodes.begin();
-
-	for (; iter != _query->tripleNodes.end(); ++iter) {
-		tripleNodeMap[iter->predicateID].insert(&(*iter));
-		tripleCounts += tripleNodeMap[iter->predicateID].size();
 	}
 }
 /*
