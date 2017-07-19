@@ -1101,7 +1101,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					|| (tempSubjectID == subjectID && tempObject < object)
 					|| (tempSubjectID == subjectID && tempObject == object
 							&& tempObjType < objType)){
-				if(subjectID==58&&object==8&&partitionID==1){
+				if(subjectID==58 && object==8 && partitionID==1){
 					ofstream o("skip", ios::app);
 					o << tempSubjectID << "," << partitionID << "," << tempObject << endl;
 					o.close();
@@ -1109,6 +1109,11 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				continue;
 			}else if (tempSubjectID == subjectID && tempObject == object
 					&& tempObjType == objType) {
+				if(subjectID==58 && object==8 && partitionID==1){
+									ofstream o("skip", ios::app);
+									o << "----" << endl;
+									o.close();
+								}
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						objType);
 				return;
