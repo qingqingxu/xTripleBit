@@ -411,9 +411,6 @@ void PartitionMaster::executeInsertData(SubTrans* subTransaction) {
 }
 
 void PartitionMaster::executeDeleteData(SubTrans* subTransaction) {
-#ifdef MYDEBUG
-	cout << __FUNCTION__ << endl;
-#endif
 	executeInsertData(subTransaction);
 }
 
@@ -1086,7 +1083,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 			if (tempSubjectID < subjectID
 					|| (tempSubjectID == subjectID && tempObject < object)
 					|| (tempSubjectID == subjectID && tempObject == object
-							&& tempObjType != objType))
+							&& tempObjType < objType))
 				continue;
 			else if (tempSubjectID == subjectID && tempObject == object
 					&& tempObjType == objType) {
@@ -1111,7 +1108,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				if (tempSubjectID < subjectID
 						|| (tempSubjectID == subjectID && tempObject < object)
 						|| (tempSubjectID == subjectID && tempObject == object
-								&& tempObjType != objType))
+								&& tempObjType < objType))
 					continue;
 				else if (tempSubjectID == subjectID && tempObject == object
 						&& tempObjType == objType) {
@@ -1149,9 +1146,9 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				reader = partitionChunkManager[soType]->readXY(reader,
 						tempSubjectID, tempObject, tempObjType);
 				if (tempObject < object
-						|| (tempObject == object && tempObjType < objType)
-						|| (tempObject == object && tempObjType == objType
-								&& tempSubjectID < subjectID)) {
+						|| (tempObject == object && tempSubjectID < subjectID)
+						|| (tempObject == object && tempSubjectID == subjectID
+								&& tempObjType < objType)) {
 					continue;
 				} else if (tempObject == object && tempObjType == objType
 						&& tempSubjectID == subjectID) {
@@ -1174,9 +1171,9 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					reader = partitionChunkManager[soType]->readXY(reader,
 							tempSubjectID, tempObject, tempObjType);
 					if (tempObject < object
-							|| (tempObject == object && tempObjType < objType)
-							|| (tempObject == object && tempObjType == objType
-									&& tempSubjectID < subjectID))
+							|| (tempObject == object && tempSubjectID < subjectID)
+							|| (tempObject == object && tempSubjectID == subjectID
+									&& tempObjType < objType))
 						continue;
 					else if (tempObject == object && tempObjType == objType
 							&& tempSubjectID == subjectID) {
@@ -1195,9 +1192,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 		const bool soType, const bool constSubject, const ID subjectID,
 		const double object, const char objType) {
-#ifdef MYDEBUG
-	cout << __FUNCTION__ << endl;
-#endif
 	int chunkID;
 	shared_ptr<subTaskPackage> taskPackage(new subTaskPackage);
 	shared_ptr<IndexForTT> indexForTT(new IndexForTT);
@@ -1250,9 +1244,6 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 
 void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 		const ID chunkID, const uchar *startPtr, const bool soType) {
-#ifdef MYDEBUG
-	cout << __FUNCTION__ << endl;
-#endif
 	ID subjectID = chunkTask->Triple.subjectID;
 	double object = chunkTask->Triple.object;
 	char objType = chunkTask->Triple.objType;
