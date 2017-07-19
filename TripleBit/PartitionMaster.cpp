@@ -1094,6 +1094,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 	limit = chunkBegin + metaData->usedSpace;
 
 	if (soType == ORDERBYS) {
+		cout << "delete by s" << endl;
 		while (reader < limit) {
 			temp = const_cast<uchar*>(reader);
 			reader = partitionChunkManager[soType]->readXY(reader,
@@ -1168,6 +1169,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				}
 			}
 		} else {
+			cout << "delete by o" << endl;
 			while (reader < limit) {
 				temp = const_cast<uchar*>(reader);
 				reader = partitionChunkManager[soType]->readXY(reader,
