@@ -1074,7 +1074,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 	double tempObject;
 	char objType = chunkTask->Triple.objType;
 	char tempObjType;
-	if (soType == ORDERBYS) {
+	/*if (soType == ORDERBYS) {
 		ofstream s("dels", ios::app);
 		s << "chunkID," << chunkID << "," << subjectID << "," << partitionID
 				<< "," << object << endl;
@@ -1084,7 +1084,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 		o << "chunkID," << chunkID << "," << subjectID << "," << partitionID
 				<< "," << object << endl;
 		o.close();
-	}
+	}*/
 
 	const uchar *reader, *limit, *chunkBegin = startPtr;
 	uchar *temp;
@@ -1105,10 +1105,10 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				continue;
 			} else if (tempSubjectID == subjectID && tempObject == object
 					&& tempObjType == objType) {
-				ofstream finds("finds", ios::app);
+				/*ofstream finds("finds", ios::app);
 				finds << "chunkID," << chunkID << "," << subjectID << ","
 						<< partitionID << "," << object << endl;
-				finds.close();
+				finds.close();*/
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 				 objType);
 				return;
@@ -1174,10 +1174,10 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					continue;
 				} else if (tempObject == object && tempObjType == objType
 						&& tempSubjectID == subjectID) {
-					ofstream findo("findo", ios::app);
+					/*ofstream findo("findo", ios::app);
 					findo << "chunkID," << chunkID << "," << subjectID << ","
 							<< partitionID << "," << object << endl;
-					findo.close();
+					findo.close();*/
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 					 objType);
 					return;
