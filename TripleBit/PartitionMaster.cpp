@@ -1062,6 +1062,9 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 		const ID chunkID, const uchar* startPtr, const bool soType) {
 	ID subjectID = chunkTask->Triple.subjectID;
+	if(subjectID == 0){
+		cout << subjectID << endl;
+	}
 	ID tempSubjectID;
 	double object = chunkTask->Triple.object;
 	double tempObject;
@@ -1173,9 +1176,9 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					if (tempObject < object
 							|| (tempObject == object && tempSubjectID < subjectID)
 							|| (tempObject == object && tempSubjectID == subjectID
-									&& tempObjType < objType))
+									&& tempObjType < objType)){
 						continue;
-					else if (tempObject == object && tempObjType == objType
+					}else if (tempObject == object && tempObjType == objType
 							&& tempSubjectID == subjectID) {
 						temp = partitionChunkManager[soType]->deleteTriple(temp,
 								objType);
