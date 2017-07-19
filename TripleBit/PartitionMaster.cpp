@@ -1105,25 +1105,20 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				continue;
 			} else if (tempSubjectID == subjectID && tempObject == object
 					&& tempObjType == objType) {
-				if (soType == ORDERBYS) {
-					ofstream s("finds", ios::app);
-					s << "chunkID," << chunkID << "," << subjectID << ","
-							<< partitionID << "," << object << endl;
-					s.close();
-				} else if (soType == ORDERBYO) {
-					ofstream o("findo", ios::app);
-					o << "chunkID," << chunkID << "," << subjectID << ","
-							<< partitionID << "," << object << endl;
-					o.close();
-				}
+				ofstream s("finds", ios::app);
+				s << "chunkID," << chunkID << "," << subjectID << ","
+						<< partitionID << "," << object << endl;
+				s.close();
 				/*temp = partitionChunkManager[soType]->deleteTriple(temp,
 				 objType);*/
 				return;
 			} else {
+				cout << "not find in sp" << endl;
 				return;
 			}
 		}
 		while (metaData->NextPageNo) {
+			cout << "sp NextPageNo" << endl;
 			chunkBegin =
 					reinterpret_cast<uchar*>(TempMMapBuffer::getInstance().getAddress())
 							+ MemoryBuffer::pagesize * metaData->NextPageNo;
@@ -1151,12 +1146,14 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 		}
 	} else if (soType == ORDERBYO) {
 		if (subjectID == 0) { //删除所有记录，主要用于基于模式删除
+			cout << "删除所有记录，主要用于基于模式删除" << endl;
 			while (reader < limit) {
 				reader =
 						(const uchar*) partitionChunkManager[soType]->deleteTriple(
 								const_cast<uchar*>(reader));
 			}
 			while (metaData->NextPageNo) {
+				cout << "删除所有记录，主要用于基于模式删除-----NextPageNo" << endl;
 				chunkBegin =
 						reinterpret_cast<uchar*>(TempMMapBuffer::getInstance().getAddress())
 								+ MemoryBuffer::pagesize * metaData->NextPageNo;
@@ -1181,25 +1178,20 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					continue;
 				} else if (tempObject == object && tempObjType == objType
 						&& tempSubjectID == subjectID) {
-					if (soType == ORDERBYS) {
-						ofstream s("finds", ios::app);
-						s << "chunkID," << chunkID << "," << subjectID << ","
-								<< partitionID << "," << object << endl;
-						s.close();
-					} else if (soType == ORDERBYO) {
-						ofstream o("findo", ios::app);
-						o << "chunkID," << chunkID << "," << subjectID << ","
-								<< partitionID << "," << object << endl;
-						o.close();
-					}
+					ofstream o("findo", ios::app);
+					o << "chunkID," << chunkID << "," << subjectID << ","
+							<< partitionID << "," << object << endl;
+					o.close();
 					/*temp = partitionChunkManager[soType]->deleteTriple(temp,
 					 objType);*/
 					return;
 				} else {
+					cout << "not find in op" << endl;
 					return;
 				}
 			}
 			while (metaData->NextPageNo) {
+				cout << "op NextPageNo" << endl;
 				chunkBegin =
 						reinterpret_cast<uchar*>(TempMMapBuffer::getInstance().getAddress())
 								+ MemoryBuffer::pagesize * metaData->NextPageNo;
