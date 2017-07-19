@@ -1101,30 +1101,13 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					|| (tempSubjectID == subjectID && tempObject < object)
 					|| (tempSubjectID == subjectID && tempObject == object
 							&& tempObjType < objType)){
-				if(subjectID==58 && object==8 && partitionID==1){
-					ofstream o("skip", ios::app);
-					o << tempSubjectID << "," << partitionID << "," << tempObject << endl;
-					o.close();
-				}
 				continue;
 			}else if (tempSubjectID == subjectID && tempObject == object
 					&& tempObjType == objType) {
-				if(subjectID==58 && object==8 && partitionID==1){
-									ofstream o("skip", ios::app);
-									o << "----" << endl;
-									o.close();
-								}
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						objType);
 				return;
 			} else {
-				if(subjectID==58 && object==8 && partitionID==1){
-													ofstream o("skip", ios::app);
-													o << "----" << endl;
-													o.close();
-												}
-				cout << "s,chunkID," << chunkID << "," << subjectID << ": " << tempSubjectID << ","
-						<< partitionID << "," << object << ": " << tempObject << "," << (int)objType << ": " << (int)tempObjType  << endl;
 				return;
 			}
 		}
@@ -1150,8 +1133,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 							objType);
 					return;
 				} else {
-					cout << "s,chunkID," << chunkID << "," << subjectID << ": " << tempSubjectID << ","
-											<< partitionID << "," << object << ": " << tempObject << "," << (int)objType << ": " << (int)tempObjType  << endl;
 					return;
 				}
 			}
@@ -1192,8 +1173,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 							objType);
 					return;
 				} else {
-					cout << "o,chunkID," << chunkID << "," << subjectID << ": " << tempSubjectID << ","
-											<< partitionID << "," << object << ": " << tempObject << "," << (int)objType << ": " << (int)tempObjType  << endl;
 					return;
 				}
 			}
@@ -1221,8 +1200,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 								objType);
 						return;
 					} else {
-						cout << "o,chunkID," << chunkID << "," << subjectID << ": " << tempSubjectID << ","
-												<< partitionID << "," << object << ": " << tempObject << "," << (int)objType << ": " << (int)tempObjType  << endl;
 						return;
 					}
 				}
