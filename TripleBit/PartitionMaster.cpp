@@ -1106,12 +1106,10 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				continue;
 			} else if (tempSubjectID == subjectID && tempObject == object
 					&& tempObjType == objType) {
-				cout << "finds" << endl;
 				ofstream finds("finds", ios::app);
 				finds << "chunkID," << chunkID << "," << subjectID << ","
 						<< partitionID << "," << object << endl;
 				finds.close();
-				cout << 1 << endl;
 				/*temp = partitionChunkManager[soType]->deleteTriple(temp,
 				 objType);*/
 				return;
@@ -1121,7 +1119,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 			}
 		}
 		while (metaData->NextPageNo) {
-			cout << "sp NextPageNo" << endl;
 			chunkBegin =
 					reinterpret_cast<uchar*>(TempMMapBuffer::getInstance().getAddress())
 							+ MemoryBuffer::pagesize * metaData->NextPageNo;
@@ -1139,7 +1136,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					continue;
 				} else if (tempSubjectID == subjectID && tempObject == object
 						&& tempObjType == objType) {
-					cout << 2 << endl;
 					/*temp = partitionChunkManager[soType]->deleteTriple(temp,
 							objType);*/
 					return;
@@ -1184,12 +1180,10 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					continue;
 				} else if (tempObject == object && tempObjType == objType
 						&& tempSubjectID == subjectID) {
-					cout << "findo" << endl;
 					ofstream findo("findo", ios::app);
 					findo << "chunkID," << chunkID << "," << subjectID << ","
 							<< partitionID << "," << object << endl;
 					findo.close();
-					cout << 4 << endl;
 					/*temp = partitionChunkManager[soType]->deleteTriple(temp,
 					 objType);*/
 					return;
@@ -1219,7 +1213,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 						continue;
 					} else if (tempObject == object && tempObjType == objType
 							&& tempSubjectID == subjectID) {
-						cout << 5 << endl;
 						/*temp = partitionChunkManager[soType]->deleteTriple(temp,
 								objType);*/
 						return;
@@ -1235,7 +1228,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 		const bool soType, const bool constSubject, const ID subjectID,
 		const double object, const char objType) {
-	cout << __FUNCTION__ << endl;
 	int chunkID;
 	shared_ptr<subTaskPackage> taskPackage(new subTaskPackage);
 	shared_ptr<IndexForTT> indexForTT(new IndexForTT);
