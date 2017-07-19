@@ -332,7 +332,8 @@ Status TripleBitWorkerQuery::excuteInsertData() {
 }
 
 Status TripleBitWorkerQuery::excuteDeleteData() {
-	shared_ptr<IndexForTT> indexForTT(new IndexForTT);
+	size_t tripleSize = _query->tripleNodes.size();
+	shared_ptr<IndexForTT> indexForTT(new IndexForTT(tripleSize * 2));
 
 	classifyTripleNode();
 
@@ -353,6 +354,7 @@ Status TripleBitWorkerQuery::excuteDeleteData() {
 		}
 		tasksQueueWPMutex[partitionID - 1]->unlock();
 	}
+	indexForTT->wait();
 
 	return OK;
 }
