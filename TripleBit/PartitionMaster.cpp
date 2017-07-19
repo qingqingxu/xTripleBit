@@ -118,7 +118,7 @@ PartitionMaster::~PartitionMaster() {
 void PartitionMaster::Work() {
 
 #ifdef MYDEBUG
-	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
+	cout << __FUNCTION__ << " partitionID: " << partitionID << "-----------> " << pthread_self() << endl;
 #endif
 
 	while (1) {
