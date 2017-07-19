@@ -1092,6 +1092,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 	MetaData *metaData = (MetaData*) chunkBegin;
 	reader = chunkBegin + sizeof(MetaData);
 	limit = chunkBegin + metaData->usedSpace;
+	cout << "-----------------" << endl;
 
 	if (soType == ORDERBYS) {
 		while (reader < limit) {
@@ -1105,10 +1106,10 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				continue;
 			} else if (tempSubjectID == subjectID && tempObject == object
 					&& tempObjType == objType) {
-				ofstream s("finds", ios::app);
-				s << "chunkID," << chunkID << "," << subjectID << ","
+				ofstream finds("finds", ios::app);
+				finds << "chunkID," << chunkID << "," << subjectID << ","
 						<< partitionID << "," << object << endl;
-				s.close();
+				finds.close();
 				/*temp = partitionChunkManager[soType]->deleteTriple(temp,
 				 objType);*/
 				return;
@@ -1178,10 +1179,10 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					continue;
 				} else if (tempObject == object && tempObjType == objType
 						&& tempSubjectID == subjectID) {
-					ofstream o("findo", ios::app);
-					o << "chunkID," << chunkID << "," << subjectID << ","
+					ofstream findo("findo", ios::app);
+					findo << "chunkID," << chunkID << "," << subjectID << ","
 							<< partitionID << "," << object << endl;
-					o.close();
+					findo.close();
 					/*temp = partitionChunkManager[soType]->deleteTriple(temp,
 					 objType);*/
 					return;
