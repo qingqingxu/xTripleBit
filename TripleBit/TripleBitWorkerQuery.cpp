@@ -458,6 +458,15 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
  return OK;
  }*/
 
+
+void TripleBitWorkerQuery::classifyTripleNode() {
+	tripleNodeMap.clear();
+	vector<TripleNode>::iterator iter = _query->tripleNodes.begin();
+
+	for (; iter != _query->tripleNodes.end(); ++iter) {
+		tripleNodeMap[iter->predicateID].insert(&(*iter));
+	}
+}
 void TripleBitWorkerQuery::classifyTripleNode(size_t& tripleCounts) {
 	tripleNodeMap.clear();
 	vector<TripleNode>::iterator iter = _query->tripleNodes.begin();
