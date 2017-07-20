@@ -1440,7 +1440,6 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 				return;
 			}
 		} else if (soType == ORDERBYO) {
-			cout << tempSubjectID << "," << tempObject << endl;
 			if (tempObject < object
 					|| (tempObject == object && tempObjType < objType)) {
 				continue;
