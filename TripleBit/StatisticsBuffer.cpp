@@ -45,13 +45,10 @@ void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
 		ID subjectID;
 		while (begin + sizeof(ID) < end) {
 			begin = readData(begin, subjectID);
-			cout << subjectID << "\t";
 			if (subjectID && begin + sizeof(ID) < end) {
 				begin = readData(begin, tempPredicateID);
-				cout << tempPredicateID << "\t";
 				if (tempPredicateID && begin + sizeof(size_t) <= end) {
 					begin = readData(begin, tempCount);
-					cout << tempCount << endl;
 					if (subjectID == soValue
 							&& tempPredicateID == predicateID) {
 						count = tempCount;
