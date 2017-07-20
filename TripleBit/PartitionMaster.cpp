@@ -1069,7 +1069,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 		const ID chunkID, const uchar* startPtr, const bool soType) {
 
-	chunkTask->indexForTT->completeOneTriple();
 	ID subjectID = chunkTask->Triple.subjectID;
 	ID tempSubjectID;
 	double object = chunkTask->Triple.object;
@@ -1096,6 +1095,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 	limit = chunkBegin + metaData->usedSpace;
 
 	if (soType == ORDERBYS) {
+		chunkTask->indexForTT->completeOneTriple();
 		while (reader < limit) {
 			temp = const_cast<uchar*>(reader);
 			reader = partitionChunkManager[soType]->readXY(reader,
@@ -1167,9 +1167,11 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 							(const uchar*) partitionChunkManager[soType]->deleteTriple(
 									const_cast<uchar*>(reader));
 					partitionChunkManager[soType]->tripleCountDecrease();
+					chunkTask->indexForTT->completeOneTriple();
 				}
 			}
 		} else {
+			chunkTask->indexForTT->completeOneTriple();
 			while (reader < limit) {
 				temp = const_cast<uchar*>(reader);
 				reader = partitionChunkManager[soType]->readXY(reader,
