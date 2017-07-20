@@ -40,7 +40,7 @@ StatisticsBuffer::~StatisticsBuffer() {
 void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
 		double soValue, ID predicateID, size_t& count, char objType) {
 	ID tempPredicateID;
-	size_t tempCount;
+	size_t tempCount = 0;
 	if (statType == SUBJECTPREDICATE_STATIS) {
 		ID subjectID;
 		while (begin + sizeof(ID) < end) {
@@ -53,6 +53,8 @@ void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
 							&& tempPredicateID == predicateID) {
 						count = tempCount;
 						return;
+					}else if (subjectID > soValue) {
+						break;
 					}
 				} else {
 					break;
@@ -64,14 +66,14 @@ void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
 	} else if (statType == OBJECTPREDICATE_STATIS) {
 		char tempObjType;
 		double tempObject;
-		uint moveByteNum;
+		uint moveByteNum = 0;
 		int status;
 		while (begin + sizeof(char) < end) {
 			status = Chunk::getObjTypeStatus(begin, moveByteNum);
 			if (status == DATA_EXSIT) {
 				begin -= moveByteNum;
 				begin = readData(begin, tempObjType);
-				if (begin + Chunk::getLen(tempObjType) < end) {
+				if (tempObjType != NONE && begin + Chunk::getLen(tempObjType) < end) {
 					begin = Chunk::read(begin, tempObject, tempObjType);
 					if (begin + sizeof(ID) < end) {
 						begin = readData(begin, tempPredicateID);
@@ -82,6 +84,8 @@ void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
 									&& objType == tempObjType) {
 								count = tempCount;
 								return;
+							}else if (soValue < tempObject || (soValue == tempObject && objType < tempObjType)) {
+								break;
 							}
 						} else {
 							break;
