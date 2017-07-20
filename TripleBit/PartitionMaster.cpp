@@ -462,6 +462,7 @@ void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
 						subTransaction->triple.constSubject,
 						subTransaction->triple.constSubject));
 		if (chunkCount != 0) {
+			cout << "Chunk count: " << chunkCount << endl;
 			shared_ptr<IndexForTT> indexForTT(new IndexForTT(chunkCount));
 			for (size_t offsetID = chunkIDMin; offsetID <= chunkIDMax;
 					offsetID++) {
@@ -1329,7 +1330,6 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 				partitionChunkManager[soType]->tripleCountDecrease();
 				continue;
 			}
-
 		}
 
 		deleteDataForDeleteClause(NULL, soType,
