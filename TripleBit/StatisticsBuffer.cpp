@@ -232,7 +232,7 @@ void StatisticsBuffer::findAllPredicateBySO(const uchar* begin, const uchar* end
 }
 
 static inline bool greaterCouple(ID a1, double a2, ID b1, double b2) {
-	return (a1 > b1) || ((a1 == b1) && (a2 > b2));
+	return (a2 > b2) || ((a2 == b2) && (a1 > b1));
 }
 
 bool StatisticsBuffer::findLocation(ID predicateID, double soValue) {
