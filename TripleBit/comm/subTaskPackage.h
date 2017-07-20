@@ -62,9 +62,6 @@ public:
 	}
 
 	MidResultBuffer *getTaskResult() {
-#ifdef MYDEBUG
-		cout << __FUNCTION__ << endl;
-#endif
 		map<ID, MidResultBuffer*>::iterator iter = tempBuffer.begin();
 		size_t totalSize = 0;
 		for (iter = tempBuffer.begin(); iter != tempBuffer.end(); iter++) {

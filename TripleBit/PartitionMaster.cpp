@@ -416,9 +416,6 @@ void PartitionMaster::executeDeleteData(SubTrans* subTransaction) {
 }
 
 void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
-#ifdef MYDEBUG
-	cout << __FUNCTION__ << endl;
-#endif
 	ID subjectID =
 			subTransaction->triple.constSubject ?
 					subTransaction->triple.subjectID : 0;

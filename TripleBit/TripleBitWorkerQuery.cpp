@@ -378,15 +378,16 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 					tripleBitRepo->getPartitionMaster(partitionID)->getChunkManagerBySOType(
 							ORDERBYS)->getTripleCount();
 		} else if (!iter->constSubject) {
-			tripleBitRepo->getOpStatisBuffer()->getStatisBySO(iter->object,
+			tripleBitRepo->getOpStatisBuffer()->getStatis(iter->object, iter->predicateID,
 					tripleSize, iter->objType);
 		} else if (!iter->constObject) {
-			tripleBitRepo->getSpStatisBuffer()->getStatisBySO(iter->subjectID,
+			tripleBitRepo->getSpStatisBuffer()->getStatis(iter->subjectID, iter->predicateID,
 					tripleSize, STRING);
 		}
 		if (tripleSize == 0) {
 			return OK;
 		}
+		cout << "tripleSize: " << tripleSize << endl;
 		shared_ptr<IndexForTT> indexForTT(new IndexForTT(tripleSize * 2));
 		SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0,
 				operationType, 1, *iter, indexForTT);

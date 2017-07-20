@@ -169,7 +169,6 @@ public:
 		if (pos == (index + indexPos))
 			end = usedSpace;
 
-		cout << "start: " << start << "\tend: " << end << endl;
 		const uchar* begin = (uchar*) buffer->getBuffer() + start, *limit =
 				(uchar*) buffer->getBuffer() + end;
 		decodeStatis(begin, limit, soValue, count, objType);
