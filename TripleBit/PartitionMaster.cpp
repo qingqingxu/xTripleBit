@@ -139,10 +139,12 @@ void PartitionMaster::Work() {
 			break;
 		case TripleBitQueryGraph::DELETE_DATA:
 			executeDeleteData(subTransaction);
+			subTransaction->indexForTT->completeOneTriple();
 			delete subTransaction;
 			break;
 		case TripleBitQueryGraph::DELETE_CLAUSE:
 			executeDeleteClause(subTransaction);
+			subTransaction->indexForTT->completeOneTriple();
 			delete subTransaction;
 			break;
 		case TripleBitQueryGraph::UPDATE:
@@ -392,9 +394,10 @@ void PartitionMaster::executeInsertData(SubTrans* subTransaction) {
 			subjectID, object);
 	/*s << ",chunkID, " << chunkID << endl;
 	 s.close();*/
+	shared_ptr<IndexForTT> indexForTT(new IndexForTT(2));
 	ChunkTask *chunkTask1 = new ChunkTask(subTransaction->operationType,
 			subjectID, object, objType, subTransaction->triple.scanOperation,
-			taskPackage, subTransaction->indexForTT);
+			taskPackage, indexForTT);
 	taskEnQueue(chunkTask1, xChunkQueue[ORDERBYS][chunkID]);
 
 	/*ofstream o("searchChunkIDByO", ios::app);
@@ -407,8 +410,9 @@ void PartitionMaster::executeInsertData(SubTrans* subTransaction) {
 
 	ChunkTask *chunkTask2 = new ChunkTask(subTransaction->operationType,
 			subjectID, object, objType, subTransaction->triple.scanOperation,
-			taskPackage, subTransaction->indexForTT);
+			taskPackage, indexForTT);
 	taskEnQueue(chunkTask2, xChunkQueue[ORDERBYO][chunkID]);
+	indexForTT->wait();
 }
 
 void PartitionMaster::executeDeleteData(SubTrans* subTransaction) {
@@ -458,14 +462,16 @@ void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
 						subTransaction->triple.constSubject,
 						subTransaction->triple.constSubject));
 		if (chunkCount != 0) {
+			shared_ptr<IndexForTT> indexForTT(new IndexForTT(chunkCount));
 			for (size_t offsetID = chunkIDMin; offsetID <= chunkIDMax;
 					offsetID++) {
 				ChunkTask *chunkTask = new ChunkTask(
 						subTransaction->operationType, subjectID, object,
 						objType, subTransaction->triple.scanOperation,
-						taskPackage, subTransaction->indexForTT);
+						taskPackage, indexForTT);
 				taskEnQueue(chunkTask, xChunkQueue[ORDERBYS][offsetID]);
 			}
+			indexForTT->wait();
 		}
 	} else if (!subTransaction->triple.constSubject
 			&& subTransaction->triple.constObject) {
@@ -484,14 +490,16 @@ void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
 				new SubTaskPackageForDelete(chunkCount,
 						subTransaction->operationType, object, objType));
 		if (chunkCount != 0) {
+			shared_ptr<IndexForTT> indexForTT(new IndexForTT(chunkCount));
 			for (size_t offsetID = chunkIDMin; offsetID <= chunkIDMax;
 					offsetID++) {
 				ChunkTask *chunkTask = new ChunkTask(
 						subTransaction->operationType, subjectID, object,
 						objType, subTransaction->triple.scanOperation,
-						taskPackage, subTransaction->indexForTT);
+						taskPackage, indexForTT);
 				taskEnQueue(chunkTask, xChunkQueue[ORDERBYO][offsetID]);
 			}
+			indexForTT->wait();
 		}
 	}
 }
@@ -618,13 +626,16 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 			break;
 		case TripleBitQueryGraph::INSERT_DATA:
 			executeChunkTaskInsertData(chunkTask, chunkID, chunkBegin, soType);
+			chunkTask->indexForTT->completeOneTriple();
 			break;
 		case TripleBitQueryGraph::DELETE_DATA:
 			executeChunkTaskDeleteData(chunkTask, chunkID, chunkBegin, soType);
+			chunkTask->indexForTT->completeOneTriple();
 			break;
 		case TripleBitQueryGraph::DELETE_CLAUSE:
 			executeChunkTaskDeleteClause(chunkTask, chunkID, chunkBegin,
 					soType);
+			chunkTask->indexForTT->completeOneTriple();
 			break;
 		case TripleBitQueryGraph::UPDATE:
 			//executeChunkTaskUpdate(chunkTask, chunkID, chunkBegin, xyType, soType);
@@ -1110,10 +1121,8 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						objType);
 				partitionChunkManager[soType]->tripleCountDecrease();
-				chunkTask->indexForTT->completeOneTriple();
 				return;
 			} else {
-				chunkTask->indexForTT->completeOneTriple();
 				return;
 			}
 		}
@@ -1138,10 +1147,8 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							objType);
 					partitionChunkManager[soType]->tripleCountDecrease();
-					chunkTask->indexForTT->completeOneTriple();
 					return;
 				} else {
-					chunkTask->indexForTT->completeOneTriple();
 					return;
 				}
 			}
@@ -1154,7 +1161,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 						(const uchar*) partitionChunkManager[soType]->deleteTriple(
 								const_cast<uchar*>(reader));
 				partitionChunkManager[soType]->tripleCountDecrease();
-				chunkTask->indexForTT->completeOneTriple();
 			}
 			while (metaData->NextPageNo) {
 				chunkBegin =
@@ -1168,7 +1174,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 							(const uchar*) partitionChunkManager[soType]->deleteTriple(
 									const_cast<uchar*>(reader));
 					partitionChunkManager[soType]->tripleCountDecrease();
-					chunkTask->indexForTT->completeOneTriple();
 				}
 			}
 		} else {
@@ -1190,10 +1195,8 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							objType);
 					partitionChunkManager[soType]->tripleCountDecrease();
-					chunkTask->indexForTT->completeOneTriple();
 					return;
 				} else {
-					chunkTask->indexForTT->completeOneTriple();
 					return;
 				}
 			}
@@ -1220,15 +1223,12 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 						temp = partitionChunkManager[soType]->deleteTriple(temp,
 								objType);
 						partitionChunkManager[soType]->tripleCountDecrease();
-						chunkTask->indexForTT->completeOneTriple();
 						return;
 					} else {
-						chunkTask->indexForTT->completeOneTriple();
 						return;
 					}
 				}
 			}
-			chunkTask->indexForTT->completeOneTriple();
 		}
 	}
 
@@ -1239,12 +1239,13 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 		const double object, const char objType) {
 	int chunkID;
 	shared_ptr<subTaskPackage> taskPackage(new subTaskPackage);
-	shared_ptr<IndexForTT> indexForTT(new IndexForTT);
+
 	TripleBitQueryGraph::OpType operationType = TripleBitQueryGraph::DELETE_DATA;
 	TripleNode::Op scanType = TripleNode::NOOP;
 	if (soType == ORDERBYS) {
 		if (constSubject) { //subject是常量，仅删除对应的object
 			MidResultBuffer::SignalO* objects = buffer->getObjectBuffer();
+			shared_ptr<IndexForTT> indexForTT(new IndexForTT(buffer->getUsedSize()));
 			for (size_t i = 0; i < buffer->getUsedSize(); ++i) {
 				chunkID =
 						partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(
@@ -1254,6 +1255,7 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 						taskPackage, indexForTT);
 				taskEnQueue(chunkTask, xChunkQueue[ORDERBYO][chunkID]);
 			}
+			indexForTT->wait();
 		} else { //subject是未知量，删除所有subject与object
 			size_t chunkCount = 0, chunkIDMin = 0, chunkIDMax = 0;
 			chunkIDMax =
@@ -1264,17 +1266,20 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 			shared_ptr<SubTaskPackageForDelete> taskPackage(
 					new SubTaskPackageForDelete());
 			if (chunkCount != 0) {
+				shared_ptr<IndexForTT> indexForTT(new IndexForTT(chunkCount));
 				for (size_t offsetID = chunkIDMin; offsetID <= chunkIDMax;
 						offsetID++) {
 					ChunkTask *chunkTask = new ChunkTask(operationType, 0,
 							object, objType, scanType, taskPackage, indexForTT); //subjectID为0表示删除所有记录
 					taskEnQueue(chunkTask, xChunkQueue[ORDERBYO][offsetID]);
 				}
+				indexForTT->wait();
 			}
 		}
 
 	} else if (soType == ORDERBYO) {
 		ID* subejctIDs = buffer->getSignalIDBuffer();
+		shared_ptr<IndexForTT> indexForTT(new IndexForTT(buffer->getUsedSize()));
 		for (size_t i = 0; i < buffer->getUsedSize(); ++i) {
 			chunkID =
 					partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
@@ -1283,6 +1288,7 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 					object, objType, scanType, taskPackage, indexForTT);
 			taskEnQueue(chunkTask, xChunkQueue[ORDERBYS][chunkID]);
 		}
+		indexForTT->wait();
 	}
 	delete buffer;
 }
@@ -1308,7 +1314,6 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 			reader = (const uchar*) partitionChunkManager[soType]->deleteTriple(
 					const_cast<uchar*>(reader), tempObjType);
 			partitionChunkManager[soType]->tripleCountDecrease();
-			chunkTask->indexForTT->completeOneTriple();
 			continue;
 		}
 		while (metaData->NextPageNo) {
@@ -1323,11 +1328,11 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 						(const uchar*) partitionChunkManager[soType]->deleteTriple(
 								const_cast<uchar*>(reader), tempObjType);
 				partitionChunkManager[soType]->tripleCountDecrease();
-				chunkTask->indexForTT->completeOneTriple();
 				continue;
 			}
 
 		}
+
 		deleteDataForDeleteClause(NULL, soType,
 				chunkTask->taskPackageForDelete->constSubject, subjectID,
 				object, objType);
@@ -1358,24 +1363,17 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 						temp = partitionChunkManager[soType]->deleteTriple(temp,
 								tempObjType);
 						partitionChunkManager[soType]->tripleCountDecrease();
-						chunkTask->indexForTT->completeOneTriple();
 						goto END;
 					} else {
-						//若不存在，则释放
-						chunkTask->indexForTT->completeOneTriple();
-						chunkTask->indexForTT->completeOneTriple();
 						delete midResultBuffer;
 						midResultBuffer = NULL;
 						return;
 					}
 				}
-				cout << tempSubjectID << "," << partitionID << "," << tempObject
-						<< endl;
 				midResultBuffer->insertObject(tempObject, tempObjType);
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						tempObjType);
 				partitionChunkManager[soType]->tripleCountDecrease();
-				chunkTask->indexForTT->completeOneTriple();
 			} else {
 				if (midResultBuffer->getUsedSize() > 0) {
 					goto END;
@@ -1393,7 +1391,6 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						tempObjType);
 				partitionChunkManager[soType]->tripleCountDecrease();
-				chunkTask->indexForTT->completeOneTriple();
 			} else {
 				if (midResultBuffer->getUsedSize() > 0) {
 					goto END;
@@ -1432,24 +1429,17 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 							temp = partitionChunkManager[soType]->deleteTriple(
 									temp, tempObjType);
 							partitionChunkManager[soType]->tripleCountDecrease();
-							chunkTask->indexForTT->completeOneTriple();
 							goto END;
 						} else {
-							//若不存在，则释放
-							chunkTask->indexForTT->completeOneTriple();
-							chunkTask->indexForTT->completeOneTriple();
 							delete midResultBuffer;
 							midResultBuffer = NULL;
 							return;
 						}
 					}
-					cout << tempSubjectID << "," << partitionID << ","
-							<< tempObject << endl;
 					midResultBuffer->insertObject(tempObject, tempObjType);
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							tempObjType);
 					partitionChunkManager[soType]->tripleCountDecrease();
-					chunkTask->indexForTT->completeOneTriple();
 				} else {
 					if (midResultBuffer->getUsedSize() > 0) {
 						goto END;
@@ -1468,7 +1458,6 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							tempObjType);
 					partitionChunkManager[soType]->tripleCountDecrease();
-					chunkTask->indexForTT->completeOneTriple();
 				} else {
 					if (midResultBuffer->getUsedSize() > 0) {
 						goto END;
