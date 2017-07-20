@@ -479,7 +479,6 @@ void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
 						taskPackageO, indexForTT);
 				taskEnQueue(chunkTask, xChunkQueue[ORDERBYO][offsetID]);
 			}
-			indexForTT->wait();
 		}
 
 		indexForTT->wait();
@@ -1119,7 +1118,9 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 
 void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 		const ID chunkID, const uchar* startPtr, const bool soType) {
-
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 	ID subjectID = chunkTask->Triple.subjectID;
 	ID tempSubjectID;
 	double object = chunkTask->Triple.object;
