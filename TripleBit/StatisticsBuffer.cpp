@@ -66,6 +66,9 @@ void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
 				break;
 			}
 		}
+		if(begin + sizeof(ID) >= end){
+			cout << "address" << endl;
+		}
 	} else if (statType == OBJECTPREDICATE_STATIS) {
 		char tempObjType;
 		double tempObject;
