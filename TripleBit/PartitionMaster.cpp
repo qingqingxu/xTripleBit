@@ -161,6 +161,7 @@ void PartitionMaster::taskEnQueue(ChunkTask *chunkTask,
 		TasksQueueChunk *tasksQueue) {
 	if (tasksQueue->isEmpty()) {
 		tasksQueue->EnQueue(chunkTask);
+		cout << __FUNCTION__ << endl;
 		ThreadPool::getChunkPool().addTask(
 				boost::bind(&PartitionMaster::handleTasksQueueChunk, this,
 						tasksQueue));
@@ -1331,6 +1332,7 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 
 	} else if (soType == ORDERBYO) {
 		ID* subejctIDs = buffer->getSignalIDBuffer();
+		cout << __FUNCTION__ << " buffer->getUsedSize(): " << buffer->getUsedSize() << endl;
 		shared_ptr<IndexForTT> indexForTT(
 				new IndexForTT(buffer->getUsedSize()));
 		for (size_t i = 0; i < buffer->getUsedSize(); ++i) {
@@ -1461,7 +1463,6 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 			}
 		}
 	}
-	cout << 44 << endl;
 	while (metaData->NextPageNo) {
 		chunkBegin =
 				reinterpret_cast<uchar*>(TempMMapBuffer::getInstance().getAddress())
@@ -1530,17 +1531,16 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 			}
 		}
 	}
-	cout << 33 << endl;
 
 	END: if (chunkTask->taskPackageForDelete->completeSubTask(chunkID,
 			midResultBuffer)) {
-		cout << 11 << endl;
+		cout << "midResultBuffer->getUsedSize(): " << midResultBuffer->getUsedSize();
 		MidResultBuffer *buffer =
 				chunkTask->taskPackageForDelete->getTaskResult();
-		cout << 22 << endl;
 		deleteDataForDeleteClause(buffer, soType,
 				chunkTask->taskPackageForDelete->constSubject, subjectID,
 				object, objType);
+		cout << 22 << endl;
 	}
 
 	midResultBuffer = NULL;
