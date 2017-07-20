@@ -506,7 +506,7 @@ void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
 		chunkCount = chunkIDMax - chunkIDMin + 1;
 
 		if (chunkCount != 0) {
-			cout << "Chunk count: " << chunkCount << endl;
+			cout << "constSubject Chunk count: " << chunkCount << endl;
 			shared_ptr<SubTaskPackageForDelete> taskPackage(
 							new SubTaskPackageForDelete(chunkCount,
 									subTransaction->operationType, subjectID,
@@ -537,7 +537,7 @@ void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
 		}
 
 		if (chunkCount != 0) {
-			cout << "Chunk count: " << chunkCount << endl;
+			cout << "constObject Chunk count: " << chunkCount << endl;
 			shared_ptr<SubTaskPackageForDelete> taskPackage(
 							new SubTaskPackageForDelete(chunkCount,
 									subTransaction->operationType, object, objType));
@@ -1443,18 +1443,18 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 				return;
 			}
 		} else if (soType == ORDERBYO) {
-			cout << 1 << endl;
+			cout << 11 << endl;
 			if (tempObject < object
 					|| (tempObject == object && tempObjType < objType)) {
 				continue;
 			} else if (tempObject == object && tempObjType == objType) {
-				cout << 2 << endl;
+				cout << 22 << endl;
 				midResultBuffer->insertSIGNALID(tempSubjectID);
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						tempObjType);
 				partitionChunkManager[soType]->tripleCountDecrease();
 			} else {
-				cout << 3 << endl;
+				cout << 33 << endl;
 				cout << "midResultBuffer->getUsedSize(): "
 										<< midResultBuffer->getUsedSize() << endl;
 				if (midResultBuffer->getUsedSize() > 0) {
