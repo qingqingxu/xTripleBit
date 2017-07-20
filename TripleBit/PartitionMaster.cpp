@@ -432,30 +432,72 @@ void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
 
 	size_t chunkCount = 0, chunkIDMin = 0, chunkIDMax = 0;
 
-	if ((!subTransaction->triple.constSubject
-			&& !subTransaction->triple.constObject)
-			|| subTransaction->triple.constSubject) {
-		//subject已知、object无论是否已知，均先处理subject的删除
-		if (!subTransaction->triple.constSubject
-				&& !subTransaction->triple.constObject) {
-			chunkIDMax =
-					partitionChunkManager[ORDERBYS]->getChunkIndex()->getTableSize()
-							- 1;
-		} else {
-			if (partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
-					subjectID, subjectID + 1, chunkIDMin)) {
-				chunkIDMax =
-						partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
-								subjectID, UINT_MAX);
-				assert(chunkIDMax >= chunkIDMin);
+	if (!subTransaction->triple.constSubject
+			&& !subTransaction->triple.constObject) {
+		chunkIDMax =
+				partitionChunkManager[ORDERBYS]->getChunkIndex()->getTableSize()
+						- 1;
+		chunkCount = chunkIDMax - chunkIDMin + 1;
 
-			} else {
-				return;
+		size_t chunkCountO = 0, chunkIDMinO = 0, chunkIDMaxO = 0;
+		chunkIDMaxO =
+				partitionChunkManager[ORDERBYO]->getChunkIndex()->getTableSize()
+						- 1;
+		chunkCountO = chunkIDMaxO - chunkIDMinO + 1;
+
+		shared_ptr<IndexForTT> indexForTT(
+				new IndexForTT(chunkCount + chunkCountO));
+
+		shared_ptr<SubTaskPackageForDelete> taskPackage(
+				new SubTaskPackageForDelete(chunkCount,
+						subTransaction->operationType, subjectID,
+						subTransaction->triple.constSubject,
+						subTransaction->triple.constSubject));
+		if (chunkCount != 0) {
+			cout << "Chunk count: " << chunkCount << endl;
+
+			for (size_t offsetID = chunkIDMin; offsetID <= chunkIDMax;
+					offsetID++) {
+				ChunkTask *chunkTask = new ChunkTask(
+						subTransaction->operationType, subjectID, object,
+						objType, subTransaction->triple.scanOperation,
+						taskPackage, indexForTT);
+				taskEnQueue(chunkTask, xChunkQueue[ORDERBYS][offsetID]);
 			}
+
+		}
+
+		shared_ptr<SubTaskPackageForDelete> taskPackageO(
+				new SubTaskPackageForDelete(chunkCountO,
+						subTransaction->operationType, object, objType));
+		if (chunkCountO != 0) {
+			for (size_t offsetID = chunkIDMinO; offsetID <= chunkIDMaxO;
+					offsetID++) {
+				ChunkTask *chunkTask = new ChunkTask(
+						subTransaction->operationType, subjectID, object,
+						objType, subTransaction->triple.scanOperation,
+						taskPackageO, indexForTT);
+				taskEnQueue(chunkTask, xChunkQueue[ORDERBYO][offsetID]);
+			}
+			indexForTT->wait();
+		}
+
+		indexForTT->wait();
+
+	} else if (subTransaction->triple.constSubject) {
+		//subject已知、object无论是否已知，均先处理subject的删除
+		if (partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
+				subjectID, subjectID + 1, chunkIDMin)) {
+			chunkIDMax =
+					partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
+							subjectID, UINT_MAX);
+			assert(chunkIDMax >= chunkIDMin);
+
+		} else {
+			return;
 		}
 
 		chunkCount = chunkIDMax - chunkIDMin + 1;
-
 		shared_ptr<SubTaskPackageForDelete> taskPackage(
 				new SubTaskPackageForDelete(chunkCount,
 						subTransaction->operationType, subjectID,
@@ -1248,7 +1290,8 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 	if (soType == ORDERBYS) {
 		if (constSubject) { //subject是常量，仅删除对应的object
 			MidResultBuffer::SignalO* objects = buffer->getObjectBuffer();
-			shared_ptr<IndexForTT> indexForTT(new IndexForTT(buffer->getUsedSize()));
+			shared_ptr<IndexForTT> indexForTT(
+					new IndexForTT(buffer->getUsedSize()));
 			for (size_t i = 0; i < buffer->getUsedSize(); ++i) {
 				chunkID =
 						partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(
@@ -1282,7 +1325,8 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 
 	} else if (soType == ORDERBYO) {
 		ID* subejctIDs = buffer->getSignalIDBuffer();
-		shared_ptr<IndexForTT> indexForTT(new IndexForTT(buffer->getUsedSize()));
+		shared_ptr<IndexForTT> indexForTT(
+				new IndexForTT(buffer->getUsedSize()));
 		for (size_t i = 0; i < buffer->getUsedSize(); ++i) {
 			chunkID =
 					partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
@@ -1315,7 +1359,7 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 	reader = chunkBegin + sizeof(MetaData);
 	limit = chunkBegin + metaData->usedSpace;
 
-	if (soType == ORDERBYS && !chunkTask->taskPackageForDelete->constSubject) { //subject未知，即为已知predicate，删除subject、object
+	if (!chunkTask->taskPackageForDelete->constSubject && !chunkTask->taskPackageForDelete->constObject) { //subject未知，即为已知predicate，删除subject、object
 		while (reader < limit) {
 			reader = (const uchar*) partitionChunkManager[soType]->deleteTriple(
 					const_cast<uchar*>(reader), tempObjType);
@@ -1337,10 +1381,6 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 				continue;
 			}
 		}
-
-		deleteDataForDeleteClause(NULL, soType,
-				chunkTask->taskPackageForDelete->constSubject, subjectID,
-				object, objType);
 		return;
 	}
 
