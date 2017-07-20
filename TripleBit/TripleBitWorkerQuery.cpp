@@ -372,20 +372,22 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 	if (iter->constPredicate) {
 		//predicate已知
 		ID partitionID = iter->predicateID;
-		shared_ptr<IndexForTT> indexForTT(new IndexForTT(2));
+		shared_ptr<IndexForTT> indexForTT(new IndexForTT(1));
 		SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0,
 				operationType, 1, *iter, indexForTT);
 		tasksEnQueue(partitionID, subTrans);
+		indexForTT->wait();
 	} else {
 		//predicate未知
 		if (!iter->constSubject && !iter->constObject) {
 			//subject、object未知
-			shared_ptr<IndexForTT> indexForTT(new IndexForTT(tripleBitRepo->getPartitionNum() * 2));
+			shared_ptr<IndexForTT> indexForTT(new IndexForTT(tripleBitRepo->getPartitionNum()));
 			for (size_t i = 1; i <= tripleBitRepo->getPartitionNum(); i++) {
 				SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0,
 						0, operationType, 1, *iter, indexForTT);
 				tasksEnQueue(i, subTrans);
 			}
+			indexForTT->wait();
 		} else if (iter->constSubject && iter->constObject) {
 			size_t subjectCounts = 0, objectCounts = 0;
 			tripleBitRepo->getSpStatisBuffer()->getStatisBySO(iter->subjectID,
@@ -401,7 +403,7 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 				vector<ID> pids;
 				tripleBitRepo->getSpStatisBuffer()->findAllPredicateBySO(
 						iter->subjectID, pids, STRING);
-				shared_ptr<IndexForTT> indexForTT(new IndexForTT(pids.size() * 2));
+				shared_ptr<IndexForTT> indexForTT(new IndexForTT(pids.size()));
 				for (vector<ID>::iterator it = pids.begin(); it != pids.end();
 						it++) {
 					SubTrans *subTrans = new SubTrans(*transactionTime,
@@ -409,11 +411,12 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 							indexForTT);
 					tasksEnQueue(*it, subTrans);
 				}
+				indexForTT->wait();
 			} else {
 				vector<ID> pids;
 				tripleBitRepo->getOpStatisBuffer()->findAllPredicateBySO(
 						iter->object, pids, iter->objType);
-				shared_ptr<IndexForTT> indexForTT(new IndexForTT(pids.size() * 2));
+				shared_ptr<IndexForTT> indexForTT(new IndexForTT(pids.size()));
 				for (vector<ID>::iterator it = pids.begin(); it != pids.end();
 						it++) {
 					SubTrans *subTrans = new SubTrans(*transactionTime,
@@ -421,31 +424,34 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 							indexForTT);
 					tasksEnQueue(*it, subTrans);
 				}
+				indexForTT->wait();
 			}
 		} else if (iter->constSubject) {
 			//subject已知
 			vector<ID> pids;
 			tripleBitRepo->getSpStatisBuffer()->findAllPredicateBySO(
 					iter->subjectID, pids, STRING);
-			shared_ptr<IndexForTT> indexForTT(new IndexForTT(pids.size() * 2));
+			shared_ptr<IndexForTT> indexForTT(new IndexForTT(pids.size()));
 			for (vector<ID>::iterator it = pids.begin(); it != pids.end();
 					it++) {
 				SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0,
 						0, operationType, 1, *iter, indexForTT);
 				tasksEnQueue(*it, subTrans);
 			}
+			indexForTT->wait();
 		} else if (iter->constObject) {
 			//object已知
 			vector<ID> pids;
 			tripleBitRepo->getOpStatisBuffer()->findAllPredicateBySO(
 					iter->object, pids, iter->objType);
-			shared_ptr<IndexForTT> indexForTT(new IndexForTT(pids.size() * 2));
+			shared_ptr<IndexForTT> indexForTT(new IndexForTT(pids.size()));
 			for (vector<ID>::iterator it = pids.begin(); it != pids.end();
 					it++) {
 				SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0,
 						0, operationType, 1, *iter, indexForTT);
 				tasksEnQueue(*it, subTrans);
 			}
+			indexForTT->wait();
 		}
 	}
 
