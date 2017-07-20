@@ -651,11 +651,9 @@ void PrintChunkTaskPart(ChunkTask* chunkTask) {
 
 void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 
-	/*
-	 #ifdef MYDEBUG
-	 cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
-	 #endif
-	 */
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
+#endif
 
 	ChunkTask* chunkTask = NULL;
 	ID chunkID = tasksQueue->getChunkID();
@@ -1364,7 +1362,8 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 	reader = chunkBegin + sizeof(MetaData);
 	limit = chunkBegin + metaData->usedSpace;
 
-	if (!chunkTask->taskPackageForDelete->constSubject && !chunkTask->taskPackageForDelete->constObject) { //subject未知，即为已知predicate，删除subject、object
+	if (!chunkTask->taskPackageForDelete->constSubject
+			&& !chunkTask->taskPackageForDelete->constObject) { //subject未知，即为已知predicate，删除subject、object
 		while (reader < limit) {
 			reader = (const uchar*) partitionChunkManager[soType]->deleteTriple(
 					const_cast<uchar*>(reader), tempObjType);
@@ -1405,7 +1404,7 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 				continue;
 			} else if (tempSubjectID == subjectID) {
 				/*cout << subjectID << "," << partitionID << "," << object << "\t";
-				cout << tempSubjectID << "," << partitionID << "," << tempObject << endl;*/
+				 cout << tempSubjectID << "," << partitionID << "," << tempObject << endl;*/
 				if (chunkTask->taskPackageForDelete->constObject) {
 					if (tempObject < object
 							|| (tempObject == object && tempObjType < objType)) {
@@ -1423,12 +1422,14 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 					}
 				}
 				midResultBuffer->insertObject(tempObject, tempObjType);
-				cout << tempSubjectID << "," << partitionID << "," << tempObject << endl;
+				cout << tempSubjectID << "," << partitionID << "," << tempObject
+						<< endl;
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						tempObjType);
 				partitionChunkManager[soType]->tripleCountDecrease();
 			} else {
-				cout << "midResultBuffer->getUsedSize(): " << midResultBuffer->getUsedSize() << endl;
+				cout << "midResultBuffer->getUsedSize(): "
+						<< midResultBuffer->getUsedSize() << endl;
 				if (midResultBuffer->getUsedSize() > 0) {
 					goto END;
 				}
