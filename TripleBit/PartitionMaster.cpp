@@ -1417,10 +1417,12 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 					}
 				}
 				midResultBuffer->insertObject(tempObject, tempObjType);
+				cout << tempSubjectID << "," << partitionID << "," << tempObject << endl;
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						tempObjType);
 				partitionChunkManager[soType]->tripleCountDecrease();
 			} else {
+				cout << "midResultBuffer->getUsedSize(): " << midResultBuffer->getUsedSize() << endl;
 				if (midResultBuffer->getUsedSize() > 0) {
 					goto END;
 				}
