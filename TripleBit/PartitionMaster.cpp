@@ -654,7 +654,6 @@ void PrintChunkTaskPart(ChunkTask* chunkTask) {
 }
 
 void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
-
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
 #endif

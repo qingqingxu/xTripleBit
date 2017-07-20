@@ -682,9 +682,11 @@ const uchar* ChunkManager::readXY(const uchar* reader, ID& subjectID,
 }
 
 uchar* ChunkManager::deleteTriple(uchar* reader){
+/*
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << endl;
 #endif
+*/
 	char objType;
 	if (meta->soType == ORDERBYS) {
 			*(ID*) reader = 0; //s
@@ -701,9 +703,11 @@ uchar* ChunkManager::deleteTriple(uchar* reader){
 		return reader; //无操作
 }
 uchar* ChunkManager::deleteTriple(uchar* reader, char objType) {
+/*
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << endl;
 #endif
+*/
 	if (meta->soType == ORDERBYS) {
 		*(ID*) reader = 0; //s
 		reader += sizeof(ID);
