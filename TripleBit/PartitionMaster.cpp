@@ -163,12 +163,16 @@ void PartitionMaster::taskEnQueue(ChunkTask *chunkTask,
 	cout << __FUNCTION__ << endl;
 #endif
 	if (tasksQueue->isEmpty()) {
+		cout << 1 << endl;
 		tasksQueue->EnQueue(chunkTask);
+		cout << 2 << endl;
 		ThreadPool::getChunkPool().addTask(
 				boost::bind(&PartitionMaster::handleTasksQueueChunk, this,
 						tasksQueue));
 	} else {
+		cout << 3 << endl;
 		tasksQueue->EnQueue(chunkTask);
+		cout << 4 << endl;
 	}
 }
 
