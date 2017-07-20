@@ -452,7 +452,7 @@ void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
 				new SubTaskPackageForDelete(chunkCount,
 						subTransaction->operationType, subjectID,
 						subTransaction->triple.constSubject,
-						subTransaction->triple.constSubject));
+						subTransaction->triple.constObject));
 		if (chunkCount != 0) {
 			cout << "Chunk count: " << chunkCount << endl;
 
@@ -501,7 +501,7 @@ void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
 				new SubTaskPackageForDelete(chunkCount,
 						subTransaction->operationType, subjectID,
 						subTransaction->triple.constSubject,
-						subTransaction->triple.constSubject));
+						subTransaction->triple.constObject));
 		if (chunkCount != 0) {
 			cout << "Chunk count: " << chunkCount << endl;
 			shared_ptr<IndexForTT> indexForTT(new IndexForTT(chunkCount));
@@ -1400,10 +1400,9 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 			if (tempSubjectID < subjectID) {
 				continue;
 			} else if (tempSubjectID == subjectID) {
-				cout << subjectID << "," << partitionID << "," << object << "\t";
-				cout << tempSubjectID << "," << partitionID << "," << tempObject << endl;
+				/*cout << subjectID << "," << partitionID << "," << object << "\t";
+				cout << tempSubjectID << "," << partitionID << "," << tempObject << endl;*/
 				if (chunkTask->taskPackageForDelete->constObject) {
-					cout << 1 << endl;
 					if (tempObject < object
 							|| (tempObject == object && tempObjType < objType)) {
 						continue;
