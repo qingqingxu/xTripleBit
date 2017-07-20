@@ -1397,9 +1397,11 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 				tempObject, tempObjType);
 		if (soType == ORDERBYS) {
 			//已知predicate、subject，删除object
+			cout << 1<< endl;
 			if (tempSubjectID < subjectID) {
 				continue;
 			} else if (tempSubjectID == subjectID) {
+				cout << 2<< endl;
 				if (chunkTask->taskPackageForDelete->constObject) {
 					if (tempObject < object
 							|| (tempObject == object && tempObjType < objType)) {
