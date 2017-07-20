@@ -384,10 +384,11 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 			tripleBitRepo->getSpStatisBuffer()->getStatis(iter->subjectID, iter->predicateID,
 					tripleSize, STRING);
 		}
+		cout << "tripleSize: " << tripleSize << endl;
 		if (tripleSize == 0) {
 			return OK;
 		}
-		cout << "tripleSize: " << tripleSize << endl;
+
 		shared_ptr<IndexForTT> indexForTT(new IndexForTT(tripleSize * 2));
 		SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0,
 				operationType, 1, *iter, indexForTT);
