@@ -1306,7 +1306,7 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 				ChunkTask *chunkTask = new ChunkTask(operationType, subjectID,
 						objects[i].object, objects[i].objType, scanType,
 						taskPackage, indexForTT);
-				taskEnQueue(chunkTask, xChunkQueue[ORDERBYO][chunkID]);
+				xChunkQueue[ORDERBYO][chunkID]->EnQueue(chunkTask);
 			}
 			indexForTT->wait();
 		} else { //subject是未知量，删除所有subject与object
@@ -1324,7 +1324,7 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 						offsetID++) {
 					ChunkTask *chunkTask = new ChunkTask(operationType, 0,
 							object, objType, scanType, taskPackage, indexForTT); //subjectID为0表示删除所有记录
-					taskEnQueue(chunkTask, xChunkQueue[ORDERBYO][offsetID]);
+					xChunkQueue[ORDERBYO][offsetID]->EnQueue(chunkTask);
 				}
 				indexForTT->wait();
 			}
@@ -1341,7 +1341,7 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 							subejctIDs[i], object);
 			ChunkTask *chunkTask = new ChunkTask(operationType, subejctIDs[i],
 					object, objType, scanType, taskPackage, indexForTT);
-			taskEnQueue(chunkTask, xChunkQueue[ORDERBYS][chunkID]);
+			xChunkQueue[ORDERBYS][chunkID]->EnQueue(chunkTask);
 		}
 		indexForTT->wait();
 	}
