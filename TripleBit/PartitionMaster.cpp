@@ -1403,6 +1403,7 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 				cout << subjectID << "," << partitionID << "," << object << "\t";
 				cout << tempSubjectID << "," << partitionID << "," << tempObject << endl;
 				if (chunkTask->taskPackageForDelete->constObject) {
+					cout << 1 << endl;
 					if (tempObject < object
 							|| (tempObject == object && tempObjType < objType)) {
 						continue;
