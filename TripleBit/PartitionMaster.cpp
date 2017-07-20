@@ -1443,15 +1443,18 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 				return;
 			}
 		} else if (soType == ORDERBYO) {
+			cout << 1 << endl;
 			if (tempObject < object
 					|| (tempObject == object && tempObjType < objType)) {
 				continue;
 			} else if (tempObject == object && tempObjType == objType) {
+				cout << 2 << endl;
 				midResultBuffer->insertSIGNALID(tempSubjectID);
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						tempObjType);
 				partitionChunkManager[soType]->tripleCountDecrease();
 			} else {
+				cout << 3 << endl;
 				cout << "midResultBuffer->getUsedSize(): "
 										<< midResultBuffer->getUsedSize() << endl;
 				if (midResultBuffer->getUsedSize() > 0) {
