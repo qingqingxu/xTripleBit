@@ -503,10 +503,10 @@ void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
 		if (chunkCount != 0) {
 			cout << "constSubject Chunk count: " << chunkCount << endl;
 			shared_ptr<SubTaskPackageForDelete> taskPackage(
-							new SubTaskPackageForDelete(chunkCount,
-									subTransaction->operationType, subjectID,
-									subTransaction->triple.constSubject,
-									subTransaction->triple.constObject));
+					new SubTaskPackageForDelete(chunkCount,
+							subTransaction->operationType, subjectID,
+							subTransaction->triple.constSubject,
+							subTransaction->triple.constObject));
 			shared_ptr<IndexForTT> indexForTT(new IndexForTT(chunkCount));
 			for (size_t offsetID = chunkIDMin; offsetID <= chunkIDMax;
 					offsetID++) {
@@ -532,12 +532,13 @@ void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
 		}
 
 		if (chunkCount != 0) {
-			cout << "constObject Chunk count: " << chunkCount << "\tobject: " << object << endl;
+			cout << "constObject Chunk count: " << chunkCount << "\tobject: "
+					<< object << endl;
 			shared_ptr<SubTaskPackageForDelete> taskPackage(
-							new SubTaskPackageForDelete(chunkCount,
-									subTransaction->operationType, object, objType,
-									subTransaction->triple.constSubject,
-									subTransaction->triple.constObject));
+					new SubTaskPackageForDelete(chunkCount,
+							subTransaction->operationType, object, objType,
+							subTransaction->triple.constSubject,
+							subTransaction->triple.constObject));
 			shared_ptr<IndexForTT> indexForTT(new IndexForTT(chunkCount));
 			for (size_t offsetID = chunkIDMin; offsetID <= chunkIDMax;
 					offsetID++) {
@@ -1450,7 +1451,7 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 				partitionChunkManager[soType]->tripleCountDecrease();
 			} else {
 				cout << "midResultBuffer->getUsedSize(): "
-										<< midResultBuffer->getUsedSize() << endl;
+						<< midResultBuffer->getUsedSize() << endl;
 				if (midResultBuffer->getUsedSize() > 0) {
 					goto END;
 				}
@@ -1529,6 +1530,9 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 		}
 	}
 
+	if (midResultBuffer->getUsedSize() > 0) {
+		goto END;
+	}
 	END: if (chunkTask->taskPackageForDelete->completeSubTask(chunkID,
 			midResultBuffer)) {
 		MidResultBuffer *buffer =
