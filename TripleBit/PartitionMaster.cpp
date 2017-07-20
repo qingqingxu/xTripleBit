@@ -163,16 +163,12 @@ void PartitionMaster::taskEnQueue(ChunkTask *chunkTask,
 	cout << __FUNCTION__ << endl;
 #endif
 	if (tasksQueue->isEmpty()) {
-		cout << 1 << endl;
 		tasksQueue->EnQueue(chunkTask);
-		cout << 2 << endl;
 		ThreadPool::getChunkPool().addTask(
 				boost::bind(&PartitionMaster::handleTasksQueueChunk, this,
 						tasksQueue));
 	} else {
-		cout << 3 << endl;
 		tasksQueue->EnQueue(chunkTask);
-		cout << 4 << endl;
 	}
 }
 
@@ -1447,18 +1443,15 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 				return;
 			}
 		} else if (soType == ORDERBYO) {
-			cout << 11 << endl;
 			if (tempObject < object
 					|| (tempObject == object && tempObjType < objType)) {
 				continue;
 			} else if (tempObject == object && tempObjType == objType) {
-				cout << 22 << endl;
 				midResultBuffer->insertSIGNALID(tempSubjectID);
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						tempObjType);
 				partitionChunkManager[soType]->tripleCountDecrease();
 			} else {
-				cout << 33 << endl;
 				cout << "midResultBuffer->getUsedSize(): "
 										<< midResultBuffer->getUsedSize() << endl;
 				if (midResultBuffer->getUsedSize() > 0) {
