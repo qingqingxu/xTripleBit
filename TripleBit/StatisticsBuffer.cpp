@@ -39,16 +39,20 @@ StatisticsBuffer::~StatisticsBuffer() {
  */
 void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
 		double soValue, ID predicateID, size_t& count, char objType) {
+	cout << "ppp: " << soValue << "\t" << predicateID << endl;
 	ID tempPredicateID;
 	size_t tempCount = 0;
 	if (statType == SUBJECTPREDICATE_STATIS) {
 		ID subjectID;
 		while (begin + sizeof(ID) < end) {
 			begin = readData(begin, subjectID);
+			cout << soValue << "\t";
 			if (subjectID && begin + sizeof(ID) < end) {
 				begin = readData(begin, tempPredicateID);
+				cout << tempPredicateID << "\t";
 				if (tempPredicateID && begin + sizeof(size_t) <= end) {
 					begin = readData(begin, tempCount);
+					cout << tempCount << endl;
 					if (subjectID == soValue
 							&& tempPredicateID == predicateID) {
 						count = tempCount;
@@ -300,7 +304,6 @@ Status StatisticsBuffer::getStatis(double soValue, ID predicateID,
 	const uchar* begin = (uchar*) buffer->getBuffer() + start, *limit =
 			(uchar*) buffer->getBuffer() + end;
 	decodeStatis(begin, limit, soValue, predicateID, count, objType);
-	findLocation(predicateID, soValue);
 	if (count) {
 		return OK;
 	}
