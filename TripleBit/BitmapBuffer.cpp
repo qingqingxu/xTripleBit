@@ -12,7 +12,7 @@
 #include "TempMMapBuffer.h"
 
 //#define WORD_ALIGN 1
-//#define MYDEBUG
+#define MYDEBUG
 
 BitmapBuffer::BitmapBuffer(const string _dir) :
 		dir(_dir) {
