@@ -45,7 +45,7 @@ void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
 		ID subjectID;
 		while (begin + sizeof(ID) < end) {
 			begin = readData(begin, subjectID);
-			cout << soValue << "\t";
+			cout << subjectID << "\t";
 			if (subjectID && begin + sizeof(ID) < end) {
 				begin = readData(begin, tempPredicateID);
 				cout << tempPredicateID << "\t";
