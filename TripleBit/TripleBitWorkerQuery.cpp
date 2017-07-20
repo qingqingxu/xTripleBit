@@ -394,7 +394,7 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 		//predicate未知
 		if (!iter->constSubject && !iter->constObject) {
 			//subject、object未知
-			for (size_t pid = 1; pid <= tripleBitRepo->partitionNum; pid++) {
+			for (size_t pid = 1; pid <= tripleBitRepo->getPartitionNum(); pid++) {
 				tripleSize +=
 						tripleBitRepo->getPartitionMaster(pid)->getChunkManagerBySOType(
 								ORDERBYS)->getTripleCount();
