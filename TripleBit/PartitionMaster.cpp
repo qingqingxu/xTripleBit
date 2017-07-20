@@ -1095,7 +1095,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 	limit = chunkBegin + metaData->usedSpace;
 
 	if (soType == ORDERBYS) {
-		chunkTask->indexForTT->completeOneTriple();
 		while (reader < limit) {
 			temp = const_cast<uchar*>(reader);
 			reader = partitionChunkManager[soType]->readXY(reader,
@@ -1114,8 +1113,10 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						objType);
 				partitionChunkManager[soType]->tripleCountDecrease();
+				chunkTask->indexForTT->completeOneTriple();
 				return;
 			} else {
+				chunkTask->indexForTT->completeOneTriple();
 				return;
 			}
 		}
@@ -1140,8 +1141,10 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							objType);
 					partitionChunkManager[soType]->tripleCountDecrease();
+					chunkTask->indexForTT->completeOneTriple();
 					return;
 				} else {
+					chunkTask->indexForTT->completeOneTriple();
 					return;
 				}
 			}
@@ -1171,7 +1174,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				}
 			}
 		} else {
-			chunkTask->indexForTT->completeOneTriple();
 			while (reader < limit) {
 				temp = const_cast<uchar*>(reader);
 				reader = partitionChunkManager[soType]->readXY(reader,
@@ -1190,8 +1192,10 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							objType);
 					partitionChunkManager[soType]->tripleCountDecrease();
+					chunkTask->indexForTT->completeOneTriple();
 					return;
 				} else {
+					chunkTask->indexForTT->completeOneTriple();
 					return;
 				}
 			}
@@ -1218,8 +1222,10 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 						temp = partitionChunkManager[soType]->deleteTriple(temp,
 								objType);
 						partitionChunkManager[soType]->tripleCountDecrease();
+						chunkTask->indexForTT->completeOneTriple();
 						return;
 					} else {
+						chunkTask->indexForTT->completeOneTriple();
 						return;
 					}
 				}
