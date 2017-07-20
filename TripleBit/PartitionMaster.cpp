@@ -1461,6 +1461,7 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 			}
 		}
 	}
+	cout << 44 << endl;
 	while (metaData->NextPageNo) {
 		chunkBegin =
 				reinterpret_cast<uchar*>(TempMMapBuffer::getInstance().getAddress())
@@ -1529,6 +1530,7 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 			}
 		}
 	}
+	cout << 33 << endl;
 
 	END: if (chunkTask->taskPackageForDelete->completeSubTask(chunkID,
 			midResultBuffer)) {

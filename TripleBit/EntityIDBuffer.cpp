@@ -125,7 +125,6 @@ Status MidResultBuffer::insertSIGNALID(ID id) {
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << endl;
 #endif
-	cout << id << endl;
 	if (usedSize == totalSize) {
 		spIDs = (ID*) realloc((char*) spIDs,
 				totalSize * sizeof(ID)
@@ -140,7 +139,6 @@ Status MidResultBuffer::insertSIGNALID(ID id) {
 	pSpIDs[pos] = id;
 	usedSize++;
 	pos++;
-	cout << "usedSize: " << usedSize << endl;
 	return OK;
 }
 Status MidResultBuffer::insertObject(double object, char objType) {
