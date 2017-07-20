@@ -22,6 +22,7 @@ public:
 	TripleBitQueryGraph::OpType operationType;
 	ID sID;
 	bool constSubject; //subject是否已知
+	bool constObject; //subject是否已知
 	double object;
 	char objType;
 	map<ID, MidResultBuffer*> tempBuffer;
@@ -30,9 +31,9 @@ public:
 	SubTaskPackageForDelete() {
 	}
 	SubTaskPackageForDelete(size_t reCount, TripleBitQueryGraph::OpType opType,
-			ID sID, bool constSubject) :
+			ID sID, bool constSubject, bool constObject) :
 			referenceCount(reCount), operationType(opType), sID(sID), constSubject(
-					constSubject) {
+					constSubject), constObject(constObject) {
 		pthread_mutex_init(&subTaskMutex, NULL);
 	}
 	SubTaskPackageForDelete(size_t reCount, TripleBitQueryGraph::OpType opType,

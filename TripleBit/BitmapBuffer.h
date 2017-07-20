@@ -104,7 +104,8 @@ public:
 	//向指定位置写入数据x，y，写完后指针仍指向原地址, x表示subjectID， y表示object
 	void writeXY(uchar* reader, ID x, double y, char objType = STRING);
 	//读取subjectID、object、objType
-	const uchar* readXY(const uchar* reader, ID& subjectID, double& object, char& objType);
+	const uchar* readXY(const uchar* reader, ID& subjectID, double& object,
+			char& objType);
 	uchar* deleteTriple(uchar* reader);
 	//根据数据类型删除在指定位置数据，返回删除后位置，删除将该位置0
 	uchar* deleteTriple(uchar* reader, char objType);
@@ -117,6 +118,11 @@ public:
 	//更新triple数量
 	Status tripleCountAdd() {
 		meta->tripleCount++;
+		return OK;
+	}
+
+	Status tripleCountDecrease() {
+		meta->tripleCount--;
 		return OK;
 	}
 
@@ -154,8 +160,7 @@ public:
 	~Chunk();
 
 	//在指定位置写入ID数据，默认返回写后数据位置
-	static void writeID(uchar*& writer, ID data, bool isUpdateAdress =
-			true);
+	static void writeID(uchar*& writer, ID data, bool isUpdateAdress = true);
 	//在指定位置根据数据类型写入数据，默认返回写后数据位置
 	template<typename T>
 	static void write(uchar*& writer, T data, char dataType = STRING,
@@ -226,30 +231,30 @@ public:
 		switch (dataType) {
 		case BOOL:
 		case CHAR:
-			data = *(char*)reader;
+			data = *(char*) reader;
 			reader += sizeof(char);
 			break;
 		case INT:
-			data = *(int*)reader;
+			data = *(int*) reader;
 			reader += sizeof(int);
 			break;
 		case FLOAT:
-			data = *(float*)reader;
+			data = *(float*) reader;
 			reader += sizeof(float);
 			break;
 		case LONGLONG:
-			data = *(longlong*)reader;
+			data = *(longlong*) reader;
 			reader += sizeof(longlong);
 			break;
 		case DATE:
 		case DOUBLE:
-			data = *(double*)reader;
+			data = *(double*) reader;
 			reader += sizeof(double);
 			break;
 		case UNSIGNED_INT:
 		case STRING:
 		default:
-			data = *(uint*)reader;
+			data = *(uint*) reader;
 			reader += sizeof(uint);
 			break;
 		}

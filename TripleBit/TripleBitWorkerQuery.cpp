@@ -365,13 +365,28 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << endl;
 #endif
-	shared_ptr<IndexForTT> indexForTT(new IndexForTT);
+	size_t tripleSize = 0;
 	vector<TripleNode>::iterator iter = _query->tripleNodes.begin();
 	TripleBitQueryGraph::OpType operationType =
 			TripleBitQueryGraph::DELETE_CLAUSE;
 	if (iter->constPredicate) {
 		//predicate已知
 		ID partitionID = iter->predicateID;
+		if (!iter->constSubject && !iter->constObject) {
+			tripleSize =
+					tripleBitRepo->getPartitionMaster(partitionID)->getChunkManagerBySOType(
+							ORDERBYS)->getTripleCount();
+		} else if (!iter->constSubject) {
+			tripleBitRepo->getOpStatisBuffer()->getStatisBySO(iter->object,
+					tripleSize, iter->objType);
+		} else if (!iter->constObject) {
+			tripleBitRepo->getSpStatisBuffer()->getStatisBySO(iter->subjectID,
+					tripleSize, STRING);
+		}
+		if (tripleSize == 0) {
+			return OK;
+		}
+		shared_ptr<IndexForTT> indexForTT(new IndexForTT(tripleSize * 2));
 		SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0,
 				operationType, 1, *iter, indexForTT);
 		tasksEnQueue(partitionID, subTrans);
@@ -379,6 +394,15 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 		//predicate未知
 		if (!iter->constSubject && !iter->constObject) {
 			//subject、object未知
+			for (size_t pid = 1; pid <= tripleBitRepo->partitionNum; pid++) {
+				tripleSize +=
+						tripleBitRepo->getPartitionMaster(pid)->getChunkManagerBySOType(
+								ORDERBYS)->getTripleCount();
+			}
+			if (tripleSize == 0) {
+				return OK;
+			}
+			shared_ptr<IndexForTT> indexForTT(new IndexForTT(tripleSize * 2));
 			for (size_t i = 1; i <= tripleBitRepo->getPartitionNum(); i++) {
 				SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0,
 						0, operationType, 1, *iter, indexForTT);
@@ -390,8 +414,11 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 					subjectCounts, STRING);
 			tripleBitRepo->getOpStatisBuffer()->getStatisBySO(iter->object,
 					objectCounts, iter->objType);
+			if (subjectCounts == 0 || objectCounts == 0) {
+				return OK;
+			}
 			//若S的triple数少，根据sp匹配o进行删除
-			cout << "subjectCounts: " << subjectCounts << "\tobjectCounts: " << objectCounts << endl;
+			shared_ptr<IndexForTT> indexForTT(new IndexForTT(2)); //so已知，p未知，无法预先统计删除triple总数，故拟定使用一个IndexForTT
 			if (subjectCounts <= objectCounts) {
 				vector<ID> pids;
 				tripleBitRepo->getSpStatisBuffer()->findAllPredicateBySO(
@@ -417,20 +444,33 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 			}
 		} else if (iter->constSubject) {
 			//subject已知
+			tripleBitRepo->getSpStatisBuffer()->getStatisBySO(iter->subjectID,
+					tripleSize, STRING);
+			if (tripleSize == 0) {
+				return OK;
+			}
 			vector<ID> pids;
-			tripleBitRepo->getSpStatisBuffer()->findAllPredicateBySO(iter->subjectID,
-					pids, STRING);
+			tripleBitRepo->getSpStatisBuffer()->findAllPredicateBySO(
+					iter->subjectID, pids, STRING);
+			shared_ptr<IndexForTT> indexForTT(new IndexForTT(tripleSize * 2));
 			for (vector<ID>::iterator it = pids.begin(); it != pids.end();
 					it++) {
 				SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0,
 						0, operationType, 1, *iter, indexForTT);
 				tasksEnQueue(*it, subTrans);
 			}
-		}else if (iter->constObject) {
+		} else if (iter->constObject) {
 			//object已知
+			tripleBitRepo->getOpStatisBuffer()->getStatisBySO(iter->object,
+					tripleSize, iter->objType);
+			if (tripleSize == 0) {
+				return OK;
+			}
 			vector<ID> pids;
-			tripleBitRepo->getOpStatisBuffer()->findAllPredicateBySO(iter->object,
-					pids, iter->objType);
+			tripleBitRepo->getOpStatisBuffer()->findAllPredicateBySO(
+					iter->object, pids, iter->objType);
+
+			shared_ptr<IndexForTT> indexForTT(new IndexForTT(tripleSize * 2));
 			for (vector<ID>::iterator it = pids.begin(); it != pids.end();
 					it++) {
 				SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0,
@@ -460,7 +500,6 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 
  return OK;
  }*/
-
 
 void TripleBitWorkerQuery::classifyTripleNode() {
 	tripleNodeMap.clear();

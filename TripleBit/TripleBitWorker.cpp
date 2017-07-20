@@ -140,7 +140,7 @@ Status TripleBitWorker::Execute(string& queryString) {
 		gettimeofday(&end, NULL);
 		cout << " time elapsed: "
 				<< ((end.tv_sec - start.tv_sec) * 1000000 + end.tv_usec
-						- start.tv_usec) / 1000000.0 << " s" << "-------------> " << pthread_self() << endl;
+						- start.tv_usec) / 1000000.0 << " s" << endl;
 #endif
 
 		workerQuery->releaseBuffer();

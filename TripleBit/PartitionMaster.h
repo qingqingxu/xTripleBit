@@ -60,6 +60,10 @@ public:
 	virtual ~PartitionMaster();
 	void Work();
 	void endupdate();
+	ChunkManager *getChunkManagerBySOType(bool soType){
+		return partitionChunkManager[soType];
+	}
+
 	unsigned char getLen(ID id) {
 		unsigned char len = 0;
 		while (id >= 128) {

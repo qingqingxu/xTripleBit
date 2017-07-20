@@ -116,12 +116,12 @@ PartitionMaster::~PartitionMaster() {
 }
 
 void PartitionMaster::Work() {
-
-#ifdef MYDEBUG
-	cout << __FUNCTION__ << " partitionID: " << partitionID << "-----------> "
-			<< pthread_self() << endl;
-#endif
-
+	/*
+	 #ifdef MYDEBUG
+	 cout << __FUNCTION__ << " partitionID: " << partitionID << "-----------> "
+	 << pthread_self() << endl;
+	 #endif
+	 */
 	while (1) {
 		SubTrans* subTransaction = tasksQueue->Dequeue();
 
@@ -458,6 +458,7 @@ void PartitionMaster::executeDeleteClause(SubTrans* subTransaction) {
 		shared_ptr<SubTaskPackageForDelete> taskPackage(
 				new SubTaskPackageForDelete(chunkCount,
 						subTransaction->operationType, subjectID,
+						subTransaction->triple.constSubject,
 						subTransaction->triple.constSubject));
 		if (chunkCount != 0) {
 			for (size_t offsetID = chunkIDMin; offsetID <= chunkIDMax;
@@ -1076,16 +1077,16 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 	char objType = chunkTask->Triple.objType;
 	char tempObjType;
 	/*if (soType == ORDERBYS) {
-		ofstream s("dels", ios::app);
-		s << "chunkID," << chunkID << "," << subjectID << "," << partitionID
-				<< "," << object << endl;
-		s.close();
-	} else if (soType == ORDERBYO) {
-		ofstream o("delo", ios::app);
-		o << "chunkID," << chunkID << "," << subjectID << "," << partitionID
-				<< "," << object << endl;
-		o.close();
-	}*/
+	 ofstream s("dels", ios::app);
+	 s << "chunkID," << chunkID << "," << subjectID << "," << partitionID
+	 << "," << object << endl;
+	 s.close();
+	 } else if (soType == ORDERBYO) {
+	 ofstream o("delo", ios::app);
+	 o << "chunkID," << chunkID << "," << subjectID << "," << partitionID
+	 << "," << object << endl;
+	 o.close();
+	 }*/
 
 	const uchar *reader, *limit, *chunkBegin = startPtr;
 	uchar *temp;
@@ -1107,11 +1108,12 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 			} else if (tempSubjectID == subjectID && tempObject == object
 					&& tempObjType == objType) {
 				/*ofstream finds("finds", ios::app);
-				finds << "chunkID," << chunkID << "," << subjectID << ","
-						<< partitionID << "," << object << endl;
-				finds.close();*/
+				 finds << "chunkID," << chunkID << "," << subjectID << ","
+				 << partitionID << "," << object << endl;
+				 finds.close();*/
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
-				 objType);
+						objType);
+				partitionChunkManager[soType]->tripleCountDecrease();
 				return;
 			} else {
 				return;
@@ -1137,6 +1139,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 						&& tempObjType == objType) {
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							objType);
+					partitionChunkManager[soType]->tripleCountDecrease();
 					return;
 				} else {
 					return;
@@ -1149,6 +1152,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				reader =
 						(const uchar*) partitionChunkManager[soType]->deleteTriple(
 								const_cast<uchar*>(reader));
+				partitionChunkManager[soType]->tripleCountDecrease();
 				chunkTask->indexForTT->completeOneTriple();
 			}
 			while (metaData->NextPageNo) {
@@ -1162,6 +1166,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 					reader =
 							(const uchar*) partitionChunkManager[soType]->deleteTriple(
 									const_cast<uchar*>(reader));
+					partitionChunkManager[soType]->tripleCountDecrease();
 				}
 			}
 		} else {
@@ -1177,11 +1182,12 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				} else if (tempObject == object && tempObjType == objType
 						&& tempSubjectID == subjectID) {
 					/*ofstream findo("findo", ios::app);
-					findo << "chunkID," << chunkID << "," << subjectID << ","
-							<< partitionID << "," << object << endl;
-					findo.close();*/
+					 findo << "chunkID," << chunkID << "," << subjectID << ","
+					 << partitionID << "," << object << endl;
+					 findo.close();*/
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
-					 objType);
+							objType);
+					partitionChunkManager[soType]->tripleCountDecrease();
 					return;
 				} else {
 					return;
@@ -1209,6 +1215,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 							&& tempSubjectID == subjectID) {
 						temp = partitionChunkManager[soType]->deleteTriple(temp,
 								objType);
+						partitionChunkManager[soType]->tripleCountDecrease();
 						return;
 					} else {
 						return;
@@ -1291,9 +1298,10 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 
 	if (soType == ORDERBYS && !chunkTask->taskPackageForDelete->constSubject) { //subject未知，即为已知predicate，删除subject、object
 		while (reader < limit) {
-
 			reader = (const uchar*) partitionChunkManager[soType]->deleteTriple(
 					const_cast<uchar*>(reader), tempObjType);
+			partitionChunkManager[soType]->tripleCountDecrease();
+			chunkTask->indexForTT->completeOneTriple();
 			continue;
 		}
 		while (metaData->NextPageNo) {
@@ -1307,6 +1315,8 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 				reader =
 						(const uchar*) partitionChunkManager[soType]->deleteTriple(
 								const_cast<uchar*>(reader), tempObjType);
+				partitionChunkManager[soType]->tripleCountDecrease();
+				chunkTask->indexForTT->completeOneTriple();
 				continue;
 			}
 
@@ -1332,9 +1342,31 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 			if (tempSubjectID < subjectID) {
 				continue;
 			} else if (tempSubjectID == subjectID) {
+				if (chunkTask->taskPackageForDelete->constObject) {
+					if (tempObject < object
+							|| (tempObject == object && tempObjType < objType)) {
+						continue;
+					} else if (tempObject == object && tempObjType == objType) {
+						midResultBuffer->insertObject(tempObject, tempObjType);
+						temp = partitionChunkManager[soType]->deleteTriple(temp,
+								tempObjType);
+						partitionChunkManager[soType]->tripleCountDecrease();
+						chunkTask->indexForTT->completeOneTriple();
+						goto END;
+					} else {
+						//若不存在，则释放
+						chunkTask->indexForTT->completeOneTriple();
+						chunkTask->indexForTT->completeOneTriple();
+						delete midResultBuffer;
+						midResultBuffer = NULL;
+						return;
+					}
+				}
 				midResultBuffer->insertObject(tempObject, tempObjType);
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						tempObjType);
+				partitionChunkManager[soType]->tripleCountDecrease();
+				chunkTask->indexForTT->completeOneTriple();
 			} else {
 				if (midResultBuffer->getUsedSize() > 0) {
 					goto END;
@@ -1351,6 +1383,8 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 				midResultBuffer->insertSIGNALID(tempSubjectID);
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						tempObjType);
+				partitionChunkManager[soType]->tripleCountDecrease();
+				chunkTask->indexForTT->completeOneTriple();
 			} else {
 				if (midResultBuffer->getUsedSize() > 0) {
 					goto END;
@@ -1380,6 +1414,7 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 					midResultBuffer->insertObject(tempObject, tempObjType);
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							tempObjType);
+					partitionChunkManager[soType]->tripleCountDecrease();
 				} else {
 					if (midResultBuffer->getUsedSize() > 0) {
 						goto END;
@@ -1396,6 +1431,8 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 					midResultBuffer->insertSIGNALID(tempSubjectID);
 					temp = partitionChunkManager[soType]->deleteTriple(temp,
 							tempObjType);
+					partitionChunkManager[soType]->tripleCountDecrease();
+					chunkTask->indexForTT->completeOneTriple();
 				} else {
 					if (midResultBuffer->getUsedSize() > 0) {
 						goto END;
