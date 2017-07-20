@@ -159,6 +159,9 @@ void PartitionMaster::Work() {
 
 void PartitionMaster::taskEnQueue(ChunkTask *chunkTask,
 		TasksQueueChunk *tasksQueue) {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 	if (tasksQueue->isEmpty()) {
 		tasksQueue->EnQueue(chunkTask);
 		ThreadPool::getChunkPool().addTask(
@@ -1293,6 +1296,7 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 			MidResultBuffer::SignalO* objects = buffer->getObjectBuffer();
 			shared_ptr<IndexForTT> indexForTT(
 					new IndexForTT(buffer->getUsedSize()));
+			cout << "size: " << buffer->getUsedSize() << endl;
 			for (size_t i = 0; i < buffer->getUsedSize(); ++i) {
 				chunkID =
 						partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(
