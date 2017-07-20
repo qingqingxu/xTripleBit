@@ -63,9 +63,6 @@ void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
 				break;
 			}
 		}
-		if(begin + sizeof(ID) >= end){
-			cout << "address" << endl;
-		}
 	} else if (statType == OBJECTPREDICATE_STATIS) {
 		char tempObjType;
 		double tempObject;
@@ -303,7 +300,6 @@ Status StatisticsBuffer::getStatis(double soValue, ID predicateID,
 	const uchar* begin = (uchar*) buffer->getBuffer() + start, *limit =
 			(uchar*) buffer->getBuffer() + end;
 	decodeStatis(begin, limit, soValue, predicateID, count, objType);
-	cout << "ppp: " << soValue << "\t" << predicateID << endl;
 	if (count) {
 		return OK;
 	}

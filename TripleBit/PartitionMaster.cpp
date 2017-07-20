@@ -1153,7 +1153,6 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 				}
 			}
 		}
-		chunkTask->indexForTT->completeOneTriple();
 	} else if (soType == ORDERBYO) {
 		if (subjectID == 0) { //删除所有记录，主要用于基于模式删除
 			while (reader < limit) {
