@@ -39,7 +39,6 @@ StatisticsBuffer::~StatisticsBuffer() {
  */
 void StatisticsBuffer::decodeStatis(const uchar* begin, const uchar* end,
 		double soValue, ID predicateID, size_t& count, char objType) {
-	cout << "ppp: " << soValue << "\t" << predicateID << endl;
 	ID tempPredicateID;
 	size_t tempCount = 0;
 	if (statType == SUBJECTPREDICATE_STATIS) {
@@ -304,6 +303,7 @@ Status StatisticsBuffer::getStatis(double soValue, ID predicateID,
 	const uchar* begin = (uchar*) buffer->getBuffer() + start, *limit =
 			(uchar*) buffer->getBuffer() + end;
 	decodeStatis(begin, limit, soValue, predicateID, count, objType);
+	cout << "ppp: " << soValue << "\t" << predicateID << endl;
 	if (count) {
 		return OK;
 	}
