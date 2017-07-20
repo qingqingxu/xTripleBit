@@ -385,7 +385,7 @@ struct TripleNode {
 		return *this;
 	}
 
-	bool operator<(const struct TripleNode& orig) const {
+	/*bool operator<(const struct TripleNode& orig) const {
 		if (this->subjectID == orig.subjectID
 				&& this->predicateID == orig.predicateID
 				&& this->object == orig.object && this->objType == orig.objType
@@ -398,7 +398,7 @@ struct TripleNode {
 			return false;
 		}
 		return true;
-	}
+	}*/
 
 	void print() {
 		cout << "subjectID: " << subjectID << "\t predicateID: " << predicateID

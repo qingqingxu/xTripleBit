@@ -1068,6 +1068,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 		const ID chunkID, const uchar* startPtr, const bool soType) {
 
+	chunkTask->indexForTT->completeOneTriple();
 	ID subjectID = chunkTask->Triple.subjectID;
 	ID tempSubjectID;
 	double object = chunkTask->Triple.object;
@@ -1216,7 +1217,7 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 			}
 		}
 	}
-	chunkTask->indexForTT->completeOneTriple();
+
 }
 
 void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
