@@ -1237,6 +1237,9 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 		const bool soType, const bool constSubject, const ID subjectID,
 		const double object, const char objType) {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 	int chunkID;
 	shared_ptr<subTaskPackage> taskPackage(new subTaskPackage);
 
@@ -1295,6 +1298,9 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 
 void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 		const ID chunkID, const uchar *startPtr, const bool soType) {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 	ID subjectID = chunkTask->Triple.subjectID;
 	double object = chunkTask->Triple.object;
 	char objType = chunkTask->Triple.objType;
