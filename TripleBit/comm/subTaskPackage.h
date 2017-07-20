@@ -37,9 +37,10 @@ public:
 		pthread_mutex_init(&subTaskMutex, NULL);
 	}
 	SubTaskPackageForDelete(size_t reCount, TripleBitQueryGraph::OpType opType,
-			double object, char objType) :
+			double object, char objType, bool constSubject, bool constObject) :
 			referenceCount(reCount), operationType(opType), object(object), objType(
-					objType) {
+					objType), constSubject(
+							constSubject), constObject(constObject) {
 		pthread_mutex_init(&subTaskMutex, NULL);
 	}
 	~SubTaskPackageForDelete() {
