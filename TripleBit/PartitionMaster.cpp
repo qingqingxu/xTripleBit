@@ -159,9 +159,6 @@ void PartitionMaster::Work() {
 
 void PartitionMaster::taskEnQueue(ChunkTask *chunkTask,
 		TasksQueueChunk *tasksQueue) {
-#ifdef MYDEBUG
-	cout << __FUNCTION__ << endl;
-#endif
 	if (tasksQueue->isEmpty()) {
 		tasksQueue->EnQueue(chunkTask);
 		ThreadPool::getChunkPool().addTask(
@@ -1443,6 +1440,7 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 				return;
 			}
 		} else if (soType == ORDERBYO) {
+			cout << tempSubjectID << "," << tempObject << endl;
 			if (tempObject < object
 					|| (tempObject == object && tempObjType < objType)) {
 				continue;

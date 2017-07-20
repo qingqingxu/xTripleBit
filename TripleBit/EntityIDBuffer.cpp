@@ -140,7 +140,6 @@ Status MidResultBuffer::insertSIGNALID(ID id) {
 	usedSize++;
 	pos++;
 
-	cout << "usedSize: " << usedSize << endl;
 	return OK;
 }
 Status MidResultBuffer::insertObject(double object, char objType) {
