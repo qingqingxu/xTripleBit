@@ -1530,13 +1530,12 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 		}
 	}
 
-	if (midResultBuffer->getUsedSize() > 0) {
-		goto END;
-	}
 	END: if (chunkTask->taskPackageForDelete->completeSubTask(chunkID,
 			midResultBuffer)) {
+		cout << 11 << endl;
 		MidResultBuffer *buffer =
 				chunkTask->taskPackageForDelete->getTaskResult();
+		cout << 22 << endl;
 		deleteDataForDeleteClause(buffer, soType,
 				chunkTask->taskPackageForDelete->constSubject, subjectID,
 				object, objType);
