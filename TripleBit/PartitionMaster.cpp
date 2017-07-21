@@ -665,34 +665,37 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 	ID chunkID = tasksQueue->getChunkID();
 	int soType = tasksQueue->getSOType();
 	const uchar* chunkBegin = tasksQueue->getChunkBegin();
-	TripleBitQueryGraph::OpType lastOpType;
+	chunkTask = tasksQueue->Dequeue();
 
-	while ((chunkTask = tasksQueue->Dequeue()) != NULL) {
-		lastOpType = chunkTask->operationType;
+	while (chunkTask != NULL) {
 		switch (chunkTask->operationType) {
 		case TripleBitQueryGraph::QUERY:
 			//executeChunkTaskQuery(chunkTask, chunkID, chunkBegin, xyType);
+			chunkTask = tasksQueue->Dequeue();
 			break;
 		case TripleBitQueryGraph::INSERT_DATA:
 			executeChunkTaskInsertData(chunkTask, chunkID, chunkBegin, soType);
+			if((chunkTask = tasksQueue->Dequeue()) == NULL){
+				endupdate();
+			}
 			chunkTask->indexForTT->completeOneTriple();
 			break;
 		case TripleBitQueryGraph::DELETE_DATA:
 			executeChunkTaskDeleteData(chunkTask, chunkID, chunkBegin, soType);
 			chunkTask->indexForTT->completeOneTriple();
+			chunkTask = tasksQueue->Dequeue();
 			break;
 		case TripleBitQueryGraph::DELETE_CLAUSE:
 			executeChunkTaskDeleteClause(chunkTask, chunkID, chunkBegin,
 					soType);
 			chunkTask->indexForTT->completeOneTriple();
+			chunkTask = tasksQueue->Dequeue();
 			break;
 		case TripleBitQueryGraph::UPDATE:
 			//executeChunkTaskUpdate(chunkTask, chunkID, chunkBegin, xyType, soType);
+			chunkTask = tasksQueue->Dequeue();
 			break;
 		}
-	}
-	if (lastOpType == TripleBitQueryGraph::INSERT_DATA) {
-		endupdate();
 	}
 }
 
