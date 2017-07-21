@@ -798,6 +798,7 @@ void PartitionMaster::handleEndofChunk(const uchar *startPtr,
 				reinterpret_cast<uchar*>(TempMMapBuffer::getInstance().getPage(
 						pageNo));
 
+		cout << "pageNo: " << pageNo << endl;
 		metaData->NextPageNo = pageNo;
 
 		metaData = (MetaData*) chunkBegin;
