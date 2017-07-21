@@ -980,8 +980,8 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 											&& tempTriple->objType
 													< bufferTriple->objType)))) {
 				uint len = currentPtrTemp - lastPtrTemp;
+				cout << 1 << endl;
 				if (currentPtrChunk + len > endPtrChunk) {
-					cout << 1 << endl;
 					handleEndofChunk(startPtr, chunkBegin, startPtrChunk,
 							currentPtrChunk, endPtrChunk, startPtrTemp,
 							tempPage, tempPage2, isInTempPage,
@@ -1013,8 +1013,8 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 				//insert data read from tempbuffer
 				uint len = sizeof(ID) + sizeof(char)
 						+ Chunk::getLen(bufferTriple->objType);
+				cout << 2 << endl;
 				if (currentPtrChunk + len > endPtrChunk) {
-					cout << 2 << endl;
 					handleEndofChunk(startPtr, chunkBegin, startPtrChunk,
 							currentPtrChunk, endPtrChunk, startPtrTemp,
 							tempPage, tempPage2, isInTempPage,
@@ -1054,8 +1054,8 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 			}
 		} else {
 			unsigned len = currentPtrTemp - lastPtrTemp;
+			cout << 3 << endl;
 			if (currentPtrChunk + len > endPtrChunk) {
-				cout << 3 << endl;
 				handleEndofChunk(startPtr, chunkBegin, startPtrChunk,
 						currentPtrChunk, endPtrChunk, startPtrTemp, tempPage,
 						tempPage2, isInTempPage, theOtherPageEmpty, min, max,
@@ -1085,11 +1085,11 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	}
 
 	while (bufferTriple < endTempBuffer) {
+		cout << 4 << endl;
 		uint len = sizeof(ID) + sizeof(char)
 				+ Chunk::getLen(bufferTriple->objType);
 
 		if (currentPtrChunk + len > endPtrChunk) {
-			cout << 4 << endl;
 			handleEndofChunk(startPtr, chunkBegin, startPtrChunk,
 					currentPtrChunk, endPtrChunk, startPtrTemp, tempPage,
 					tempPage2, isInTempPage, theOtherPageEmpty, min, max,
@@ -1108,7 +1108,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		varTripleCount++;
 		bufferTriple++;
 	}
-
+	cout << "varTripleCount: " << varTripleCount << endl;
 	partitionChunkManager[soType]->updateTripleCount(varTripleCount);
 	if (chunkBegin == const_cast<uchar*>(startPtr) - sizeof(ChunkManagerMeta)) {
 		MetaData *metaData = (MetaData*) startPtr;
