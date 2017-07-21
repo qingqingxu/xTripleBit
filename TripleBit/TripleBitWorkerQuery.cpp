@@ -305,7 +305,7 @@ void TripleBitWorkerQuery::tasksEnQueue(ID partitionID, SubTrans *subTrans) {
 
 Status TripleBitWorkerQuery::excuteInsertData() {
 	size_t tripleSize = _query->tripleNodes.size();
-	shared_ptr<IndexForTT> indexForTT(new IndexForTT(tripleSize * 2));
+	shared_ptr<IndexForTT> indexForTT(new IndexForTT(tripleSize));
 
 	classifyTripleNode();
 
