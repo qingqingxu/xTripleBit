@@ -676,7 +676,7 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 			break;
 		case TripleBitQueryGraph::INSERT_DATA:
 			executeChunkTaskInsertData(chunkTask, chunkID, chunkBegin, soType);
-			if((tempChunkTask = tasksQueue->Dequeue()) == NULL){
+			if ((tempChunkTask = tasksQueue->Dequeue()) == NULL) {
 				endupdate();
 			}
 			chunkTask->indexForTT->completeOneTriple();
@@ -757,7 +757,8 @@ void PartitionMaster::handleEndofChunk(const uchar *startPtr,
 		uchar *&endPtrChunk, const uchar *&startPtrTemp, char *&tempPage,
 		char *&tempPage2, bool &isInTempPage, bool &theOtherPageEmpty,
 		double min, double max, bool soType, const ID chunkID) {
-	cout << __FUNCTION__ << "\tchunkID: " << chunkID << "\tsoType: " << soType << endl;
+	cout << __FUNCTION__ << "\tchunkID: " << chunkID << "\tsoType: " << soType
+			<< endl;
 	assert(currentPtrChunk <= endPtrChunk);
 	MetaData *metaData = NULL;
 	if (chunkID == 0
@@ -814,11 +815,9 @@ void PartitionMaster::handleEndofChunk(const uchar *startPtr,
 void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		const uchar *startPtr, const ID chunkID, const bool soType) {
 
-	/*
-	 #ifdef MYDEBUG
-	 cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
-	 #endif
-	 */
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
+#endif
 
 	assert(buffer != NULL);
 
