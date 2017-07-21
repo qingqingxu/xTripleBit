@@ -980,7 +980,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 											&& tempTriple->objType
 													< bufferTriple->objType)))) {
 				uint len = currentPtrTemp - lastPtrTemp;
-				cout << 1 << endl;
 				if (currentPtrChunk + len > endPtrChunk) {
 					handleEndofChunk(startPtr, chunkBegin, startPtrChunk,
 							currentPtrChunk, endPtrChunk, startPtrTemp,
@@ -1013,7 +1012,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 				//insert data read from tempbuffer
 				uint len = sizeof(ID) + sizeof(char)
 						+ Chunk::getLen(bufferTriple->objType);
-				cout << 2 << endl;
 				if (currentPtrChunk + len > endPtrChunk) {
 					handleEndofChunk(startPtr, chunkBegin, startPtrChunk,
 							currentPtrChunk, endPtrChunk, startPtrTemp,
@@ -1054,7 +1052,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 			}
 		} else {
 			unsigned len = currentPtrTemp - lastPtrTemp;
-			cout << 3 << endl;
 			if (currentPtrChunk + len > endPtrChunk) {
 				handleEndofChunk(startPtr, chunkBegin, startPtrChunk,
 						currentPtrChunk, endPtrChunk, startPtrTemp, tempPage,
@@ -1085,7 +1082,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	}
 
 	while (bufferTriple < endTempBuffer) {
-		cout << 4 << endl;
 		uint len = sizeof(ID) + sizeof(char)
 				+ Chunk::getLen(bufferTriple->objType);
 
@@ -1111,9 +1107,11 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	cout << "varTripleCount: " << varTripleCount << endl;
 	partitionChunkManager[soType]->updateTripleCount(varTripleCount);
 	if (chunkBegin == const_cast<uchar*>(startPtr) - sizeof(ChunkManagerMeta)) {
+		cout << 1 << endl;
 		MetaData *metaData = (MetaData*) startPtr;
 		metaData->usedSpace = currentPtrChunk - const_cast<uchar*>(startPtr);
 	} else {
+		cout << 2 << endl;
 		MetaData *metaData = (MetaData*) chunkBegin;
 		metaData->min = min;
 		metaData->max = max;
