@@ -1116,8 +1116,8 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		metaData->usedSpace = currentPtrChunk - chunkBegin;
 	}
 
-	partitionChunkManager[soType]->getChunkIndex()->updateChunkMetaData(
-			chunkID);
+	/*partitionChunkManager[soType]->getChunkIndex()->updateChunkMetaData(
+			chunkID);*/
 
 	free(tempTriple);
 	tempTriple = NULL;

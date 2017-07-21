@@ -82,6 +82,7 @@ private:
 	LineHashIndex* chunkIndex; //以S（O）排序存储的每个predicate存储块的索引信息
 	uchar* lastChunkStartPtr; //以S（O）排序存储的每个predicate存储块最后一个Chunk的起始位置
 	vector<size_t> usedPages; //ChunkManager所占用的页号集合
+	pthread_mutex_t mutex;
 public:
 	friend class BuildSortTask;
 	friend class BuildMergeTask;
@@ -91,6 +92,7 @@ public:
 
 public:
 	ChunkManager() {
+		pthread_mutex_init(&mutex, NULL);
 	}
 	ChunkManager(ID predicateID, OrderByType soType,
 			BitmapBuffer* _bitmapBuffer);
@@ -116,13 +118,16 @@ public:
 	//获取Chunk总数
 	size_t getChunkNumber();
 	//更新triple数量
-	Status tripleCountAdd() {
-		meta->tripleCount++;
+	Status tripleCountAdd(size_t increSize = 1) {
+		pthread_mutex_lock(&mutex);
+		meta->tripleCount += increSize;
+		pthread_mutex_unlock(&mutex);
 		return OK;
 	}
-
-	Status tripleCountDecrease() {
-		meta->tripleCount--;
+	Status tripleCountDecrease(size_t deSize = 1) {
+		pthread_mutex_lock(&mutex);
+		meta->tripleCount -= deSize;
+		pthread_mutex_unlock(&mutex);
 		return OK;
 	}
 

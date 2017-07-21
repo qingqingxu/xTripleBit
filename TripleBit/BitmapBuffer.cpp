@@ -636,11 +636,13 @@ ChunkManager::ChunkManager(ID predicateID, OrderByType soType,
 	meta->pid = predicateID;
 	meta->soType = soType;
 
+
 	if (meta->soType == ORDERBYS) {
 		chunkIndex = new LineHashIndex(*this, LineHashIndex::SUBJECT_INDEX);
 	} else if (meta->soType == ORDERBYO) {
 		chunkIndex = new LineHashIndex(*this, LineHashIndex::OBJECT_INDEX);
 	}
+	pthread_mutex_init(&mutex, NULL);
 }
 
 ChunkManager::~ChunkManager() {
@@ -648,6 +650,7 @@ ChunkManager::~ChunkManager() {
 	if (chunkIndex != NULL)
 		delete chunkIndex;
 	chunkIndex = NULL;
+	pthread_mutex_destroy(&mutex);
 }
 
 void ChunkManager::writeXY(uchar* reader, ID x, double y, char objType) {
