@@ -53,7 +53,7 @@ public:
 		tempBuffer[chunkID] = result;
 		referenceCount--;
 
-		if (referenceCount >= 0) {
+		if (referenceCount == 0) {
 			pthread_mutex_unlock(&subTaskMutex);
 			return true;
 		} else {
@@ -66,10 +66,7 @@ public:
 		map<ID, MidResultBuffer*>::iterator iter = tempBuffer.begin();
 		size_t totalSize = 0;
 		for (iter = tempBuffer.begin(); iter != tempBuffer.end(); iter++) {
-			if (iter->second != NULL) {
-				totalSize += iter->second->getUsedSize();
-			}
-
+			totalSize += iter->second->getUsedSize();
 		}
 		MidResultBuffer *resultBuffer = NULL;
 		if (totalSize != 0) {
@@ -77,11 +74,9 @@ public:
 			resultBuffer = new MidResultBuffer((*iter).second->getResultType());
 			resultBuffer->resize(totalSize);
 			for (; iter != tempBuffer.end(); iter++) {
-				if (iter->second != NULL) {
-					resultBuffer->appendBuffer(iter->second);
-					delete iter->second;
-					iter->second = NULL;
-				}
+				resultBuffer->appendBuffer(iter->second);
+				delete iter->second;
+				iter->second = NULL;
 			}
 		}
 		return resultBuffer;
