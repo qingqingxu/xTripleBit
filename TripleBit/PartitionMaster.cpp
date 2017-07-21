@@ -662,6 +662,7 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 	 */
 
 	ChunkTask* chunkTask = NULL;
+	ChunkTask* tempChunkTask = NULL;
 	ID chunkID = tasksQueue->getChunkID();
 	int soType = tasksQueue->getSOType();
 	const uchar* chunkBegin = tasksQueue->getChunkBegin();
@@ -675,10 +676,12 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 			break;
 		case TripleBitQueryGraph::INSERT_DATA:
 			executeChunkTaskInsertData(chunkTask, chunkID, chunkBegin, soType);
-			if((chunkTask = tasksQueue->Dequeue()) == NULL){
+			if((tempChunkTask = tasksQueue->Dequeue()) == NULL){
 				endupdate();
+				break;
 			}
 			chunkTask->indexForTT->completeOneTriple();
+			chunkTask = tempChunkTask;
 			break;
 		case TripleBitQueryGraph::DELETE_DATA:
 			executeChunkTaskDeleteData(chunkTask, chunkID, chunkBegin, soType);
