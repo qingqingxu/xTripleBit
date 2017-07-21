@@ -675,7 +675,7 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 			chunkTask = tasksQueue->Dequeue();
 			break;
 		case TripleBitQueryGraph::INSERT_DATA:
-			executeChunkTaskInsertData(chunkTask, chunkID, chunkBegin, soType);
+			//executeChunkTaskInsertData(chunkTask, chunkID, chunkBegin, soType);
 			if ((tempChunkTask = tasksQueue->Dequeue()) == NULL) {
 				endupdate();
 			}
@@ -709,11 +709,10 @@ void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
 
 	if (xChunkTempBuffer[soType][chunkID]->isFull()) {
 		//combine the data in tempbuffer into the source data
-		/*combineTempBufferToSource(xChunkTempBuffer[soType][chunkID], startPtr,
-				chunkID, soType);*/
-		xChunkTempBuffer[soType][chunkID]->clear();
+		combineTempBufferToSource(xChunkTempBuffer[soType][chunkID], startPtr,
+				chunkID, soType);
 	}
-	//cout << __FUNCTION__ << "\tend" << endl;
+	cout << __FUNCTION__ << "\tend" << endl;
 }
 
 void PartitionMaster::readIDInTempPage(const uchar *&currentPtrTemp,
