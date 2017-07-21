@@ -655,9 +655,11 @@ void PrintChunkTaskPart(ChunkTask* chunkTask) {
 }
 
 void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
-#ifdef MYDEBUG
-	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
-#endif
+	/*
+	 #ifdef MYDEBUG
+	 cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
+	 #endif
+	 */
 
 	ChunkTask* chunkTask = NULL;
 	ID chunkID = tasksQueue->getChunkID();
@@ -853,23 +855,21 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 
 	buffer->uniqe();
 
-	/*
-	 #ifdef MYDEBUG
-	 ofstream out1;
-	 if (soType == ORDERBYS) {
-	 out1.open("tempbuffer_uniqe_sp", ios::app);
-	 } else {
-	 out1.open("tempbuffer_uniqe_op", ios::app);
-	 }
-	 ChunkTriple *temp = buffer->getBuffer();
-	 while (temp < buffer->getEnd()) {
-	 out1 << chunkID << "," << temp->subjectID << "," << partitionID << ","
-	 << temp->object << endl;
-	 temp++;
-	 }
-	 out1.close();
-	 #endif
-	 */
+#ifdef MYDEBUG
+	ofstream out1;
+	if (soType == ORDERBYS) {
+		out1.open("tempbuffer_uniqe_sp", ios::app);
+	} else {
+		out1.open("tempbuffer_uniqe_op", ios::app);
+	}
+	ChunkTriple *temp = buffer->getBuffer();
+	while (temp < buffer->getEnd()) {
+		out1 << chunkID << "," << temp->subjectID << "," << partitionID << ","
+				<< temp->object << endl;
+		temp++;
+	}
+	out1.close();
+#endif
 
 	if (buffer->isEmpty())
 		return;
@@ -1120,9 +1120,11 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 
 void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 		const ID chunkID, const uchar* startPtr, const bool soType) {
-#ifdef MYDEBUG
-	cout << __FUNCTION__ << endl;
-#endif
+	/*
+	 #ifdef MYDEBUG
+	 cout << __FUNCTION__ << endl;
+	 #endif
+	 */
 	ID subjectID = chunkTask->Triple.subjectID;
 	ID tempSubjectID;
 	double object = chunkTask->Triple.object;
@@ -1282,9 +1284,11 @@ void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 		const bool soType, const bool constSubject, const ID subjectID,
 		const double object, const char objType) {
-#ifdef MYDEBUG
-	cout << __FUNCTION__ << endl;
-#endif
+	/*
+	 #ifdef MYDEBUG
+	 cout << __FUNCTION__ << endl;
+	 #endif
+	 */
 	int chunkID;
 	shared_ptr<subTaskPackage> taskPackage(new subTaskPackage);
 
@@ -1345,9 +1349,11 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 
 void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 		const ID chunkID, const uchar *startPtr, const bool soType) {
-#ifdef MYDEBUG
-	cout << __FUNCTION__ << endl;
-#endif
+	/*
+	 #ifdef MYDEBUG
+	 cout << __FUNCTION__ << endl;
+	 #endif
+	 */
 	ID subjectID = chunkTask->Triple.subjectID;
 	double object = chunkTask->Triple.object;
 	char objType = chunkTask->Triple.objType;
