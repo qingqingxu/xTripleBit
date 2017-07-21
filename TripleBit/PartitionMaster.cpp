@@ -388,26 +388,26 @@ void PartitionMaster::executeInsertData(SubTrans* subTransaction) {
 	size_t chunkID;
 	shared_ptr<subTaskPackage> taskPackage(new subTaskPackage);
 
-	ofstream s("searchChunkIDByS", ios::app);
+	/*ofstream s("searchChunkIDByS", ios::app);
 	 s << "partitionID, " << partitionID << ",subjectID, " << subjectID
-	 << ",object, " << object;
+	 << ",object, " << object;*/
 	chunkID = partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
 			subjectID, object);
-	s << ",chunkID, " << chunkID << endl;
-	 s.close();
+	/*s << ",chunkID, " << chunkID << endl;
+	 s.close();*/
 	shared_ptr<IndexForTT> indexForTT(new IndexForTT(2));
 	ChunkTask *chunkTask1 = new ChunkTask(subTransaction->operationType,
 			subjectID, object, objType, subTransaction->triple.scanOperation,
 			taskPackage, indexForTT);
 	taskEnQueue(chunkTask1, xChunkQueue[ORDERBYS][chunkID]);
 
-	ofstream o("searchChunkIDByO", ios::app);
+	/*ofstream o("searchChunkIDByO", ios::app);
 	 o << "partitionID, " << partitionID << ",object, " << object
-	 << ",subjectID, " << subjectID;
+	 << ",subjectID, " << subjectID;*/
 	chunkID = partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(
 			object, subjectID);
-	o << ",chunkID, " << chunkID << endl;
-	 o.close();
+	/*o << ",chunkID, " << chunkID << endl;
+	 o.close();*/
 
 	ChunkTask *chunkTask2 = new ChunkTask(subTransaction->operationType,
 			subjectID, object, objType, subTransaction->triple.scanOperation,
@@ -757,21 +757,20 @@ void PartitionMaster::handleEndofChunk(const uchar *startPtr,
 		uchar *&endPtrChunk, const uchar *&startPtrTemp, char *&tempPage,
 		char *&tempPage2, bool &isInTempPage, bool &theOtherPageEmpty,
 		double min, double max, bool soType, const ID chunkID) {
-	cout << __FUNCTION__ << "\tchunkID: " << chunkID << "\tsoType: " << soType
-			<< endl;
 	assert(currentPtrChunk <= endPtrChunk);
 	MetaData *metaData = NULL;
-	if (chunkID == 0
-			&& chunkBegin
+	if (chunkBegin
 					== const_cast<uchar*>(startPtr)
 							- sizeof(ChunkManagerMeta)) {
 		metaData = (MetaData*) startPtr;
 		metaData->usedSpace = currentPtrChunk - const_cast<uchar*>(startPtr);
-	} else {
+	} else{
 		metaData = (MetaData*) chunkBegin;
 		metaData->usedSpace = currentPtrChunk - chunkBegin;
-		metaData->min = min;
-		metaData->max = max;
+		if(chunkBegin != startPtr){
+			metaData->min = min;
+			metaData->max = max;
+		}
 	}
 
 	if (metaData->NextPageNo) {
@@ -800,14 +799,12 @@ void PartitionMaster::handleEndofChunk(const uchar *startPtr,
 		chunkBegin =
 				reinterpret_cast<uchar*>(TempMMapBuffer::getInstance().getPage(
 						pageNo));
-
-		cout << "pageNo: " << pageNo << endl;
 		metaData->NextPageNo = pageNo;
-
 		metaData = (MetaData*) chunkBegin;
 		metaData->NextPageNo = 0;
 	}
-	startPtrChunk = currentPtrChunk = chunkBegin + sizeof(MetaData);
+	startPtrChunk = chunkBegin;
+	currentPtrChunk = chunkBegin + sizeof(MetaData);
 	endPtrChunk = chunkBegin + MemoryBuffer::pagesize;
 	assert(currentPtrChunk <= endPtrChunk);
 }
@@ -815,9 +812,11 @@ void PartitionMaster::handleEndofChunk(const uchar *startPtr,
 void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		const uchar *startPtr, const ID chunkID, const bool soType) {
 
+/*
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << "\tpartitionID: " << partitionID << "\tchunkID: " << chunkID << "\tsoType: " << soType << endl;
 #endif
+*/
 
 	assert(buffer != NULL);
 
@@ -862,6 +861,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 
 	buffer->uniqe();
 
+/*
 #ifdef MYDEBUG
 	ofstream out1;
 	if (soType == ORDERBYS) {
@@ -877,10 +877,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	}
 	out1.close();
 #endif
-
-	/*if (buffer->isEmpty())
-		return;
-
+*/
 	char *tempPage = (char*) malloc(MemoryBuffer::pagesize);
 	char *tempPage2 = (char*) malloc(MemoryBuffer::pagesize);
 
@@ -1124,7 +1121,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	free(tempPage);
 	tempPage = NULL;
 	free(tempPage2);
-	tempPage2 = NULL;*/
+	tempPage2 = NULL;
 
 	buffer->clear();
 }
