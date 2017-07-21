@@ -712,6 +712,7 @@ void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
 		combineTempBufferToSource(xChunkTempBuffer[soType][chunkID], startPtr,
 				chunkID, soType);
 	}
+	cout << __FUNCTION__ << "\tend" << endl;
 }
 
 void PartitionMaster::readIDInTempPage(const uchar *&currentPtrTemp,
@@ -1107,11 +1108,9 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	cout << "varTripleCount: " << varTripleCount << endl;
 	partitionChunkManager[soType]->updateTripleCount(varTripleCount);
 	if (chunkBegin == const_cast<uchar*>(startPtr) - sizeof(ChunkManagerMeta)) {
-		cout << 1 << endl;
 		MetaData *metaData = (MetaData*) startPtr;
 		metaData->usedSpace = currentPtrChunk - const_cast<uchar*>(startPtr);
 	} else {
-		cout << 2 << endl;
 		MetaData *metaData = (MetaData*) chunkBegin;
 		metaData->min = min;
 		metaData->max = max;
@@ -1129,6 +1128,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	tempPage2 = NULL;
 
 	buffer->clear();
+	cout << __FUNCTION__ << "  end" << endl;
 }
 
 void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
