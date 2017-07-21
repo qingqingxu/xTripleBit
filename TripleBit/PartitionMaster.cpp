@@ -678,7 +678,6 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 			executeChunkTaskInsertData(chunkTask, chunkID, chunkBegin, soType);
 			if((tempChunkTask = tasksQueue->Dequeue()) == NULL){
 				endupdate();
-				break;
 			}
 			chunkTask->indexForTT->completeOneTriple();
 			chunkTask = tempChunkTask;
