@@ -757,7 +757,7 @@ void PartitionMaster::handleEndofChunk(const uchar *startPtr,
 		uchar *&endPtrChunk, const uchar *&startPtrTemp, char *&tempPage,
 		char *&tempPage2, bool &isInTempPage, bool &theOtherPageEmpty,
 		double min, double max, bool soType, const ID chunkID) {
-	cout << __FUNCTION__ << "\tchunkID: " << chunkID << "\tsoType: " <<
+	cout << __FUNCTION__ << "\tchunkID: " << chunkID << "\tsoType: " << soType << endl;
 	assert(currentPtrChunk <= endPtrChunk);
 	MetaData *metaData = NULL;
 	if (chunkID == 0
