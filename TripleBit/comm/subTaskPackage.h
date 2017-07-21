@@ -39,8 +39,8 @@ public:
 	SubTaskPackageForDelete(size_t reCount, TripleBitQueryGraph::OpType opType,
 			double object, char objType, bool constSubject, bool constObject) :
 			referenceCount(reCount), operationType(opType), object(object), objType(
-					objType), constSubject(
-							constSubject), constObject(constObject) {
+					objType), constSubject(constSubject), constObject(
+					constObject) {
 		pthread_mutex_init(&subTaskMutex, NULL);
 	}
 	~SubTaskPackageForDelete() {
@@ -66,18 +66,22 @@ public:
 		map<ID, MidResultBuffer*>::iterator iter = tempBuffer.begin();
 		size_t totalSize = 0;
 		for (iter = tempBuffer.begin(); iter != tempBuffer.end(); iter++) {
-			totalSize += iter->second->getUsedSize();
+			if (iter->second != NULL) {
+				totalSize += iter->second->getUsedSize();
+			}
+
 		}
 		MidResultBuffer *resultBuffer = NULL;
 		if (totalSize != 0) {
 			iter = tempBuffer.begin();
-			resultBuffer = new MidResultBuffer(
-					(*iter).second->getResultType());
+			resultBuffer = new MidResultBuffer((*iter).second->getResultType());
 			resultBuffer->resize(totalSize);
 			for (; iter != tempBuffer.end(); iter++) {
-				resultBuffer->appendBuffer(iter->second);
-				delete iter->second;
-				iter->second = NULL;
+				if (iter->second != NULL) {
+					resultBuffer->appendBuffer(iter->second);
+					delete iter->second;
+					iter->second = NULL;
+				}
 			}
 		}
 		return resultBuffer;
