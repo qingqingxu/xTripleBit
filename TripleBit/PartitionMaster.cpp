@@ -816,7 +816,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		const uchar *startPtr, const ID chunkID, const bool soType) {
 
 #ifdef MYDEBUG
-	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
+	cout << __FUNCTION__ << "\tpartitionID: " << partitionID << "\tchunkID: " << chunkID << "\tsoType: " << soType << endl;
 #endif
 
 	assert(buffer != NULL);
