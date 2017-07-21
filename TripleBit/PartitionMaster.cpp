@@ -675,7 +675,7 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 			chunkTask = tasksQueue->Dequeue();
 			break;
 		case TripleBitQueryGraph::INSERT_DATA:
-			//executeChunkTaskInsertData(chunkTask, chunkID, chunkBegin, soType);
+			executeChunkTaskInsertData(chunkTask, chunkID, chunkBegin, soType);
 			if ((tempChunkTask = tasksQueue->Dequeue()) == NULL) {
 				endupdate();
 			}
@@ -712,7 +712,6 @@ void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
 		combineTempBufferToSource(xChunkTempBuffer[soType][chunkID], startPtr,
 				chunkID, soType);
 	}
-	cout << __FUNCTION__ << "\tend" << endl;
 }
 
 void PartitionMaster::readIDInTempPage(const uchar *&currentPtrTemp,
@@ -879,7 +878,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	out1.close();
 #endif
 
-	if (buffer->isEmpty())
+	/*if (buffer->isEmpty())
 		return;
 
 	char *tempPage = (char*) malloc(MemoryBuffer::pagesize);
@@ -1117,18 +1116,17 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		metaData->usedSpace = currentPtrChunk - chunkBegin;
 	}
 
-	/*partitionChunkManager[soType]->getChunkIndex()->updateChunkMetaData(
-			chunkID);*/
+	partitionChunkManager[soType]->getChunkIndex()->updateChunkMetaData(
+			chunkID);
 
 	free(tempTriple);
 	tempTriple = NULL;
 	free(tempPage);
 	tempPage = NULL;
 	free(tempPage2);
-	tempPage2 = NULL;
+	tempPage2 = NULL;*/
 
 	buffer->clear();
-	cout << __FUNCTION__ << "  end" << endl;
 }
 
 void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
