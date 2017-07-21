@@ -118,18 +118,30 @@ public:
 	//获取Chunk总数
 	size_t getChunkNumber();
 	//更新triple数量
-	Status tripleCountAdd(size_t increSize = 1) {
+	Status tripleCountAdd() {
 		pthread_mutex_lock(&mutex);
-		meta->tripleCount += increSize;
+		meta->tripleCount++;
 		pthread_mutex_unlock(&mutex);
 		return OK;
 	}
-	Status tripleCountDecrease(size_t deSize = 1) {
+	Status tripleCountDecrease() {
 		pthread_mutex_lock(&mutex);
-		meta->tripleCount -= deSize;
+		assert(meta->tripleCount > 0);
+		meta->tripleCount--;
 		pthread_mutex_unlock(&mutex);
 		return OK;
 	}
+
+	Status updateTripleCount(longlong varSize) {
+			pthread_mutex_lock(&mutex);
+			if(varSize < 0 && abs(varSize) > meta->tripleCount){
+				pthread_mutex_unlock(&mutex);
+				return ERROR;
+			}
+			meta->tripleCount += varSize;
+			pthread_mutex_unlock(&mutex);
+			return OK;
+		}
 
 	ChunkManagerMeta* getChunkManagerMeta() {
 		return meta;

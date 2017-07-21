@@ -896,6 +896,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	uchar *currentPtrChunk, *endPtrChunk, *chunkBegin, *startPtrChunk;
 	const uchar *lastPtrTemp, *currentPtrTemp, *endPtrTemp, *startPtrTemp;
 	bool isInTempPage = true, theOtherPageEmpty = true;
+	longlong varTripleCount = 0;
 
 	if (chunkID == 0) {
 		chunkBegin = const_cast<uchar*>(startPtr) - sizeof(ChunkManagerMeta);
@@ -940,8 +941,10 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 				|| (tempTriple->subjectID == bufferTriple->subjectID
 						&& tempTriple->object == bufferTriple->object
 						&& tempTriple->objType == bufferTriple->objType)) {
+			if(tempTriple->subjectID != 0){
+				varTripleCount--;
+			}
 			//the data is 0 or the data in chunk and tempbuffer are same,so must dismiss it
-
 			readIDInTempPage(currentPtrTemp, endPtrTemp, startPtrTemp, tempPage,
 					tempPage2, theOtherPageEmpty, isInTempPage);
 			lastPtrTemp = currentPtrTemp;
@@ -1027,6 +1030,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 				max = getChunkMinOrMax(bufferTriple, soType) > max ?
 						getChunkMinOrMax(bufferTriple, soType) : max;
 				currentPtrChunk += len;
+				varTripleCount++;
 				bufferTriple++;
 			}
 		}
@@ -1060,12 +1064,10 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 			if (currentPtrChunk == startPtrChunk) {
 				min = getChunkMinOrMax(tempTriple, soType);
 			}
-
 			memcpy(currentPtrChunk, lastPtrTemp, len);
 			max = getChunkMinOrMax(tempTriple, soType) > max ?
 					getChunkMinOrMax(tempTriple, soType) : max;
 			currentPtrChunk += len;
-
 			//continue read data from tempPage
 			readIDInTempPage(currentPtrTemp, endPtrTemp, startPtrTemp, tempPage,
 					tempPage2, theOtherPageEmpty, isInTempPage);
@@ -1103,9 +1105,11 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		max = getChunkMinOrMax(bufferTriple, soType) > max ?
 				getChunkMinOrMax(bufferTriple, soType) : max;
 		currentPtrChunk += len;
+		varTripleCount++;
 		bufferTriple++;
 	}
 
+	partitionChunkManager[soType]->updateTripleCount(varTripleCount);
 	if (chunkBegin == const_cast<uchar*>(startPtr) - sizeof(ChunkManagerMeta)) {
 		MetaData *metaData = (MetaData*) startPtr;
 		metaData->usedSpace = currentPtrChunk - const_cast<uchar*>(startPtr);
