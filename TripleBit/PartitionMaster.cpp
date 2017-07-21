@@ -977,6 +977,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 													< bufferTriple->objType)))) {
 				uint len = currentPtrTemp - lastPtrTemp;
 				if (currentPtrChunk + len > endPtrChunk) {
+					cout << 1 << endl;
 					handleEndofChunk(startPtr, chunkBegin, startPtrChunk,
 							currentPtrChunk, endPtrChunk, startPtrTemp,
 							tempPage, tempPage2, isInTempPage,
@@ -1009,6 +1010,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 				uint len = sizeof(ID) + sizeof(char)
 						+ Chunk::getLen(bufferTriple->objType);
 				if (currentPtrChunk + len > endPtrChunk) {
+					cout << 2 << endl;
 					handleEndofChunk(startPtr, chunkBegin, startPtrChunk,
 							currentPtrChunk, endPtrChunk, startPtrTemp,
 							tempPage, tempPage2, isInTempPage,
@@ -1048,6 +1050,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		} else {
 			unsigned len = currentPtrTemp - lastPtrTemp;
 			if (currentPtrChunk + len > endPtrChunk) {
+				cout << 3 << endl;
 				handleEndofChunk(startPtr, chunkBegin, startPtrChunk,
 						currentPtrChunk, endPtrChunk, startPtrTemp, tempPage,
 						tempPage2, isInTempPage, theOtherPageEmpty, min, max,
@@ -1083,6 +1086,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 				+ Chunk::getLen(bufferTriple->objType);
 
 		if (currentPtrChunk + len > endPtrChunk) {
+			cout << 4 << endl;
 			handleEndofChunk(startPtr, chunkBegin, startPtrChunk,
 					currentPtrChunk, endPtrChunk, startPtrTemp, tempPage,
 					tempPage2, isInTempPage, theOtherPageEmpty, min, max,
