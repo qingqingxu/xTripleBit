@@ -1431,8 +1431,6 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 						tempObjType);
 				partitionChunkManager[soType]->tripleCountDecrease();
 			} else {
-				cout << "midResultBuffer->getUsedSize(): "
-						<< midResultBuffer->getUsedSize() << endl;
 				if (midResultBuffer->getUsedSize() > 0) {
 					goto END;
 				}
@@ -1450,8 +1448,6 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 						tempObjType);
 				partitionChunkManager[soType]->tripleCountDecrease();
 			} else {
-				cout << "midResultBuffer->getUsedSize(): "
-						<< midResultBuffer->getUsedSize() << endl;
 				if (midResultBuffer->getUsedSize() > 0) {
 					goto END;
 				}
@@ -1461,7 +1457,6 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 			}
 		}
 	}
-	cout << 44 << endl;
 	while (metaData->NextPageNo) {
 		chunkBegin =
 				reinterpret_cast<uchar*>(TempMMapBuffer::getInstance().getAddress())
@@ -1530,14 +1525,10 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 			}
 		}
 	}
-	cout << 33 << endl;
-
 	END: if (chunkTask->taskPackageForDelete->completeSubTask(chunkID,
 			midResultBuffer)) {
-		cout << 11 << endl;
 		MidResultBuffer *buffer =
 				chunkTask->taskPackageForDelete->getTaskResult();
-		cout << 22 << endl;
 		deleteDataForDeleteClause(buffer, soType,
 				chunkTask->taskPackageForDelete->constSubject, subjectID,
 				object, objType);

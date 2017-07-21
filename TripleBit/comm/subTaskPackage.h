@@ -39,8 +39,8 @@ public:
 	SubTaskPackageForDelete(size_t reCount, TripleBitQueryGraph::OpType opType,
 			double object, char objType, bool constSubject, bool constObject) :
 			referenceCount(reCount), operationType(opType), object(object), objType(
-					objType), constSubject(constSubject), constObject(
-					constObject) {
+					objType), constSubject(
+							constSubject), constObject(constObject) {
 		pthread_mutex_init(&subTaskMutex, NULL);
 	}
 	~SubTaskPackageForDelete() {
@@ -53,15 +53,13 @@ public:
 		tempBuffer[chunkID] = result;
 		referenceCount--;
 
-		pthread_mutex_unlock(&subTaskMutex);
-		return true;
-		/*if (referenceCount == 0) {
-		 pthread_mutex_unlock(&subTaskMutex);
-		 return true;
-		 } else {
-		 pthread_mutex_unlock(&subTaskMutex);
-		 return false;
-		 }*/
+		if (referenceCount >= 0) {
+			pthread_mutex_unlock(&subTaskMutex);
+			return true;
+		} else {
+			pthread_mutex_unlock(&subTaskMutex);
+			return false;
+		}
 	}
 
 	MidResultBuffer *getTaskResult() {
@@ -73,7 +71,8 @@ public:
 		MidResultBuffer *resultBuffer = NULL;
 		if (totalSize != 0) {
 			iter = tempBuffer.begin();
-			resultBuffer = new MidResultBuffer((*iter).second->getResultType());
+			resultBuffer = new MidResultBuffer(
+					(*iter).second->getResultType());
 			resultBuffer->resize(totalSize);
 			for (; iter != tempBuffer.end(); iter++) {
 				resultBuffer->appendBuffer(iter->second);
