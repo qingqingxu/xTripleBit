@@ -161,6 +161,7 @@ void PartitionMaster::taskEnQueue(ChunkTask *chunkTask,
 		TasksQueueChunk *tasksQueue) {
 	if (tasksQueue->isEmpty()) {
 		tasksQueue->EnQueue(chunkTask);
+		cout << __FUNCTION__ << "\t" << tasksQueue->getSOType() << "\t" << tasksQueue->getChunkID() << endl;
 		ThreadPool::getChunkPool().addTask(
 				boost::bind(&PartitionMaster::handleTasksQueueChunk, this,
 						tasksQueue));
@@ -1306,6 +1307,7 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 						objects[i].object, objects[i].objType, scanType,
 						taskPackage, indexForTT);
 				taskEnQueue(chunkTask, xChunkQueue[ORDERBYO][chunkID]);
+				//xChunkQueue[ORDERBYO][chunkID]->EnQueue(chunkTask);
 			}
 			indexForTT->wait();
 		} else { //subject是未知量，删除所有subject与object
@@ -1324,6 +1326,7 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 					ChunkTask *chunkTask = new ChunkTask(operationType, 0,
 							object, objType, scanType, taskPackage, indexForTT); //subjectID为0表示删除所有记录
 					taskEnQueue(chunkTask, xChunkQueue[ORDERBYO][offsetID]);
+					//xChunkQueue[ORDERBYO][offsetID]->EnQueue(chunkTask);
 				}
 				indexForTT->wait();
 			}
@@ -1331,6 +1334,7 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 
 	} else if (soType == ORDERBYO) {
 		ID* subejctIDs = buffer->getSignalIDBuffer();
+		cout << __FUNCTION__ << " buffer->getUsedSize(): " << buffer->getUsedSize() << endl;
 		shared_ptr<IndexForTT> indexForTT(
 				new IndexForTT(buffer->getUsedSize()));
 		for (size_t i = 0; i < buffer->getUsedSize(); ++i) {
@@ -1340,6 +1344,7 @@ void PartitionMaster::deleteDataForDeleteClause(MidResultBuffer *buffer,
 			ChunkTask *chunkTask = new ChunkTask(operationType, subejctIDs[i],
 					object, objType, scanType, taskPackage, indexForTT);
 			taskEnQueue(chunkTask, xChunkQueue[ORDERBYS][chunkID]);
+			//xChunkQueue[ORDERBYS][chunkID]->EnQueue(chunkTask);
 		}
 		indexForTT->wait();
 	}
@@ -1525,13 +1530,16 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask,
 			}
 		}
 	}
+
 	END: if (chunkTask->taskPackageForDelete->completeSubTask(chunkID,
 			midResultBuffer)) {
+		cout << "midResultBuffer->getUsedSize(): " << midResultBuffer->getUsedSize();
 		MidResultBuffer *buffer =
 				chunkTask->taskPackageForDelete->getTaskResult();
 		deleteDataForDeleteClause(buffer, soType,
 				chunkTask->taskPackageForDelete->constSubject, subjectID,
 				object, objType);
+		cout << 22 << endl;
 	}
 
 	midResultBuffer = NULL;
