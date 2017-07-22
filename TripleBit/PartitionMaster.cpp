@@ -693,6 +693,9 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 
 void PartitionMaster::executeChunkTaskInsertData(ChunkTask *chunkTask,
 		const ID chunkID, const uchar *startPtr, const bool soType) {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 	xChunkTempBuffer[soType][chunkID]->insertTriple(chunkTask->Triple.subjectID,
 			chunkTask->Triple.object, chunkTask->Triple.objType);
 
@@ -1106,11 +1109,11 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 
 void PartitionMaster::executeChunkTaskDeleteData(ChunkTask *chunkTask,
 		const ID chunkID, const uchar* startPtr, const bool soType) {
-	/*
-	 #ifdef MYDEBUG
-	 cout << __FUNCTION__ << endl;
-	 #endif
-	 */
+
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
+
 	ID subjectID = chunkTask->Triple.subjectID;
 	ID tempSubjectID;
 	double object = chunkTask->Triple.object;
