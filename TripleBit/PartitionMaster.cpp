@@ -159,7 +159,12 @@ void PartitionMaster::Work() {
 		}
 	}
 }
-
+void PrintChunkTaskPart(ChunkTask* chunkTask) {
+	cout << "opType:" << chunkTask->operationType << " subject:"
+			<< chunkTask->Triple.subjectID << " object:"
+			<< chunkTask->Triple.object << " operation:"
+			<< chunkTask->Triple.operation << endl;
+}
 void PartitionMaster::taskEnQueue(ChunkTask *chunkTask,
 		TasksQueueChunk *tasksQueue) {
 #ifdef MYDEBUG
@@ -637,13 +642,6 @@ void PartitionMaster::executeUpdate(SubTrans *subTransfirst,
 		}
 		indexForTT->wait();
 	}
-}
-
-void PrintChunkTaskPart(ChunkTask* chunkTask) {
-	cout << "opType:" << chunkTask->operationType << " subject:"
-			<< chunkTask->Triple.subjectID << " object:"
-			<< chunkTask->Triple.object << " operation:"
-			<< chunkTask->Triple.operation << endl;
 }
 
 void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
