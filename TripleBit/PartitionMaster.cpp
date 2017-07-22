@@ -569,6 +569,8 @@ void PartitionMaster::executeUpdate(SubTrans *subTransfirst,
 	char objUpdate =
 			subTranssecond->triple.constObject ?
 					subTransfirst->triple.objType : NONE;
+	cout << subjectID << "\t" << partitionID << "\t" << object << endl;
+	cout << subUpdate << "\t" << partitionID << "\t" << obUpdate << endl;
 	size_t xChunkIDMin = 0, xChunkIDMax = 0;
 	size_t chunkCount = 0;
 
@@ -1648,7 +1650,7 @@ void PartitionMaster::executeChunkTaskUpdate(ChunkTask *chunkTask,
 				midResultBuffer->insertSIGNALID(tempSubjectID);
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						tempObjType);
-				cout << __FUNCTION__ << "\tORDERBYS\t" << tempSubjectID << "\t" << partitionID << "\t" << tempObject << endl;
+				cout << __FUNCTION__ << "\tORDERBYO\t" << tempSubjectID << "\t" << partitionID << "\t" << tempObject << endl;
 				partitionChunkManager[soType]->tripleCountDecrease();
 			} else {
 				if (midResultBuffer->getUsedSize() > 0) {
