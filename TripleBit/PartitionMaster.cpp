@@ -562,13 +562,13 @@ void PartitionMaster::executeUpdate(SubTrans *subTransfirst,
 					subTransfirst->triple.objType : NONE;
 	ID subUpdate =
 			subTranssecond->triple.constSubject ?
-					subTransfirst->triple.subjectID : 0;
+					subTranssecond->triple.subjectID : 0;
 	double obUpdate =
 			subTranssecond->triple.constObject ?
-					subTransfirst->triple.object : 0;
+					subTranssecond->triple.object : 0;
 	char objUpdate =
 			subTranssecond->triple.constObject ?
-					subTransfirst->triple.objType : NONE;
+					subTranssecond->triple.objType : NONE;
 	cout << subjectID << "\t" << partitionID << "\t" << object << endl;
 	cout << subUpdate << "\t" << partitionID << "\t" << obUpdate << endl;
 	size_t xChunkIDMin = 0, xChunkIDMax = 0;
