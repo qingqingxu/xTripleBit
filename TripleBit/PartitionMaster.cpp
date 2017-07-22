@@ -1740,8 +1740,9 @@ void PartitionMaster::executeChunkTaskUpdate(ChunkTask *chunkTask,
 			midResultBuffer)) {
 		MidResultBuffer *buffer =
 				chunkTask->taskPackageForDelete->getTaskResult();
-		updateDataForUpdate(buffer, subjectID, object, objType, updateSubjectID,
-				updateObject, updateObjType, soType);
+		/*updateDataForUpdate(buffer, subjectID, object, objType, updateSubjectID,
+				updateObject, updateObjType, soType);*/
+		delete buffer;
 	}
 	midResultBuffer = NULL;
 }
