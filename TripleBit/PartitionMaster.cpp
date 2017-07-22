@@ -1544,7 +1544,7 @@ void PartitionMaster::updateDataForUpdate(MidResultBuffer *buffer,
 		MidResultBuffer::SignalO* objects = buffer->getObjectBuffer();
 		shared_ptr<IndexForTT> indexForTT(
 				new IndexForTT(buffer->getUsedSize())); //插入副本s，o，删除副本o
-		/*chunkID = partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
+		chunkID = partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
 				subjectID, updateObject);
 		ChunkTask *insertSChunkTask = new ChunkTask(opInsert, subjectID,
 				updateObject, updateObjType, scanType, taskPackage, indexForTT);
@@ -1557,7 +1557,7 @@ void PartitionMaster::updateDataForUpdate(MidResultBuffer *buffer,
 				updateObject, updateObjType, scanType, taskPackage, indexForTT);
 		cout << "insert" << "\tORDERBYO\tchunkID: " << chunkID << "\t" << subjectID << "\t" << partitionID
 				<< "\t" << updateObject << endl;
-		taskEnQueue(insertOChunkTask, xChunkQueue[ORDERBYO][chunkID]);*/
+		taskEnQueue(insertOChunkTask, xChunkQueue[ORDERBYO][chunkID]);
 		for (size_t i = 0; i < buffer->getUsedSize(); ++i) {
 			chunkID = partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(
 					objects[i].object, subjectID);
@@ -1573,7 +1573,7 @@ void PartitionMaster::updateDataForUpdate(MidResultBuffer *buffer,
 		ID* subejctIDs = buffer->getSignalIDBuffer();
 		shared_ptr<IndexForTT> indexForTT(
 				new IndexForTT(buffer->getUsedSize())); //插入副本s，o，删除副本s
-		/*chunkID = partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
+		chunkID = partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
 				updateSubjectID, object);
 		ChunkTask *insertSChunkTask = new ChunkTask(opInsert, updateSubjectID,
 				object, objType, scanType, taskPackage, indexForTT);
@@ -1586,7 +1586,7 @@ void PartitionMaster::updateDataForUpdate(MidResultBuffer *buffer,
 				object, objType, scanType, taskPackage, indexForTT);
 		cout << "insert" << "\tORDERBYO\tchunkID: " << chunkID << "\t" << updateSubjectID << "\t"
 				<< partitionID << "\t" << object << endl;
-		taskEnQueue(insertOChunkTask, xChunkQueue[ORDERBYO][chunkID]);*/
+		taskEnQueue(insertOChunkTask, xChunkQueue[ORDERBYO][chunkID]);
 		for (size_t i = 0; i < buffer->getUsedSize(); ++i) {
 			chunkID = partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
 					subejctIDs[i], object);
