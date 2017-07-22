@@ -167,6 +167,7 @@ void PartitionMaster::taskEnQueue(ChunkTask *chunkTask,
 #endif
 	if (tasksQueue->isEmpty()) {
 		tasksQueue->EnQueue(chunkTask);
+		PrintChunkTaskPart(chunkTask);
 		ThreadPool::getChunkPool().addTask(
 				boost::bind(&PartitionMaster::handleTasksQueueChunk, this,
 						tasksQueue));
