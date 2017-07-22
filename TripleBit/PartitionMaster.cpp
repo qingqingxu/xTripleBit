@@ -935,6 +935,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	}
 	tmp << "----------chunkID: " << chunkID << endl;
 	ch << "----------chunkID: " << chunkID << endl;
+	tb << "----------chunkID: " << chunkID << endl;
 
 	if (currentPtrTemp >= endPtrTemp) {
 		tempTriple->subjectID = 0;
