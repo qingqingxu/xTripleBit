@@ -170,7 +170,6 @@ void PartitionMaster::taskEnQueue(ChunkTask *chunkTask,
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << endl;
 #endif
-	PrintChunkTaskPart(chunkTask);
 	if (tasksQueue->isEmpty()) {
 		tasksQueue->EnQueue(chunkTask);
 		ThreadPool::getChunkPool().addTask(
