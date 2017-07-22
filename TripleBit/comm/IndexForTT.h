@@ -38,6 +38,7 @@ public:
 	void completeOneTriple(){
 		pthread_mutex_lock(&mutex);
 		referenceCount--;
+		cout << "referenceCount: " << referenceCount << endl;
 		if(referenceCount == 0){
 			pthread_cond_broadcast(&cond);
 		}
