@@ -1540,21 +1540,21 @@ void PartitionMaster::updateDataForUpdate(MidResultBuffer *buffer,
 			chunkID =
 					partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
 							subjectID, objects[i].object);
-			ChunkTask *chunkTask = new ChunkTask(opInsert, updateSubjectID,
+			ChunkTask *insertSChunkTask = new ChunkTask(opInsert, updateSubjectID,
 					objects[i].object, objects[i].objType, scanType,
 					taskPackage, indexForTT);
-			taskEnQueue(chunkTask, xChunkQueue[ORDERBYS][chunkID]);
+			taskEnQueue(insertSChunkTask, xChunkQueue[ORDERBYS][chunkID]);
 			chunkID =
 					partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(
 							objects[i].object, subjectID);
-			ChunkTask *chunkTask = new ChunkTask(opInsert, updateSubjectID,
+			ChunkTask *insertOChunkTask = new ChunkTask(opInsert, updateSubjectID,
 					objects[i].object, objects[i].objType, scanType,
 					taskPackage, indexForTT);
-			taskEnQueue(chunkTask, xChunkQueue[ORDERBYO][chunkID]);
-			ChunkTask *chunkTask = new ChunkTask(opDelete, subjectID,
+			taskEnQueue(insertOChunkTask, xChunkQueue[ORDERBYO][chunkID]);
+			ChunkTask *delOChunkTask = new ChunkTask(opDelete, subjectID,
 					objects[i].object, objects[i].objType, scanType,
 					taskPackage, indexForTT);
-			taskEnQueue(chunkTask, xChunkQueue[ORDERBYO][chunkID]);
+			taskEnQueue(delOChunkTask, xChunkQueue[ORDERBYO][chunkID]);
 
 		}
 		indexForTT->wait();
@@ -1566,21 +1566,21 @@ void PartitionMaster::updateDataForUpdate(MidResultBuffer *buffer,
 			chunkID =
 					partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
 							sids[i], object);
-			ChunkTask *chunkTask = new ChunkTask(opInsert, sids[i],
+			ChunkTask *insertSChunkTask = new ChunkTask(opInsert, sids[i],
 					updateObject, updateObjType, scanType,
 					taskPackage, indexForTT);
-			taskEnQueue(chunkTask, xChunkQueue[ORDERBYS][chunkID]);
+			taskEnQueue(insertSChunkTask, xChunkQueue[ORDERBYS][chunkID]);
 			chunkID =
 					partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(
 							updateObject, sids[i]);
-			ChunkTask *chunkTask = new ChunkTask(opInsert, sids[i],
+			ChunkTask *insertOChunkTask = new ChunkTask(opInsert, sids[i],
 					updateObject, updateObjType, scanType,
 					taskPackage, indexForTT);
-			taskEnQueue(chunkTask, xChunkQueue[ORDERBYO][chunkID]);
-			ChunkTask *chunkTask = new ChunkTask(opDelete, sids[i],
+			taskEnQueue(insertOChunkTask, xChunkQueue[ORDERBYO][chunkID]);
+			ChunkTask *delSChunkTask = new ChunkTask(opDelete, sids[i],
 					object, objType, scanType,
 					taskPackage, indexForTT);
-			taskEnQueue(chunkTask, xChunkQueue[ORDERBYS][chunkID]);
+			taskEnQueue(delSChunkTask, xChunkQueue[ORDERBYS][chunkID]);
 
 		}
 		indexForTT->wait();
