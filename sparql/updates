@@ -1,0 +1,8 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX ub: <http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#>
+DELETE { 
+?x rdf:type <http://www.w3.org/2002/07/owl#Ontology> .
+}
+INSERT{
+ <http://www.Department1.University0.edu/FullProfessor0> ?y ?z .
+}  

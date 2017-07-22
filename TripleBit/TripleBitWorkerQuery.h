@@ -89,8 +89,8 @@ private:
 	Status excuteInsertData();
 	Status excuteDeleteData();
 	Status excuteDeleteClause();
-	/*Status excuteUpdate();
-	Status singleVariableJoin();
+	Status excuteUpdate();
+	/*Status singleVariableJoin();
 	Status acyclicJoin();
 	Status cyclicJoin();
 	void onePatternWithThreeVariables();

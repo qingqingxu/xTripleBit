@@ -90,17 +90,17 @@ private:
 	void executeInsertData(SubTrans *subTransaction);
 	void executeDeleteData(SubTrans *subTransaction);
 	void executeDeleteClause(SubTrans *subTransaction);
-	/*	void executeUpdate(SubTrans *subTransfirst, SubTrans *subTranssecond);*/
+	void executeUpdate(SubTrans *subTransfirst, SubTrans *subTranssecond);
 
 	void deleteDataForDeleteClause(MidResultBuffer *buffer, const bool soType, const bool constSubject, const ID subjectID, const double object, const char objType);
-	/*	void updateDataForUpdate(EntityIDBuffer *buffer, const ID deleteID, const ID updateID, const int soType);*/
+	void updateDataForUpdate(MidResultBuffer *buffer, const ID subjectID, const double object, const char objType, const ID updateSubjectID, const double updateObject, const char updateObjType, const bool soType);
 
 	void handleTasksQueueChunk(TasksQueueChunk *tasksQueue);
 //	void executeChunkTaskQuery(ChunkTask *chunkTask, const ID chunkID, const uchar* chunkBegin, const int xyType);
 	void executeChunkTaskInsertData(ChunkTask *chunkTask, const ID chunkID, const uchar *startPtr, const bool soType);
 	void executeChunkTaskDeleteData(ChunkTask *chunkTask, const ID chunkID, const uchar *startPtr, const bool soType);
 	void executeChunkTaskDeleteClause(ChunkTask *chunkTask, const ID chunkID, const uchar *startPtr, const bool soType);
-	/*	void executeChunkTaskUpdate(ChunkTask *chunkTask, const ID chunkID, const uchar *startPtr, const int xyType, const int soType);
+	void executeChunkTaskUpdate(ChunkTask *chunkTask, const ID chunkID, const uchar *startPtr, const bool soType);
 
 	void findSubjectIDByPredicate(EntityIDBuffer *retBuffer, const ID minID, const ID maxID, const uchar *startPtr, const int xyType);
 	void findSubjectIDByPredicate(EntityIDBuffer *retBuffer, const uchar *startPtr, const int xyType);
@@ -109,7 +109,7 @@ private:
 	void findSubjectIDAndObjectIDByPredicate(EntityIDBuffer *retBuffer, const ID minID, const ID maxID, const uchar *startPtr, const int xyType);
 	void findSubjectIDAndObjectIDByPredicate(EntityIDBuffer *retBuffer, const uchar *startPtr, const int xyType);
 	void findObjectIDAndSubjectIDByPredicate(EntityIDBuffer *retBuffer, const ID minID, const ID maxID, const uchar *startPtr, const int xyType);
-	void findObjectIDAndSubjectIDByPredicate(EntityIDBuffer *retBuffer, const uchar *startPtr, const int xyType);*/
+	void findObjectIDAndSubjectIDByPredicate(EntityIDBuffer *retBuffer, const uchar *startPtr, const int xyType);
 	void findObjectByPredicateAndSubject(const ID subject, MidResultBuffer *midResultBuffer, const double min, const double max, const uchar* startPtr);
 	void findSubjectIDByPredicateAndObject(const double object, const char objType, MidResultBuffer *midResultBuffer, const ID minID, const ID maxID, const uchar* startPtr);
 	void findObjectByPredicateAndSubject(const ID subject, MidResultBuffer *midResultBuffer, const uchar* startPtr);

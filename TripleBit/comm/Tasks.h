@@ -41,6 +41,9 @@ public:
 	shared_ptr<SubTaskPackageForDelete> taskPackageForDelete;
 	shared_ptr<subTaskPackage> taskPackage;
 	shared_ptr<IndexForTT> indexForTT;
+	ID updateSubjectID;
+	double updateObject;
+	char updateObjType;
 
 	ChunkTask(TripleBitQueryGraph::OpType opType, ID subjectID, double object, char objType, TripleNode::Op operation, shared_ptr<subTaskPackage> task_Package, shared_ptr<IndexForTT> index_ForTT):
 		operationType(opType), Triple({subjectID, object, objType, operation}), taskPackage(task_Package), indexForTT(index_ForTT){
@@ -49,6 +52,9 @@ public:
 	ChunkTask(TripleBitQueryGraph::OpType opType, ID subjectID, double object, char objType, TripleNode::Op operation, shared_ptr<SubTaskPackageForDelete> task_Package, shared_ptr<IndexForTT> index_ForTT):
 			operationType(opType), Triple({subjectID, object, objType, operation}), taskPackageForDelete(task_Package), indexForTT(index_ForTT){
 		}
+	ChunkTask(TripleBitQueryGraph::OpType opType, ID subjectID, double object, char objType, ID updateSubjectID, double updateObject, char updateObjType, TripleNode::Op operation, shared_ptr<SubTaskPackageForDelete> task_Package, shared_ptr<IndexForTT> index_ForTT):
+			operationType(opType), Triple({subjectID, object, objType, operation}), updateSubjectID(updateSubjectID), updateObject(updateObject), updateObjType(updateObjType), taskPackageForDelete(task_Package), indexForTT(index_ForTT){
+	}
 
 	~ChunkTask(){}
 };

@@ -88,8 +88,8 @@ Status TripleBitWorkerQuery::query(TripleBitQueryGraph* queryGraph,
 		return excuteDeleteData();
 	case TripleBitQueryGraph::DELETE_CLAUSE:
 		return excuteDeleteClause();
-		/*case TripleBitQueryGraph::UPDATE:
-		 return excuteUpdate();*/
+	case TripleBitQueryGraph::UPDATE:
+		return excuteUpdate();
 	}
 }
 
@@ -380,7 +380,8 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 		//predicate未知
 		if (!iter->constSubject && !iter->constObject) {
 			//subject、object未知
-			shared_ptr<IndexForTT> indexForTT(new IndexForTT(tripleBitRepo->getPartitionNum()));
+			shared_ptr<IndexForTT> indexForTT(
+					new IndexForTT(tripleBitRepo->getPartitionNum()));
 			for (size_t i = 1; i <= tripleBitRepo->getPartitionNum(); i++) {
 				SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0,
 						0, operationType, 1, *iter, indexForTT);
@@ -457,23 +458,26 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 	return OK;
 }
 
-/*Status TripleBitWorkerQuery::excuteUpdate() {
- shared_ptr<IndexForTT> indexForTT(new IndexForTT);
+Status TripleBitWorkerQuery::excuteUpdate() {
+	shared_ptr<IndexForTT> indexForTT(new IndexForTT(2));
 
- vector<TripleNode>::iterator iter = _query->tripleNodes.begin();
- ID partitionID = iter->predicate;
- TripleBitQueryGraph::OpType operationType = TripleBitQueryGraph::UPDATE;
+	vector<TripleNode>::iterator iter = _query->tripleNodes.begin();
+	ID partitionID = iter->predicateID;
+	TripleBitQueryGraph::OpType operationType = TripleBitQueryGraph::UPDATE;
 
- SubTrans *subTrans1 = new SubTrans(*transactionTime, workerID, 0, 0, operationType, 2, *iter, indexForTT);
- SubTrans *subTrans2 = new SubTrans(*transactionTime, workerID, 0, 0, operationType, 2, *++iter, indexForTT);
+	SubTrans *subTrans1 = new SubTrans(*transactionTime, workerID, 0, 0,
+			operationType, 2, *iter, indexForTT);
+	SubTrans *subTrans2 = new SubTrans(*transactionTime, workerID, 0, 0,
+			operationType, 2, *++iter, indexForTT);
 
- tasksQueueWPMutex[partitionID - 1]->lock();
- tasksEnQueue(partitionID, subTrans1);
- tasksEnQueue(partitionID, subTrans2);
- tasksQueueWPMutex[partitionID - 1]->unlock();
+	tasksQueueWPMutex[partitionID - 1]->lock();
+	tasksEnQueue(partitionID, subTrans1);
+	tasksEnQueue(partitionID, subTrans2);
+	tasksQueueWPMutex[partitionID - 1]->unlock();
+	indexForTT->wait();
 
- return OK;
- }*/
+	return OK;
+}
 
 void TripleBitWorkerQuery::classifyTripleNode() {
 	tripleNodeMap.clear();
