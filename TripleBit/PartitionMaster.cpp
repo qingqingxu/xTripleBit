@@ -170,6 +170,7 @@ void PartitionMaster::taskEnQueue(ChunkTask *chunkTask,
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << endl;
 #endif
+	PrintChunkTaskPart(chunkTask);
 	if (tasksQueue->isEmpty()) {
 		tasksQueue->EnQueue(chunkTask);
 		ThreadPool::getChunkPool().addTask(
@@ -656,8 +657,6 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 	chunkTask = tasksQueue->Dequeue();
 
 	while (chunkTask != NULL) {
-		cout << "chunkTask->operationType: " << chunkTask->operationType
-				<< endl;
 		switch (chunkTask->operationType) {
 		case TripleBitQueryGraph::QUERY:
 			//executeChunkTaskQuery(chunkTask, chunkID, chunkBegin, xyType);
@@ -1634,8 +1633,6 @@ void PartitionMaster::executeChunkTaskUpdate(ChunkTask *chunkTask,
 				midResultBuffer->insertObject(tempObject, tempObjType);
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						tempObjType);
-				cout << __FUNCTION__ << "\tORDERBYS\t" << tempSubjectID << "\t"
-						<< partitionID << "\t" << tempObject << endl;
 				partitionChunkManager[soType]->tripleCountDecrease();
 			} else {
 				if (midResultBuffer->getUsedSize() > 0) {
@@ -1653,8 +1650,6 @@ void PartitionMaster::executeChunkTaskUpdate(ChunkTask *chunkTask,
 				midResultBuffer->insertSIGNALID(tempSubjectID);
 				temp = partitionChunkManager[soType]->deleteTriple(temp,
 						tempObjType);
-				cout << __FUNCTION__ << "\tORDERBYO\t" << tempSubjectID << "\t"
-						<< partitionID << "\t" << tempObject << endl;
 				partitionChunkManager[soType]->tripleCountDecrease();
 			} else {
 				if (midResultBuffer->getUsedSize() > 0) {
