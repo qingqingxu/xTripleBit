@@ -1740,6 +1740,7 @@ void PartitionMaster::executeChunkTaskUpdate(ChunkTask *chunkTask,
 			midResultBuffer)) {
 		MidResultBuffer *buffer =
 				chunkTask->taskPackageForDelete->getTaskResult();
+		cout << 1 << endl;
 		/*updateDataForUpdate(buffer, subjectID, object, objType, updateSubjectID,
 				updateObject, updateObjType, soType);*/
 		delete buffer;
