@@ -646,7 +646,6 @@ void PrintChunkTaskPart(ChunkTask* chunkTask) {
 }
 
 void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
-
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
 #endif
@@ -1547,21 +1546,23 @@ void PartitionMaster::updateDataForUpdate(MidResultBuffer *buffer,
 				subjectID, updateObject);
 		ChunkTask *insertSChunkTask = new ChunkTask(opInsert, subjectID,
 				updateObject, updateObjType, scanType, taskPackage, indexForTT);
-		cout << "insert" << "\tORDERBYS\t" << subjectID << "\t" << partitionID
+		cout << "insert" << "\tORDERBYS\tchunkID: " << chunkID << subjectID << "\t" << partitionID
 				<< "\t" << updateObject << endl;
 		taskEnQueue(insertSChunkTask, xChunkQueue[ORDERBYS][chunkID]);
 		chunkID = partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(
 				updateObject, subjectID);
 		ChunkTask *insertOChunkTask = new ChunkTask(opInsert, subjectID,
 				updateObject, updateObjType, scanType, taskPackage, indexForTT);
-		cout << "insert" << "\tORDERBYO\t" << subjectID << "\t" << partitionID
+		cout << "insert" << "\tORDERBYO\tchunkID: " << chunkID << subjectID << "\t" << partitionID
 				<< "\t" << updateObject << endl;
 		taskEnQueue(insertOChunkTask, xChunkQueue[ORDERBYO][chunkID]);
 		for (size_t i = 0; i < buffer->getUsedSize(); ++i) {
+			chunkID = partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(
+					objects[i].object, subjectID);
 			ChunkTask *delOChunkTask = new ChunkTask(opDelete, subjectID,
 					objects[i].object, objects[i].objType, scanType,
 					taskPackage, indexForTT);
-			cout << "delete" << "\tORDERBYO\t" << subjectID << "\t"
+			cout << "delete" << "\tORDERBYO\tchunkID: " << chunkID << subjectID << "\t"
 					<< partitionID << "\t" << objects[i].object << endl;
 			taskEnQueue(delOChunkTask, xChunkQueue[ORDERBYO][chunkID]);
 
@@ -1586,6 +1587,8 @@ void PartitionMaster::updateDataForUpdate(MidResultBuffer *buffer,
 				<< partitionID << "\t" << object << endl;
 		taskEnQueue(insertOChunkTask, xChunkQueue[ORDERBYO][chunkID]);
 		for (size_t i = 0; i < buffer->getUsedSize(); ++i) {
+			chunkID = partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
+					sids[i], object);
 			ChunkTask *delSChunkTask = new ChunkTask(opDelete, sids[i], object,
 					objType, scanType, taskPackage, indexForTT);
 			cout << "delete" << "\tORDERBYS\t" << sids[i] << "\t" << partitionID
