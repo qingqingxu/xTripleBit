@@ -1054,7 +1054,7 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 	}
 
 	while (lastPtrTemp < endPtrTemp
-			&& (lastPtrTemp >= endPtrTemp
+			|| (lastPtrTemp >= endPtrTemp
 					&& ((MetaData*) startPtrTemp)->NextPageNo)) {
 		if (tempTriple->subjectID == 0) {
 			tmp << tempTriple->subjectID << "," << partitionID << ","
@@ -1133,7 +1133,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer,
 		varTripleCount++;
 		bufferTriple++;
 	}
-	cout << "varTripleCount: " << varTripleCount << endl;
 	partitionChunkManager[soType]->updateTripleCount(varTripleCount);
 	if (chunkBegin == const_cast<uchar*>(startPtr) - sizeof(ChunkManagerMeta)) {
 		MetaData *metaData = (MetaData*) startPtr;
