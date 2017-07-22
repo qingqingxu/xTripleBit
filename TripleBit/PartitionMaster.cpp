@@ -162,6 +162,9 @@ void PartitionMaster::Work() {
 
 void PartitionMaster::taskEnQueue(ChunkTask *chunkTask,
 		TasksQueueChunk *tasksQueue) {
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << endl;
+#endif
 	if (tasksQueue->isEmpty()) {
 		tasksQueue->EnQueue(chunkTask);
 		ThreadPool::getChunkPool().addTask(
@@ -643,11 +646,10 @@ void PrintChunkTaskPart(ChunkTask* chunkTask) {
 }
 
 void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
-	/*
-	 #ifdef MYDEBUG
-	 cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
-	 #endif
-	 */
+
+#ifdef MYDEBUG
+	cout << __FUNCTION__ << " partitionID: " << partitionID << endl;
+#endif
 
 	ChunkTask* chunkTask = NULL;
 	ChunkTask* tempChunkTask = NULL;
@@ -657,6 +659,7 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 	chunkTask = tasksQueue->Dequeue();
 
 	while (chunkTask != NULL) {
+		cout << "chunkTask->operationType: " << chunkTask->operationType << endl;
 		switch (chunkTask->operationType) {
 		case TripleBitQueryGraph::QUERY:
 			//executeChunkTaskQuery(chunkTask, chunkID, chunkBegin, xyType);
