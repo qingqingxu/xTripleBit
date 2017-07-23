@@ -709,13 +709,13 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer, const uchar 
 	ofstream ch;
 	ofstream tb;
 	if (soType == ORDERBYS) {
-		tmp.open("tmp_sp" + partitionID, ios::app);
-		ch.open("chunk_sp" + partitionID, ios::app);
-		tb.open("tb_sp" + partitionID, ios::app);
+		tmp.open((string("tmp_sp").c_str()), ios::app);
+		ch.open("chunk_sp", ios::app);
+		tb.open("tb_sp", ios::app);
 	} else {
-		tmp.open("tmp_op" + partitionID, ios::app);
-		ch.open("chunk_op" + partitionID, ios::app);
-		tb.open("tb_op" + partitionID, ios::app);
+		tmp.open("tmp_op", ios::app);
+		ch.open("chunk_op", ios::app);
+		tb.open("tb_op", ios::app);
 	}
 	tmp << "----------chunkID: " << chunkID << endl;
 	ch << "----------chunkID: " << chunkID << endl;
