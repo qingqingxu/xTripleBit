@@ -300,12 +300,10 @@ void TripleBitWorkerQuery::tasksEnQueue(ID partitionID, SubTrans *subTrans) {
 
 Status TripleBitWorkerQuery::excuteInsertData() {
 	size_t tripleSize = _query->tripleNodes.size();
+	cout << __FUNCTION__ << "\ttripleSize: " << tripleSize << endl;
 	shared_ptr<IndexForTT> indexForTT(new IndexForTT(tripleSize));
-
 	classifyTripleNode();
-
 	TripleBitQueryGraph::OpType operationType = TripleBitQueryGraph::INSERT_DATA;
-
 	map<ID, set<TripleNode*> >::iterator iter = tripleNodeMap.begin();
 	for (; iter != tripleNodeMap.end(); ++iter) {
 		size_t tripleNodeSize = iter->second.size();
@@ -319,7 +317,6 @@ Status TripleBitWorkerQuery::excuteInsertData() {
 		}
 		tasksQueueWPMutex[partitionID - 1]->unlock();
 	}
-
 	indexForTT->wait();
 	return OK;
 }
