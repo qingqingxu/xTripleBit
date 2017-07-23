@@ -1198,6 +1198,11 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask, const I
 
 	END: if (chunkTask->taskPackageForDelete->completeSubTask(chunkID, midResultBuffer)) {
 		MidResultBuffer *buffer = chunkTask->taskPackageForDelete->getTaskResult();
+		if (buffer == NULL) {
+			delete midResultBuffer;
+			midResultBuffer = NULL;
+			return;
+		}
 		deleteDataForDeleteClause(buffer, soType, chunkTask->taskPackageForDelete->constSubject, subjectID, object, objType);
 	}
 	midResultBuffer = NULL;
@@ -1364,6 +1369,11 @@ void PartitionMaster::executeChunkTaskUpdate(ChunkTask *chunkTask, const ID chun
 	}
 	END: if (chunkTask->taskPackageForDelete->completeSubTask(chunkID, midResultBuffer)) {
 		MidResultBuffer *buffer = chunkTask->taskPackageForDelete->getTaskResult();
+		if (buffer == NULL) {
+			delete midResultBuffer;
+			midResultBuffer = NULL;
+			return;
+		}
 		updateDataForUpdate(buffer, subjectID, object, objType, updateSubjectID, updateObject, updateObjType, soType);
 	}
 	midResultBuffer = NULL;
