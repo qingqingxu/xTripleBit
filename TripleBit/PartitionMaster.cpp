@@ -1069,7 +1069,7 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask, const I
 			temp = const_cast<uchar*>(reader);
 			reader = partitionChunkManager[soType]->readXY(reader, tempSubjectID, tempObject, tempObjType);
 			if (tempSubjectID != 0) {
-				temp = (const uchar*) partitionChunkManager[soType]->deleteTriple(temp, tempObjType);
+				temp = partitionChunkManager[soType]->deleteTriple(temp, tempObjType);
 				partitionChunkManager[soType]->tripleCountDecrease();
 			}
 			continue;
@@ -1083,7 +1083,7 @@ void PartitionMaster::executeChunkTaskDeleteClause(ChunkTask *chunkTask, const I
 				temp = const_cast<uchar*>(reader);
 				reader = partitionChunkManager[soType]->readXY(reader, tempSubjectID, tempObject, tempObjType);
 				if (tempSubjectID != 0) {
-					temp = (const uchar*) partitionChunkManager[soType]->deleteTriple(temp, tempObjType);
+					temp = partitionChunkManager[soType]->deleteTriple(temp, tempObjType);
 					partitionChunkManager[soType]->tripleCountDecrease();
 				}
 				continue;
