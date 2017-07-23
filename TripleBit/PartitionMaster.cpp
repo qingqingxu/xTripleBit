@@ -653,7 +653,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer, const uchar 
 	buffer->sort(soType);
 	buffer->uniqe();
 
-#ifdef MYDEBUG
 	ofstream out1;
 	if (soType == ORDERBYS) {
 		out1.open("tempbuffer_uniqe_sp", ios::app);
@@ -667,7 +666,6 @@ void PartitionMaster::combineTempBufferToSource(TempBuffer *buffer, const uchar 
 		temp++;
 	}
 	out1.close();
-#endif
 
 	char *tempPage = (char*) malloc(MemoryBuffer::pagesize);
 	char *tempPage2 = (char*) malloc(MemoryBuffer::pagesize);
