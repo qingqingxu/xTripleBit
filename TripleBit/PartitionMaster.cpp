@@ -152,7 +152,9 @@ void PartitionMaster::taskEnQueue(ChunkTask *chunkTask, TasksQueueChunk *tasksQu
 #endif
 	if (tasksQueue->isEmpty()) {
 		tasksQueue->EnQueue(chunkTask);
+#ifdef MYDEBUG
 		PrintChunkTaskPart(chunkTask);
+#endif
 		ThreadPool::getChunkPool().addTask(boost::bind(&PartitionMaster::handleTasksQueueChunk, this, tasksQueue));
 	} else {
 		tasksQueue->EnQueue(chunkTask);
@@ -528,7 +530,6 @@ void PartitionMaster::handleTasksQueueChunk(TasksQueueChunk* tasksQueue) {
 	chunkTask = tasksQueue->Dequeue();
 
 	while (chunkTask != NULL) {
-		cout << "chunkTask->operationType: " << chunkTask->operationType << endl;
 		switch (chunkTask->operationType) {
 		case TripleBitQueryGraph::QUERY:
 			//executeChunkTaskQuery(chunkTask, chunkID, chunkBegin, xyType);
@@ -1213,52 +1214,38 @@ void PartitionMaster::updateDataForUpdate(MidResultBuffer *buffer, const ID subj
 	TripleNode::Op scanType = TripleNode::NOOP;
 	if (soType == ORDERBYS) {
 		MidResultBuffer::SignalO* objects = buffer->getObjectBuffer();
-		shared_ptr<IndexForTT> indexForTT(new IndexForTT(buffer->getUsedSize())); //插入副本s，o，删除副本o
-		/*chunkID = partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
-		 subjectID, updateObject);
-		 ChunkTask *insertSChunkTask = new ChunkTask(opInsert, subjectID,
-		 updateObject, updateObjType, scanType, taskPackage, indexForTT);
-		 cout << "insert" << "\tORDERBYS\tchunkID: " << chunkID << "\t" << subjectID << "\t" << partitionID
-		 << "\t" << updateObject << endl;
-		 taskEnQueue(insertSChunkTask, xChunkQueue[ORDERBYS][chunkID]);
-		 chunkID = partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(
-		 updateObject, subjectID);
-		 ChunkTask *insertOChunkTask = new ChunkTask(opInsert, subjectID,
-		 updateObject, updateObjType, scanType, taskPackage, indexForTT);
-		 cout << "insert" << "\tORDERBYO\tchunkID: " << chunkID << "\t" << subjectID << "\t" << partitionID
-		 << "\t" << updateObject << endl;
-		 taskEnQueue(insertOChunkTask, xChunkQueue[ORDERBYO][chunkID]);*/
+		shared_ptr<IndexForTT> indexForTTForDelete(new IndexForTT(buffer->getUsedSize())); //删除副本o
 		for (size_t i = 0; i < buffer->getUsedSize(); ++i) {
 			chunkID = partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(objects[i].object, subjectID);
-			ChunkTask *delOChunkTask = new ChunkTask(opDelete, subjectID, objects[i].object, objects[i].objType, scanType, taskPackage, indexForTT);
-			cout << "delete" << "\tORDERBYO\tchunkID: " << chunkID << "\t" << subjectID << "\t" << partitionID << "\t" << objects[i].object << endl;
+			ChunkTask *delOChunkTask = new ChunkTask(opDelete, subjectID, objects[i].object, objects[i].objType, scanType, taskPackage, indexForTTForDelete);
 			taskEnQueue(delOChunkTask, xChunkQueue[ORDERBYO][chunkID]);
 		}
-		indexForTT->wait();
+		indexForTTForDelete->wait();
+		shared_ptr<IndexForTT> indexForTTForInsert(new IndexForTT(2)); //插入副本s，o
+		chunkID = partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(subjectID, updateObject);
+		ChunkTask *insertSChunkTask = new ChunkTask(opInsert, subjectID, updateObject, updateObjType, scanType, taskPackage, indexForTTForInsert);
+		taskEnQueue(insertSChunkTask, xChunkQueue[ORDERBYS][chunkID]);
+		chunkID = partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(updateObject, subjectID);
+		ChunkTask *insertOChunkTask = new ChunkTask(opInsert, subjectID, updateObject, updateObjType, scanType, taskPackage, indexForTTForInsert);
+		taskEnQueue(insertOChunkTask, xChunkQueue[ORDERBYO][chunkID]);
+		indexForTTForInsert->wait();
 	} else if (soType == ORDERBYO) {
 		ID* subejctIDs = buffer->getSignalIDBuffer();
-		shared_ptr<IndexForTT> indexForTT(new IndexForTT(buffer->getUsedSize())); //插入副本s，o，删除副本s
-		/*chunkID = partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(
-		 updateSubjectID, object);
-		 ChunkTask *insertSChunkTask = new ChunkTask(opInsert, updateSubjectID,
-		 object, objType, scanType, taskPackage, indexForTT);
-		 cout << "insert" << "\tORDERBYS\tchunkID: " << chunkID << "\t" << updateSubjectID << "\t"
-		 << partitionID << "\t" << object << endl;
-		 taskEnQueue(insertSChunkTask, xChunkQueue[ORDERBYS][chunkID]);
-		 chunkID = partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(
-		 object, updateSubjectID);
-		 ChunkTask *insertOChunkTask = new ChunkTask(opInsert, updateSubjectID,
-		 object, objType, scanType, taskPackage, indexForTT);
-		 cout << "insert" << "\tORDERBYO\tchunkID: " << chunkID << "\t" << updateSubjectID << "\t"
-		 << partitionID << "\t" << object << endl;
-		 taskEnQueue(insertOChunkTask, xChunkQueue[ORDERBYO][chunkID]);*/
+		shared_ptr<IndexForTT> indexForTTForDelete(new IndexForTT(buffer->getUsedSize())); //删除副本s
 		for (size_t i = 0; i < buffer->getUsedSize(); ++i) {
 			chunkID = partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(subejctIDs[i], object);
-			ChunkTask *delSChunkTask = new ChunkTask(opDelete, subejctIDs[i], object, objType, scanType, taskPackage, indexForTT);
-			cout << "delete" << "\tORDERBYS\tchunkID: " << chunkID << "\t" << subejctIDs[i] << "\t" << partitionID << "\t" << object << endl;
+			ChunkTask *delSChunkTask = new ChunkTask(opDelete, subejctIDs[i], object, objType, scanType, taskPackage, indexForTTForDelete);
 			taskEnQueue(delSChunkTask, xChunkQueue[ORDERBYS][chunkID]);
 		}
-		indexForTT->wait();
+		indexForTTForDelete->wait();
+		shared_ptr<IndexForTT> indexForTTForInsert(new IndexForTT(2)); //插入副本s，o
+		chunkID = partitionChunkManager[ORDERBYS]->getChunkIndex()->searchChunk(updateSubjectID, object);
+		ChunkTask *insertSChunkTask = new ChunkTask(opInsert, updateSubjectID, object, objType, scanType, taskPackage, indexForTTForInsert);
+		taskEnQueue(insertSChunkTask, xChunkQueue[ORDERBYS][chunkID]);
+		chunkID = partitionChunkManager[ORDERBYO]->getChunkIndex()->searchChunk(object, updateSubjectID);
+		ChunkTask *insertOChunkTask = new ChunkTask(opInsert, updateSubjectID, object, objType, scanType, taskPackage, indexForTTForInsert);
+		taskEnQueue(insertOChunkTask, xChunkQueue[ORDERBYO][chunkID]);
+		indexForTTForInsert->wait();
 	}
 	delete buffer;
 }
@@ -1293,7 +1280,6 @@ void PartitionMaster::executeChunkTaskUpdate(ChunkTask *chunkTask, const ID chun
 			} else if (tempSubjectID == subjectID) {
 				midResultBuffer->insertObject(tempObject, tempObjType);
 				temp = partitionChunkManager[soType]->deleteTriple(temp, tempObjType);
-				cout << __FUNCTION__ << "\tORDERBYS\t" << tempSubjectID << "\t" << partitionID << "\t" << tempObject << endl;
 				partitionChunkManager[soType]->tripleCountDecrease();
 			} else {
 				if (midResultBuffer->getUsedSize() > 0) {
@@ -1309,7 +1295,6 @@ void PartitionMaster::executeChunkTaskUpdate(ChunkTask *chunkTask, const ID chun
 			} else if (tempObject == object && tempObjType == objType) {
 				midResultBuffer->insertSIGNALID(tempSubjectID);
 				temp = partitionChunkManager[soType]->deleteTriple(temp, tempObjType);
-				cout << __FUNCTION__ << "\tORDERBYO\t" << tempSubjectID << "\t" << partitionID << "\t" << tempObject << endl;
 				partitionChunkManager[soType]->tripleCountDecrease();
 			} else {
 				if (midResultBuffer->getUsedSize() > 0) {

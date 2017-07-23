@@ -15,7 +15,7 @@
 
 class MMapBuffer;
 
-#define MYDEBUG
+//#define MYDEBUG
 //SP、OP统信息类，存储结构：s-p-spcount、o-p-opcount
 
 template<typename T>
