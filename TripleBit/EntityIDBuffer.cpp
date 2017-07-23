@@ -11,7 +11,8 @@
 #include <pthread.h>
 //#define MYDEBUG
 
-MidResultBuffer::MidResultBuffer(ResultType resultType): resultType(resultType) {
+MidResultBuffer::MidResultBuffer(ResultType resultType) :
+		resultType(resultType) {
 	switch (resultType) {
 	case SIGNALID:
 		spIDs = (ID*) malloc(MIDRESULT_BUFFER_INIT_PAGE_COUNT * getpagesize());
@@ -20,16 +21,14 @@ MidResultBuffer::MidResultBuffer(ResultType resultType): resultType(resultType) 
 		pSpIDs = spIDs;
 		break;
 	case OBJECT:
-		objects = (SignalO*) malloc(
-				MIDRESULT_BUFFER_INIT_PAGE_COUNT * getpagesize());
+		objects = (SignalO*) malloc(MIDRESULT_BUFFER_INIT_PAGE_COUNT * getpagesize());
 		sizePerPage = getpagesize() / sizeof(SignalO);
 		totalSize = MIDRESULT_BUFFER_INIT_PAGE_COUNT * sizePerPage;
 		pObjects = objects;
 		break;
 	case SUBJECTOBJECT:
 	case PREDICATEOBJECT:
-		sopos = (SOPO*) malloc(
-				MIDRESULT_BUFFER_INIT_PAGE_COUNT * getpagesize());
+		sopos = (SOPO*) malloc(MIDRESULT_BUFFER_INIT_PAGE_COUNT * getpagesize());
 		sizePerPage = getpagesize() / sizeof(SOPO);
 		totalSize = MIDRESULT_BUFFER_INIT_PAGE_COUNT * sizePerPage;
 		pSopos = sopos;
@@ -99,8 +98,7 @@ void MidResultBuffer::resize(size_t size) {
 		totalSize = usedSize + size;
 		break;
 	case OBJECT:
-		objects = (SignalO*) realloc(objects,
-				(usedSize + size) * sizeof(SignalO));
+		objects = (SignalO*) realloc(objects, (usedSize + size) * sizeof(SignalO));
 		totalSize = usedSize + size;
 		break;
 	case SUBJECTOBJECT:
@@ -126,13 +124,9 @@ Status MidResultBuffer::insertSIGNALID(ID id) {
 	cout << __FUNCTION__ << endl;
 #endif
 	if (usedSize == totalSize) {
-		spIDs = (ID*) realloc((char*) spIDs,
-				totalSize * sizeof(ID)
-						+ MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT
-								* getpagesize());
+		spIDs = (ID*) realloc((char*) spIDs, totalSize * sizeof(ID) + MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT * getpagesize());
 		pSpIDs = spIDs + totalSize;
-		totalSize = totalSize
-				+ MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT * sizePerPage;
+		totalSize = totalSize + MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT * sizePerPage;
 		pos = 0;
 	}
 
@@ -146,13 +140,9 @@ Status MidResultBuffer::insertObject(double object, char objType) {
 	cout << __FUNCTION__ << endl;
 #endif
 	if (usedSize == totalSize) {
-		objects = (SignalO*) realloc((char*) objects,
-				totalSize * sizeof(SignalO)
-						+ MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT
-								* getpagesize());
+		objects = (SignalO*) realloc((char*) objects, totalSize * sizeof(SignalO) + MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT * getpagesize());
 		pObjects = objects + totalSize;
-		totalSize = totalSize
-				+ MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT * sizePerPage;
+		totalSize = totalSize + MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT * sizePerPage;
 		pos = 0;
 	}
 
@@ -167,13 +157,9 @@ Status MidResultBuffer::insertSOPO(ID id, double object, char objType) {
 	cout << __FUNCTION__ << endl;
 #endif
 	if (usedSize == totalSize) {
-		sopos = (SOPO*) realloc((char*) sopos,
-				totalSize * sizeof(SOPO)
-						+ MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT
-								* getpagesize());
+		sopos = (SOPO*) realloc((char*) sopos, totalSize * sizeof(SOPO) + MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT * getpagesize());
 		pSopos = sopos + totalSize;
-		totalSize = totalSize
-				+ MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT * sizePerPage;
+		totalSize = totalSize + MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT * sizePerPage;
 		pos = 0;
 	}
 
@@ -190,13 +176,9 @@ Status MidResultBuffer::insertSP(ID subjectID, ID predicateID) {
 	cout << __FUNCTION__ << endl;
 #endif
 	if (usedSize == totalSize) {
-		sps = (SP*) realloc((char*) sps,
-				totalSize * sizeof(SP)
-						+ MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT
-								* getpagesize());
+		sps = (SP*) realloc((char*) sps, totalSize * sizeof(SP) + MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT * getpagesize());
 		pSps = sps + totalSize;
-		totalSize = totalSize
-				+ MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT * sizePerPage;
+		totalSize = totalSize + MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT * sizePerPage;
 		pos = 0;
 	}
 
@@ -207,19 +189,14 @@ Status MidResultBuffer::insertSP(ID subjectID, ID predicateID) {
 
 	return OK;
 }
-Status MidResultBuffer::insertSPO(ID subjectID, ID predicateID, double object,
-		char objType) {
+Status MidResultBuffer::insertSPO(ID subjectID, ID predicateID, double object, char objType) {
 #ifdef MYDEBUG
 	cout << __FUNCTION__ << endl;
 #endif
 	if (usedSize == totalSize) {
-		spos = (SPO*) realloc((char*) spos,
-				totalSize * sizeof(SPO)
-						+ MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT
-								* getpagesize());
+		spos = (SPO*) realloc((char*) spos, totalSize * sizeof(SPO) + MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT * getpagesize());
 		pSpos = spos + totalSize;
-		totalSize = totalSize
-				+ MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT * sizePerPage;
+		totalSize = totalSize + MIDRESULT_BUFFER_INCREMENT_PAGE_COUNT * sizePerPage;
 		pos = 0;
 	}
 
@@ -235,75 +212,65 @@ Status MidResultBuffer::insertSPO(ID subjectID, ID predicateID, double object,
 
 Status MidResultBuffer::appendBuffer(const MidResultBuffer *otherBuffer) {
 #ifdef MYDEBUG
-		cout << __FUNCTION__ << endl;
+	cout << __FUNCTION__ << endl;
 #endif
 	if (otherBuffer != NULL) {
 		switch (otherBuffer->resultType) {
 		case SIGNALID:
 			if (usedSize + otherBuffer->usedSize > totalSize) {
-				spIDs = (ID*) realloc(spIDs,
-						(usedSize + otherBuffer->usedSize) * sizeof(ID));
+				spIDs = (ID*) realloc(spIDs, (usedSize + otherBuffer->usedSize) * sizeof(ID));
 				totalSize = usedSize + otherBuffer->usedSize;
 				if (spIDs == NULL) {
 					perror(__FUNCTION__);
 					return ERROR;
 				}
 			}
-			memcpy(spIDs + usedSize, otherBuffer->getSignalIDBuffer(),
-					otherBuffer->getUsedSize() * sizeof(ID));
+			memcpy(spIDs + usedSize, otherBuffer->getSignalIDBuffer(), otherBuffer->getUsedSize() * sizeof(ID));
 			break;
 		case OBJECT:
 			if (usedSize + otherBuffer->usedSize > totalSize) {
-				objects = (SignalO*) realloc(objects,
-						(usedSize + otherBuffer->usedSize) * sizeof(SignalO));
+				objects = (SignalO*) realloc(objects, (usedSize + otherBuffer->usedSize) * sizeof(SignalO));
 				totalSize = usedSize + otherBuffer->usedSize;
 				if (objects == NULL) {
 					perror(__FUNCTION__);
 					return ERROR;
 				}
 			}
-			memcpy(objects + usedSize, otherBuffer->getObjectBuffer(),
-					otherBuffer->getUsedSize() * sizeof(SignalO));
+			memcpy(objects + usedSize, otherBuffer->getObjectBuffer(), otherBuffer->getUsedSize() * sizeof(SignalO));
 			break;
 		case SUBJECTOBJECT:
 		case PREDICATEOBJECT:
 			if (usedSize + otherBuffer->usedSize > totalSize) {
-				sopos = (SOPO*) realloc(sopos,
-						(usedSize + otherBuffer->usedSize) * sizeof(SOPO));
+				sopos = (SOPO*) realloc(sopos, (usedSize + otherBuffer->usedSize) * sizeof(SOPO));
 				totalSize = usedSize + otherBuffer->usedSize;
 				if (sopos == NULL) {
 					perror(__FUNCTION__);
 					return ERROR;
 				}
 			}
-			memcpy(sopos + usedSize, otherBuffer->getSOPOBuffer(),
-					otherBuffer->getUsedSize() * sizeof(SOPO));
+			memcpy(sopos + usedSize, otherBuffer->getSOPOBuffer(), otherBuffer->getUsedSize() * sizeof(SOPO));
 			break;
 		case SUBJECTPREDICATE:
 			if (usedSize + otherBuffer->usedSize > totalSize) {
-				sps = (SP*) realloc(sps,
-						(usedSize + otherBuffer->usedSize) * sizeof(SP));
+				sps = (SP*) realloc(sps, (usedSize + otherBuffer->usedSize) * sizeof(SP));
 				totalSize = usedSize + otherBuffer->usedSize;
 				if (sps == NULL) {
 					perror(__FUNCTION__);
 					return ERROR;
 				}
 			}
-			memcpy(sps + usedSize, otherBuffer->getSPBuffer(),
-					otherBuffer->getUsedSize() * sizeof(SP));
+			memcpy(sps + usedSize, otherBuffer->getSPBuffer(), otherBuffer->getUsedSize() * sizeof(SP));
 			break;
 		case SUBJECTPREDICATEOBJECT:
 			if (usedSize + otherBuffer->usedSize > totalSize) {
-				spos = (SPO*) realloc(spos,
-						(usedSize + otherBuffer->usedSize) * sizeof(SPO));
+				spos = (SPO*) realloc(spos, (usedSize + otherBuffer->usedSize) * sizeof(SPO));
 				totalSize = usedSize + otherBuffer->usedSize;
 				if (spos == NULL) {
 					perror(__FUNCTION__);
 					return ERROR;
 				}
 			}
-			memcpy(spos + usedSize, otherBuffer->getSPOBuffer(),
-					otherBuffer->getUsedSize() * sizeof(SPO));
+			memcpy(spos + usedSize, otherBuffer->getSPOBuffer(), otherBuffer->getUsedSize() * sizeof(SPO));
 			break;
 		default:
 			break;
@@ -370,12 +337,9 @@ EntityIDBuffer::~EntityIDBuffer() {
 
 Status EntityIDBuffer::insertID(ID id) {
 	if (usedSize == totalSize) {
-		buffer = (ID*) realloc((char*) buffer,
-				totalSize * sizeof(ID)
-						+ ENTITY_BUFFER_INCREMENT_PAGE_COUNT * getpagesize());
+		buffer = (ID*) realloc((char*) buffer, totalSize * sizeof(ID) + ENTITY_BUFFER_INCREMENT_PAGE_COUNT * getpagesize());
 		p = buffer + totalSize;
-		totalSize = totalSize
-				+ ENTITY_BUFFER_INCREMENT_PAGE_COUNT * sizePerPage;
+		totalSize = totalSize + ENTITY_BUFFER_INCREMENT_PAGE_COUNT * sizePerPage;
 		pos = 0;
 	}
 
@@ -402,14 +366,9 @@ Status EntityIDBuffer::sort() {
 	for (i = 0; i < chunkCount; i++) {
 		p = buffer + i * chunkSize * IDCount;
 		if (i == chunkCount - 1)
-			ThreadPool::getWorkPool().addTask(
-					boost::bind(&SortTask::Run, p,
-							getSize() - chunkSize * (chunkCount - 1), sortKey,
-							IDCount));
+			ThreadPool::getWorkPool().addTask(boost::bind(&SortTask::Run, p, getSize() - chunkSize * (chunkCount - 1), sortKey, IDCount));
 		else
-			ThreadPool::getWorkPool().addTask(
-					boost::bind(&SortTask::Run, p, chunkSize, sortKey,
-							IDCount));
+			ThreadPool::getWorkPool().addTask(boost::bind(&SortTask::Run, p, chunkSize, sortKey, IDCount));
 	}
 	ThreadPool::getWorkPool().wait();
 
@@ -441,17 +400,9 @@ Status EntityIDBuffer::sort() {
 
 		for (i = 0; i < chunkCount; i += slot) {
 			if (i + slot == chunkCount) {
-				ThreadPool::getWorkPool().addTask(
-						boost::bind(&EntityIDBuffer::merge, this, i * chunkSize,
-								(i + slot / 2 - 1) * chunkSize,
-								(i + slot / 2) * chunkSize, getSize(),
-								tempBuffer));
+				ThreadPool::getWorkPool().addTask(boost::bind(&EntityIDBuffer::merge, this, i * chunkSize, (i + slot / 2 - 1) * chunkSize, (i + slot / 2) * chunkSize, getSize(), tempBuffer));
 			} else {
-				ThreadPool::getWorkPool().addTask(
-						boost::bind(&EntityIDBuffer::merge, this, i * chunkSize,
-								(i + slot / 2 - 1) * chunkSize,
-								(i + slot / 2) * chunkSize,
-								(i + slot) * chunkSize, tempBuffer));
+				ThreadPool::getWorkPool().addTask(boost::bind(&EntityIDBuffer::merge, this, i * chunkSize, (i + slot / 2 - 1) * chunkSize, (i + slot / 2) * chunkSize, (i + slot) * chunkSize, tempBuffer));
 			}
 		}
 
@@ -471,8 +422,7 @@ void EntityIDBuffer::swapBuffer(ID*& tempBuffer) {
 	tempBuffer = temp;
 }
 
-void EntityIDBuffer::merge(int start1, int end1, int start2, int end2,
-		ID* tempBuffer) {
+void EntityIDBuffer::merge(int start1, int end1, int start2, int end2, ID* tempBuffer) {
 	ID* startPtr1 = buffer + start1 * IDCount;
 	ID* endPtr1 = buffer + start2 * IDCount;
 	ID* startPtr2 = buffer + start2 * IDCount;
@@ -481,38 +431,30 @@ void EntityIDBuffer::merge(int start1, int end1, int start2, int end2,
 	ID* result = tempBuffer + start1 * IDCount;
 
 	if (IDCount == 1) {
-		std::merge(startPtr1, endPtr1, startPtr2, endPtr2, result,
-				SortTask::compareInt);
+		std::merge(startPtr1, endPtr1, startPtr2, endPtr2, result, SortTask::compareInt);
 	} else {
 		if (sortKey == 0) {
-			mergeBuffer(result, startPtr1, startPtr2, (start2 - start1),
-					(end2 - start2), 2, 0);
+			mergeBuffer(result, startPtr1, startPtr2, (start2 - start1), (end2 - start2), 2, 0);
 		} else if (sortKey == 1) {
-			mergeBuffer(result, startPtr1, startPtr2, (start2 - start1),
-					(end2 - start2), 2, 1);
+			mergeBuffer(result, startPtr1, startPtr2, (start2 - start1), (end2 - start2), 2, 1);
 		}
 	}
 }
 
-Status EntityIDBuffer::mergeSingleBuffer(EntityIDBuffer* entbuffer,
-		EntityIDBuffer* entbuffer1, EntityIDBuffer* entbuffer2) {
-	return mergeSingleBuffer(entbuffer, entbuffer1->buffer, entbuffer2->buffer,
-			entbuffer1->usedSize, entbuffer2->usedSize);
+Status EntityIDBuffer::mergeSingleBuffer(EntityIDBuffer* entbuffer, EntityIDBuffer* entbuffer1, EntityIDBuffer* entbuffer2) {
+	return mergeSingleBuffer(entbuffer, entbuffer1->buffer, entbuffer2->buffer, entbuffer1->usedSize, entbuffer2->usedSize);
 }
 
-Status EntityIDBuffer::mergeSingleBuffer(EntityIDBuffer* entbuffer,
-		EntityIDBuffer* entbuffer1) {
+Status EntityIDBuffer::mergeSingleBuffer(EntityIDBuffer* entbuffer, EntityIDBuffer* entbuffer1) {
 	EntityIDBuffer * entbuffer2 = new EntityIDBuffer();
 	entbuffer2->setIDCount(1);
 	entbuffer2->operator =(entbuffer);
 	entbuffer->empty();
-	return mergeSingleBuffer(entbuffer, entbuffer1->buffer, entbuffer2->buffer,
-			entbuffer1->usedSize, entbuffer2->usedSize);
+	return mergeSingleBuffer(entbuffer, entbuffer1->buffer, entbuffer2->buffer, entbuffer1->usedSize, entbuffer2->usedSize);
 	delete entbuffer2;
 }
 
-Status EntityIDBuffer::mergeSingleBuffer(EntityIDBuffer* entbuffer, ID* buffer1,
-		ID* buffer2, size_t length1, size_t length2) {
+Status EntityIDBuffer::mergeSingleBuffer(EntityIDBuffer* entbuffer, ID* buffer1, ID* buffer2, size_t length1, size_t length2) {
 	size_t i, j;
 	i = 0;
 	j = 0;
@@ -545,8 +487,7 @@ Status EntityIDBuffer::mergeSingleBuffer(EntityIDBuffer* entbuffer, ID* buffer1,
 	return OK;
 }
 
-Status EntityIDBuffer::mergeBuffer(ID* destBuffer, ID* buffer1, ID* buffer2,
-		size_t length1, size_t length2, int IDCount, int key) {
+Status EntityIDBuffer::mergeBuffer(ID* destBuffer, ID* buffer1, ID* buffer2, size_t length1, size_t length2, int IDCount, int key) {
 	size_t i, j;
 	i = 0;
 	j = 0;
@@ -592,8 +533,7 @@ Status EntityIDBuffer::mergeBuffer(ID* destBuffer, ID* buffer1, ID* buffer2,
 }
 
 void EntityIDBuffer::quickSort(ID* p, int size) {
-	ThreadPool::getWorkPool().addTask(
-			boost::bind(&SortTask::Run, p, size, sortKey, IDCount));
+	ThreadPool::getWorkPool().addTask(boost::bind(&SortTask::Run, p, size, sortKey, IDCount));
 }
 
 /*
@@ -606,8 +546,7 @@ size_t EntityIDBuffer::getEntityIDPos(ID id) {
 	while (low <= high) {
 		mid = low + (high - low) / 2;
 		if (buffer[mid * IDCount + sortKey] == id) {
-			while (mid != static_cast<size_t>(-1)
-					&& buffer[mid * IDCount + sortKey] == id)
+			while (mid != static_cast<size_t>(-1) && buffer[mid * IDCount + sortKey] == id)
 				mid--;
 			mid++;
 			return (size_t) mid;
@@ -637,8 +576,7 @@ void EntityIDBuffer::print() {
 }
 
 //TODO merge join;
-Status EntityIDBuffer::mergeIntersection(EntityIDBuffer* entBuffer, char* flags,
-		ID joinKey) {
+Status EntityIDBuffer::mergeIntersection(EntityIDBuffer* entBuffer, char* flags, ID joinKey) {
 	joinKey--;
 
 	size_t iSize, jSize;
@@ -689,8 +627,7 @@ void EntityIDBuffer::getMinMax(ID& min, ID& max) {
 	max = buffer[(size - 1) * IDCount + sortKey];
 }
 
-Status EntityIDBuffer::intersection(EntityIDBuffer* entBuffer, char* flags,
-		ID joinKey1, ID joinKey2) {
+Status EntityIDBuffer::intersection(EntityIDBuffer* entBuffer, char* flags, ID joinKey1, ID joinKey2) {
 	joinKey1--;
 	joinKey2--;
 
@@ -739,8 +676,7 @@ Status EntityIDBuffer::intersection(EntityIDBuffer* entBuffer, char* flags,
 
 			while (jBuffer[j * IDCount2 + joinKey2] == keyValue && j < jSize) {
 				if (pos2 == totalPerPage) {
-					memcpy(entBuffer->getBuffer() + _size2, temp2,
-							getpagesize());
+					memcpy(entBuffer->getBuffer() + _size2, temp2, getpagesize());
 					_size2 += pos2;
 					pos2 = 0;
 				}
@@ -774,11 +710,9 @@ int SortTask::Run(ID* p, size_t length, int sortKey, int IDCount) {
 		qsort(&p[0], length, sizeof(ID), qcompareInt);
 	} else if (IDCount == 2) {
 		if (sortKey == 0) {
-			qsort((int64_t*) &p[0], length, sizeof(int64_t),
-					qcompareLongByFirst32);
+			qsort((int64_t*) &p[0], length, sizeof(int64_t), qcompareLongByFirst32);
 		} else if (sortKey == 1) {
-			qsort((int64_t*) &p[0], length, sizeof(int64_t),
-					qcompareLongBySecond32);
+			qsort((int64_t*) &p[0], length, sizeof(int64_t), qcompareLongBySecond32);
 		}
 	}
 
@@ -897,9 +831,7 @@ void EntityIDBuffer::resizeForSortMergeJoin(size_t totalSize) {
 		for (int i = 1; i < pageCount; i++) {
 			buffer = (ID*) realloc(buffer, (i + 1) * getpagesize());
 			if (buffer == NULL)
-				MessageEngine::showMessage(
-						"EntityIDBuffer::mergeBuffer, realloc error!",
-						MessageEngine::ERROR);
+				MessageEngine::showMessage("EntityIDBuffer::mergeBuffer, realloc error!", MessageEngine::ERROR);
 		}
 	}
 	p = buffer;
@@ -908,8 +840,7 @@ void EntityIDBuffer::resizeForSortMergeJoin(size_t totalSize) {
 }
 
 ///merge the XTemp and XYTemp into a buffer;
-Status EntityIDBuffer::mergeBuffer(EntityIDBuffer* XTemp,
-		EntityIDBuffer* XYTemp) {
+Status EntityIDBuffer::mergeBuffer(EntityIDBuffer* XTemp, EntityIDBuffer* XYTemp) {
 	size_t totalSize = (XTemp->getSize() + XYTemp->getSize()) * XTemp->IDCount;
 
 	if (buffer != NULL)
@@ -927,9 +858,7 @@ Status EntityIDBuffer::mergeBuffer(EntityIDBuffer* XTemp,
 		for (int i = 1; i < pageCount; i++) {
 			buffer = (ID*) realloc(buffer, (i + 1) * getpagesize());
 			if (buffer == NULL)
-				MessageEngine::showMessage(
-						"EntityIDBuffer::mergeBuffer, realloc error!",
-						MessageEngine::ERROR);
+				MessageEngine::showMessage("EntityIDBuffer::mergeBuffer, realloc error!", MessageEngine::ERROR);
 		}
 	}
 
@@ -953,11 +882,9 @@ Status EntityIDBuffer::mergeBuffer(EntityIDBuffer* XTemp,
 		std::merge(start1, end1, start2, end2, buffer, SortTask::compareInt);
 	} else {
 		if (sortKey == 0) {
-			mergeBuffer(buffer, start1, start2, XTemp->getSize(),
-					XYTemp->getSize(), 2, 0);
+			mergeBuffer(buffer, start1, start2, XTemp->getSize(), XYTemp->getSize(), 2, 0);
 		} else if (sortKey == 1) {
-			mergeBuffer(buffer, start1, start2, XTemp->getSize(),
-					XYTemp->getSize(), 2, 1);
+			mergeBuffer(buffer, start1, start2, XTemp->getSize(), XYTemp->getSize(), 2, 1);
 		}
 	}
 
@@ -988,10 +915,7 @@ Status EntityIDBuffer::appendBuffer(const ID *buf, size_t size) {
 
 Status EntityIDBuffer::appendBuffer1(const ID *buf, size_t size) {
 	while (usedSize + size > totalSize) {
-		buffer = (ID*) realloc((char*) buffer,
-				totalSize * sizeof(ID)
-						+ ENTITY_BUFFER_INIT_PAGE_COUNT
-								* MemoryBuffer::pagesize);
+		buffer = (ID*) realloc((char*) buffer, totalSize * sizeof(ID) + ENTITY_BUFFER_INIT_PAGE_COUNT * MemoryBuffer::pagesize);
 		totalSize = totalSize + ENTITY_BUFFER_INIT_PAGE_COUNT * sizePerPage;
 	}
 	memcpy(buffer + usedSize, buf, size * sizeof(ID));
@@ -999,8 +923,7 @@ Status EntityIDBuffer::appendBuffer1(const ID *buf, size_t size) {
 	return OK;
 }
 
-Status EntityIDBuffer::swapBuffer(EntityIDBuffer* &buffer1,
-		EntityIDBuffer* &buffer2) {
+Status EntityIDBuffer::swapBuffer(EntityIDBuffer* &buffer1, EntityIDBuffer* &buffer2) {
 	EntityIDBuffer * temp = buffer1;
 	buffer1 = buffer2;
 	buffer2 = temp;

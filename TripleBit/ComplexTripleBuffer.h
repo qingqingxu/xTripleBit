@@ -33,18 +33,14 @@ public:
 	NodeEdgeBuffer(const string path, NODEEDGETYPE stType);
 	virtual ~NodeEdgeBuffer();
 	template<typename T>
-	Status addNodeEdge(T stValue, const vector<ID>& edges, char objType =
-			STRING);
+	Status addNodeEdge(T stValue, const vector<ID>& edges, char objType = STRING);
 	template<typename T>
-	Status getNodeEdge(T stValue, vector<ID>& edges, char objType =
-			STRING);
+	Status getNodeEdge(T stValue, vector<ID>& edges, char objType = STRING);
 	bool findLocation(double stValue);
 	Status save(MMapBuffer*& indexBuffer);
-	static NodeEdgeBuffer* load(NODEEDGETYPE stType, const string path,
-			uchar*& indexBuffer);
+	static NodeEdgeBuffer* load(NODEEDGETYPE stType, const string path, uchar*& indexBuffer);
 private:
-	void decodeBuffer(const uchar* begin, const uchar* end, double stValue,
-			vector<ID>& edges, char objType = STRING);
+	void decodeBuffer(const uchar* begin, const uchar* end, double stValue, vector<ID>& edges, char objType = STRING);
 };
 
 class EdgeStartTargetBuffer {
@@ -60,7 +56,7 @@ public:
 	};
 private:
 	MMapBuffer* buffer;
-    uchar* writer;
+	uchar* writer;
 	Couple* index;
 	uint usedSpace;
 	uint indexPos, indexSize;
@@ -69,11 +65,10 @@ private:
 public:
 	EdgeStartTargetBuffer(const string path);
 	virtual ~EdgeStartTargetBuffer();
-	Status addTriple(ID edgeID, ID startID, double target, char objType =
-			STRING);
+	Status addTriple(ID edgeID, ID startID, double target, char objType = STRING);
 	bool findLocation(ID edgeID);
 	Status save(MMapBuffer*& indexBuffer);
-	static EdgeStartTargetBuffer* load(const string path,uchar*& indexBuffer);
+	static EdgeStartTargetBuffer* load(const string path, uchar*& indexBuffer);
 private:
 	void decodeBuffer(const uchar* begin, const uchar* end, ID edgeID);
 };

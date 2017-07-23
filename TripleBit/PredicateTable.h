@@ -23,7 +23,9 @@ class PredicateTable {
 private:
 	Status getPrefix(const char* URI);
 public:
-	PredicateTable() : SINGLE("single") { }
+	PredicateTable() :
+			SINGLE("single") {
+	}
 	PredicateTable(const string dir);
 	virtual ~PredicateTable();
 	Status insertTable(const char* str, ID& id);

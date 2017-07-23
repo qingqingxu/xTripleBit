@@ -13,8 +13,10 @@
 class IRepository {
 
 public:
-	IRepository(){}
-	virtual ~IRepository(){}
+	IRepository() {
+	}
+	virtual ~IRepository() {
+	}
 
 	//virtual Status  open() = 0;
 	///virtual Status  load() = 0;
@@ -35,7 +37,7 @@ public:
 	//static IRepository * create(const char * path);
 
 	//Get some statistics information
-	virtual int	get_predicate_count(PID pid) = 0;
+	virtual int get_predicate_count(PID pid) = 0;
 	virtual int get_subject_count(ID subjectID) = 0;
 	virtual int get_object_count(double object, char objType = STRING) = 0;
 	virtual int get_subject_predicate_count(ID subjectID, ID predicateID) = 0;

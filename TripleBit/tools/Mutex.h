@@ -10,8 +10,7 @@
 
 #include <pthread.h>
 
-class Mutex
-{
+class Mutex {
 private:
 	pthread_mutex_t mutex;
 
@@ -32,9 +31,8 @@ public:
 	void unlock();
 };
 
-
 //Locker object
-class auto_lock{
+class auto_lock {
 private:
 	Mutex &lock;
 
@@ -42,7 +40,12 @@ private:
 	void operator=(const auto_lock&);
 
 public:
-	auto_lock(Mutex& l):lock(l) { l.lock(); }
-	~auto_lock() { lock.unlock(); }
+	auto_lock(Mutex& l) :
+			lock(l) {
+		l.lock();
+	}
+	~auto_lock() {
+		lock.unlock();
+	}
 };
 #endif /* MUTEX_H_ */

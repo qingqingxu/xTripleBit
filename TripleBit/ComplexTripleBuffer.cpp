@@ -15,9 +15,9 @@ extern uchar* writeData(uchar* writer, T data);
 template<typename T>
 extern const uchar* readData(const uchar* reader, T& data);
 
-NodeEdgeBuffer::NodeEdgeBuffer(const string path, NODEEDGETYPE neType):stType(stType) {
-	buffer = new MMapBuffer(path.c_str(),
-			COMPLEX_BUFFER_INIT_PAGE_COUNT * MemoryBuffer::pagesize);
+NodeEdgeBuffer::NodeEdgeBuffer(const string path, NODEEDGETYPE neType) :
+		stType(stType) {
+	buffer = new MMapBuffer(path.c_str(), COMPLEX_BUFFER_INIT_PAGE_COUNT * MemoryBuffer::pagesize);
 	writer = (uchar*) buffer->getBuffer();
 	usedSpace = 0;
 	indexPos = 0;
@@ -38,23 +38,19 @@ NodeEdgeBuffer::~NodeEdgeBuffer() {
 }
 
 template<typename T>
-Status NodeEdgeBuffer::addNodeEdge(T stValue, const vector<ID>& edges,
-		char objType) {
+Status NodeEdgeBuffer::addNodeEdge(T stValue, const vector<ID>& edges, char objType) {
 	unsigned len = sizeof(T) + sizeof(size_t) + sizeof(ID) * edges.size();
 
 	if (first || usedSpace + len > buffer->getSize()) {
 		usedSpace = writer - (uchar*) buffer->getBuffer();
-		buffer->resize(
-				COMPLEX_BUFFER_INCREMENT_PAGE_COUNT * MemoryBuffer::pagesize); //加大空间
+		buffer->resize(COMPLEX_BUFFER_INCREMENT_PAGE_COUNT * MemoryBuffer::pagesize); //加大空间
 		writer = (uchar*) buffer->getBuffer() + usedSpace;
 
 		if ((indexPos + 1) >= indexSize) {
 #ifdef DEBUF
 			cout<<"indexPos: "<<indexPos<<" indexSize: "<<indexSize<<endl;
 #endif
-			index = (Couple*) realloc(index,
-					indexSize * sizeof(Couple)
-							+ MemoryBuffer::pagesize * sizeof(Couple));
+			index = (Couple*) realloc(index, indexSize * sizeof(Couple) + MemoryBuffer::pagesize * sizeof(Couple));
 			if (index == NULL) {
 				cout << "realloc StatisticsBuffer error" << endl;
 				return ERR;
@@ -98,8 +94,7 @@ Status NodeEdgeBuffer::getNodeEdge(T stValue, vector<ID>& edges, char objType) {
 	if (pos == (index + indexPos))
 		end = usedSpace;
 
-	const uchar* begin = (uchar*) buffer->getBuffer() + start, *limit =
-			(uchar*) buffer->getBuffer() + end;
+	const uchar* begin = (uchar*) buffer->getBuffer() + start, *limit = (uchar*) buffer->getBuffer() + end;
 	decodeBuffer(begin, limit, stValue, edges, objType);
 	if (edges.size() != 0) {
 		return OK;
@@ -132,9 +127,7 @@ bool NodeEdgeBuffer::findLocation(double stValue) {
 Status NodeEdgeBuffer::save(MMapBuffer*& indexBuffer) {
 	uchar* writer;
 	if (indexBuffer == NULL) {
-		indexBuffer = MMapBuffer::create(
-				string(string(DATABASE_PATH) + "/complexIndex").c_str(),
-				indexPos * sizeof(Couple) + 2 * sizeof(unsigned));
+		indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/complexIndex").c_str(), indexPos * sizeof(Couple) + 2 * sizeof(unsigned));
 		writer = indexBuffer->get_address();
 	} else {
 		size_t size = indexBuffer->getSize();
@@ -150,8 +143,7 @@ Status NodeEdgeBuffer::save(MMapBuffer*& indexBuffer) {
 
 	return OK;
 }
-NodeEdgeBuffer* NodeEdgeBuffer::load(NODEEDGETYPE stType,
-		const string path, uchar*& indexBuffer) {
+NodeEdgeBuffer* NodeEdgeBuffer::load(NODEEDGETYPE stType, const string path, uchar*& indexBuffer) {
 	NodeEdgeBuffer* stBuffer = new NodeEdgeBuffer(path, stType);
 
 	indexBuffer = (uchar*) readData(indexBuffer, stBuffer->usedSpace);
@@ -165,8 +157,7 @@ NodeEdgeBuffer* NodeEdgeBuffer::load(NODEEDGETYPE stType,
 
 	return stBuffer;
 }
-void NodeEdgeBuffer::decodeBuffer(const uchar* begin, const uchar* end,
-		double stValue, vector<ID>& edges, char objType) {
+void NodeEdgeBuffer::decodeBuffer(const uchar* begin, const uchar* end, double stValue, vector<ID>& edges, char objType) {
 	ID edgeID;
 	size_t count;
 	if (stType == STARTEDGE) {
@@ -217,8 +208,7 @@ void NodeEdgeBuffer::decodeBuffer(const uchar* begin, const uchar* end,
 							}
 						} else if (tempObject > stValue) {
 							return;
-						} else if (tempObject == stValue
-								&& tempObjType == objType) {
+						} else if (tempObject == stValue && tempObjType == objType) {
 							while (count-- && begin + sizeof(ID) <= end) {
 								begin = readData(begin, edgeID);
 								edges.push_back(edgeID);
@@ -241,128 +231,119 @@ void NodeEdgeBuffer::decodeBuffer(const uchar* begin, const uchar* end,
 
 EdgeStartTargetBuffer::EdgeStartTargetBuffer(const string path) {
 	// TODO Auto-generated constructor stub
-	buffer = new MMapBuffer(path.c_str(),
-				COMPLEX_BUFFER_INIT_PAGE_COUNT * MemoryBuffer::pagesize);
-		writer = (uchar*) buffer->getBuffer();
-		usedSpace = 0;
-		indexPos = 0;
-		indexSize = 0; //MemoryBuffer::pagesize;
-		index = NULL;
-		first = true;
+	buffer = new MMapBuffer(path.c_str(), COMPLEX_BUFFER_INIT_PAGE_COUNT * MemoryBuffer::pagesize);
+	writer = (uchar*) buffer->getBuffer();
+	usedSpace = 0;
+	indexPos = 0;
+	indexSize = 0; //MemoryBuffer::pagesize;
+	index = NULL;
+	first = true;
 }
 
 EdgeStartTargetBuffer::~EdgeStartTargetBuffer() {
 	// TODO Auto-generated destructor stub
 	if (buffer != NULL) {
-			delete buffer;
-		}
-		buffer = NULL;
-		if (index != NULL) {
-			delete index;
-		}
-		index = NULL;
+		delete buffer;
+	}
+	buffer = NULL;
+	if (index != NULL) {
+		delete index;
+	}
+	index = NULL;
 }
 
-Status EdgeStartTargetBuffer::addTriple(ID edgeID, ID startID, double target,
-		char objType) {
+Status EdgeStartTargetBuffer::addTriple(ID edgeID, ID startID, double target, char objType) {
 	unsigned len = sizeof(ID) + sizeof(ID) + Chunk::getLen(objType);
 
-		if (first || usedSpace + len > buffer->getSize()) {
-			usedSpace = writer - (uchar*) buffer->getBuffer();
-			buffer->resize(
-					COMPLEX_BUFFER_INCREMENT_PAGE_COUNT * MemoryBuffer::pagesize); //加大空间
-			writer = (uchar*) buffer->getBuffer() + usedSpace;
+	if (first || usedSpace + len > buffer->getSize()) {
+		usedSpace = writer - (uchar*) buffer->getBuffer();
+		buffer->resize(COMPLEX_BUFFER_INCREMENT_PAGE_COUNT * MemoryBuffer::pagesize); //加大空间
+		writer = (uchar*) buffer->getBuffer() + usedSpace;
 
-			if ((indexPos + 1) >= indexSize) {
-	#ifdef DEBUF
-				cout<<"indexPos: "<<indexPos<<" indexSize: "<<indexSize<<endl;
-	#endif
-				index = (Couple*) realloc(index,
-						indexSize * sizeof(Couple)
-								+ MemoryBuffer::pagesize * sizeof(Couple));
-				if (index == NULL) {
-					cout << "realloc StatisticsBuffer error" << endl;
-					return ERR;
-				}
-				indexSize += MemoryBuffer::pagesize;
+		if ((indexPos + 1) >= indexSize) {
+#ifdef DEBUF
+			cout<<"indexPos: "<<indexPos<<" indexSize: "<<indexSize<<endl;
+#endif
+			index = (Couple*) realloc(index, indexSize * sizeof(Couple) + MemoryBuffer::pagesize * sizeof(Couple));
+			if (index == NULL) {
+				cout << "realloc StatisticsBuffer error" << endl;
+				return ERR;
 			}
-
-			index[indexPos].edgeID = edgeID;
-			index[indexPos].offset = usedSpace; //record offset，可以得出实体——谓词所在的块号
-
-			indexPos++;
-			first = false;
+			indexSize += MemoryBuffer::pagesize;
 		}
 
-		writer = writeData(writer, edgeID);
-		writer = writeData(writer, startID);
-		uchar* temp = writer;
-		Chunk::write(temp, target, objType);
-		writer = (uchar*)temp;
-		usedSpace = writer - (uchar*) buffer->getBuffer();
-		return OK;
+		index[indexPos].edgeID = edgeID;
+		index[indexPos].offset = usedSpace; //record offset，可以得出实体——谓词所在的块号
+
+		indexPos++;
+		first = false;
+	}
+
+	writer = writeData(writer, edgeID);
+	writer = writeData(writer, startID);
+	uchar* temp = writer;
+	Chunk::write(temp, target, objType);
+	writer = (uchar*) temp;
+	usedSpace = writer - (uchar*) buffer->getBuffer();
+	return OK;
 }
 bool EdgeStartTargetBuffer::findLocation(ID edgeID) {
 	int left = 0, right = posLimit - pos;
-		int middle;
+	int middle;
 
-		while (left != right) {
-			middle = left + ((right - left) / 2);
+	while (left != right) {
+		middle = left + ((right - left) / 2);
 
-			if (edgeID > pos[middle].edgeID) {
-				left = middle + 1;
-			} else if ((!middle) || edgeID > pos[middle - 1].edgeID) {
-				break;
-			} else {
-				right = middle;
-			}
-		}
-
-		if (left == right) {
-			return false;
+		if (edgeID > pos[middle].edgeID) {
+			left = middle + 1;
+		} else if ((!middle) || edgeID > pos[middle - 1].edgeID) {
+			break;
 		} else {
-			pos = &pos[middle];
-			return true;
+			right = middle;
 		}
+	}
+
+	if (left == right) {
+		return false;
+	} else {
+		pos = &pos[middle];
+		return true;
+	}
 }
 Status EdgeStartTargetBuffer::save(MMapBuffer*& indexBuffer) {
 
 	uchar* writer;
-		if (indexBuffer == NULL) {
-			indexBuffer = MMapBuffer::create(
-					string(string(DATABASE_PATH) + "/complexIndex").c_str(),
-					indexPos * sizeof(Couple) + 2 * sizeof(unsigned));
-			writer = indexBuffer->get_address();
-		} else {
-			size_t size = indexBuffer->getSize();
-			indexBuffer->resize(indexPos * sizeof(Couple) + 2 * sizeof(unsigned));
-			writer = indexBuffer->get_address() + size;
-		}
+	if (indexBuffer == NULL) {
+		indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/complexIndex").c_str(), indexPos * sizeof(Couple) + 2 * sizeof(unsigned));
+		writer = indexBuffer->get_address();
+	} else {
+		size_t size = indexBuffer->getSize();
+		indexBuffer->resize(indexPos * sizeof(Couple) + 2 * sizeof(unsigned));
+		writer = indexBuffer->get_address() + size;
+	}
 
-		writer = writeData(writer, usedSpace);
-		writer = writeData(writer, indexPos);
+	writer = writeData(writer, usedSpace);
+	writer = writeData(writer, indexPos);
 
-		memcpy(writer, (char*) index, indexPos * sizeof(Couple));
-		free(index);
+	memcpy(writer, (char*) index, indexPos * sizeof(Couple));
+	free(index);
 
-		return OK;
+	return OK;
 }
-EdgeStartTargetBuffer* EdgeStartTargetBuffer::load(const string path,
-		uchar*& indexBuffer) {
+EdgeStartTargetBuffer* EdgeStartTargetBuffer::load(const string path, uchar*& indexBuffer) {
 	EdgeStartTargetBuffer* stBuffer = new EdgeStartTargetBuffer(path);
 
-		indexBuffer = (uchar*) readData(indexBuffer, stBuffer->usedSpace);
-		indexBuffer = (uchar*) readData(indexBuffer, stBuffer->indexPos);
-	#ifdef DEBUG
-		cout<<__FUNCTION__<<"indexPos: "<<statBuffer->indexPos<<endl;
-	#endif
-		// load index;
-		stBuffer->index = (Couple*) indexBuffer;
-		indexBuffer = indexBuffer + stBuffer->indexPos * sizeof(Couple);
+	indexBuffer = (uchar*) readData(indexBuffer, stBuffer->usedSpace);
+	indexBuffer = (uchar*) readData(indexBuffer, stBuffer->indexPos);
+#ifdef DEBUG
+	cout<<__FUNCTION__<<"indexPos: "<<statBuffer->indexPos<<endl;
+#endif
+	// load index;
+	stBuffer->index = (Couple*) indexBuffer;
+	indexBuffer = indexBuffer + stBuffer->indexPos * sizeof(Couple);
 
-		return stBuffer;
+	return stBuffer;
 }
-void EdgeStartTargetBuffer::decodeBuffer(const uchar* begin, const uchar* end,
-		ID edgeID) {
+void EdgeStartTargetBuffer::decodeBuffer(const uchar* begin, const uchar* end, ID edgeID) {
 
 }

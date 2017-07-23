@@ -17,8 +17,7 @@
  * f(x)=kx + b;
  * used to calculate the parameter k and b;
  */
-bool LineHashIndex::calculateLineKB(vector<LineHashIndex::Point>& a, double& k,
-		double& b, int pointNo) {
+bool LineHashIndex::calculateLineKB(vector<LineHashIndex::Point>& a, double& k, double& b, int pointNo) {
 	if (pointNo < 2)
 		return false;
 
@@ -291,14 +290,10 @@ bool LineHashIndex::searchChunk(double x, double y, size_t& offsetID)
 }
 
 bool LineHashIndex::isQualify(size_t offsetId, double x, double y) {
-	return (x < MetaID(offsetId + 1)
-			|| (x == MetaID(offsetId + 1) && y < MetaYID(offsetId + 1)))
-			&& (x > MetaID(offsetId)
-					|| (x == MetaID(offsetId) && y >= MetaYID(offsetId)));
+	return (x < MetaID(offsetId + 1) || (x == MetaID(offsetId + 1) && y < MetaYID(offsetId + 1))) && (x > MetaID(offsetId) || (x == MetaID(offsetId) && y >= MetaYID(offsetId)));
 }
 
-void LineHashIndex::getOffsetPair(size_t offsetID, unsigned& offsetBegin,
-		unsigned& offsetEnd)
+void LineHashIndex::getOffsetPair(size_t offsetID, unsigned& offsetBegin, unsigned& offsetEnd)
 //get the offset of the data begin and end of the offsetIDth Chunk to the startPtr
 		{
 	if (tableSize == 0) {
@@ -316,16 +311,12 @@ size_t LineHashIndex::save(MMapBuffer*& indexBuffer)
 	size_t offset;
 
 	if (indexBuffer == NULL) {
-		indexBuffer = MMapBuffer::create(
-				string(string(DATABASE_PATH) + "/BitmapBuffer_index").c_str(),
-				sizeof(size_t) + 16 * sizeof(double) + 4 * sizeof(double));
+		indexBuffer = MMapBuffer::create(string(string(DATABASE_PATH) + "/BitmapBuffer_index").c_str(), sizeof(size_t) + 16 * sizeof(double) + 4 * sizeof(double));
 		writeBuf = indexBuffer->get_address();
 		offset = 0;
 	} else {
 		size_t size = indexBuffer->get_length();
-		indexBuffer->resize(
-				size + sizeof(size_t) + 16 * sizeof(double)
-						+ 4 * sizeof(double), false);
+		indexBuffer->resize(size + sizeof(size_t) + 16 * sizeof(double) + 4 * sizeof(double), false);
 		writeBuf = indexBuffer->get_address() + size;
 		offset = size;
 	}
@@ -403,8 +394,7 @@ void LineHashIndex::updateChunkMetaData(uint offsetId) {
 	//}
 }
 
-LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type,
-		uchar*buffer, size_t& offset) {
+LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type, uchar*buffer, size_t& offset) {
 	LineHashIndex* index = new LineHashIndex(manager, index_type);
 	uchar* base = buffer + offset;
 	index->lineHashIndexBase = base;
@@ -444,28 +434,20 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type,
 
 		temp = index->startPtr + sizeof(MetaData);
 
-		Chunk::read(Chunk::read(Chunk::readID(temp, subjectID), objType, CHAR),
-				object, objType);
+		Chunk::read(Chunk::read(Chunk::readID(temp, subjectID), objType, CHAR), object, objType);
 		index->chunkMeta.push_back( { subjectID, object, sizeof(MetaData) });
 
-		reader = index->startPtr - sizeof(ChunkManagerMeta)
-				+ MemoryBuffer::pagesize;
+		reader = index->startPtr - sizeof(ChunkManagerMeta) + MemoryBuffer::pagesize;
 		while (reader < index->endPtr) {
 			temp = reader + sizeof(MetaData);
-			Chunk::read(
-					Chunk::read(Chunk::readID(temp, subjectID), objType, CHAR),
-					object, objType);
-			index->chunkMeta.push_back(
-					{ subjectID, object, reader - index->startPtr
-							+ sizeof(MetaData) });
+			Chunk::read(Chunk::read(Chunk::readID(temp, subjectID), objType, CHAR), object, objType);
+			index->chunkMeta.push_back( { subjectID, object, reader - index->startPtr + sizeof(MetaData) });
 
 			reader = reader + MemoryBuffer::pagesize;
 		}
 		reader = Chunk::skipBackward(reader, index->endPtr, ORDERBYS);
 		if (reader != index->endPtr) {
-			Chunk::read(
-					Chunk::read(Chunk::readID(temp, subjectID), objType, CHAR),
-					object, objType);
+			Chunk::read(Chunk::read(Chunk::readID(temp, subjectID), objType, CHAR), object, objType);
 			index->chunkMeta.push_back( { subjectID, object });
 		}
 
@@ -477,29 +459,20 @@ LineHashIndex* LineHashIndex::load(ChunkManager& manager, IndexType index_type,
 
 		temp = index->startPtr + sizeof(MetaData);
 
-		Chunk::readID(
-				Chunk::read(Chunk::read(temp, objType, CHAR), object, objType),
-				subjectID);
+		Chunk::readID(Chunk::read(Chunk::read(temp, objType, CHAR), object, objType), subjectID);
 		index->chunkMeta.push_back( { object, subjectID, sizeof(MetaData) });
 
-		reader = index->startPtr - sizeof(ChunkManagerMeta)
-				+ MemoryBuffer::pagesize;
+		reader = index->startPtr - sizeof(ChunkManagerMeta) + MemoryBuffer::pagesize;
 		while (reader < index->endPtr) {
 			temp = reader + sizeof(MetaData);
-			Chunk::readID(
-					Chunk::read(Chunk::read(temp, objType, CHAR), object,
-							objType), subjectID);
-			index->chunkMeta.push_back(
-					{ object, subjectID, reader - index->startPtr
-							+ sizeof(MetaData) });
+			Chunk::readID(Chunk::read(Chunk::read(temp, objType, CHAR), object, objType), subjectID);
+			index->chunkMeta.push_back( { object, subjectID, reader - index->startPtr + sizeof(MetaData) });
 
 			reader = reader + MemoryBuffer::pagesize;
 		}
 		reader = Chunk::skipBackward(reader, index->endPtr, ORDERBYS);
 		if (reader != index->endPtr) {
-			Chunk::readID(
-					Chunk::read(Chunk::read(temp, objType, CHAR), object,
-							objType), subjectID);
+			Chunk::readID(Chunk::read(Chunk::read(temp, objType, CHAR), object, objType), subjectID);
 			index->chunkMeta.push_back( { object, subjectID });
 		}
 	}

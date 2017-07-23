@@ -83,45 +83,18 @@ const unsigned int HASH_CAPACITY = 100000 / HASH_RANGE;
 const unsigned int HASH_CAPACITY_INCREASE = 100000 / HASH_RANGE;
 const unsigned int SECONDARY_HASH_RANGE = 10;
 const unsigned int SECONDARY_HASH_CAPACITY = 100000 / SECONDARY_HASH_RANGE;
-const unsigned int SECONDARY_HASH_CAPACITY_INCREASE = 100000
-		/ SECONDARY_HASH_RANGE;
+const unsigned int SECONDARY_HASH_CAPACITY_INCREASE = 100000 / SECONDARY_HASH_RANGE;
 
 extern char* DATABASE_PATH;
 
 //thread pool
 const unsigned int WORKERNUM = 1;
-const unsigned int WORK_THREAD_NUMBER = 1; //should be 2^n;old: 8
+const unsigned int WORK_THREAD_NUMBER = 8; //should be 2^n;old: 8
 const unsigned int PARTITION_THREAD_NUMBER = 6; //old:6
-const unsigned int CHUNK_THREAD_NUMBER = 1; //old:16
+const unsigned int CHUNK_THREAD_NUMBER = 16; //old:16
 
 enum Status {
-	OK = 1,
-	NOT_FIND = -1,
-	OUT_OF_MEMORY = -5,
-	PTR_IS_FULL = -11,
-	PTR_IS_NOT_FULL = -10,
-	CHUNK_IS_FULL = -21,
-	CHUNK_IS_NOT_FULL = -20,
-	PREDICATE_NOT_BE_FINDED = -30,
-	CHARBUFFER_IS_FULL = -40,
-	CHARBUFFER_IS_NOT_FULL = -41,
-	URI_NOT_FOUND = -50,
-	URI_FOUND = -51,
-	PREDICATE_FILE_NOT_FOUND = -60,
-	PREDICATE_FILE_END = -61,
-	PREDICATE_NOT_FOUND = -70,
-	PREDICATE_FOUND = -71,
-	REIFICATION_NOT_FOUND,
-	FINISH_WIRITE,
-	FINISH_READ,
-	ERROR,
-	SUBJECTID_NOT_FOUND,
-	OBJECTID_NOT_FOUND,
-	COLUMNNO_NOT_FOUND,
-	BUFFER_NOT_FOUND,
-	ENTITY_NOT_INCLUDED,
-	NO_HIT,
-	NOT_OPENED, 	// file was not previously opened
+	OK = 1, NOT_FIND = -1, OUT_OF_MEMORY = -5, PTR_IS_FULL = -11, PTR_IS_NOT_FULL = -10, CHUNK_IS_FULL = -21, CHUNK_IS_NOT_FULL = -20, PREDICATE_NOT_BE_FINDED = -30, CHARBUFFER_IS_FULL = -40, CHARBUFFER_IS_NOT_FULL = -41, URI_NOT_FOUND = -50, URI_FOUND = -51, PREDICATE_FILE_NOT_FOUND = -60, PREDICATE_FILE_END = -61, PREDICATE_NOT_FOUND = -70, PREDICATE_FOUND = -71, REIFICATION_NOT_FOUND, FINISH_WIRITE, FINISH_READ, ERROR, SUBJECTID_NOT_FOUND, OBJECTID_NOT_FOUND, COLUMNNO_NOT_FOUND, BUFFER_NOT_FOUND, ENTITY_NOT_INCLUDED, NO_HIT, NOT_OPENED, 	// file was not previously opened
 	END_OF_FILE, 	// read beyond end of file or no space to extend file
 	LOCK_ERROR, 	// file is used by another program
 	NO_MEMORY,
@@ -151,25 +124,7 @@ enum OrderByType {
 };
 
 enum DataType {
-	NONE,
-	BOOL,
-	BOOL_DELETE,
-	CHAR,
-	CHAR_DELETE,
-	INT,
-	INT_DELETE,
-	UNSIGNED_INT,
-	UNSIGNED_INT_DELETE,
-	FLOAT,
-	FLOAT_DELETE,
-	DATE,
-	DATE_DELETE,
-	LONGLONG,
-	LONGLONG_DELETE,
-	DOUBLE,
-	DOUBLE_DELETE,
-	STRING,
-	STRING_DELETE
+	NONE, BOOL, BOOL_DELETE, CHAR, CHAR_DELETE, INT, INT_DELETE, UNSIGNED_INT, UNSIGNED_INT_DELETE, FLOAT, FLOAT_DELETE, DATE, DATE_DELETE, LONGLONG, LONGLONG_DELETE, DOUBLE, DOUBLE_DELETE, STRING, STRING_DELETE
 };
 
 enum StatisticsType {
@@ -236,8 +191,7 @@ inline unsigned char Type_2_Length(unsigned char type) {
 	return (type - 1) / 4 + (type - 1) % 4 + 2;
 }
 
-inline void Type_2_Length(unsigned char type, unsigned char& xLen,
-		unsigned char& yLen) {
+inline void Type_2_Length(unsigned char type, unsigned char& xLen, unsigned char& yLen) {
 	xLen = (type - 1) / 4 + 1;
 	yLen = (type - 1) % 4 + 1;
 }
@@ -315,30 +269,7 @@ struct TripleNode {
 	// Which of the three values are constants?
 	bool constSubject, constPredicate, constObject;
 	enum Op {
-		FINDSBYPO,
-		FINDOBYSP,
-		FINDPBYSO,
-		FINDSBYP,
-		FINDOBYP,
-		FINDPBYS,
-		FINDPBYO,
-		FINDSBYO,
-		FINDOBYS,
-		FINDS,
-		FINDP,
-		FINDO,
-		NOOP,
-		FINDSPBYO,
-		FINDSOBYP,
-		FINDPOBYS,
-		FINDPSBYO,
-		FINDOSBYP,
-		FINDOPBYS,
-		FINDSOBYNONE,
-		FINDOSBYNONE,
-		FINDSPO,
-		FINDSPBYNONE,
-		FINDPOBYNONE
+		FINDSBYPO, FINDOBYSP, FINDPBYSO, FINDSBYP, FINDOBYP, FINDPBYS, FINDPBYO, FINDSBYO, FINDOBYS, FINDS, FINDP, FINDO, NOOP, FINDSPBYO, FINDSOBYP, FINDPOBYS, FINDPSBYO, FINDOSBYP, FINDOPBYS, FINDSOBYNONE, FINDOSBYNONE, FINDSPO, FINDSPBYNONE, FINDPOBYNONE
 	};
 
 	TripleNodeID tripleNodeID;
@@ -386,27 +317,24 @@ struct TripleNode {
 	}
 
 	/*bool operator<(const struct TripleNode& orig) const {
-		if (this->subjectID == orig.subjectID
-				&& this->predicateID == orig.predicateID
-				&& this->object == orig.object && this->objType == orig.objType
-				&& this->constSubject == orig.constSubject
-				&& this->constPredicate == orig.constPredicate
-				&& this->constObject == orig.constObject
-				&& this->tripleNodeID == orig.tripleNodeID
-				&& this->scanOperation == orig.scanOperation
-				&& this->selectivity == orig.selectivity) {
-			return false;
-		}
-		return true;
-	}*/
+	 if (this->subjectID == orig.subjectID
+	 && this->predicateID == orig.predicateID
+	 && this->object == orig.object && this->objType == orig.objType
+	 && this->constSubject == orig.constSubject
+	 && this->constPredicate == orig.constPredicate
+	 && this->constObject == orig.constObject
+	 && this->tripleNodeID == orig.tripleNodeID
+	 && this->scanOperation == orig.scanOperation
+	 && this->selectivity == orig.selectivity) {
+	 return false;
+	 }
+	 return true;
+	 }*/
 
 	void print() {
-		cout << "subjectID: " << subjectID << "\t predicateID: " << predicateID
-				<< "\t object: " << object << endl;
-		cout << "constSubject: " << constSubject << "\t constPredicate: "
-				<< constPredicate << "\t constObject: " << constObject << endl;
-		cout << "tripleNodeID: " << tripleNodeID << "\t scanOperation: "
-				<< scanOperation << "\t selectivity: " << selectivity << endl;
+		cout << "subjectID: " << subjectID << "\t predicateID: " << predicateID << "\t object: " << object << endl;
+		cout << "constSubject: " << constSubject << "\t constPredicate: " << constPredicate << "\t constObject: " << constObject << endl;
+		cout << "tripleNodeID: " << tripleNodeID << "\t scanOperation: " << scanOperation << "\t selectivity: " << selectivity << endl;
 	}
 };
 

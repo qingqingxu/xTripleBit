@@ -29,8 +29,7 @@ class SubTrans;
 typedef map<ID, EntityIDBuffer*> EntityIDListType;
 typedef map<ID, EntityIDBuffer*>::iterator EntityIDListIterType;
 
-class TripleBitWorkerQuery
-{
+class TripleBitWorkerQuery {
 private:
 	TripleBitRepository* tripleBitRepo;
 	BitmapBuffer* bitmap;
@@ -91,34 +90,34 @@ private:
 	Status excuteDeleteClause();
 	Status excuteUpdate();
 	/*Status singleVariableJoin();
-	Status acyclicJoin();
-	Status cyclicJoin();
-	void onePatternWithThreeVariables();
-	void displayAllTriples();
-	Status findEntitiesAndJoin(TripleBitQueryGraph::JoinVariableNodeID id,
-			vector<pair<TripleBitQueryGraph::TripleNodeID, TripleBitQueryGraph::JoinVariableNode::DimType> >& tpnodes,
-			bool firstTime);
-	Status findEntitiesAndJoinFirstTime(
-			vector<pair<TripleBitQueryGraph::TripleNodeID, TripleBitQueryGraph::JoinVariableNode::DimType> >& tpnodes,
-			ID tripleID, map<ID, bool>& firstInsertFlag, TripleBitQueryGraph::JoinVariableNodeID id);
-	Status modifyEntitiesAndJoin(
-			vector<pair<TripleBitQueryGraph::TripleNodeID, TripleBitQueryGraph::JoinVariableNode::DimType> >& tpnodes,
-			ID tripleID, TripleBitQueryGraph::JoinVariableNodeID id);
-	Status getTripleNodeByID(TripleNode*& triple, TripleBitQueryGraph::TripleNodeID nodeID);
-	Status getVariableNodeByID(TripleBitQueryGraph::JoinVariableNode*& node,
-			TripleBitQueryGraph::JoinVariableNodeID id);
-	int getVariableCount(TripleBitQueryGraph::TripleNodeID id);
-	int getVariableCount(TripleNode* triple);
-	bool nodeIsLeaf(TripleBitQueryGraph::JoinVariableNodeID varID);
-	Status sortEntityBuffer(vector<TripleBitQueryGraph::JoinVariableNode::JoinType>& joinVec,
-			vector<TripleBitQueryGraph::TripleNodeID>& tripleVec);
-	int getVariablePos(EntityType type, TripleNode* triple);
-	ResultIDBuffer* findEntityIDByTriple(TripleNode* triple, ID minID, ID maxID);
-	int getVariablePos(TripleBitQueryGraph::JoinVariableNodeID id, TripleBitQueryGraph::TripleNodeID tripleID);
-	int getVariablePos(TripleBitQueryGraph::JoinVariableNodeID id, TripleNode* triple);
+	 Status acyclicJoin();
+	 Status cyclicJoin();
+	 void onePatternWithThreeVariables();
+	 void displayAllTriples();
+	 Status findEntitiesAndJoin(TripleBitQueryGraph::JoinVariableNodeID id,
+	 vector<pair<TripleBitQueryGraph::TripleNodeID, TripleBitQueryGraph::JoinVariableNode::DimType> >& tpnodes,
+	 bool firstTime);
+	 Status findEntitiesAndJoinFirstTime(
+	 vector<pair<TripleBitQueryGraph::TripleNodeID, TripleBitQueryGraph::JoinVariableNode::DimType> >& tpnodes,
+	 ID tripleID, map<ID, bool>& firstInsertFlag, TripleBitQueryGraph::JoinVariableNodeID id);
+	 Status modifyEntitiesAndJoin(
+	 vector<pair<TripleBitQueryGraph::TripleNodeID, TripleBitQueryGraph::JoinVariableNode::DimType> >& tpnodes,
+	 ID tripleID, TripleBitQueryGraph::JoinVariableNodeID id);
+	 Status getTripleNodeByID(TripleNode*& triple, TripleBitQueryGraph::TripleNodeID nodeID);
+	 Status getVariableNodeByID(TripleBitQueryGraph::JoinVariableNode*& node,
+	 TripleBitQueryGraph::JoinVariableNodeID id);
+	 int getVariableCount(TripleBitQueryGraph::TripleNodeID id);
+	 int getVariableCount(TripleNode* triple);
+	 bool nodeIsLeaf(TripleBitQueryGraph::JoinVariableNodeID varID);
+	 Status sortEntityBuffer(vector<TripleBitQueryGraph::JoinVariableNode::JoinType>& joinVec,
+	 vector<TripleBitQueryGraph::TripleNodeID>& tripleVec);
+	 int getVariablePos(EntityType type, TripleNode* triple);
+	 ResultIDBuffer* findEntityIDByTriple(TripleNode* triple, ID minID, ID maxID);
+	 int getVariablePos(TripleBitQueryGraph::JoinVariableNodeID id, TripleBitQueryGraph::TripleNodeID tripleID);
+	 int getVariablePos(TripleBitQueryGraph::JoinVariableNodeID id, TripleNode* triple);
 
-	bool getResult(ID key, std::vector<EntityIDBuffer*>& bufferlist, size_t buf_index);
-	void getResult_join(ID key, std::vector<EntityIDBuffer*>& bufferlist, size_t buf_index);*/
+	 bool getResult(ID key, std::vector<EntityIDBuffer*>& bufferlist, size_t buf_index);
+	 void getResult_join(ID key, std::vector<EntityIDBuffer*>& bufferlist, size_t buf_index);*/
 
 	void classifyTripleNode();
 };

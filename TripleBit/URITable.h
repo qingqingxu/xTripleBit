@@ -23,21 +23,21 @@ class URITable {
 	string searchStr;
 
 private:
-	Status getPrefix(const char*  URI);
+	Status getPrefix(const char* URI);
 public:
 	URITable();
 	URITable(const string dir);
 	virtual ~URITable();
-	Status insertTable(const char* URI,ID& id);
-	Status getIdByURI(const char* URI,ID& id);
-	Status getURIById(string& URI,ID id);
+	Status insertTable(const char* URI, ID& id);
+	Status getIdByURI(const char* URI, ID& id);
+	Status getURIById(string& URI, ID id);
 
 	size_t getSize() {
-		cout<<"max id: "<<suffix_segment->getMaxID()<<endl;
+		cout << "max id: " << suffix_segment->getMaxID() << endl;
 		return prefix_segment->getSize() + suffix_segment->getSize();
 	}
 
-	ID getMaxID(){
+	ID getMaxID() {
 		return suffix_segment->getMaxID();
 	}
 

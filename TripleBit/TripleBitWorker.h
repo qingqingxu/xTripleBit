@@ -28,8 +28,7 @@ class TripleBitWorkerQuery;
 #include <boost/thread/thread.hpp>
 using namespace boost;
 
-class TripleBitWorker
-{
+class TripleBitWorker {
 private:
 	TripleBitRepository* tripleBitRepo;
 	PredicateTable* preTable;
@@ -54,7 +53,8 @@ private:
 public:
 	TripleBitWorker(TripleBitRepository* repo, ID workID);
 	Status Execute(string& queryString);
-	~TripleBitWorker(){}
+	~TripleBitWorker() {
+	}
 	void Work();
 	void Print();
 };

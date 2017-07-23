@@ -28,8 +28,7 @@
 #define COLDCACHE
 //#define MYDEBUG
 
-TripleBitWorkerQuery::TripleBitWorkerQuery(TripleBitRepository*& repo,
-		ID workID) {
+TripleBitWorkerQuery::TripleBitWorkerQuery(TripleBitRepository*& repo, ID workID) {
 	tripleBitRepo = repo;
 	bitmap = repo->getBitmapBuffer();
 	uriTable = repo->getURITable();
@@ -47,8 +46,7 @@ TripleBitWorkerQuery::TripleBitWorkerQuery(TripleBitRepository*& repo,
 	}
 
 	for (int partitionID = 1; partitionID <= partitionNum; ++partitionID) {
-		resultBuffer[partitionID] = resultWP[(workerID - 1) * partitionNum
-				+ partitionID - 1];
+		resultBuffer[partitionID] = resultWP[(workerID - 1) * partitionNum + partitionID - 1];
 	}
 }
 
@@ -72,8 +70,7 @@ void TripleBitWorkerQuery::releaseBuffer() {
 	EntityIDList.clear();
 }
 
-Status TripleBitWorkerQuery::query(TripleBitQueryGraph* queryGraph,
-		vector<string>& resultSet, timeval& transTime) {
+Status TripleBitWorkerQuery::query(TripleBitQueryGraph* queryGraph, vector<string>& resultSet, timeval& transTime) {
 	this->_queryGraph = queryGraph;
 	this->_query = &(queryGraph->getQuery());
 	this->resultPtr = &resultSet;
@@ -295,9 +292,7 @@ Status TripleBitWorkerQuery::query(TripleBitQueryGraph* queryGraph,
 void TripleBitWorkerQuery::tasksEnQueue(ID partitionID, SubTrans *subTrans) {
 	if (tasksQueue[partitionID]->Queue_Empty()) {
 		tasksQueue[partitionID]->EnQueue(subTrans);
-		ThreadPool::getPartitionPool().addTask(
-				boost::bind(&PartitionMaster::Work,
-						tripleBitRepo->getPartitionMaster(partitionID)));
+		ThreadPool::getPartitionPool().addTask(boost::bind(&PartitionMaster::Work, tripleBitRepo->getPartitionMaster(partitionID)));
 	} else {
 		tasksQueue[partitionID]->EnQueue(subTrans);
 	}
@@ -319,9 +314,7 @@ Status TripleBitWorkerQuery::excuteInsertData() {
 
 		tasksQueueWPMutex[partitionID - 1]->lock();
 		for (; tripleNodeIter != iter->second.end(); ++tripleNodeIter) {
-			SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0,
-					operationType, tripleNodeSize, *(*tripleNodeIter),
-					indexForTT);
+			SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0, operationType, tripleNodeSize, *(*tripleNodeIter), indexForTT);
 			tasksEnQueue(partitionID, subTrans);
 		}
 		tasksQueueWPMutex[partitionID - 1]->unlock();
@@ -349,9 +342,7 @@ Status TripleBitWorkerQuery::excuteDeleteData() {
 
 		tasksQueueWPMutex[partitionID - 1]->lock();
 		for (; tripleNodeIter != iter->second.end(); ++tripleNodeIter) {
-			SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0,
-					operationType, tripleNodeSize, *(*tripleNodeIter),
-					indexForTT);
+			SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0, operationType, tripleNodeSize, *(*tripleNodeIter), indexForTT);
 			tasksEnQueue(partitionID, subTrans);
 		}
 		tasksQueueWPMutex[partitionID - 1]->unlock();
@@ -366,34 +357,28 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 	cout << __FUNCTION__ << endl;
 #endif
 	vector<TripleNode>::iterator iter = _query->tripleNodes.begin();
-	TripleBitQueryGraph::OpType operationType =
-			TripleBitQueryGraph::DELETE_CLAUSE;
+	TripleBitQueryGraph::OpType operationType = TripleBitQueryGraph::DELETE_CLAUSE;
 	if (iter->constPredicate) {
 		//predicate已知
 		ID partitionID = iter->predicateID;
 		shared_ptr<IndexForTT> indexForTT(new IndexForTT(1));
-		SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0,
-				operationType, 1, *iter, indexForTT);
+		SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0, operationType, 1, *iter, indexForTT);
 		tasksEnQueue(partitionID, subTrans);
 		indexForTT->wait();
 	} else {
 		//predicate未知
 		if (!iter->constSubject && !iter->constObject) {
 			//subject、object未知
-			shared_ptr<IndexForTT> indexForTT(
-					new IndexForTT(tripleBitRepo->getPartitionNum()));
+			shared_ptr<IndexForTT> indexForTT(new IndexForTT(tripleBitRepo->getPartitionNum()));
 			for (size_t i = 1; i <= tripleBitRepo->getPartitionNum(); i++) {
-				SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0,
-						0, operationType, 1, *iter, indexForTT);
+				SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0, operationType, 1, *iter, indexForTT);
 				tasksEnQueue(i, subTrans);
 			}
 			indexForTT->wait();
 		} else if (iter->constSubject && iter->constObject) {
 			size_t subjectCounts = 0, objectCounts = 0;
-			tripleBitRepo->getSpStatisBuffer()->getStatisBySO(iter->subjectID,
-					subjectCounts, STRING);
-			tripleBitRepo->getOpStatisBuffer()->getStatisBySO(iter->object,
-					objectCounts, iter->objType);
+			tripleBitRepo->getSpStatisBuffer()->getStatisBySO(iter->subjectID, subjectCounts, STRING);
+			tripleBitRepo->getOpStatisBuffer()->getStatisBySO(iter->object, objectCounts, iter->objType);
 			if (subjectCounts == 0 || objectCounts == 0) {
 				return OK;
 			}
@@ -401,27 +386,19 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 
 			if (subjectCounts <= objectCounts) {
 				vector<ID> pids;
-				tripleBitRepo->getSpStatisBuffer()->findAllPredicateBySO(
-						iter->subjectID, pids, STRING);
+				tripleBitRepo->getSpStatisBuffer()->findAllPredicateBySO(iter->subjectID, pids, STRING);
 				shared_ptr<IndexForTT> indexForTT(new IndexForTT(pids.size()));
-				for (vector<ID>::iterator it = pids.begin(); it != pids.end();
-						it++) {
-					SubTrans *subTrans = new SubTrans(*transactionTime,
-							workerID, 0, 0, operationType, 1, *iter,
-							indexForTT);
+				for (vector<ID>::iterator it = pids.begin(); it != pids.end(); it++) {
+					SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0, operationType, 1, *iter, indexForTT);
 					tasksEnQueue(*it, subTrans);
 				}
 				indexForTT->wait();
 			} else {
 				vector<ID> pids;
-				tripleBitRepo->getOpStatisBuffer()->findAllPredicateBySO(
-						iter->object, pids, iter->objType);
+				tripleBitRepo->getOpStatisBuffer()->findAllPredicateBySO(iter->object, pids, iter->objType);
 				shared_ptr<IndexForTT> indexForTT(new IndexForTT(pids.size()));
-				for (vector<ID>::iterator it = pids.begin(); it != pids.end();
-						it++) {
-					SubTrans *subTrans = new SubTrans(*transactionTime,
-							workerID, 0, 0, operationType, 1, *iter,
-							indexForTT);
+				for (vector<ID>::iterator it = pids.begin(); it != pids.end(); it++) {
+					SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0, operationType, 1, *iter, indexForTT);
 					tasksEnQueue(*it, subTrans);
 				}
 				indexForTT->wait();
@@ -429,26 +406,20 @@ Status TripleBitWorkerQuery::excuteDeleteClause() {
 		} else if (iter->constSubject) {
 			//subject已知
 			vector<ID> pids;
-			tripleBitRepo->getSpStatisBuffer()->findAllPredicateBySO(
-					iter->subjectID, pids, STRING);
+			tripleBitRepo->getSpStatisBuffer()->findAllPredicateBySO(iter->subjectID, pids, STRING);
 			shared_ptr<IndexForTT> indexForTT(new IndexForTT(pids.size()));
-			for (vector<ID>::iterator it = pids.begin(); it != pids.end();
-					it++) {
-				SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0,
-						0, operationType, 1, *iter, indexForTT);
+			for (vector<ID>::iterator it = pids.begin(); it != pids.end(); it++) {
+				SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0, operationType, 1, *iter, indexForTT);
 				tasksEnQueue(*it, subTrans);
 			}
 			indexForTT->wait();
 		} else if (iter->constObject) {
 			//object已知
 			vector<ID> pids;
-			tripleBitRepo->getOpStatisBuffer()->findAllPredicateBySO(
-					iter->object, pids, iter->objType);
+			tripleBitRepo->getOpStatisBuffer()->findAllPredicateBySO(iter->object, pids, iter->objType);
 			shared_ptr<IndexForTT> indexForTT(new IndexForTT(pids.size()));
-			for (vector<ID>::iterator it = pids.begin(); it != pids.end();
-					it++) {
-				SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0,
-						0, operationType, 1, *iter, indexForTT);
+			for (vector<ID>::iterator it = pids.begin(); it != pids.end(); it++) {
+				SubTrans *subTrans = new SubTrans(*transactionTime, workerID, 0, 0, operationType, 1, *iter, indexForTT);
 				tasksEnQueue(*it, subTrans);
 			}
 			indexForTT->wait();
@@ -465,10 +436,8 @@ Status TripleBitWorkerQuery::excuteUpdate() {
 	ID partitionID = iter->predicateID;
 	TripleBitQueryGraph::OpType operationType = TripleBitQueryGraph::UPDATE;
 
-	SubTrans *subTrans1 = new SubTrans(*transactionTime, workerID, 0, 0,
-			operationType, 2, *iter, indexForTT);
-	SubTrans *subTrans2 = new SubTrans(*transactionTime, workerID, 0, 0,
-			operationType, 2, *++iter, indexForTT);
+	SubTrans *subTrans1 = new SubTrans(*transactionTime, workerID, 0, 0, operationType, 2, *iter, indexForTT);
+	SubTrans *subTrans2 = new SubTrans(*transactionTime, workerID, 0, 0, operationType, 2, *++iter, indexForTT);
 
 	tasksQueueWPMutex[partitionID - 1]->lock();
 	tasksEnQueue(partitionID, subTrans1);

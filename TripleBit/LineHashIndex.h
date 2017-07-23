@@ -16,12 +16,12 @@ class MMapBuffer;
 
 class LineHashIndex {
 public:
-	struct Point{
+	struct Point {
 		double x;
 		size_t y;
 	};
 
-	struct TableEntries{
+	struct TableEntries {
 		double min, max;
 		size_t pageNo;
 	};
@@ -35,7 +35,9 @@ public:
 		uint offsetBegin;	//The beginoffset of a chunk(not include MetaData and relative to the startPtr)
 	};
 
-	enum IndexType { SUBJECT_INDEX, OBJECT_INDEX};
+	enum IndexType {
+		SUBJECT_INDEX, OBJECT_INDEX
+	};
 private:
 	MemoryBuffer* idTable;
 	TableEntries* idTableEntries;
@@ -71,9 +73,11 @@ public:
 	size_t searchChunk(double x, double y);
 	bool searchChunk(double x, double y, size_t& offsetID);
 	bool isQualify(size_t offsetId, double x, double y);
-	size_t getTableSize() { return tableSize; }
+	size_t getTableSize() {
+		return tableSize;
+	}
 	size_t save(MMapBuffer*& indexBuffer);
-	void saveDelta(MMapBuffer*& indexBuffer, size_t& offset ,const size_t predicateSize);
+	void saveDelta(MMapBuffer*& indexBuffer, size_t& offset, const size_t predicateSize);
 	virtual ~LineHashIndex();
 	void updateChunkMetaData(uint offsetId);
 	void updateLineIndex();

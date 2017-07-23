@@ -57,8 +57,7 @@ public:
 	static int compare123(const uchar* left, const uchar* right);
 	static int compare321(const uchar* left, const uchar* right);
 
-	static inline void loadTriple(const uchar* data, ID& v1, ID& v2, double& v3,
-			char& objType) {
+	static inline void loadTriple(const uchar* data, ID& v1, ID& v2, double& v3, char& objType) {
 		TempFile::readTriple(data, v1, v2, v3, objType);
 	}
 
@@ -68,8 +67,7 @@ public:
 	}
 
 	template<typename T1, typename T2, typename T3, typename T4>
-	static inline int cmpTriples(T1 l1, T2 l2, T3 l3, T4 l4, T1 r1, T2 r2,
-			T3 r3, T4 r4) {
+	static inline int cmpTriples(T1 l1, T2 l2, T3 l3, T4 l4, T1 r1, T2 r2, T3 r3, T4 r4) {
 		int c = cmpValue(l1, r1);
 		if (c)
 			return c;
@@ -86,10 +84,8 @@ public:
 	Status resolveTriples(TempFile& rawFacts, TempFile& facts);
 	Status startBuildN3(string fileName);
 	bool N3Parse(istream& in, const char* name, TempFile& rawFacts);
-	Status importFromMySQL(string db, string server, string username,
-			string password);
-	void NTriplesParse(const char* subject, const char* predicate,
-			string& object, char& objType, TempFile&);
+	Status importFromMySQL(string db, string server, string username, string password);
+	void NTriplesParse(const char* subject, const char* predicate, string& object, char& objType, TempFile&);
 	Status buildIndex();
 	Status endBuild();
 

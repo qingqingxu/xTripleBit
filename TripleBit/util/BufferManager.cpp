@@ -10,8 +10,7 @@
 
 BufferManager* BufferManager::instance = NULL;
 
-BufferManager::BufferManager()
-{
+BufferManager::BufferManager() {
 	// TODO Auto-generated constructor stub
 	for (int i = 0; i < INIT_BUFFERS; i++) {
 		EntityIDBuffer* buffer = new EntityIDBuffer;
@@ -22,13 +21,11 @@ BufferManager::BufferManager()
 	bufferCnt = INIT_BUFFERS;
 }
 
-BufferManager::~BufferManager()
-{
+BufferManager::~BufferManager() {
 	// TODO Auto-generated destructor stub
 }
 
-bool BufferManager::expandBuffer()
-{
+bool BufferManager::expandBuffer() {
 	for (int i = 0; i < INCREASE_BUFFERS; i++) {
 		EntityIDBuffer* buffer = new EntityIDBuffer;
 		if (buffer == NULL) {
@@ -43,24 +40,23 @@ bool BufferManager::expandBuffer()
 	return true;
 }
 
-EntityIDBuffer* BufferManager::getNewBuffer()
-{
+EntityIDBuffer* BufferManager::getNewBuffer() {
 	if (usedBuffer.size() == bufferPool.size()) {
 		boost::mutex::scoped_lock lock(bufferMutex);
-		if (expandBuffer() == false){
+		if (expandBuffer() == false) {
 			return NULL;
 		}
 	}
 	EntityIDBuffer* buffer = cleanBuffer.front();
 	{
-		cleanBuffer.erase(cleanBuffer.begin());;
+		cleanBuffer.erase(cleanBuffer.begin());
+		;
 		usedBuffer.push_back(buffer);
 	}
 	return buffer;
 }
 
-void BufferManager::destroyBuffers()
-{
+void BufferManager::destroyBuffers() {
 	for (size_t i = 0; i < bufferPool.size(); i++) {
 		delete bufferPool[i];
 	}
@@ -69,8 +65,7 @@ void BufferManager::destroyBuffers()
 	cleanBuffer.clear();
 }
 
-Status BufferManager::freeBuffer(EntityIDBuffer* buffer)
-{
+Status BufferManager::freeBuffer(EntityIDBuffer* buffer) {
 	vector<EntityIDBuffer*>::iterator iter;
 	iter = find(usedBuffer.begin(), usedBuffer.end(), buffer);
 	if (iter != usedBuffer.end()) {
@@ -84,8 +79,7 @@ Status BufferManager::freeBuffer(EntityIDBuffer* buffer)
 	}
 }
 
-Status BufferManager::reserveBuffer()
-{
+Status BufferManager::reserveBuffer() {
 	usedBuffer.clear();
 	cleanBuffer.clear();
 	int i;
@@ -100,14 +94,12 @@ Status BufferManager::reserveBuffer()
 		delete *iter;
 		*iter = NULL;
 	}
-	bufferPool.erase(start,iter);
-
+	bufferPool.erase(start, iter);
 
 	return OK;
 }
 
-BufferManager* BufferManager::getInstance()
-{
+BufferManager* BufferManager::getInstance() {
 	if (instance == NULL) {
 		instance = new BufferManager;
 	}

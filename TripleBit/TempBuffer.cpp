@@ -12,7 +12,7 @@
 
 TempBuffer::TempBuffer() {
 	// TODO Auto-generated constructor stub
-	buffer = (ChunkTriple*)malloc(TEMPBUFFER_INIT_PAGE_COUNT * getpagesize());
+	buffer = (ChunkTriple*) malloc(TEMPBUFFER_INIT_PAGE_COUNT * getpagesize());
 	usedSize = 0;
 	totalSize = TEMPBUFFER_INIT_PAGE_COUNT * getpagesize() / sizeof(ChunkTriple);
 	pos = 0;
@@ -20,13 +20,12 @@ TempBuffer::TempBuffer() {
 
 TempBuffer::~TempBuffer() {
 	// TODO Auto-generated destructor stub
-	if(buffer != NULL)
+	if (buffer != NULL)
 		free(buffer);
 	buffer = NULL;
 }
 
-Status TempBuffer::insertTriple(ID subjectID, double object, char objType)
-{
+Status TempBuffer::insertTriple(ID subjectID, double object, char objType) {
 	buffer[pos].subjectID = subjectID;
 	buffer[pos].object = object;
 	buffer[pos].objType = objType;
@@ -35,24 +34,21 @@ Status TempBuffer::insertTriple(ID subjectID, double object, char objType)
 	return OK;
 }
 
-Status TempBuffer::clear()
-{
+Status TempBuffer::clear() {
 	pos = 0;
 	usedSize = 0;
 	return OK;
 }
 
-ChunkTriple& TempBuffer::operator[](const size_t index){
-	if(index >= usedSize){
+ChunkTriple& TempBuffer::operator[](const size_t index) {
+	if (index >= usedSize) {
 		return buffer[0];
 	}
 	return buffer[index];
 }
 
-void TempBuffer::Print()
-{
-	for(int i = 0; i < usedSize; ++i)
-	{
+void TempBuffer::Print() {
+	for (int i = 0; i < usedSize; ++i) {
 		cout << "subjectID:" << buffer[i].subjectID;
 		cout << " object:" << buffer[i].object << " ";
 		cout << " objType:" << buffer[i].objType << " ";
@@ -60,63 +56,58 @@ void TempBuffer::Print()
 	cout << endl;
 }
 
-int cmpByS(const void *lhs, const void *rhs)
-{
+int cmpByS(const void *lhs, const void *rhs) {
 	ChunkTriple* lTriple = (ChunkTriple*) lhs;
 	ChunkTriple* rTriple = (ChunkTriple*) rhs;
-	if(lTriple->subjectID != rTriple->subjectID){
+	if (lTriple->subjectID != rTriple->subjectID) {
 		return lTriple->subjectID - rTriple->subjectID;
-	}else if(lTriple->object != rTriple->object){
+	} else if (lTriple->object != rTriple->object) {
 		return lTriple->object - rTriple->object;
-	}else{
+	} else {
 		return lTriple->objType - rTriple->objType;
 	}
 }
 
-int cmpByO(const void *lhs, const void *rhs)
-{
+int cmpByO(const void *lhs, const void *rhs) {
 	ChunkTriple* lTriple = (ChunkTriple*) lhs;
 	ChunkTriple* rTriple = (ChunkTriple*) rhs;
-	if(lTriple->object != rTriple->object){
+	if (lTriple->object != rTriple->object) {
 		return lTriple->object - rTriple->object;
-	}else if(lTriple->subjectID != rTriple->subjectID){
+	} else if (lTriple->subjectID != rTriple->subjectID) {
 		return lTriple->subjectID - rTriple->subjectID;
-	}else{
+	} else {
 		return lTriple->objType - rTriple->objType;
 	}
 }
 
-Status TempBuffer::sort(bool soType)
-{
-	if(soType == ORDERBYS){
+Status TempBuffer::sort(bool soType) {
+	if (soType == ORDERBYS) {
 		qsort(buffer, usedSize, sizeof(ChunkTriple), cmpByS);
-	}else if(soType == ORDERBYO){
+	} else if (soType == ORDERBYO) {
 		qsort(buffer, usedSize, sizeof(ChunkTriple), cmpByO);
 	}
 
 	return OK;
 }
 
-bool TempBuffer::isEquals(ChunkTriple* lTriple, ChunkTriple* rTriple){
-	if(lTriple->subjectID == rTriple->subjectID && lTriple->object == rTriple->object && lTriple->objType == rTriple->objType){
+bool TempBuffer::isEquals(ChunkTriple* lTriple, ChunkTriple* rTriple) {
+	if (lTriple->subjectID == rTriple->subjectID && lTriple->object == rTriple->object && lTriple->objType == rTriple->objType) {
 		return true;
 	}
 	return false;
 }
 
-void TempBuffer::uniqe()
-{
-	if(usedSize <= 1) return;
+void TempBuffer::uniqe() {
+	if (usedSize <= 1)
+		return;
 	ChunkTriple *lastPtr, *currentPtr, *endPtr;
 	lastPtr = currentPtr = buffer;
 	endPtr = getEnd();
 	currentPtr++;
-	while(currentPtr < endPtr)
-	{
-		if(isEquals(lastPtr, currentPtr)){
+	while (currentPtr < endPtr) {
+		if (isEquals(lastPtr, currentPtr)) {
 			currentPtr++;
-		}else
-		{
+		} else {
 			lastPtr++;
 			*lastPtr = *currentPtr;
 			currentPtr++;

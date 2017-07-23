@@ -29,17 +29,14 @@ public:
 	static ID GetHashKey2(ID size);
 	void Join(EntityIDBuffer* entBuffer1, EntityIDBuffer* entBuffer2, int joinKey1, int joinKey2);
 	static ID GetHashKey(ID size);
-	static void BuildHashIndex(ID* p ,int joinKey, ID hashKey, vector<int>& hashTrack, vector<int>& prefixSum, int size, int IDCount);
-	static void HashJoinInit(EntityIDBuffer* buffer,ID& hashKey, vector<vector<int>* >& hashTrack, int joinKey);
-	static void SortMergeJoin(ID* buffer1, ID * buffer2, int IDCount1, int IDCount2, int joinKey1, int joinKey2,
-			int size1, int size2, char* flagVector1, char* flagVector2);
-	static void SortMergeJoin(ID* buffer1, ID * buffer2, int IDCount1, int IDCount2, int joinKey1, int joinKey2,
-			int size1, int size2, char* flagVector1);
+	static void BuildHashIndex(ID* p, int joinKey, ID hashKey, vector<int>& hashTrack, vector<int>& prefixSum, int size, int IDCount);
+	static void HashJoinInit(EntityIDBuffer* buffer, ID& hashKey, vector<vector<int>*>& hashTrack, int joinKey);
+	static void SortMergeJoin(ID* buffer1, ID * buffer2, int IDCount1, int IDCount2, int joinKey1, int joinKey2, int size1, int size2, char* flagVector1, char* flagVector2);
+	static void SortMergeJoin(ID* buffer1, ID * buffer2, int IDCount1, int IDCount2, int joinKey1, int joinKey2, int size1, int size2, char* flagVector1);
 	static void run(HashJoinArg* arg);
 };
 
-struct HashJoinArg
-{
+struct HashJoinArg {
 	char* flag1;
 	char* flag2;
 	EntityIDBuffer* buffer1;

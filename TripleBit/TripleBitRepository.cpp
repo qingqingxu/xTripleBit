@@ -130,8 +130,7 @@ bool TripleBitRepository::find_pid_by_string(PID& pid, const string& str) {
 	return true;
 }
 
-bool TripleBitRepository::find_pid_by_string_update(PID& pid,
-		const string& str) {
+bool TripleBitRepository::find_pid_by_string_update(PID& pid, const string& str) {
 	if (preTable->getIDByPredicate(str.c_str(), pid) != OK) {
 		if (preTable->insertTable(str.c_str(), pid) != OK)
 			return false;
@@ -145,8 +144,7 @@ bool TripleBitRepository::find_soid_by_string(SOID& soid, const string& str) {
 	return true;
 }
 
-bool TripleBitRepository::find_soid_by_string_update(SOID& soid,
-		const string& str) {
+bool TripleBitRepository::find_soid_by_string_update(SOID& soid, const string& str) {
 	if (UriTable->getIdByURI(str.c_str(), soid) != URI_FOUND) {
 		if (UriTable->insertTable(str.c_str(), soid) != OK)
 			return false;
@@ -175,8 +173,7 @@ int TripleBitRepository::get_predicate_count(PID pid) {
 }
 
 bool TripleBitRepository::lookup(const string& str, ID& id) {
-	if (preTable->getIDByPredicate(str.c_str(), id) != OK
-			&& UriTable->getIdByURI(str.c_str(), id) != URI_FOUND)
+	if (preTable->getIDByPredicate(str.c_str(), id) != OK && UriTable->getIdByURI(str.c_str(), id) != URI_FOUND)
 		return false;
 
 	return true;
@@ -193,27 +190,23 @@ int TripleBitRepository::get_subject_count(ID subjectID) {
 	return count;
 }
 
-int TripleBitRepository::get_subject_predicate_count(ID subjectID,
-		ID predicateID) {
+int TripleBitRepository::get_subject_predicate_count(ID subjectID, ID predicateID) {
 	size_t count;
 	spStatisBuffer->getStatis(subjectID, predicateID, count);
 	return count;
 }
 
-int TripleBitRepository::get_object_predicate_count(double object,
-		ID predicateID, char objType) {
+int TripleBitRepository::get_object_predicate_count(double object, ID predicateID, char objType) {
 	size_t count;
 	opStatisBuffer->getStatis(object, predicateID, count, objType);
 	return count;
 }
 
-int TripleBitRepository::get_subject_object_count(ID subjectID, double object,
-		char objType) {
+int TripleBitRepository::get_subject_object_count(ID subjectID, double object, char objType) {
 	return 1;
 }
 
-Status TripleBitRepository::getSubjectByObjectPredicate(double object, ID pod,
-		char objType) {
+Status TripleBitRepository::getSubjectByObjectPredicate(double object, ID pod, char objType) {
 	pos = 0;
 	return OK;
 }
@@ -252,8 +245,7 @@ TripleBitRepository* TripleBitRepository::create(const string &path) {
 
 	repo->bitmapPredicateImage = new MMapBuffer(predicateFile.c_str(), 0);
 	repo->bitmapIndexImage = new MMapBuffer(indexFile.c_str(), 0);
-	repo->bitmapBuffer = BitmapBuffer::load(repo->bitmapImage,
-			repo->bitmapIndexImage, repo->bitmapPredicateImage);
+	repo->bitmapBuffer = BitmapBuffer::load(repo->bitmapImage, repo->bitmapIndexImage, repo->bitmapPredicateImage);
 
 	repo->UriTable = URITable::load(path);
 	repo->preTable = PredicateTable::load(path);
@@ -275,18 +267,15 @@ TripleBitRepository* TripleBitRepository::create(const string &path) {
 	uchar* indexBuffer = indexBufferFile->get_address();
 
 	string statFilename = path + "/subjectpredicate_statis";
-	repo->spStatisBuffer = StatisticsBuffer::load(SUBJECTPREDICATE_STATIS,
-			statFilename, indexBuffer);
+	repo->spStatisBuffer = StatisticsBuffer::load(SUBJECTPREDICATE_STATIS, statFilename, indexBuffer);
 	statFilename = path + "/objectpredicate_statis";
-	repo->opStatisBuffer = StatisticsBuffer::load(OBJECTPREDICATE_STATIS,
-			statFilename, indexBuffer);
+	repo->opStatisBuffer = StatisticsBuffer::load(OBJECTPREDICATE_STATIS, statFilename, indexBuffer);
 
 	repo->buffer = new EntityIDBuffer();
 
 	cout << "load complete!" << endl;
 
-	repo->partitionNum = repo->bitmapPredicateImage->get_length()
-			/ ((sizeof(ID) + sizeof(SOType) + sizeof(size_t) * 2) * 2);	//numbers of predicate
+	repo->partitionNum = repo->bitmapPredicateImage->get_length() / ((sizeof(ID) + sizeof(SOType) + sizeof(size_t) * 2) * 2);	//numbers of predicate
 	repo->workerNum = WORKERNUM;
 	repo->indexForTT = new IndexForTT(WORKERNUM);
 
@@ -301,11 +290,7 @@ TripleBitRepository* TripleBitRepository::create(const string &path) {
 	}
 
 	for (size_t i = 1; i <= repo->workerNum; ++i) {
-		boost::thread thrd(
-				boost::thread(
-						boost::bind<void>(
-								&TripleBitRepository::tripleBitWorkerInit, repo,
-								i)));
+		boost::thread thrd(boost::thread(boost::bind<void>(&TripleBitRepository::tripleBitWorkerInit, repo, i)));
 	}
 
 	for (size_t i = 1; i <= repo->partitionNum; ++i) {
@@ -319,8 +304,7 @@ void TripleBitRepository::tripleBitWorkerInit(int i) {
 	tripleBitWorker[i]->Work();
 }
 
-void TripleBitRepository::partitionMasterInit(TripleBitRepository*& repo,
-		int i) {
+void TripleBitRepository::partitionMasterInit(TripleBitRepository*& repo, int i) {
 	repo->partitionMaster[i] = new PartitionMaster(repo, i);
 	repo->partitionMaster[i]->Work();
 }
@@ -383,8 +367,7 @@ Status TripleBitRepository::sharedMemoryTransQueueSWDestroy() {
 }
 
 Status TripleBitRepository::sharedMemoryTasksQueueWPInit() {
-	for (size_t partitionID = 1; partitionID <= this->partitionNum;
-			++partitionID) {
+	for (size_t partitionID = 1; partitionID <= this->partitionNum; ++partitionID) {
 		TasksQueueWP* tasksQueue = new TasksQueueWP();
 		if (tasksQueue == NULL) {
 			cout << "TasksQueueWP Init Failed!" << endl;
@@ -399,8 +382,7 @@ Status TripleBitRepository::sharedMemoryTasksQueueWPInit() {
 }
 
 Status TripleBitRepository::sharedMemoryTasksQueueWPDestroy() {
-	vector<TasksQueueWP*>::iterator iter = this->tasksQueueWP.begin(), limit =
-			this->tasksQueueWP.end();
+	vector<TasksQueueWP*>::iterator iter = this->tasksQueueWP.begin(), limit = this->tasksQueueWP.end();
 	for (; iter != limit; ++iter) {
 		delete *iter;
 	}
@@ -411,8 +393,7 @@ Status TripleBitRepository::sharedMemoryTasksQueueWPDestroy() {
 
 Status TripleBitRepository::sharedMemoryResultWPInit() {
 	for (size_t workerID = 1; workerID <= this->workerNum; ++workerID) {
-		for (size_t partitionID = 1; partitionID <= this->partitionNum;
-				++partitionID) {
+		for (size_t partitionID = 1; partitionID <= this->partitionNum; ++partitionID) {
 			ResultBuffer* resBuffer = new ResultBuffer();
 			if (resBuffer == NULL) {
 				cout << "ResultBufferWP Init Failed!" << endl;
@@ -426,8 +407,7 @@ Status TripleBitRepository::sharedMemoryResultWPInit() {
 }
 
 Status TripleBitRepository::sharedMemoryResultWPDestroy() {
-	vector<ResultBuffer*>::iterator iter = this->resultWP.begin(), limit =
-			this->resultWP.end();
+	vector<ResultBuffer*>::iterator iter = this->resultWP.begin(), limit = this->resultWP.end();
 	for (; iter != limit; ++iter) {
 		delete *iter;
 	}
@@ -467,8 +447,7 @@ static void getQuery(string& queryStr, const char* filename) {
 	queryStr.clear();
 
 	if (f.fail() == true) {
-		MessageEngine::showMessage("open query file error!",
-				MessageEngine::WARNING);
+		MessageEngine::showMessage("open query file error!", MessageEngine::WARNING);
 		return;
 	}
 
@@ -523,8 +502,7 @@ void TripleBitRepository::cmd_line(FILE* fin, FILE* fout) {
 		} else if (strcmp(cmd, "source") == 0) {
 
 			string queryStr;
-			::getQuery(queryStr,
-					string(QUERY_PATH).append("queryLUBM6").c_str());
+			::getQuery(queryStr, string(QUERY_PATH).append("queryLUBM6").c_str());
 
 			if (queryStr.length() == 0)
 				continue;
@@ -542,8 +520,7 @@ void TripleBitRepository::cmd_line(FILE* fin, FILE* fout) {
 	}
 }
 
-void TripleBitRepository::cmd_line_sm(FILE* fin, FILE *fout,
-		const string query_path) {
+void TripleBitRepository::cmd_line_sm(FILE* fin, FILE *fout, const string query_path) {
 	ThreadPool::createAllPool();
 	char cmd[256];
 	while (true) {
@@ -556,8 +533,7 @@ void TripleBitRepository::cmd_line_sm(FILE* fin, FILE *fout,
 		} else if (strcmp(cmd, "query") == 0) {
 		} else if (strcmp(cmd, "source") == 0) {
 			string queryStr;
-			::getQuery(queryStr,
-					string(query_path).append("queryLUBM6").c_str());
+			::getQuery(queryStr, string(query_path).append("queryLUBM6").c_str());
 			if (queryStr.length() == 0)
 				continue;
 		} else if (strcmp(cmd, "exit") == 0) {
@@ -578,8 +554,7 @@ void TripleBitRepository::cmd_line_sm(FILE* fin, FILE *fout,
 }
 
 extern char* QUERY_PATH;
-void TripleBitRepository::cmd_line_cold(FILE *fin, FILE *fout,
-		const string cmd) {
+void TripleBitRepository::cmd_line_cold(FILE *fin, FILE *fout, const string cmd) {
 	string queryStr;
 	getQuery(queryStr, string(QUERY_PATH).append(cmd).c_str());
 	if (queryStr.length() == 0) {
@@ -593,8 +568,7 @@ void TripleBitRepository::cmd_line_cold(FILE *fin, FILE *fout,
 }
 
 extern char* QUERY_PATH;
-void TripleBitRepository::cmd_line_warm(FILE *fin, FILE *fout,
-		const string cmd) {
+void TripleBitRepository::cmd_line_warm(FILE *fin, FILE *fout, const string cmd) {
 	string queryStr;
 	getQuery(queryStr, string(QUERY_PATH).append(cmd).c_str());
 	if (queryStr.length() == 0) {

@@ -30,17 +30,12 @@ public:
 public:
 	SubTaskPackageForDelete() {
 	}
-	SubTaskPackageForDelete(size_t reCount, TripleBitQueryGraph::OpType opType,
-			ID sID, bool constSubject, bool constObject) :
-			referenceCount(reCount), operationType(opType), sID(sID), constSubject(
-					constSubject), constObject(constObject) {
+	SubTaskPackageForDelete(size_t reCount, TripleBitQueryGraph::OpType opType, ID sID, bool constSubject, bool constObject) :
+			referenceCount(reCount), operationType(opType), sID(sID), constSubject(constSubject), constObject(constObject) {
 		pthread_mutex_init(&subTaskMutex, NULL);
 	}
-	SubTaskPackageForDelete(size_t reCount, TripleBitQueryGraph::OpType opType,
-			double object, char objType, bool constSubject, bool constObject) :
-			referenceCount(reCount), operationType(opType), object(object), objType(
-					objType), constSubject(constSubject), constObject(
-					constObject) {
+	SubTaskPackageForDelete(size_t reCount, TripleBitQueryGraph::OpType opType, double object, char objType, bool constSubject, bool constObject) :
+			referenceCount(reCount), operationType(opType), object(object), objType(objType), constSubject(constSubject), constObject(constObject) {
 		pthread_mutex_init(&subTaskMutex, NULL);
 	}
 	~SubTaskPackageForDelete() {
@@ -100,12 +95,8 @@ public:
 public:
 	subTaskPackage() {
 	}
-	subTaskPackage(size_t reCount, TripleBitQueryGraph::OpType opType,
-			ID sourceID, ID minid, ID maxid, ID deleteid, ID updateid,
-			PartitionBufferManager*& buffer) :
-			referenceCount(reCount), operationType(opType), sourceWorkerID(
-					sourceID), minID(minid), maxID(maxid), updateID(updateid), partitionBuffer(
-					buffer) {
+	subTaskPackage(size_t reCount, TripleBitQueryGraph::OpType opType, ID sourceID, ID minid, ID maxid, ID deleteid, ID updateid, PartitionBufferManager*& buffer) :
+			referenceCount(reCount), operationType(opType), sourceWorkerID(sourceID), minID(minid), maxID(maxid), updateID(updateid), partitionBuffer(buffer) {
 		pthread_mutex_init(&subTaskMutex, NULL);
 	}
 	~subTaskPackage() {
@@ -198,8 +189,7 @@ public:
 		}
 		resultBuf->empty();
 		resultBuf->setSortKey(0);
-		if (resultXBuffer->getIDCount() == 1
-				&& resultXYBuffer->getIDCount() == 1) {
+		if (resultXBuffer->getIDCount() == 1 && resultXYBuffer->getIDCount() == 1) {
 			resultBuf->setIDCount(1);
 		} else {
 			resultBuf->setIDCount(2);
@@ -351,8 +341,7 @@ public:
 				idY1 = bufferX[posX * IDCount + 1];
 				idX2 = bufferXY[posXY * IDCount];
 				idY2 = bufferXY[posXY * IDCount + 1];
-				if ((idX1 < keyX || (idX1 == keyX && idY1 < keyY))
-						|| (idX2 < keyX || (idX2 == keyX && idY2 < keyY))) {
+				if ((idX1 < keyX || (idX1 == keyX && idY1 < keyY)) || (idX2 < keyX || (idX2 == keyX && idY2 < keyY))) {
 					return false;
 				}
 				if (idX1 < idX2 || (idX1 == idX2 && idY1 < idY2)) {
@@ -423,8 +412,7 @@ public:
 			if (IDCount == 1) {
 				cout << "ID:" << idBuffer[i] << ' ';
 			} else if (IDCount == 2) {
-				cout << "ID:" << idBuffer[i * IDCount] << " ID:"
-						<< idBuffer[i * IDCount + 1] << " ";
+				cout << "ID:" << idBuffer[i * IDCount] << " ID:" << idBuffer[i * IDCount + 1] << " ";
 			}
 			count++;
 			if (count % 10 == 0)
@@ -440,8 +428,7 @@ public:
 			cout << "xTempBuffer " << k++ << " :" << endl;
 			printEntityIDBuffer(iter->second);
 		}
-		for (iter = xyTempBuffer.begin(), k = 0; iter != xyTempBuffer.end();
-				iter++, k++) {
+		for (iter = xyTempBuffer.begin(), k = 0; iter != xyTempBuffer.end(); iter++, k++) {
 			cout << "xyTempBuffer " << k << " :" << endl;
 			printEntityIDBuffer(iter->second);
 		}

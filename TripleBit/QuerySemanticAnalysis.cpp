@@ -25,52 +25,34 @@ QuerySemanticAnalysis::QuerySemanticAnalysis(IRepository &repo) :
 QuerySemanticAnalysis::~QuerySemanticAnalysis() {
 }
 
-extern bool isUnused(const TripleBitQueryGraph::SubQuery& query,
-		const TripleNode& node, unsigned val);
+extern bool isUnused(const TripleBitQueryGraph::SubQuery& query, const TripleNode& node, unsigned val);
 //---------------------------------------------------------------------------
 static bool binds(const SPARQLParser::PatternGroup& group, ID id)
 // Check if a variable is bound in a pattern group
 		{
-	for (std::vector<SPARQLParser::Pattern>::const_iterator iter =
-			group.patterns.begin(), limit = group.patterns.end(); iter != limit;
-			++iter)
-		if ((((*iter).subject.type == SPARQLParser::Element::Variable)
-				&& ((*iter).subject.id == id))
-				|| (((*iter).predicate.type == SPARQLParser::Element::Variable)
-						&& ((*iter).predicate.id == id))
-				|| (((*iter).object.type == SPARQLParser::Element::Variable)
-						&& ((*iter).object.id == id)))
+	for (std::vector<SPARQLParser::Pattern>::const_iterator iter = group.patterns.begin(), limit = group.patterns.end(); iter != limit; ++iter)
+		if ((((*iter).subject.type == SPARQLParser::Element::Variable) && ((*iter).subject.id == id)) || (((*iter).predicate.type == SPARQLParser::Element::Variable) && ((*iter).predicate.id == id)) || (((*iter).object.type == SPARQLParser::Element::Variable) && ((*iter).object.id == id)))
 			return true;
-	for (std::vector<SPARQLParser::PatternGroup>::const_iterator iter =
-			group.optional.begin(), limit = group.optional.end(); iter != limit;
-			++iter)
+	for (std::vector<SPARQLParser::PatternGroup>::const_iterator iter = group.optional.begin(), limit = group.optional.end(); iter != limit; ++iter)
 		if (binds(*iter, id))
 			return true;
-	for (std::vector<std::vector<SPARQLParser::PatternGroup> >::const_iterator
-			iter = group.unions.begin(), limit = group.unions.end();
-			iter != limit; ++iter)
-		for (std::vector<SPARQLParser::PatternGroup>::const_iterator iter2 =
-				(*iter).begin(), limit2 = (*iter).end(); iter2 != limit2;
-				++iter2)
+	for (std::vector<std::vector<SPARQLParser::PatternGroup> >::const_iterator iter = group.unions.begin(), limit = group.unions.end(); iter != limit; ++iter)
+		for (std::vector<SPARQLParser::PatternGroup>::const_iterator iter2 = (*iter).begin(), limit2 = (*iter).end(); iter2 != limit2; ++iter2)
 			if (binds(*iter2, id))
 				return true;
 	return false;
 }
 
 //---------------------------------------------------------------------------
-static bool encodeFilter(IRepository &repo,
-		const SPARQLParser::PatternGroup& group,
-		const SPARQLParser::Filter& input,
-		TripleBitQueryGraph::SubQuery& output)
-		// Encode an element for the query graph
+static bool encodeFilter(IRepository &repo, const SPARQLParser::PatternGroup& group, const SPARQLParser::Filter& input, TripleBitQueryGraph::SubQuery& output)
+// Encode an element for the query graph
 		{
 	// Check if the id is bound somewhere
 	if (!binds(group, input.id))
 		return false;
 
 	// A complex filter? XXX handles only primitive filters
-	if ((input.values.size() == 1)
-			&& (input.values[0].type == SPARQLParser::Element::Variable)) {
+	if ((input.values.size() == 1) && (input.values[0].type == SPARQLParser::Element::Variable)) {
 		if (!binds(group, input.id))
 			return input.type == SPARQLParser::Filter::Exclude;
 		TripleBitQueryGraph::ComplexFilter filter;
@@ -83,9 +65,7 @@ static bool encodeFilter(IRepository &repo,
 
 	// Resolve all values
 	std::set<unsigned> values;
-	for (std::vector<SPARQLParser::Element>::const_iterator iter =
-			input.values.begin(), limit = input.values.end(); iter != limit;
-			++iter) {
+	for (std::vector<SPARQLParser::Element>::const_iterator iter = input.values.begin(), limit = input.values.end(); iter != limit; ++iter) {
 		unsigned id;
 		if (repo.lookup(iter->value, id))
 			values.insert(id);
@@ -96,8 +76,7 @@ static bool encodeFilter(IRepository &repo,
 	filter.id = input.id;
 	filter.values.clear();
 	if (input.type != SPARQLParser::Filter::Path) {
-		for (std::set<unsigned>::const_iterator iter = values.begin(), limit =
-				values.end(); iter != limit; ++iter)
+		for (std::set<unsigned>::const_iterator iter = values.begin(), limit = values.end(); iter != limit; ++iter)
 			filter.values.push_back(*iter);
 		filter.exclude = (input.type == SPARQLParser::Filter::Exclude);
 	} else if (values.size() == 2) {
@@ -142,8 +121,7 @@ static bool encodeFilter(IRepository &repo,
 }
 
 //--------------------------------------------------------------------------
-bool static encodeTripleNode(IRepository& repo,
-		const SPARQLParser::Pattern& triplePattern, TripleNode &tripleNode)
+bool static encodeTripleNode(IRepository& repo, const SPARQLParser::Pattern& triplePattern, TripleNode &tripleNode)
 // Encode a triple pattern for graph. encode subject,predicate,object to ids, also store their types.
 		{
 	SOID objectID;
@@ -154,8 +132,7 @@ bool static encodeTripleNode(IRepository& repo,
 		tripleNode.constSubject = false;
 		break;
 	case SPARQLParser::Element::Constant:
-		if (repo.find_soid_by_string(tripleNode.subjectID,
-				triplePattern.subject.value)) {
+		if (repo.find_soid_by_string(tripleNode.subjectID, triplePattern.subject.value)) {
 			tripleNode.constSubject = true;
 			break;
 		} else
@@ -185,20 +162,17 @@ bool static encodeTripleNode(IRepository& repo,
 			tripleNode.constObject = true;
 			break;
 		case STRING:
-			if (repo.find_soid_by_string(objectID,
-					triplePattern.object.value)) {
+			if (repo.find_soid_by_string(objectID, triplePattern.object.value)) {
 				tripleNode.object = objectID;
 				tripleNode.objType = triplePattern.object.dataType;
 				tripleNode.constObject = true;
 			} else {
-				cout << "object not found: " << triplePattern.object.value
-						<< endl;
+				cout << "object not found: " << triplePattern.object.value << endl;
 				return false;
 			}
 			break;
 		default:
-			cout << "object syntax error: " << triplePattern.object.value
-					<< endl;
+			cout << "object syntax error: " << triplePattern.object.value << endl;
 			return false;
 		}
 		break;
@@ -213,13 +187,11 @@ bool static encodeTripleNode(IRepository& repo,
 		tripleNode.constPredicate = false;
 		break;
 	case SPARQLParser::Element::Constant:
-		if (repo.find_pid_by_string(tripleNode.predicateID,
-				triplePattern.predicate.value)) {
+		if (repo.find_pid_by_string(tripleNode.predicateID, triplePattern.predicate.value)) {
 			tripleNode.constPredicate = true;
 			break;
 		} else {
-			cout << "predicate id not found: " << triplePattern.predicate.value
-					<< endl;
+			cout << "predicate id not found: " << triplePattern.predicate.value << endl;
 			return false;
 		}
 	default:
@@ -229,8 +201,7 @@ bool static encodeTripleNode(IRepository& repo,
 	return true;
 }
 //-------------------------------------------------------------
-static bool encodeTripleNodeUpdate(IRepository& repo,
-		const SPARQLParser::Pattern& triplePattern, TripleNode &tripleNode)
+static bool encodeTripleNodeUpdate(IRepository& repo, const SPARQLParser::Pattern& triplePattern, TripleNode &tripleNode)
 // Encode a triple pattern for graph, encode subject, predicate, object to ids, also store their types
 		{
 	//encode subject node
@@ -242,8 +213,7 @@ static bool encodeTripleNodeUpdate(IRepository& repo,
 		tripleNode.scanOperation = TripleNode::FINDSBYPO;
 		break;
 	case SPARQLParser::Element::Constant:
-		if (repo.find_soid_by_string_update(tripleNode.subjectID,
-				triplePattern.subject.value)) {
+		if (repo.find_soid_by_string_update(tripleNode.subjectID, triplePattern.subject.value)) {
 			tripleNode.constSubject = true;
 			break;
 		} else
@@ -274,20 +244,17 @@ static bool encodeTripleNodeUpdate(IRepository& repo,
 			tripleNode.constObject = true;
 			break;
 		case STRING:
-			if (repo.find_soid_by_string_update(objectID,
-					triplePattern.object.value)) {
+			if (repo.find_soid_by_string_update(objectID, triplePattern.object.value)) {
 				tripleNode.object = objectID;
 				tripleNode.objType = triplePattern.object.dataType;
 				tripleNode.constObject = true;
 			} else {
-				cout << "object not found: " << triplePattern.object.value
-						<< endl;
+				cout << "object not found: " << triplePattern.object.value << endl;
 				return false;
 			}
 			break;
 		default:
-			cout << "object syntax error: " << triplePattern.object.value
-					<< endl;
+			cout << "object syntax error: " << triplePattern.object.value << endl;
 			return false;
 		}
 		break;
@@ -302,8 +269,7 @@ static bool encodeTripleNodeUpdate(IRepository& repo,
 		tripleNode.constPredicate = false;
 		break;
 	case SPARQLParser::Element::Constant:
-		if (repo.find_pid_by_string_update(tripleNode.predicateID,
-				triplePattern.predicate.value)) {
+		if (repo.find_pid_by_string_update(tripleNode.predicateID, triplePattern.predicate.value)) {
 			tripleNode.constPredicate = true;
 			break;
 		} else
@@ -319,32 +285,25 @@ bool static collectJoinVariables(TripleBitQueryGraph::SubQuery& query)
 		{
 	vector<ID>::iterator iter;
 
-	for (unsigned int index = 0, limit = query.tripleNodes.size();
-			index < limit; index++) {
+	for (unsigned int index = 0, limit = query.tripleNodes.size(); index < limit; index++) {
 		const TripleNode& tpn = query.tripleNodes[index];
 		if (!tpn.constSubject) {
-			if (isUnused(query, tpn, tpn.subjectID) == false
-					|| query.tripleNodes.size() == 1) {
-				iter = find(query.joinVariables.begin(),
-						query.joinVariables.end(), tpn.subjectID);
+			if (isUnused(query, tpn, tpn.subjectID) == false || query.tripleNodes.size() == 1) {
+				iter = find(query.joinVariables.begin(), query.joinVariables.end(), tpn.subjectID);
 				if (iter == query.joinVariables.end())
 					query.joinVariables.push_back(tpn.subjectID);
 			}
 		}
 		if (!tpn.constPredicate) {
-			if (isUnused(query, tpn, tpn.predicateID) == false
-					|| query.tripleNodes.size() == 1) {
-				iter = find(query.joinVariables.begin(),
-						query.joinVariables.end(), tpn.predicateID);
+			if (isUnused(query, tpn, tpn.predicateID) == false || query.tripleNodes.size() == 1) {
+				iter = find(query.joinVariables.begin(), query.joinVariables.end(), tpn.predicateID);
 				if (iter == query.joinVariables.end())
 					query.joinVariables.push_back(tpn.predicateID);
 			}
 		}
 		if (!tpn.constObject) {
-			if (isUnused(query, tpn, tpn.object) == false
-					|| query.tripleNodes.size() == 1) {
-				iter = find(query.joinVariables.begin(),
-						query.joinVariables.end(), tpn.object);
+			if (isUnused(query, tpn, tpn.object) == false || query.tripleNodes.size() == 1) {
+				iter = find(query.joinVariables.begin(), query.joinVariables.end(), tpn.object);
 				if (iter == query.joinVariables.end())
 					query.joinVariables.push_back(tpn.object);
 			}
@@ -360,47 +319,37 @@ bool static encodeJoinVariableNodes(TripleBitQueryGraph::SubQuery& query)
 //encode VariablesNodes,the variable nodes include information about the variable node and triple nodes edges
 		{
 	//construct variable nodes ,fill their members.
-	std::vector<TripleBitQueryGraph::JoinVariableNodeID>::size_type limit =
-			query.joinVariables.size();
+	std::vector<TripleBitQueryGraph::JoinVariableNodeID>::size_type limit = query.joinVariables.size();
 	query.joinVariableNodes.resize(limit);
 	//iterate to check a join variable node's edges
 	for (unsigned int i = 0; i < limit; i++) {
 		query.joinVariableNodes[i].value = query.joinVariables[i];
 
 		//check if has an edge with  triple node  j.
-		std::vector<TripleNode>::size_type triplenodes_size =
-				query.tripleNodes.size();
+		std::vector<TripleNode>::size_type triplenodes_size = query.tripleNodes.size();
 		for (unsigned int j = 0; j < triplenodes_size; ++j) {
 			if (!query.tripleNodes[j].constSubject) {
-				if (query.joinVariableNodes[i].value
-						== query.tripleNodes[j].subjectID) {
+				if (query.joinVariableNodes[i].value == query.tripleNodes[j].subjectID) {
 					//add an edge
-					std::pair<TripleBitQueryGraph::TripleNodeID,
-							TripleBitQueryGraph::JoinVariableNode::DimType> edge;
+					std::pair<TripleBitQueryGraph::TripleNodeID, TripleBitQueryGraph::JoinVariableNode::DimType> edge;
 					edge.first = query.tripleNodes[j].tripleNodeID;
-					edge.second =
-							TripleBitQueryGraph::JoinVariableNode::SUBJECT;
+					edge.second = TripleBitQueryGraph::JoinVariableNode::SUBJECT;
 					query.joinVariableNodes[i].appear_tpnodes.push_back(edge);
 				}
 			}
 			if (!query.tripleNodes[j].constPredicate) {
-				if (query.joinVariableNodes[i].value
-						== query.tripleNodes[j].predicateID) {
+				if (query.joinVariableNodes[i].value == query.tripleNodes[j].predicateID) {
 					//add an edge
-					std::pair<TripleBitQueryGraph::TripleNodeID,
-							TripleBitQueryGraph::JoinVariableNode::DimType> edge;
+					std::pair<TripleBitQueryGraph::TripleNodeID, TripleBitQueryGraph::JoinVariableNode::DimType> edge;
 					edge.first = query.tripleNodes[j].tripleNodeID;
-					edge.second =
-							TripleBitQueryGraph::JoinVariableNode::PREDICATE;
+					edge.second = TripleBitQueryGraph::JoinVariableNode::PREDICATE;
 					query.joinVariableNodes[i].appear_tpnodes.push_back(edge);
 				}
 			}
 			if (!query.tripleNodes[j].constObject) {
-				if (query.joinVariableNodes[i].value
-						== query.tripleNodes[j].object) {
+				if (query.joinVariableNodes[i].value == query.tripleNodes[j].object) {
 					//add an edge
-					std::pair<TripleBitQueryGraph::TripleNodeID,
-							TripleBitQueryGraph::JoinVariableNode::DimType> edge;
+					std::pair<TripleBitQueryGraph::TripleNodeID, TripleBitQueryGraph::JoinVariableNode::DimType> edge;
 					edge.first = query.tripleNodes[j].tripleNodeID;
 					edge.second = TripleBitQueryGraph::JoinVariableNode::OBJCET;
 					query.joinVariableNodes[i].appear_tpnodes.push_back(edge);
@@ -413,12 +362,8 @@ bool static encodeJoinVariableNodes(TripleBitQueryGraph::SubQuery& query)
 }
 
 static bool encodeJoinVariableEdges(TripleBitQueryGraph::SubQuery& output) {
-	vector<TripleBitQueryGraph::JoinVariableNode>::size_type size =
-			output.joinVariableNodes.size(), i, j;
-	vector<
-			pair<TripleBitQueryGraph::TripleNodeID,
-					TripleBitQueryGraph::JoinVariableNode::DimType> >::iterator
-			iterI, iterJ;
+	vector<TripleBitQueryGraph::JoinVariableNode>::size_type size = output.joinVariableNodes.size(), i, j;
+	vector<pair<TripleBitQueryGraph::TripleNodeID, TripleBitQueryGraph::JoinVariableNode::DimType> >::iterator iterI, iterJ;
 
 	TripleBitQueryGraph::JoinVariableNodesEdge edge;
 
@@ -427,13 +372,9 @@ static bool encodeJoinVariableEdges(TripleBitQueryGraph::SubQuery& output) {
 		for (j = i + 1; j < size; j++) {
 			iterI = output.joinVariableNodes[i].appear_tpnodes.begin();
 
-			for (; iterI != output.joinVariableNodes[i].appear_tpnodes.end();
-					iterI++) {
+			for (; iterI != output.joinVariableNodes[i].appear_tpnodes.end(); iterI++) {
 				iterJ = output.joinVariableNodes[j].appear_tpnodes.begin();
-				for (;
-						iterJ
-								!= output.joinVariableNodes[j].appear_tpnodes.end();
-						iterJ++) {
+				for (; iterJ != output.joinVariableNodes[j].appear_tpnodes.end(); iterJ++) {
 					if (iterI->first == iterJ->first) {
 						edge.from = output.joinVariableNodes[i].value;
 						edge.to = output.joinVariableNodes[j].value;
@@ -447,17 +388,13 @@ static bool encodeJoinVariableEdges(TripleBitQueryGraph::SubQuery& output) {
 }
 
 //---------------------------------------------------------------------------
-static bool transformSubquery(IRepository& repo,
-		const SPARQLParser::PatternGroup& group,
-		TripleBitQueryGraph::SubQuery& output)
+static bool transformSubquery(IRepository& repo, const SPARQLParser::PatternGroup& group, TripleBitQueryGraph::SubQuery& output)
 // Transform a subquery, encoding PatternGroup, fill the subquery,build the JoinVariable Nodes and their edges with triple nodes.
 		{
 	// Encode all triple patterns
 	TripleNode tripleNode;
 	unsigned int tr_id = 0;
-	for (std::vector<SPARQLParser::Pattern>::const_iterator iter =
-			group.patterns.begin(), limit = group.patterns.end(); iter != limit;
-			++iter, ++tr_id) {
+	for (std::vector<SPARQLParser::Pattern>::const_iterator iter = group.patterns.begin(), limit = group.patterns.end(); iter != limit; ++iter, ++tr_id) {
 		// Encode the a triple pattern
 		//TripleBitQueryGraph::TripleNode tripleNode;
 		if (!encodeTripleNode(repo, (*iter), tripleNode))
@@ -468,9 +405,7 @@ static bool transformSubquery(IRepository& repo,
 
 	//TODO
 	// Encode the filter conditions
-	for (vector<SPARQLParser::Filter>::const_iterator iter =
-			group.filters.begin(), limit = group.filters.end(); iter != limit;
-			iter++) {
+	for (vector<SPARQLParser::Filter>::const_iterator iter = group.filters.begin(), limit = group.filters.end(); iter != limit; iter++) {
 		if (!encodeFilter(repo, group, *iter, output)) {
 			return false;
 		}
@@ -498,14 +433,10 @@ static bool transformSubquery(IRepository& repo,
 	return true;
 }
 //------------------------------------------------------------------------
-static bool transformInsertData(IRepository& repo,
-		const SPARQLParser::PatternGroup& group,
-		TripleBitQueryGraph::SubQuery& output) {
+static bool transformInsertData(IRepository& repo, const SPARQLParser::PatternGroup& group, TripleBitQueryGraph::SubQuery& output) {
 	TripleNode tripleNode;
 	unsigned int tr_id = 0;
-	for (std::vector<SPARQLParser::Pattern>::const_iterator iter =
-			group.patterns.begin(), limit = group.patterns.end(); iter != limit;
-			++iter, ++tr_id) {
+	for (std::vector<SPARQLParser::Pattern>::const_iterator iter = group.patterns.begin(), limit = group.patterns.end(); iter != limit; ++iter, ++tr_id) {
 		//Encode a triple pattern
 		if (!encodeTripleNodeUpdate(repo, (*iter), tripleNode))
 			return false;
@@ -515,29 +446,22 @@ static bool transformInsertData(IRepository& repo,
 	return true;
 }
 //---------------------------------------------------------------------------
-static bool transformDeleteData(IRepository& repo,
-		const SPARQLParser::PatternGroup& group,
-		TripleBitQueryGraph::SubQuery& output) {
+static bool transformDeleteData(IRepository& repo, const SPARQLParser::PatternGroup& group, TripleBitQueryGraph::SubQuery& output) {
 	TripleNode tripleNode;
 	unsigned int tr_id = 0;
-	for (std::vector<SPARQLParser::Pattern>::const_iterator iter =
-			group.patterns.begin(), limit = group.patterns.end(); iter != limit;
-			++iter, ++tr_id) {
+	for (std::vector<SPARQLParser::Pattern>::const_iterator iter = group.patterns.begin(), limit = group.patterns.end(); iter != limit; ++iter, ++tr_id) {
 		//Encode a triple pattern
 		if (!encodeTripleNode(repo, (*iter), tripleNode))
-			continue;//Ignore the not exited triple, just delete the exited triple
+			continue;	//Ignore the not exited triple, just delete the exited triple
 		tripleNode.tripleNodeID = tr_id;
 		output.tripleNodes.push_back(tripleNode);
 	}
 	return true;
 }
 //--------------------------------------------------------------------------
-static bool transformDeleteClause(IRepository& repo,
-		const SPARQLParser::PatternGroup& group,
-		TripleBitQueryGraph::SubQuery& output) {
+static bool transformDeleteClause(IRepository& repo, const SPARQLParser::PatternGroup& group, TripleBitQueryGraph::SubQuery& output) {
 	TripleNode tripleNode;
-	std::vector<SPARQLParser::Pattern>::const_iterator iter =
-			group.patterns.begin();
+	std::vector<SPARQLParser::Pattern>::const_iterator iter = group.patterns.begin();
 	if (!encodeTripleNode(repo, (*iter), tripleNode))
 		return false;
 	tripleNode.tripleNodeID = 0;
@@ -545,15 +469,12 @@ static bool transformDeleteClause(IRepository& repo,
 	return true;
 }
 //-------------------------------------------------------------------------
-static bool transformUpdate(IRepository& repo,
-		const SPARQLParser::PatternGroup& group,
-		TripleBitQueryGraph::SubQuery& output) {
+static bool transformUpdate(IRepository& repo, const SPARQLParser::PatternGroup& group, TripleBitQueryGraph::SubQuery& output) {
 	//Encode all triple patterns
 	TripleNode tripleNode;
 	unsigned int tr_id = 0;
 
-	std::vector<SPARQLParser::Pattern>::const_iterator iter =
-			group.patterns.begin();
+	std::vector<SPARQLParser::Pattern>::const_iterator iter = group.patterns.begin();
 	if (!encodeTripleNode(repo, (*iter), tripleNode))
 		return false;
 	tripleNode.tripleNodeID = tr_id;
@@ -570,8 +491,7 @@ static bool transformUpdate(IRepository& repo,
 	return true;
 }
 
-static bool transformQuery(IRepository& repo, const SPARQLParser& input,
-		TripleBitQueryGraph& output) {
+static bool transformQuery(IRepository& repo, const SPARQLParser& input, TripleBitQueryGraph& output) {
 	if (!transformSubquery(repo, input.getPatterns(), output.getQuery())) {
 		// A constant could not be resolved. This will produce an empty result
 		output.markAsKnownEmpty();
@@ -582,8 +502,7 @@ static bool transformQuery(IRepository& repo, const SPARQLParser& input,
 	output.constructSubqueryEdges();
 
 	// Add the projection entry
-	for (SPARQLParser::projection_iterator iter = input.projectionBegin(),
-			limit = input.projectionEnd(); iter != limit; ++iter)
+	for (SPARQLParser::projection_iterator iter = input.projectionBegin(), limit = input.projectionEnd(); iter != limit; ++iter)
 		output.addProjection(*iter);
 
 	// Set the duplicate handling
@@ -612,8 +531,7 @@ static bool transformQuery(IRepository& repo, const SPARQLParser& input,
 }
 
 //---------------------------------------------------------------------------
-bool QuerySemanticAnalysis::transform(const SPARQLParser& input,
-		TripleBitQueryGraph& output)
+bool QuerySemanticAnalysis::transform(const SPARQLParser& input, TripleBitQueryGraph& output)
 // Perform the transformation
 		{
 	output.clear();

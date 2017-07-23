@@ -16,10 +16,7 @@
 #include "Tasks.h"
 
 void PrintChunkTask(ChunkTask* chunkTask) {
-	cout << "opType:" << chunkTask->operationType << " subject:"
-			<< chunkTask->Triple.subjectID << " object:"
-			<< chunkTask->Triple.object << " operation:"
-			<< chunkTask->Triple.operation << endl;
+	cout << "opType:" << chunkTask->operationType << " subject:" << chunkTask->Triple.subjectID << " object:" << chunkTask->Triple.object << " operation:" << chunkTask->Triple.operation << endl;
 }
 
 class NodeChunkQueue: private Uncopyable {
@@ -50,10 +47,8 @@ private:
 private:
 	TasksQueueChunk();
 public:
-	TasksQueueChunk(const uchar* chunk_Begin, ID& chunk_ID,
-			bool so_Type) :
-			chunkBegin(chunk_Begin), chunkID(chunk_ID), soType(
-					so_Type) {
+	TasksQueueChunk(const uchar* chunk_Begin, ID& chunk_ID, bool so_Type) :
+			chunkBegin(chunk_Begin), chunkID(chunk_ID), soType(so_Type) {
 		NodeChunkQueue* nodeChunkQueue = new NodeChunkQueue();
 		head = tail = nodeChunkQueue;
 		pthread_mutex_init(&headMutex, NULL);

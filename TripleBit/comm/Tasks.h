@@ -14,7 +14,7 @@
 #include "subTaskPackage.h"
 #include "IndexForTT.h"
 
-class SubTrans : private Uncopyable{
+class SubTrans: private Uncopyable {
 public:
 	struct timeval transTime;
 	ID sourceWorkerID;
@@ -25,16 +25,12 @@ public:
 	TripleNode triple;
 	shared_ptr<IndexForTT> indexForTT;
 
-	SubTrans(timeval &transtime, ID sWorkerID, ID miID, ID maID,
-			TripleBitQueryGraph::OpType &opType, size_t triNumber,
-			TripleNode &trip, shared_ptr<IndexForTT> index_forTT) :
-			transTime(transtime), sourceWorkerID(sWorkerID), minID(miID), maxID(
-					maID), operationType(opType), tripleNumber(triNumber), triple(
-					trip) , indexForTT(index_forTT){
+	SubTrans(timeval &transtime, ID sWorkerID, ID miID, ID maID, TripleBitQueryGraph::OpType &opType, size_t triNumber, TripleNode &trip, shared_ptr<IndexForTT> index_forTT) :
+			transTime(transtime), sourceWorkerID(sWorkerID), minID(miID), maxID(maID), operationType(opType), tripleNumber(triNumber), triple(trip), indexForTT(index_forTT) {
 	}
 };
 
-class ChunkTask: private Uncopyable{
+class ChunkTask: private Uncopyable {
 public:
 	TripleBitQueryGraph::OpType operationType;
 	ChunkTriple Triple;
@@ -45,18 +41,19 @@ public:
 	double updateObject;
 	char updateObjType;
 
-	ChunkTask(TripleBitQueryGraph::OpType opType, ID subjectID, double object, char objType, TripleNode::Op operation, shared_ptr<subTaskPackage> task_Package, shared_ptr<IndexForTT> index_ForTT):
-		operationType(opType), Triple({subjectID, object, objType, operation}), taskPackage(task_Package), indexForTT(index_ForTT){
+	ChunkTask(TripleBitQueryGraph::OpType opType, ID subjectID, double object, char objType, TripleNode::Op operation, shared_ptr<subTaskPackage> task_Package, shared_ptr<IndexForTT> index_ForTT) :
+			operationType(opType), Triple( { subjectID, object, objType, operation }), taskPackage(task_Package), indexForTT(index_ForTT) {
 	}
 
-	ChunkTask(TripleBitQueryGraph::OpType opType, ID subjectID, double object, char objType, TripleNode::Op operation, shared_ptr<SubTaskPackageForDelete> task_Package, shared_ptr<IndexForTT> index_ForTT):
-			operationType(opType), Triple({subjectID, object, objType, operation}), taskPackageForDelete(task_Package), indexForTT(index_ForTT){
-		}
-	ChunkTask(TripleBitQueryGraph::OpType opType, ID subjectID, double object, char objType, ID updateSubjectID, double updateObject, char updateObjType, TripleNode::Op operation, shared_ptr<SubTaskPackageForDelete> task_Package, shared_ptr<IndexForTT> index_ForTT):
-			operationType(opType), Triple({subjectID, object, objType, operation}), updateSubjectID(updateSubjectID), updateObject(updateObject), updateObjType(updateObjType), taskPackageForDelete(task_Package), indexForTT(index_ForTT){
+	ChunkTask(TripleBitQueryGraph::OpType opType, ID subjectID, double object, char objType, TripleNode::Op operation, shared_ptr<SubTaskPackageForDelete> task_Package, shared_ptr<IndexForTT> index_ForTT) :
+			operationType(opType), Triple( { subjectID, object, objType, operation }), taskPackageForDelete(task_Package), indexForTT(index_ForTT) {
+	}
+	ChunkTask(TripleBitQueryGraph::OpType opType, ID subjectID, double object, char objType, ID updateSubjectID, double updateObject, char updateObjType, TripleNode::Op operation, shared_ptr<SubTaskPackageForDelete> task_Package, shared_ptr<IndexForTT> index_ForTT) :
+			operationType(opType), Triple( { subjectID, object, objType, operation }), updateSubjectID(updateSubjectID), updateObject(updateObject), updateObjType(updateObjType), taskPackageForDelete(task_Package), indexForTT(index_ForTT) {
 	}
 
-	~ChunkTask(){}
+	~ChunkTask() {
+	}
 };
 
 #endif /* TASKS_H_ */

@@ -10,28 +10,30 @@
 
 #include "../TripleBit.h"
 
-class Uncopyable
-{
+class Uncopyable {
 protected:
-	Uncopyable() {}
-    ~Uncopyable() {}
-private:  // emphasize the following members are private
-    Uncopyable( const Uncopyable& );
-    const Uncopyable& operator=( const Uncopyable& );
- };
+	Uncopyable() {
+	}
+	~Uncopyable() {
+	}
+private:
+	// emphasize the following members are private
+	Uncopyable(const Uncopyable&);
+	const Uncopyable& operator=(const Uncopyable&);
+};
 
-class transaction
-{
+class transaction {
 public:
 	struct timeval transTime;
 	string transInfo;
 public:
-	transaction(const string& trans):transInfo(trans){
+	transaction(const string& trans) :
+			transInfo(trans) {
 		gettimeofday(&transTime, NULL);
 	}
 };
 
-class Transaction{
+class Transaction {
 public:
 	unsigned arrival;
 	unsigned delay;
@@ -39,8 +41,10 @@ public:
 
 	string queryString;
 public:
-	Transaction(){}
-	Transaction(const string &queryStr):arrival(0),delay(0),responseTime(0),queryString(queryStr){
+	Transaction() {
+	}
+	Transaction(const string &queryStr) :
+			arrival(0), delay(0), responseTime(0), queryString(queryStr) {
 	}
 };
 

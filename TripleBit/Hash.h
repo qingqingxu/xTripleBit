@@ -9,11 +9,10 @@
 
 #include "TripleBit.h"
 
-inline ulonglong expand(ulonglong oldsize, ulonglong added, ID id)
-{
-	ulonglong newsize = (oldsize+added)*2;
-	if(oldsize >= ulonglong(1<<30)) {
-		newsize = oldsize + added * 2 + ulonglong(1<<30);
+inline ulonglong expand(ulonglong oldsize, ulonglong added, ID id) {
+	ulonglong newsize = (oldsize + added) * 2;
+	if (oldsize >= ulonglong(1 << 30)) {
+		newsize = oldsize + added * 2 + ulonglong(1 << 30);
 	}
 #ifdef DEBUG
 	printf("DEBUG: added %llu resize %llu to %llu by [%d]\n",added,oldsize,newsize,id);
@@ -21,68 +20,66 @@ inline ulonglong expand(ulonglong oldsize, ulonglong added, ID id)
 	return newsize;
 }
 
-inline HashCodeType get_hash_code(const char * str){
+inline HashCodeType get_hash_code(const char * str) {
 	HashCodeType ret = 0;
-	while(*str){
-		ret = ret*31 + *str; // 31 for LUBM; 131 for Uniprot
+	while (*str) {
+		ret = ret * 31 + *str; // 31 for LUBM; 131 for Uniprot
 		str++;
 	}
 	return ret;
 }
 
-inline HashCodeType get_hash_code(const char * str,size_t length) {
+inline HashCodeType get_hash_code(const char * str, size_t length) {
 	HashCodeType ret = 0;
-	while(length--){
-		ret = ret*31 + *str; // 31 for LUBM; 131 for Uniprot
+	while (length--) {
+		ret = ret * 31 + *str; // 31 for LUBM; 131 for Uniprot
 		str++;
 	}
 	return ret;
 }
 
-inline HashCodeType get_hash_code(LengthString * str){
+inline HashCodeType get_hash_code(LengthString * str) {
 	HashCodeType ret = 0;
 	uint length = str->length;
 	const char * ps = str->str;
-	while(length--){
-		ret = ret*31 + *ps;// 31 for LUBM; 131 for Uniprot
+	while (length--) {
+		ret = ret * 31 + *ps; // 31 for LUBM; 131 for Uniprot
 		ps++;
 	}
 	return ret;
 }
 
-inline HashCodeType next_prime_number( HashCodeType n )
-{
-	for(HashCodeType ret = n+1;;ret++){
-		HashCodeType up = (HashCodeType)(sqrt((double)ret))+1000;
-		if(up>=ret)
-			up = ret-1;
+inline HashCodeType next_prime_number(HashCodeType n) {
+	for (HashCodeType ret = n + 1;; ret++) {
+		HashCodeType up = (HashCodeType) (sqrt((double) ret)) + 1000;
+		if (up >= ret)
+			up = ret - 1;
 
 		bool ok = true;
-		for(HashCodeType p = 2;p<ret;p++){
-			if(ret%p==0){
+		for (HashCodeType p = 2; p < ret; p++) {
+			if (ret % p == 0) {
 				ok = false;
 				break;
 			}
 		}
-		if(ok){
+		if (ok) {
 			return ret;
 		}
 	}
 	return 0;
 }
 
-inline HashCodeType next_hash_capacity( HashCodeType current )
-{
+inline HashCodeType next_hash_capacity(HashCodeType current) {
 	HashCodeType newPrimeSed = current * 2;
-	if(current >= HashCodeType(1<<25))
-		newPrimeSed = current + HashCodeType(1<<25);
+	if (current >= HashCodeType(1 << 25))
+		newPrimeSed = current + HashCodeType(1 << 25);
 	HashCodeType ret = next_prime_number(newPrimeSed);
 #ifdef DEBUG
 	printf("DEBUG: resize hash table from %zd to %zd\n",current,ret);
 #endif
-	if(ret>0)
+	if (ret > 0)
 		return ret;
-	else{
+	else {
 		exit(0);
 	}
 }

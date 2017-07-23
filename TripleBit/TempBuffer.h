@@ -27,16 +27,20 @@ public:
 	Status clear();
 	ChunkTriple& operator[](const size_t index);
 	bool isEquals(ChunkTriple* lTriple, ChunkTriple* rTriple);
-	bool isFull() { return usedSize >= totalSize; }
-	bool isEmpty() { return usedSize == 0; }
-	size_t getSize() const{
+	bool isFull() {
+		return usedSize >= totalSize;
+	}
+	bool isEmpty() {
+		return usedSize == 0;
+	}
+	size_t getSize() const {
 		return usedSize;
 	}
-	ChunkTriple* getBuffer() const{
+	ChunkTriple* getBuffer() const {
 		return buffer;
 	}
 
-	ChunkTriple* getEnd(){
+	ChunkTriple* getEnd() {
 		return getBuffer() + usedSize;
 	}
 

@@ -16,26 +16,24 @@ ThreadPool *ThreadPool::workPool = NULL;
 ThreadPool *ThreadPool::chunkPool = NULL;
 ThreadPool *ThreadPool::partitionPool = NULL;
 
-
 ThreadPool::ThreadPool(int threadNum) {
 	this->threadNum = threadNum;
 	shutDown = false;
 	NodeTask *nodeTask = new NodeTask;
 	head = tail = nodeTask;
-	pthread_mutex_init(&headMutex,NULL);
+	pthread_mutex_init(&headMutex, NULL);
 	pthread_mutex_init(&tailMutex, NULL);
-	pthread_mutex_init(&pthreadIdleMutex,NULL);
-	pthread_mutex_init(&pthreadBusyMutex,NULL);
-	pthread_cond_init(&pthreadCond,NULL);
-	pthread_cond_init(&pthreadEmpty,NULL);
-	pthread_cond_init(&pthreadBusyEmpty,NULL);
+	pthread_mutex_init(&pthreadIdleMutex, NULL);
+	pthread_mutex_init(&pthreadBusyMutex, NULL);
+	pthread_cond_init(&pthreadCond, NULL);
+	pthread_cond_init(&pthreadEmpty, NULL);
+	pthread_cond_init(&pthreadBusyEmpty, NULL);
 	create();
 }
 
-ThreadPool::~ThreadPool()
-{
+ThreadPool::~ThreadPool() {
 	stopAll();
-	if(head != NULL){
+	if (head != NULL) {
 		delete head;
 		head = NULL;
 	}
@@ -63,7 +61,7 @@ int ThreadPool::moveToIdle(pthread_t tid) {
 	}
 	vecBusyThread.erase(busyIter);
 
-	if ( vecBusyThread.size() == 0) {
+	if (vecBusyThread.size() == 0) {
 		pthread_cond_broadcast(&pthreadBusyEmpty);
 	}
 
@@ -96,19 +94,19 @@ int ThreadPool::moveToBusy(pthread_t tid) {
 void* ThreadPool::threadFunc(void * threadData) {
 	pthread_t tid = pthread_self();
 	int rnt;
-	ThreadPoolArg* arg = (ThreadPoolArg*)threadData;
+	ThreadPoolArg* arg = (ThreadPoolArg*) threadData;
 	ThreadPool* pool = arg->pool;
 	while (1) {
 		rnt = pthread_mutex_lock(&pool->headMutex);
-		if ( rnt != 0){
-			cout<<"Get mutex error"<<endl;
+		if (rnt != 0) {
+			cout << "Get mutex error" << endl;
 		}
 
-		while(pool->isEmpty() && pool->shutDown == false){
+		while (pool->isEmpty() && pool->shutDown == false) {
 			pthread_cond_wait(&pool->pthreadCond, &pool->headMutex);
 		}
 
-		if ( pool->shutDown == true){
+		if (pool->shutDown == true) {
 			pthread_mutex_unlock(&pool->headMutex);
 			pthread_exit(NULL);
 		}
@@ -116,17 +114,17 @@ void* ThreadPool::threadFunc(void * threadData) {
 		pool->moveToBusy(tid);
 		Task task = pool->Dequeue();
 
-		if(pool->isEmpty()){
+		if (pool->isEmpty()) {
 			pthread_cond_broadcast(&pool->pthreadEmpty);
 		}
 		pthread_mutex_unlock(&pool->headMutex);
 		task();
 		pool->moveToIdle(tid);
 	}
-	return (void*)0;
+	return (void*) 0;
 }
 
-void ThreadPool::Enqueue(const Task &task){
+void ThreadPool::Enqueue(const Task &task) {
 	NodeTask *nodeTask = new NodeTask(task);
 	pthread_mutex_lock(&tailMutex);
 	tail->next = nodeTask;
@@ -134,7 +132,7 @@ void ThreadPool::Enqueue(const Task &task){
 	pthread_mutex_unlock(&tailMutex);
 }
 
-ThreadPool::Task ThreadPool::Dequeue(){
+ThreadPool::Task ThreadPool::Dequeue() {
 	NodeTask *node, *newNode;
 //	pthread_mutex_lock(&headMutex);
 	node = head;
@@ -174,7 +172,7 @@ int ThreadPool::stopAll() {
 		pthread_join(*iter, NULL);
 		iter++;
 	}
-	
+
 	iter = vecBusyThread.begin();
 	while (iter != vecBusyThread.end()) {
 		pthread_join(*iter, NULL);
@@ -184,64 +182,63 @@ int ThreadPool::stopAll() {
 	return 0;
 }
 
-int ThreadPool::wait()
-{
+int ThreadPool::wait() {
 	pthread_mutex_lock(&headMutex);
-	while(!isEmpty()) {
+	while (!isEmpty()) {
 		pthread_cond_wait(&pthreadEmpty, &headMutex);
 	}
 	pthread_mutex_unlock(&headMutex);
 	pthread_mutex_lock(&pthreadBusyMutex);
-	while(vecBusyThread.size() != 0) {
+	while (vecBusyThread.size() != 0) {
 		pthread_cond_wait(&pthreadBusyEmpty, &pthreadBusyMutex);
 	}
 	pthread_mutex_unlock(&pthreadBusyMutex);
 	return 0;
 }
 
-ThreadPool &ThreadPool::getWorkPool(){
-	if(workPool == NULL){
+ThreadPool &ThreadPool::getWorkPool() {
+	if (workPool == NULL) {
 		workPool = new ThreadPool(WORK_THREAD_NUMBER);
 	}
 	return *workPool;
 }
 
-ThreadPool &ThreadPool::getChunkPool(){
-	if(chunkPool == NULL){
+ThreadPool &ThreadPool::getChunkPool() {
+	if (chunkPool == NULL) {
 		chunkPool = new ThreadPool(CHUNK_THREAD_NUMBER);
 	}
 	return *chunkPool;
 }
 
-ThreadPool &ThreadPool::getPartitionPool(){
-	if(partitionPool == NULL){
+ThreadPool &ThreadPool::getPartitionPool() {
+	if (partitionPool == NULL) {
 		partitionPool = new ThreadPool(CHUNK_THREAD_NUMBER);
 	}
 	return *partitionPool;
 }
 
-void ThreadPool::createAllPool(){
+void ThreadPool::createAllPool() {
 	getWorkPool();
 	getChunkPool();
 	getPartitionPool();
 }
 
-void ThreadPool::deleteAllPool(){
-	if(workPool != NULL){
+void ThreadPool::deleteAllPool() {
+	if (workPool != NULL) {
 		delete workPool;
 		workPool = NULL;
 	}
-	if(chunkPool != NULL){
+	if (chunkPool != NULL) {
 		delete chunkPool;
 		chunkPool = NULL;
 	}
-	if(partitionPool != NULL){
+	if (partitionPool != NULL) {
 		delete partitionPool;
 		partitionPool = NULL;
 	}
 }
 
-void ThreadPool::waitAllPoolComplete(){
+void ThreadPool::waitAllPoolComplete() {
 	getWorkPool().wait();
 	getChunkPool().wait();
 	getPartitionPool().wait();

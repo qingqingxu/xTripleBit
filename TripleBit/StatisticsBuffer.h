@@ -102,23 +102,18 @@ public:
 	~StatisticsBuffer();
 	//插入一条SP或OP的统计信息,加入OP统计信息需指定objType
 	template<typename T>
-	Status addStatis(T soValue, ID predicateID, size_t count, char objType =
-			STRING) {
+	Status addStatis(T soValue, ID predicateID, size_t count, char objType = STRING) {
 		unsigned len = Chunk::getLen(objType) + sizeof(ID) + sizeof(size_t);
 		if (statType == OBJECTPREDICATE_STATIS) {
 			len += sizeof(char);
 		}
 		if (first || usedSpace + len > buffer->getSize()) {
 			usedSpace = writer - (uchar*) buffer->getBuffer();
-			buffer->resize(
-					STATISTICS_BUFFER_INCREMENT_PAGE_COUNT
-							* MemoryBuffer::pagesize);	//加大空间
+			buffer->resize(STATISTICS_BUFFER_INCREMENT_PAGE_COUNT * MemoryBuffer::pagesize);	//加大空间
 			writer = (uchar*) buffer->getBuffer() + usedSpace;
 
 			if ((indexPos + 1) >= indexSize) {
-				index = (Triple*) realloc(index,
-						indexSize * sizeof(Triple)
-								+ MemoryBuffer::pagesize * sizeof(Triple));
+				index = (Triple*) realloc(index, indexSize * sizeof(Triple) + MemoryBuffer::pagesize * sizeof(Triple));
 				if (index == NULL) {
 					cout << "realloc StatisticsBuffer error" << endl;
 					return ERR;
@@ -148,8 +143,7 @@ public:
 		return OK;
 	}
 	//获取一条SP或OP的统计信息
-	Status getStatis(double soValue, ID predicateID, size_t& count,
-			char objType = STRING);
+	Status getStatis(double soValue, ID predicateID, size_t& count, char objType = STRING);
 	//根据SP（OP）统计信息获取S（O）出现的次数
 	template<typename T>
 	Status getStatisBySO(T soValue, size_t& count, char objType = STRING) {
@@ -169,8 +163,7 @@ public:
 		if (pos == (index + indexPos))
 			end = usedSpace;
 
-		const uchar* begin = (uchar*) buffer->getBuffer() + start, *limit =
-				(uchar*) buffer->getBuffer() + end;
+		const uchar* begin = (uchar*) buffer->getBuffer() + start, *limit = (uchar*) buffer->getBuffer() + end;
 		decodeStatis(begin, limit, soValue, count, objType);
 
 		if (count != 0) {
@@ -181,8 +174,7 @@ public:
 	}
 
 	template<typename T>
-	Status findAllPredicateBySO(T soValue, vector<ID>& pids, char objType =
-			STRING) {
+	Status findAllPredicateBySO(T soValue, vector<ID>& pids, char objType = STRING) {
 		pids.clear();
 		pos = index, posLimit = index + indexPos;
 		findLocation(soValue);
@@ -199,8 +191,7 @@ public:
 		if (pos == (index + indexPos))
 			end = usedSpace;
 
-		const uchar* begin = (uchar*) buffer->getBuffer() + start, *limit =
-				(uchar*) buffer->getBuffer() + end;
+		const uchar* begin = (uchar*) buffer->getBuffer() + start, *limit = (uchar*) buffer->getBuffer() + end;
 		findAllPredicateBySO(begin, limit, soValue, pids, objType);
 
 		if (pids.size() != 0) {
@@ -215,15 +206,11 @@ public:
 	//建立统计信息的索引
 	Status save(MMapBuffer*& indexBuffer);
 	//加载统计信息的索引
-	static StatisticsBuffer* load(StatisticsType statType, const string path,
-			uchar*& indxBuffer);
+	static StatisticsBuffer* load(StatisticsType statType, const string path, uchar*& indxBuffer);
 private:
 	/// decode a statistics chunk
-	void decodeStatis(const uchar* begin, const uchar* end, double soValue,
-			ID predicateID, size_t& count, char objType = STRING);
-	void decodeStatis(const uchar* begin, const uchar* end, double soValue,
-			size_t& count, char objType = STRING);
-	void findAllPredicateBySO(const uchar* begin, const uchar* end, double soValue,
-			vector<ID>& pids, char objType = STRING);
+	void decodeStatis(const uchar* begin, const uchar* end, double soValue, ID predicateID, size_t& count, char objType = STRING);
+	void decodeStatis(const uchar* begin, const uchar* end, double soValue, size_t& count, char objType = STRING);
+	void findAllPredicateBySO(const uchar* begin, const uchar* end, double soValue, vector<ID>& pids, char objType = STRING);
 };
 #endif /* STATISTICSBUFFER_H_ */

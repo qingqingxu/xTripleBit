@@ -10,7 +10,9 @@
 
 class MessageEngine {
 public:
-	enum MessageType { INFO = 1, WARNING, ERROR , DEFAULT};
+	enum MessageType {
+		INFO = 1, WARNING, ERROR, DEFAULT
+	};
 	MessageEngine();
 	virtual ~MessageEngine();
 	static void showMessage(const char* msg, MessageType type = DEFAULT);

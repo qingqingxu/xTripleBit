@@ -8,25 +8,22 @@
 #include "PartitionBufferManager.h"
 #include "../EntityIDBuffer.h"
 
-//Éè¼Æ³É»·ÐÎÊÇ²»ÊÇ¸üºÃÄØ
+//ï¿½ï¿½Æ³É»ï¿½ï¿½ï¿½ï¿½Ç²ï¿½ï¿½Ç¸ï¿½ï¿½ï¿½ï¿½ï¿½
 
 PartitionBufferManager::PartitionBufferManager() {
 	// TODO Auto-generated constructor stub
 	bufferCnt = INIT_PARTITION_BUFFERS;
-	for(int i = 0; i < bufferCnt; i++)
-	 {
-		 EntityIDBuffer* buffer = new EntityIDBuffer;
-		 bufferPool.push_back(buffer);
-		 cleanBuffer.push_back(buffer);
-	 }
-	 usedBuffer.clear();
+	for (int i = 0; i < bufferCnt; i++) {
+		EntityIDBuffer* buffer = new EntityIDBuffer;
+		bufferPool.push_back(buffer);
+		cleanBuffer.push_back(buffer);
+	}
+	usedBuffer.clear();
 }
 
-PartitionBufferManager::PartitionBufferManager(int initBufferNum)
-{
-	bufferCnt = (initBufferNum > MAX_BUFFERS ? MAX_BUFFERS: initBufferNum);
-	for(int i = 0; i < bufferCnt; i++)
-	{
+PartitionBufferManager::PartitionBufferManager(int initBufferNum) {
+	bufferCnt = (initBufferNum > MAX_BUFFERS ? MAX_BUFFERS : initBufferNum);
+	for (int i = 0; i < bufferCnt; i++) {
 		EntityIDBuffer* buffer = new EntityIDBuffer;
 		bufferPool.push_back(buffer);
 		cleanBuffer.push_back(buffer);
@@ -38,10 +35,8 @@ PartitionBufferManager::~PartitionBufferManager() {
 	// TODO Auto-generated destructor stub
 }
 
-EntityIDBuffer* PartitionBufferManager::getNewBuffer()
-{
-	if(usedBuffer.size() == bufferPool.size())
-	{
+EntityIDBuffer* PartitionBufferManager::getNewBuffer() {
+	if (usedBuffer.size() == bufferPool.size()) {
 		return NULL;
 	}
 	EntityIDBuffer* buffer = cleanBuffer.front();
@@ -53,10 +48,8 @@ EntityIDBuffer* PartitionBufferManager::getNewBuffer()
 	return buffer;
 }
 
-void PartitionBufferManager::destroyBuffers()
-{
-	for(unsigned i = 0; i < bufferPool.size(); i++)
-	{
+void PartitionBufferManager::destroyBuffers() {
+	for (unsigned i = 0; i < bufferPool.size(); i++) {
 		delete bufferPool[i];
 	}
 
@@ -64,29 +57,23 @@ void PartitionBufferManager::destroyBuffers()
 	cleanBuffer.clear();
 }
 
-Status PartitionBufferManager::freeBuffer(EntityIDBuffer* buffer)
-{
+Status PartitionBufferManager::freeBuffer(EntityIDBuffer* buffer) {
 	vector<EntityIDBuffer*>::iterator iter = find(usedBuffer.begin(), usedBuffer.end(), buffer);
-	if(iter != usedBuffer.end())
-	{
+	if (iter != usedBuffer.end()) {
 		boost::mutex::scoped_lock lock(bufferMutex);
 		usedBuffer.erase(iter);
 		cleanBuffer.push_back(*iter);
 		(*iter)->empty();
 		return OK;
-	}
-	else
-	{
+	} else {
 		return NOT_FOUND;
 	}
 }
 
-Status PartitionBufferManager::reserveBuffer()
-{
+Status PartitionBufferManager::reserveBuffer() {
 	usedBuffer.clear();
 	cleanBuffer.clear();
-	for(int i = 0; i < bufferCnt; i++)
-	{
+	for (int i = 0; i < bufferCnt; i++) {
 		bufferPool[i]->empty();
 		cleanBuffer.push_back(bufferPool[i]);
 	}

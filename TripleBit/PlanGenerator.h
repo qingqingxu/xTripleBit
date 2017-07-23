@@ -29,12 +29,12 @@ public:
 	PlanGenerator(IRepository& _repo);
 	Status generatePlan(TripleBitQueryGraph& _graph);
 	virtual ~PlanGenerator();
-	int	getSelectivity(TripleBitQueryGraph::TripleNodeID& tripleID);
+	int getSelectivity(TripleBitQueryGraph::TripleNodeID& tripleID);
 	void sortJoinVariableNode(TripleBitQueryGraph::JoinVariableNode& node);
 private:
 	/// Generate the scan operator for the query pattern.
 	Status generateScanOperator(TripleNode& node, TripleBitQueryGraph::JoinVariableNodeID varID);
-	Status generateSelectivity(TripleBitQueryGraph::JoinVariableNode& node, map<TripleBitQueryGraph::JoinVariableNodeID,int>& selectivityMap);
+	Status generateSelectivity(TripleBitQueryGraph::JoinVariableNode& node, map<TripleBitQueryGraph::JoinVariableNodeID, int>& selectivityMap);
 	TripleBitQueryGraph::JoinVariableNode::JoinType getJoinType(TripleBitQueryGraph::JoinVariableNode& node);
 	Status bfsTraverseVariableNode();
 	Status getAdjVariableByID(TripleBitQueryGraph::JoinVariableNodeID id, vector<TripleBitQueryGraph::JoinVariableNodeID>& nodes);

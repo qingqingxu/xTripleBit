@@ -53,14 +53,10 @@ public:
 		char objType;
 	};
 	enum ResultType {
-		SIGNALID,
-		OBJECT,
-		SUBJECTOBJECT,
-		PREDICATEOBJECT,
-		SUBJECTPREDICATE,
-		SUBJECTPREDICATEOBJECT
+		SIGNALID, OBJECT, SUBJECTOBJECT, PREDICATEOBJECT, SUBJECTPREDICATE, SUBJECTPREDICATEOBJECT
 	};
-	MidResultBuffer(){}
+	MidResultBuffer() {
+	}
 	MidResultBuffer(ResultType resultType);
 	virtual ~MidResultBuffer();
 	void resize(size_t size);
@@ -76,22 +72,22 @@ public:
 	size_t getCapacity() const {
 		return totalSize;
 	}
-	ResultType getResultType() const{
+	ResultType getResultType() const {
 		return resultType;
 	}
-	ID* getSignalIDBuffer() const{
+	ID* getSignalIDBuffer() const {
 		return spIDs;
 	}
-	SignalO* getObjectBuffer() const{
+	SignalO* getObjectBuffer() const {
 		return objects;
 	}
-	SOPO* getSOPOBuffer()  const{
+	SOPO* getSOPOBuffer() const {
 		return sopos;
 	}
-	SP* getSPBuffer() const{
+	SP* getSPBuffer() const {
 		return sps;
 	}
-	SPO* getSPOBuffer() const{
+	SPO* getSPOBuffer() const {
 		return spos;
 	}
 
@@ -191,19 +187,14 @@ public:
 		return buffer;
 	}
 
-	Status mergeIntersection(EntityIDBuffer* entBuffer, char* flags,
-			ID joinKey);
-	Status intersection(EntityIDBuffer* entBuffer, char* flags, ID joinKey1,
-			ID joinKey2);
+	Status mergeIntersection(EntityIDBuffer* entBuffer, char* flags, ID joinKey);
+	Status intersection(EntityIDBuffer* entBuffer, char* flags, ID joinKey1, ID joinKey2);
 	Status mergeBuffer(EntityIDBuffer* XTemp, EntityIDBuffer* XYTemp);
-	static Status mergeSingleBuffer(EntityIDBuffer* entbuffer, ID* buffer1,
-			ID* buffer, size_t size1, size_t size2);
-	static Status mergeSingleBuffer(EntityIDBuffer*, EntityIDBuffer*,
-			EntityIDBuffer*);
+	static Status mergeSingleBuffer(EntityIDBuffer* entbuffer, ID* buffer1, ID* buffer, size_t size1, size_t size2);
+	static Status mergeSingleBuffer(EntityIDBuffer*, EntityIDBuffer*, EntityIDBuffer*);
 	static Status mergeSingleBuffer(EntityIDBuffer*, EntityIDBuffer*);
 //	void   uniqe();
-	Status mergeBuffer(ID* destBuffer, ID* buffer1, ID* buffer, size_t size1,
-			size_t size2, int IDCount, int key);
+	Status mergeBuffer(ID* destBuffer, ID* buffer1, ID* buffer, size_t size1, size_t size2, int IDCount, int key);
 	Status modifyByFlag(char* flags, int no);
 	void getMinMax(ID& min, ID& max);
 	void resize(size_t size);
@@ -231,8 +222,7 @@ public:
 	Status appendBuffer(const ID* buffer, size_t size);
 	Status appendBuffer1(const ID* buffer, size_t size);
 	Status appendBuffer(const EntityIDBuffer* otherBuffer);
-	static Status swapBuffer(EntityIDBuffer* &buffer1,
-			EntityIDBuffer* &buffer2);
+	static Status swapBuffer(EntityIDBuffer* &buffer1, EntityIDBuffer* &buffer2);
 private:
 	int partition(ID* p, int first, int last);
 	void quickSort(ID*p, int first, int last);

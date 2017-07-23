@@ -10,7 +10,7 @@
 
 class AvgTime;
 
-class Timestamp{
+class Timestamp {
 private:
 	// The data
 	char data[64];
@@ -18,22 +18,28 @@ private:
 	friend class AvgTime;
 
 	// Get the raw storage space
-	void *ptr() { return data; }
+	void *ptr() {
+		return data;
+	}
 	// Get the raw storage space
-	const void *ptr() const { return data; }
+	const void *ptr() const {
+		return data;
+	}
 
 public:
 	// Contructor
 	Timestamp();
 
 	// Hash
-	unsigned long long getHash() const { return *static_cast<const unsigned long long*>(ptr()); }
+	unsigned long long getHash() const {
+		return *static_cast<const unsigned long long*>(ptr());
+	}
 
 	// Difference in ms
 	unsigned operator-(const Timestamp &other) const;
 };
 
-class AvgTime{
+class AvgTime {
 private:
 	// The data
 	char data[64];
@@ -41,9 +47,13 @@ private:
 	unsigned count;
 
 	// Get the raw storage space
-	void *ptr() { return data; }
+	void *ptr() {
+		return data;
+	}
 	// Get the raw storage space
-	const void *ptr() const { return data; }
+	const void *ptr() const {
+		return data;
+	}
 
 public:
 	// Contructor

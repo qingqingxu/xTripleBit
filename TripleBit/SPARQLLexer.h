@@ -19,32 +19,7 @@ class SPARQLLexer {
 public:
 	/// Possible tokens
 	enum Token {
-		None,
-		Error,
-		Eof,
-		IRI,
-		String,
-		Bool,
-		Char,
-		Integer,
-		Double,
-		Variable,
-		Identifier,
-		Colon,
-		Semicolon,
-		Comma,
-		Dot,
-		Star,
-		Underscore,
-		LCurly,
-		RCurly,
-		LParen,
-		RParen,
-		LBracket,
-		RBracket,
-		Anon,
-		Equal,
-		NotEqual
+		None, Error, Eof, IRI, String, Bool, Char, Integer, Double, Variable, Identifier, Colon, Semicolon, Comma, Dot, Star, Underscore, LCurly, RCurly, LParen, RParen, LBracket, RBracket, Anon, Equal, NotEqual
 	};
 
 private:

@@ -7,27 +7,27 @@
 
 #include "Mutex.h"
 
-Mutex::Mutex(){
+Mutex::Mutex() {
 //	Constructor
 	pthread_mutex_init(&mutex, 0);
 }
 
-Mutex::~Mutex(){
+Mutex::~Mutex() {
 //	Destructor
 	pthread_mutex_destroy(&mutex);
 }
 
-void Mutex::lock(){
+void Mutex::lock() {
 //	Lock
 	pthread_mutex_lock(&mutex);
 }
 
-bool Mutex::tryLock(){
+bool Mutex::tryLock() {
 //	Try to lock
-	return pthread_mutex_trylock(&mutex)==0;
+	return pthread_mutex_trylock(&mutex) == 0;
 }
 
-void Mutex::unlock(){
+void Mutex::unlock() {
 //	Unlock
 	pthread_mutex_unlock(&mutex);
 }

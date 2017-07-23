@@ -17,26 +17,25 @@ class EntityIDBuffer;
 
 class BufferManager {
 private:
-        vector<EntityIDBuffer*> bufferPool;
-        vector<EntityIDBuffer*> usedBuffer;
-        vector<EntityIDBuffer*> cleanBuffer;
+	vector<EntityIDBuffer*> bufferPool;
+	vector<EntityIDBuffer*> usedBuffer;
+	vector<EntityIDBuffer*> cleanBuffer;
 
-        int bufferCnt;
-        boost::mutex bufferMutex;
+	int bufferCnt;
+	boost::mutex bufferMutex;
 
 protected:
-        static BufferManager* instance;
-        BufferManager();
-        bool expandBuffer();
+	static BufferManager* instance;
+	BufferManager();
+	bool expandBuffer();
 public:
-        virtual ~BufferManager();
-        EntityIDBuffer* getNewBuffer();
-        Status freeBuffer(EntityIDBuffer* buffer);
-        Status reserveBuffer();
-        void destroyBuffers();
+	virtual ~BufferManager();
+	EntityIDBuffer* getNewBuffer();
+	Status freeBuffer(EntityIDBuffer* buffer);
+	Status reserveBuffer();
+	void destroyBuffers();
 public:
-        static BufferManager* getInstance();
+	static BufferManager* getInstance();
 };
-
 
 #endif /* BUFFERMANAGER_H_ */

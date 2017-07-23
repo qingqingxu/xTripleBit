@@ -10,8 +10,7 @@
 
 #include "TripleBit.h"
 
-class TempMMapBuffer
-{
+class TempMMapBuffer {
 private:
 	int fd;
 	uchar volatile *mmapAddr;
@@ -35,11 +34,19 @@ public:
 	uchar *getBuffer(int pos);
 	void discard();
 	Status flush();
-	size_t getSize(){ return size; }
-	size_t getLength() { return size; }
-	uchar *getAddress() const { return (uchar*)mmapAddr; }
+	size_t getSize() {
+		return size;
+	}
+	size_t getLength() {
+		return size;
+	}
+	uchar *getAddress() const {
+		return (uchar*) mmapAddr;
+	}
 	uchar *getPage(size_t &pageNo);
-	size_t getUsedPage(){ return usedPage; }
+	size_t getUsedPage() {
+		return usedPage;
+	}
 
 public:
 	static void create(const char *filename, size_t initSize);

@@ -14,8 +14,7 @@ using namespace std;
 // San Francisco, California, 94105, USA.
 //---------------------------------------------------------------------------
 SPARQLLexer::SPARQLLexer(const std::string& input) :
-		input(input), pos(this->input.begin()), tokenStart(pos), tokenEnd(pos), putBack(
-				None), hasTokenEnd(false)
+		input(input), pos(this->input.begin()), tokenStart(pos), tokenEnd(pos), putBack(None), hasTokenEnd(false)
 // Constructor
 {
 }
@@ -133,7 +132,7 @@ SPARQLLexer::Token SPARQLLexer::getNext()
 			while (pos != input.end() && (*pos) != '\'') {
 				++pos;
 			}
-			if((pos - tokenStart) != 1){
+			if ((pos - tokenStart) != 1) {
 				return Error;
 			}
 			tokenEnd = pos;
@@ -192,8 +191,7 @@ SPARQLLexer::Token SPARQLLexer::getNext()
 			tokenStart = pos;
 			while (pos != input.end()) {
 				char c = *pos;
-				if (((c >= '0') && (c <= '9')) || ((c >= 'A') && (c <= 'Z'))
-						|| ((c >= 'a') && (c <= 'z'))) {
+				if (((c >= '0') && (c <= '9')) || ((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z'))) {
 					++pos;
 				} else
 					break;
@@ -206,16 +204,14 @@ SPARQLLexer::Token SPARQLLexer::getNext()
 			--pos;
 			while (pos != input.end()) {
 				char c = *pos;
-				if (((c >= '0') && (c <= '9')) || ((c >= 'A') && (c <= 'Z'))
-						|| ((c >= 'a') && (c <= 'z')) || (c == '_')
-						|| (c == '-') || (c == '.')) {
+				if (((c >= '0') && (c <= '9')) || ((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z')) || (c == '_') || (c == '-') || (c == '.')) {
 					++pos;
 				} else
 					break;
 			}
-			if (pos == tokenStart){
+			if (pos == tokenStart) {
 				return Error;
-			}else if(strcasecmp(getTokenValue().c_str(), "true") == 0 || strcasecmp(getTokenValue().c_str(), "false") == 0){
+			} else if (strcasecmp(getTokenValue().c_str(), "true") == 0 || strcasecmp(getTokenValue().c_str(), "false") == 0) {
 				return Bool;
 			}
 			return Identifier;
@@ -241,16 +237,7 @@ bool SPARQLLexer::lexDate(string &str, double& date) {
 	if (str.empty() || str.length() != 19) {
 		return false;
 	}
-	if (str[0] >= '0' && str[0] <= '9' && str[1] >= '0' && str[1] <= '9'
-			&& str[2] >= '0' && str[2] <= '9' && str[3] >= '0' && str[3] <= '9'
-			&& str[4] == '-' && str[5] >= '0' && str[5] <= '1' && str[6] >= '0'
-			&& str[6] <= '9' && str[7] == '-' && str[8] >= '0' && str[8] <= '3'
-			&& str[9] >= '0' && str[9] <= '9' && str[10] == ' '
-			&& str[11] >= '0' && str[11] <= '2' && str[12] >= '0'
-			&& str[12] <= '9' && str[13] == ':' && str[14] >= '0'
-			&& str[14] <= '5' && str[15] >= '0' && str[15] <= '9'
-			&& str[16] == ':' && str[17] >= '0' && str[17] <= '5'
-			&& str[18] >= '0' && str[18] <= '9') {
+	if (str[0] >= '0' && str[0] <= '9' && str[1] >= '0' && str[1] <= '9' && str[2] >= '0' && str[2] <= '9' && str[3] >= '0' && str[3] <= '9' && str[4] == '-' && str[5] >= '0' && str[5] <= '1' && str[6] >= '0' && str[6] <= '9' && str[7] == '-' && str[8] >= '0' && str[8] <= '3' && str[9] >= '0' && str[9] <= '9' && str[10] == ' ' && str[11] >= '0' && str[11] <= '2' && str[12] >= '0' && str[12] <= '9' && str[13] == ':' && str[14] >= '0' && str[14] <= '5' && str[15] >= '0' && str[15] <= '9' && str[16] == ':' && str[17] >= '0' && str[17] <= '5' && str[18] >= '0' && str[18] <= '9') {
 		date = (str[0] - '0');
 		date = date * 10 + (str[1] - '0');
 		date = date * 10 + (str[2] - '0');
@@ -296,8 +283,7 @@ SPARQLLexer::Token SPARQLLexer::getNumberType(string& s) {
 		if (s[i] >= '0' && s[i] <= '9')
 			digitExisited = true;
 		else if (s[i] == 'e' || s[i] == 'E') { // e/E cannot follow +/-, must follow a digit
-			if (!eExisted && s[i - 1] != '+' && s[i - 1] != '-'
-					&& digitExisited)
+			if (!eExisted && s[i - 1] != '+' && s[i - 1] != '-' && digitExisited)
 				eExisted = true;
 			else
 				return None;
@@ -325,8 +311,7 @@ SPARQLLexer::Token SPARQLLexer::getNumberType(string& s) {
 		return None;
 }
 
-double SPARQLLexer::getValueFromToken(const std::string& value,
-		DataType& dataType) {
+double SPARQLLexer::getValueFromToken(const std::string& value, DataType& dataType) {
 	double tmp;
 	string tmpValue;
 	switch (dataType) {
@@ -347,8 +332,7 @@ double SPARQLLexer::getValueFromToken(const std::string& value,
 	case DOUBLE:
 		tmp = atof(value.c_str());
 		if (tmp == HUGE_VAL) {
-			MessageEngine::showMessage("data convert to double error",
-					MessageEngine::ERROR);
+			MessageEngine::showMessage("data convert to double error", MessageEngine::ERROR);
 			dataType = NONE;
 			return 0;
 		} else if (tmp >= FLT_MIN && tmp <= FLT_MAX) {
@@ -376,8 +360,7 @@ double SPARQLLexer::getValueFromToken(const std::string& value,
 bool SPARQLLexer::isKeyword(const char* keyword) const
 // Check if the current token matches a keyword
 		{
-	std::string::const_iterator iter = tokenStart, limit =
-			hasTokenEnd ? tokenEnd : pos;
+	std::string::const_iterator iter = tokenStart, limit = hasTokenEnd ? tokenEnd : pos;
 
 	while (iter != limit) {
 		char c = *iter;

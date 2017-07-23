@@ -32,13 +32,11 @@ public:
 	BitmapBuffer(const string dir);
 	~BitmapBuffer();
 	//加载predicate对应的ChunkManager信息与对应的索引信息
-	static BitmapBuffer* load(MMapBuffer* bitmapImage,
-			MMapBuffer*& bitmapIndexImage, MMapBuffer* bitmapPredicateImage);
+	static BitmapBuffer* load(MMapBuffer* bitmapImage, MMapBuffer*& bitmapIndexImage, MMapBuffer* bitmapPredicateImage);
 	//插入一条predicate信息，创建以subject和以object排序的ChunkManager，并确认predicate对应object数据类型
 	Status insertPredicate(ID predicateID, OrderByType soType);
 	//插入一条三元组信息，根据object数据类型确定插入object所占字节
-	Status insertTriple(ID predicateID, ID subjectID, double object,
-			OrderByType soType, char objType = STRING);
+	Status insertTriple(ID predicateID, ID subjectID, double object, OrderByType soType, char objType = STRING);
 	//根据predicate与SO排序方式获取对应的ChunkManager
 	ChunkManager* getChunkManager(ID predicateID, OrderByType soType);
 	//获取数据库中所有三元组总数
@@ -94,8 +92,7 @@ public:
 	ChunkManager() {
 		pthread_mutex_init(&mutex, NULL);
 	}
-	ChunkManager(ID predicateID, OrderByType soType,
-			BitmapBuffer* _bitmapBuffer);
+	ChunkManager(ID predicateID, OrderByType soType, BitmapBuffer* _bitmapBuffer);
 	~ChunkManager();
 	//为Chunk建立索引信息
 	Status buildChunkIndex();
@@ -106,8 +103,7 @@ public:
 	//向指定位置写入数据x，y，写完后指针仍指向原地址, x表示subjectID， y表示object
 	void writeXY(uchar* reader, ID x, double y, char objType = STRING);
 	//读取subjectID、object、objType
-	const uchar* readXY(const uchar* reader, ID& subjectID, double& object,
-			char& objType);
+	const uchar* readXY(const uchar* reader, ID& subjectID, double& object, char& objType);
 	uchar* deleteTriple(uchar* reader);
 	//根据数据类型删除在指定位置数据，返回删除后位置，删除将该位置0
 	uchar* deleteTriple(uchar* reader, char objType);
@@ -133,15 +129,15 @@ public:
 	}
 
 	Status updateTripleCount(longlong varSize) {
-			pthread_mutex_lock(&mutex);
-			if(varSize < 0 && abs(varSize) > meta->tripleCount){
-				pthread_mutex_unlock(&mutex);
-				return ERROR;
-			}
-			meta->tripleCount += varSize;
+		pthread_mutex_lock(&mutex);
+		if (varSize < 0 && abs(varSize) > meta->tripleCount) {
 			pthread_mutex_unlock(&mutex);
-			return OK;
+			return ERROR;
 		}
+		meta->tripleCount += varSize;
+		pthread_mutex_unlock(&mutex);
+		return OK;
+	}
 
 	ChunkManagerMeta* getChunkManagerMeta() {
 		return meta;
@@ -164,8 +160,7 @@ public:
 	}
 	void setMetaDataMin(MetaData *metaData, ID x, double y);
 	//加载ChunkManager相关信息
-	static ChunkManager* load(ID predicateID, bool soType, uchar* buffer,
-			size_t& offset);
+	static ChunkManager* load(ID predicateID, bool soType, uchar* buffer, size_t& offset);
 
 };
 
@@ -180,8 +175,7 @@ public:
 	static void writeID(uchar*& writer, ID data, bool isUpdateAdress = true);
 	//在指定位置根据数据类型写入数据，默认返回写后数据位置
 	template<typename T>
-	static void write(uchar*& writer, T data, char dataType = STRING,
-			bool isUpdateAdress = true) {
+	static void write(uchar*& writer, T data, char dataType = STRING, bool isUpdateAdress = true) {
 		char c;
 		int i;
 		float f;
@@ -239,12 +233,10 @@ public:
 		}
 	}
 	//在指定位置读取ID数据，默认返回读取后数据位置
-	static const uchar* readID(const uchar* reader, ID& data,
-			bool isUpdateAdress = true);
+	static const uchar* readID(const uchar* reader, ID& data, bool isUpdateAdress = true);
 	//在指定位置根据数据类型读取数据，默认返回读取后数据位置
 	template<typename T>
-	static const uchar* read(const uchar* reader, T& data, char dataType =
-			STRING) {
+	static const uchar* read(const uchar* reader, T& data, char dataType = STRING) {
 		switch (dataType) {
 		case BOOL:
 		case CHAR:
@@ -286,10 +278,8 @@ public:
 	/// Skip a s or o
 	static const uchar* skipData(const uchar* reader, char dataType = STRING);
 	//根据object数据类型从reader位置向前跳至第一对x-y值
-	static const uchar* skipForward(const uchar* reader, const uchar* endPtr,
-			OrderByType soType);
+	static const uchar* skipForward(const uchar* reader, const uchar* endPtr, OrderByType soType);
 	//根据object数据类型在endPtr位置向后跳至最后一对x-y值, reader为MetaData位置
-	static const uchar* skipBackward(const uchar* reader, const uchar* endPtr,
-			OrderByType soType);
+	static const uchar* skipBackward(const uchar* reader, const uchar* endPtr, OrderByType soType);
 };
 #endif /* CHUNKMANAGER_H_ */

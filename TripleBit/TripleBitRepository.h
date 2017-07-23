@@ -29,7 +29,7 @@ class IndexForTT;
 #include "PartitionMaster.h"
 #include "ThreadPool.h"
 
-class TripleBitRepository : public IRepository{
+class TripleBitRepository: public IRepository {
 private:
 	PredicateTable * preTable;
 	URITable* UriTable;
@@ -56,7 +56,6 @@ private:
 	vector<string>::iterator resBegin;
 	vector<string>::iterator resEnd;
 
-
 //	some thing about QueryTest
 	IndexForTT *indexForTT;
 
@@ -81,32 +80,59 @@ public:
 	static TripleBitRepository* create(const string &path);
 
 	//Get some statistics information
-	int	get_predicate_count(PID pid);
+	int get_predicate_count(PID pid);
 	int get_subject_count(ID subjectID);
 	int get_object_count(double object, char objType);
 	int get_subject_predicate_count(ID subjectID, ID predicateID);
 	int get_object_predicate_count(double object, ID predicateID, char objType);
 	int get_subject_object_count(ID subjectID, double object, char objType = STRING);
 
-	PredicateTable* getPredicateTable() const { return preTable; }
-	URITable* getURITable() const { return UriTable; }
-	BitmapBuffer* getBitmapBuffer() const { return bitmapBuffer; }
-	transQueueSW* getTransQueueSW() { return transQueSW; }
-	StatisticsBuffer* getSpStatisBuffer() const{ return spStatisBuffer;}
-	StatisticsBuffer* getOpStatisBuffer() const{ return opStatisBuffer;}
-	vector<TasksQueueWP*> getTasksQueueWP() { return tasksQueueWP; }
-	vector<ResultBuffer*> getResultWP() { return resultWP; }
-	vector<boost::mutex*> getTasksQueueWPMutex() { return tasksQueueWPMutex; }
-	boost::mutex* getUriMutex() { return uriMutex; }
+	PredicateTable* getPredicateTable() const {
+		return preTable;
+	}
+	URITable* getURITable() const {
+		return UriTable;
+	}
+	BitmapBuffer* getBitmapBuffer() const {
+		return bitmapBuffer;
+	}
+	transQueueSW* getTransQueueSW() {
+		return transQueSW;
+	}
+	StatisticsBuffer* getSpStatisBuffer() const {
+		return spStatisBuffer;
+	}
+	StatisticsBuffer* getOpStatisBuffer() const {
+		return opStatisBuffer;
+	}
+	vector<TasksQueueWP*> getTasksQueueWP() {
+		return tasksQueueWP;
+	}
+	vector<ResultBuffer*> getResultWP() {
+		return resultWP;
+	}
+	vector<boost::mutex*> getTasksQueueWPMutex() {
+		return tasksQueueWPMutex;
+	}
+	boost::mutex* getUriMutex() {
+		return uriMutex;
+	}
 
-	size_t getWorkerNum() { return workerNum; }
-	size_t getPartitionNum() { return partitionNum; }
-	PartitionMaster *getPartitionMaster(ID partitionID) { return partitionMaster[partitionID]; }
-	string getDataBasePath() { return dataBasePath; }
-
+	size_t getWorkerNum() {
+		return workerNum;
+	}
+	size_t getPartitionNum() {
+		return partitionNum;
+	}
+	PartitionMaster *getPartitionMaster(ID partitionID) {
+		return partitionMaster[partitionID];
+	}
+	string getDataBasePath() {
+		return dataBasePath;
+	}
 
 	StatisticsBuffer* getStatisticsBuffer(StatisticsType type) {
-		switch(type) {
+		switch (type) {
 		case SUBJECTPREDICATE_STATIS:
 			return spStatisBuffer;
 		case OBJECTPREDICATE_STATIS:
@@ -123,7 +149,9 @@ public:
 	bool lookup(const string& str, ID& id);
 	Status nextResult(string& str);
 	Status execute(string query);
-	size_t getResultSize() const { return resultSet.size(); }
+	size_t getResultSize() const {
+		return resultSet.size();
+	}
 
 	void tripleBitWorkerInit(int i);
 	void partitionMasterInit(TripleBitRepository*& repo, int i);

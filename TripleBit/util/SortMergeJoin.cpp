@@ -10,16 +10,14 @@
 
 //#define MERGE_DEBUG
 
-SortMergeJoin::SortMergeJoin()
-{
+SortMergeJoin::SortMergeJoin() {
 	// TODO Auto-generated constructor stub
 	//pool = new CThreadPool(THREAD_NUMBER);
 	temp1 = (ID*) malloc(4096 * sizeof(ID));
 	temp2 = (ID*) malloc(4096 * sizeof(ID));
 }
 
-SortMergeJoin::~SortMergeJoin()
-{
+SortMergeJoin::~SortMergeJoin() {
 	// TODO Auto-generated destructor stub
 	if (temp1 != NULL)
 		free(temp1);
@@ -30,9 +28,7 @@ SortMergeJoin::~SortMergeJoin()
 	temp2 = NULL;
 }
 
-void SortMergeJoin::Join(EntityIDBuffer* entBuffer1, EntityIDBuffer* entBuffer2, int joinKey1, int joinKey2,
-		bool secondModify /* = true */)
-{
+void SortMergeJoin::Join(EntityIDBuffer* entBuffer1, EntityIDBuffer* entBuffer2, int joinKey1, int joinKey2, bool secondModify /* = true */) {
 #ifdef MERGE_DEBUG
 	cout << "joinKey1: " << joinKey1 << " joinKey2: " << joinKey2 << endl;
 #endif
@@ -43,18 +39,14 @@ void SortMergeJoin::Join(EntityIDBuffer* entBuffer1, EntityIDBuffer* entBuffer2,
 	joinKey1--;
 	joinKey2--;
 
-	if (secondModify)
-	{
+	if (secondModify) {
 		Merge1(entBuffer1, entBuffer2, joinKey1, joinKey2);
-	}
-	else
-	{
+	} else {
 		Merge2(entBuffer1, entBuffer2, joinKey1, joinKey2);
 	}
 }
 
-void SortMergeJoin::Merge1(EntityIDBuffer* entBuffer1, EntityIDBuffer* entBuffer2, int joinKey1, int joinKey2)
-{
+void SortMergeJoin::Merge1(EntityIDBuffer* entBuffer1, EntityIDBuffer* entBuffer2, int joinKey1, int joinKey2) {
 #ifdef MERGE_DEBUG
 	cout << "before Merge1 entBuffer1 size: " << entBuffer1->getSize() << endl;
 	cout << "before Merge1 entBuffer2 size: " << entBuffer2->getSize() << endl;
@@ -78,58 +70,46 @@ void SortMergeJoin::Merge1(EntityIDBuffer* entBuffer1, EntityIDBuffer* entBuffer
 	cout << "IDCount1: " << IDCount1 << " IDCount2: " << IDCount2 << endl;
 #endif
 
-	while (i < length1 && j < length2)
-	{
+	while (i < length1 && j < length2) {
 		keyValue = buffer1[i * IDCount1 + joinKey1];
 
-		while (buffer2[j * IDCount2 + joinKey2] < keyValue && j < length2)
-		{
+		while (buffer2[j * IDCount2 + joinKey2] < keyValue && j < length2) {
 			j++;
 		}
 
-		if (buffer2[j * IDCount2 + joinKey2] == keyValue)
-		{
-			while (buffer1[i * IDCount1 + joinKey1] == keyValue && i < length1)
-			{
-				if (pos1 == 4096)
-				{
+		if (buffer2[j * IDCount2 + joinKey2] == keyValue) {
+			while (buffer1[i * IDCount1 + joinKey1] == keyValue && i < length1) {
+				if (pos1 == 4096) {
 					memcpy(buffer1 + size1, temp1, 4096 * sizeof(ID));
 					size1 = size1 + pos1;
 					pos1 = 0;
 				}
 
-				for (k = 0; k < IDCount1; k++)
-				{
+				for (k = 0; k < IDCount1; k++) {
 					temp1[pos1] = buffer1[i * IDCount1 + k];
 					pos1++;
 				}
 				i++;
 			}
 
-			while (buffer2[j * IDCount2 + joinKey2] == keyValue && j < length2)
-			{
+			while (buffer2[j * IDCount2 + joinKey2] == keyValue && j < length2) {
 #ifdef MERGE_DEBUG
 				count++;
 #endif
-				if (pos2 == 4096)
-				{
+				if (pos2 == 4096) {
 					memcpy(buffer2 + size2, temp2, 4096 * sizeof(ID));
 					size2 = size2 + pos2;
 					pos2 = 0;
 				}
 
-				for (k = 0; k < IDCount2; k++)
-				{
+				for (k = 0; k < IDCount2; k++) {
 					temp2[pos2] = buffer2[j * IDCount2 + k];
 					pos2++;
 				}
 				j++;
 			}
-		}
-		else
-		{
-			while (buffer1[i * IDCount1 + joinKey1] == keyValue && i < length1)
-			{
+		} else {
+			while (buffer1[i * IDCount1 + joinKey1] == keyValue && i < length1) {
 				i++;
 			}
 		}
@@ -150,8 +130,7 @@ void SortMergeJoin::Merge1(EntityIDBuffer* entBuffer1, EntityIDBuffer* entBuffer
 #endif
 }
 
-void SortMergeJoin::Merge2(EntityIDBuffer* entBuffer1, EntityIDBuffer* entBuffer2, int joinKey1, int joinKey2)
-{
+void SortMergeJoin::Merge2(EntityIDBuffer* entBuffer1, EntityIDBuffer* entBuffer2, int joinKey1, int joinKey2) {
 #ifdef MERGE_DEBUG
 	cout << "before Merge2 entBuffer1 size: " << entBuffer1->getSize() << endl;
 	cout << "before Merge2 entBuffer2 size: " << entBuffer2->getSize() << endl;
@@ -170,43 +149,33 @@ void SortMergeJoin::Merge2(EntityIDBuffer* entBuffer1, EntityIDBuffer* entBuffer
 	int IDCount1 = entBuffer1->getIDCount();
 	int IDCount2 = entBuffer2->getIDCount();
 
-	while (i < length1 && j < length2)
-	{
+	while (i < length1 && j < length2) {
 		keyValue = buffer1[i * IDCount1 + joinKey1];
 
-		while (buffer2[j * IDCount2 + joinKey2] < keyValue && j < length2)
-		{
+		while (buffer2[j * IDCount2 + joinKey2] < keyValue && j < length2) {
 			j++;
 		}
 
-		if (buffer2[j * IDCount2 + joinKey2] == keyValue)
-		{
-			while (buffer1[i * IDCount1 + joinKey1] == keyValue && i < length1)
-			{
-				if (pos1 == 4096)
-				{
+		if (buffer2[j * IDCount2 + joinKey2] == keyValue) {
+			while (buffer1[i * IDCount1 + joinKey1] == keyValue && i < length1) {
+				if (pos1 == 4096) {
 					memcpy(buffer1 + size1, temp1, 4096 * sizeof(ID));
 					size1 = size1 + pos1;
 					pos1 = 0;
 				}
 
-				for (k = 0; k < IDCount1; k++)
-				{
+				for (k = 0; k < IDCount1; k++) {
 					temp1[pos1] = buffer1[i * IDCount1 + k];
 					pos1++;
 				}
 				i++;
 			}
 
-			while (buffer2[j * IDCount2 + joinKey2] == keyValue && j < length2)
-			{
+			while (buffer2[j * IDCount2 + joinKey2] == keyValue && j < length2) {
 				j++;
 			}
-		}
-		else
-		{
-			while (buffer1[i * IDCount1 + joinKey1] == keyValue && i < length1)
-			{
+		} else {
+			while (buffer1[i * IDCount1 + joinKey1] == keyValue && i < length1) {
 				i++;
 			}
 		}
@@ -222,8 +191,8 @@ void SortMergeJoin::Merge2(EntityIDBuffer* entBuffer1, EntityIDBuffer* entBuffer
 #endif
 }
 
-void SortMergeJoin::Join(EntityIDBuffer *entBuffer1, ResultIDBuffer *entBuffer2, int joinKey1, int joinKey2, bool secondModify /* = true */){
-	if(entBuffer2->isEntityIDBuffer()){
+void SortMergeJoin::Join(EntityIDBuffer *entBuffer1, ResultIDBuffer *entBuffer2, int joinKey1, int joinKey2, bool secondModify /* = true */) {
+	if (entBuffer2->isEntityIDBuffer()) {
 		Join(entBuffer1, entBuffer2->getEntityIDBuffer(), joinKey1, joinKey2, secondModify);
 		return;
 	}
@@ -231,17 +200,17 @@ void SortMergeJoin::Join(EntityIDBuffer *entBuffer1, ResultIDBuffer *entBuffer2,
 	entBuffer1->sort(joinKey1);
 //	entBuffer2->sort(joinKey2);
 
-	joinKey1--; joinKey2--;
+	joinKey1--;
+	joinKey2--;
 
-	if(secondModify){
+	if (secondModify) {
 		Merge1(entBuffer1, entBuffer2, joinKey1, joinKey2);
-	}
-	else{
+	} else {
 		Merge2(entBuffer1, entBuffer2, joinKey1, joinKey2);
 	}
 }
 
-void SortMergeJoin::Merge1(EntityIDBuffer *entBuffer1, ResultIDBuffer *entBuffer2, int joinKey1, int joinKey2){
+void SortMergeJoin::Merge1(EntityIDBuffer *entBuffer1, ResultIDBuffer *entBuffer2, int joinKey1, int joinKey2) {
 #ifdef MERGE_DEBUG
 	cout << "Before Merge1 entBuffer1 size: " << entBuffer1->getSize() << endl;
 	cout << "Before Merge1 entBuffer2 Size: " << entBuffer2->getSize() << endl;
@@ -276,72 +245,68 @@ void SortMergeJoin::Merge1(EntityIDBuffer *entBuffer1, ResultIDBuffer *entBuffer
 	iterXYEnd = entBuffer2->getTaskPackage()->xyTempBuffer.end();
 	ID *bufferX = NULL, *bufferXY = NULL;
 	size_t lengthX = 0, lengthXY = 0;
-	if(iterX != iterXEnd){
+	if (iterX != iterXEnd) {
 		bufferX = iterX->second->getBuffer();
 		lengthX = iterX->second->getSize();
 	}
-	if(iterXY != iterXYEnd){
+	if (iterXY != iterXYEnd) {
 		bufferXY = iterXY->second->getBuffer();
 		lengthXY = iterXY->second->getSize();
 	}
-	while(i < length1 && (iterX != iterXEnd || iterXY != iterXYEnd)){
+	while (i < length1 && (iterX != iterXEnd || iterXY != iterXYEnd)) {
 		keyValue = buffer1[i * IDCount1 + joinKey1];
 
-		while(iterXY != iterXYEnd){
-			if(posXY == lengthXY){
+		while (iterXY != iterXYEnd) {
+			if (posXY == lengthXY) {
 				delete iterXY->second;
 				iterXY->second = NULL;
 				iterXY++;
-				if(iterXY != iterXYEnd){
+				if (iterXY != iterXYEnd) {
 					bufferXY = iterXY->second->getBuffer();
 					lengthXY = iterXY->second->getSize();
 					posXY = 0;
 					continue;
-				}
-				else{
+				} else {
 					break;
 				}
 			}
-			if(bufferXY[posXY * IDCount2 + joinKey2] < keyValue){
+			if (bufferXY[posXY * IDCount2 + joinKey2] < keyValue) {
 				posXY++;
-			}
-			else{
+			} else {
 				break;
 			}
 		}
 
-		while(iterX != iterXEnd){
-			if(posX == lengthX){
+		while (iterX != iterXEnd) {
+			if (posX == lengthX) {
 				delete iterX->second;
 				iterX->second = NULL;
 				iterX++;
-				if(iterX != iterXEnd){
+				if (iterX != iterXEnd) {
 					bufferX = iterX->second->getBuffer();
 					lengthX = iterX->second->getSize();
 					posX = 0;
 					continue;
-				}
-				else{
+				} else {
 					break;
 				}
 			}
-			if(bufferX[posX * IDCount2 + joinKey2] < keyValue){
+			if (bufferX[posX * IDCount2 + joinKey2] < keyValue) {
 				posX++;
-			}
-			else{
+			} else {
 				break;
 			}
 		}
 
-		if((iterXY != iterXYEnd && bufferXY[posXY * IDCount2 + joinKey2] == keyValue) || (iterX != iterXEnd && bufferX[posX * IDCount2 + joinKey2] == keyValue)){
-			while(buffer1[i * IDCount1 + joinKey1] == keyValue && i < length1){
-				if(pos1 == 4096){
-					memcpy(buffer1 + size1, temp1, 4096*sizeof(ID));
+		if ((iterXY != iterXYEnd && bufferXY[posXY * IDCount2 + joinKey2] == keyValue) || (iterX != iterXEnd && bufferX[posX * IDCount2 + joinKey2] == keyValue)) {
+			while (buffer1[i * IDCount1 + joinKey1] == keyValue && i < length1) {
+				if (pos1 == 4096) {
+					memcpy(buffer1 + size1, temp1, 4096 * sizeof(ID));
 					size1 += pos1;
 					pos1 = 0;
 				}
 
-				for(k = 0; k < IDCount1; k++){
+				for (k = 0; k < IDCount1; k++) {
 					temp1[pos1] = buffer1[i * IDCount1 + k];
 					pos1++;
 				}
@@ -349,60 +314,55 @@ void SortMergeJoin::Merge1(EntityIDBuffer *entBuffer1, ResultIDBuffer *entBuffer
 				i++;
 			}
 
-			while(iterXY != iterXYEnd){
-				if(posXY == lengthXY){
+			while (iterXY != iterXYEnd) {
+				if (posXY == lengthXY) {
 					delete iterXY->second;
 					iterXY->second = NULL;
 					iterXY++;
-					if(iterXY != iterXYEnd){
+					if (iterXY != iterXYEnd) {
 						bufferXY = iterXY->second->getBuffer();
 						lengthXY = iterXY->second->getSize();
 						posXY = 0;
 						continue;
-					}
-					else{
+					} else {
 						break;
 					}
 				}
-				if(bufferXY[posXY * IDCount2 + joinKey2] == keyValue){
-					for(k = 0; k < IDCount2; k++){
+				if (bufferXY[posXY * IDCount2 + joinKey2] == keyValue) {
+					for (k = 0; k < IDCount2; k++) {
 						buffer->insertID(bufferXY[posXY * IDCount2 + k]);
 					}
 					posXY++;
-				}
-				else{
+				} else {
 					break;
 				}
 			}
 
-			while(iterX != iterXEnd){
-				if(posX == lengthX){
+			while (iterX != iterXEnd) {
+				if (posX == lengthX) {
 					delete iterX->second;
 					iterX->second = NULL;
 					iterX++;
-					if(iterX != iterXEnd){
+					if (iterX != iterXEnd) {
 						bufferX = iterX->second->getBuffer();
 						lengthX = iterX->second->getSize();
 						posX = 0;
 						continue;
-					}
-					else{
+					} else {
 						break;
 					}
 				}
-				if(bufferX[posX * IDCount2 + joinKey2] == keyValue){
-					for(k = 0; k < IDCount2; k++){
+				if (bufferX[posX * IDCount2 + joinKey2] == keyValue) {
+					for (k = 0; k < IDCount2; k++) {
 						buffer->insertID(bufferX[posX * IDCount2 + k]);
 					}
 					posX++;
-				}
-				else{
+				} else {
 					break;
 				}
 			}
-		}
-		else{
-			while(buffer1[i * IDCount1 + joinKey1] == keyValue && i < length1){
+		} else {
+			while (buffer1[i * IDCount1 + joinKey1] == keyValue && i < length1) {
 				i++;
 			}
 		}
@@ -412,12 +372,12 @@ void SortMergeJoin::Merge1(EntityIDBuffer *entBuffer1, ResultIDBuffer *entBuffer
 	size1 += pos1;
 	entBuffer1->usedSize = size1;
 
-	while(iterX != iterXEnd){
+	while (iterX != iterXEnd) {
 		delete iterX->second;
 		iterX->second = NULL;
 		iterX++;
 	}
-	while(iterXY != iterXYEnd){
+	while (iterXY != iterXYEnd) {
 		delete iterXY->second;
 		iterXY->second = NULL;
 		iterXY++;
@@ -431,7 +391,7 @@ void SortMergeJoin::Merge1(EntityIDBuffer *entBuffer1, ResultIDBuffer *entBuffer
 #endif
 }
 
-void SortMergeJoin::Merge2(EntityIDBuffer *entBuffer1, ResultIDBuffer *entBuffer2, int joinKey1, int joinKey2){
+void SortMergeJoin::Merge2(EntityIDBuffer *entBuffer1, ResultIDBuffer *entBuffer2, int joinKey1, int joinKey2) {
 #ifdef MERGE_DEBUG
 	cout << "Before Merge1 entBuffer1 size: " << entBuffer1->getSize() << endl;
 	cout << "Before Merge2 entBuffer2 Size: " << entBuffer2->getSize() << endl;
@@ -454,83 +414,81 @@ void SortMergeJoin::Merge2(EntityIDBuffer *entBuffer1, ResultIDBuffer *entBuffer
 	buffer->setSortKey(0);
 	buffer->resizeForSortMergeJoin(entBuffer2->getTaskPackage()->getTotalSize());
 
-	iterX = entBuffer2->getTaskPackage()->xTempBuffer.begin(); iterXEnd = entBuffer2->getTaskPackage()->xTempBuffer.end();
-	iterXY = entBuffer2->getTaskPackage()->xyTempBuffer.begin(); iterXYEnd = entBuffer2->getTaskPackage()->xyTempBuffer.end();
+	iterX = entBuffer2->getTaskPackage()->xTempBuffer.begin();
+	iterXEnd = entBuffer2->getTaskPackage()->xTempBuffer.end();
+	iterXY = entBuffer2->getTaskPackage()->xyTempBuffer.begin();
+	iterXYEnd = entBuffer2->getTaskPackage()->xyTempBuffer.end();
 
 	ID *bufferX = NULL, *bufferXY = NULL;
 	size_t lengthX = 0, lengthXY = 0;
 
-	if(iterXY != iterXYEnd){
+	if (iterXY != iterXYEnd) {
 		bufferXY = iterXY->second->getBuffer();
 		lengthXY = iterXY->second->getSize();
 	}
-	if(iterX != iterXEnd){
+	if (iterX != iterXEnd) {
 		bufferX = iterX->second->getBuffer();
 		lengthX = iterX->second->getSize();
 	}
 
-	while(i < length1 && (iterX != iterXEnd || iterXY != iterXYEnd)){
+	while (i < length1 && (iterX != iterXEnd || iterXY != iterXYEnd)) {
 		keyValue = buffer1[i * IDCount1 + joinKey1];
 
-		while(iterXY != iterXYEnd){
-			while(bufferXY[posXY * IDCount2 + joinKey2] < keyValue && posXY < lengthXY){
-				for(k = 0; k < IDCount2; k++){
+		while (iterXY != iterXYEnd) {
+			while (bufferXY[posXY * IDCount2 + joinKey2] < keyValue && posXY < lengthXY) {
+				for (k = 0; k < IDCount2; k++) {
 					buffer->insertID(bufferXY[posXY * IDCount2 + k]);
 				}
 				posXY++;
 			}
-			if(posXY == lengthXY){
+			if (posXY == lengthXY) {
 				delete iterXY->second;
 				iterXY->second = NULL;
 				iterXY++;
-				if(iterXY != iterXYEnd){
+				if (iterXY != iterXYEnd) {
 					bufferXY = iterXY->second->getBuffer();
 					lengthXY = iterXY->second->getSize();
 					posXY = 0;
-				}
-				else{
+				} else {
 					break;
 				}
-			}
-			else{
+			} else {
 				break;
 			}
 		}
 
-		while(iterX != iterXEnd){
-			while(bufferX[posX * IDCount2 + joinKey2] < keyValue && posX < lengthX){
-				for(k = 0; k < IDCount2; k++){
+		while (iterX != iterXEnd) {
+			while (bufferX[posX * IDCount2 + joinKey2] < keyValue && posX < lengthX) {
+				for (k = 0; k < IDCount2; k++) {
 					buffer->insertID(bufferX[posX * IDCount2 + k]);
 				}
 				posX++;
 			}
-			if(posX == lengthX){
+			if (posX == lengthX) {
 				delete iterX->second;
 				iterX->second = NULL;
 				iterX++;
-				if(iterX != iterXEnd){
+				if (iterX != iterXEnd) {
 					bufferX = iterX->second->getBuffer();
 					lengthX = iterX->second->getSize();
 					posX = 0;
-				}
-				else{
+				} else {
 					break;
 				}
-			}
-			else{
+			} else {
 				break;
 			}
 		}
 
-		if((iterXY != iterXYEnd && bufferXY[posXY * IDCount2 + joinKey2] == keyValue) || (iterX != iterXEnd && bufferX[posX * IDCount2 + joinKey2] == keyValue)){
-			while(buffer1[i * IDCount1 + joinKey1] == keyValue && i < length1){
-				if(pos1 == 4096){
+		if ((iterXY != iterXYEnd && bufferXY[posXY * IDCount2 + joinKey2] == keyValue) || (iterX != iterXEnd && bufferX[posX * IDCount2 + joinKey2] == keyValue)) {
+			while (buffer1[i * IDCount1 + joinKey1] == keyValue && i < length1) {
+				if (pos1 == 4096) {
 					memcpy(buffer1 + size1, temp1, 4096 * sizeof(ID));
 					size1 += pos1;
 					pos1 = 0;
 				}
 
-				for(k = 0; k < IDCount1; k++){
+				for (k = 0; k < IDCount1; k++) {
 					temp1[pos1] = buffer1[i * IDCount1 + k];
 					pos1++;
 				}
@@ -538,58 +496,53 @@ void SortMergeJoin::Merge2(EntityIDBuffer *entBuffer1, ResultIDBuffer *entBuffer
 				i++;
 			}
 
-			while(iterXY != iterXYEnd){
-				while(bufferXY[posXY * IDCount2 + joinKey2] == keyValue && posXY < lengthXY){
-					for(k = 0; k < IDCount2; k++){
+			while (iterXY != iterXYEnd) {
+				while (bufferXY[posXY * IDCount2 + joinKey2] == keyValue && posXY < lengthXY) {
+					for (k = 0; k < IDCount2; k++) {
 						buffer->insertID(bufferXY[posXY * IDCount2 + k]);
 					}
 					posXY++;
 				}
-				if(posXY == lengthXY){
+				if (posXY == lengthXY) {
 					delete iterXY->second;
 					iterXY->second = NULL;
 					iterXY++;
-					if(iterXY != iterXYEnd){
+					if (iterXY != iterXYEnd) {
 						bufferXY = iterXY->second->getBuffer();
 						lengthXY = iterXY->second->getSize();
 						posXY = 0;
-					}
-					else{
+					} else {
 						break;
 					}
-				}
-				else{
+				} else {
 					break;
 				}
 			}
 
-			while(iterX != iterXEnd){
-				while(bufferX[posX * IDCount2 + joinKey2] == keyValue && posX < lengthX){
-					for(k = 0; k < IDCount2; k++){
+			while (iterX != iterXEnd) {
+				while (bufferX[posX * IDCount2 + joinKey2] == keyValue && posX < lengthX) {
+					for (k = 0; k < IDCount2; k++) {
 						buffer->insertID(bufferX[posX * IDCount2 + k]);
 					}
 					posX++;
 				}
-				if(posX == lengthX){
+				if (posX == lengthX) {
 					delete iterX->second;
 					iterX->second = NULL;
 					iterX++;
-					if(iterX != iterXEnd){
+					if (iterX != iterXEnd) {
 						bufferX = iterX->second->getBuffer();
 						lengthX = iterX->second->getSize();
 						posX = 0;
-					}
-					else{
+					} else {
 						break;
 					}
-				}
-				else{
+				} else {
 					break;
 				}
 			}
-		}
-		else{
-			while(buffer1[i * IDCount1 + joinKey1] == keyValue && i < length1){
+		} else {
+			while (buffer1[i * IDCount1 + joinKey1] == keyValue && i < length1) {
 				i++;
 			}
 		}
@@ -599,21 +552,21 @@ void SortMergeJoin::Merge2(EntityIDBuffer *entBuffer1, ResultIDBuffer *entBuffer
 	size1 += pos1;
 	entBuffer1->usedSize = size1;
 
-	if(posXY == lengthXY && iterXY != iterXYEnd){
+	if (posXY == lengthXY && iterXY != iterXYEnd) {
 		delete iterXY->second;
 		iterXY->second = NULL;
 		iterXY++;
-		if(iterXY != iterXYEnd){
+		if (iterXY != iterXYEnd) {
 			bufferXY = iterXY->second->getBuffer();
 			lengthXY = iterXY->second->getSize();
 			posXY = 0;
 		}
 	}
-	if(posX == lengthX && iterX != iterXEnd){
+	if (posX == lengthX && iterX != iterXEnd) {
 		delete iterX->second;
 		iterX->second = NULL;
 		iterX++;
-		if(iterX != iterXEnd){
+		if (iterX != iterXEnd) {
 			bufferX = iterX->second->getBuffer();
 			lengthX = iterX->second->getSize();
 			posX = 0;
@@ -621,66 +574,62 @@ void SortMergeJoin::Merge2(EntityIDBuffer *entBuffer1, ResultIDBuffer *entBuffer
 	}
 
 	register ID keyValueX, keyValueXY;
-	while(iterX != iterXEnd && iterXY != iterXYEnd){
+	while (iterX != iterXEnd && iterXY != iterXYEnd) {
 		keyValueXY = bufferXY[posXY * IDCount2 + joinKey2];
 		keyValueX = bufferX[posX * IDCount2 + joinKey2];
 
-		if(keyValueXY <= keyValueX){
-			while(iterXY != iterXYEnd){
-				while(bufferXY[posXY * IDCount2 + joinKey2] <= keyValueX && posXY < lengthXY){
-					for(k = 0; k < IDCount2; k++){
+		if (keyValueXY <= keyValueX) {
+			while (iterXY != iterXYEnd) {
+				while (bufferXY[posXY * IDCount2 + joinKey2] <= keyValueX && posXY < lengthXY) {
+					for (k = 0; k < IDCount2; k++) {
 						buffer->insertID(bufferXY[posXY * IDCount2 + k]);
 					}
 					posXY++;
 				}
-				if(posXY == lengthXY){
+				if (posXY == lengthXY) {
 					delete iterXY->second;
 					iterXY->second = NULL;
 					iterXY++;
-					if(iterXY != iterXYEnd){
+					if (iterXY != iterXYEnd) {
 						bufferXY = iterXY->second->getBuffer();
 						lengthXY = iterXY->second->getSize();
 						posXY = 0;
-					}
-					else{
+					} else {
 						break;
 					}
-				}
-				else{
+				} else {
 					break;
 				}
 			}
 		}
 
-		while(iterX != iterXEnd){
-			while(bufferX[posX * IDCount2 + joinKey2] == keyValueX && posX < lengthX){
-				for(k = 0; k < IDCount2; k++){
+		while (iterX != iterXEnd) {
+			while (bufferX[posX * IDCount2 + joinKey2] == keyValueX && posX < lengthX) {
+				for (k = 0; k < IDCount2; k++) {
 					buffer->insertID(bufferX[posX * IDCount2 + k]);
 				}
 				posX++;
 			}
-			if(posX == lengthX){
+			if (posX == lengthX) {
 				delete iterX->second;
 				iterX->second = NULL;
 				iterX++;
-				if(iterX != iterXEnd){
+				if (iterX != iterXEnd) {
 					bufferX = iterX->second->getBuffer();
 					lengthX = iterX->second->getSize();
 					posX = 0;
-				}
-				else{
+				} else {
 					break;
 				}
-			}
-			else{
+			} else {
 				break;
 			}
 		}
 	}
 
-	while(iterXY != iterXYEnd){
-		while(posXY < lengthXY){
-			for(k = 0; k < IDCount2; k++){
+	while (iterXY != iterXYEnd) {
+		while (posXY < lengthXY) {
+			for (k = 0; k < IDCount2; k++) {
 				buffer->insertID(bufferXY[posXY * IDCount2 + k]);
 			}
 			posXY++;
@@ -688,16 +637,16 @@ void SortMergeJoin::Merge2(EntityIDBuffer *entBuffer1, ResultIDBuffer *entBuffer
 		delete iterXY->second;
 		iterXY->second = NULL;
 		iterXY++;
-		if(iterXY != iterXYEnd){
+		if (iterXY != iterXYEnd) {
 			bufferXY = iterXY->second->getBuffer();
 			lengthXY = iterXY->second->getSize();
 			posXY = 0;
 		}
 	}
 
-	while(iterX != iterXEnd){
-		while(posX < lengthX){
-			for(k = 0; k < IDCount2; k++){
+	while (iterX != iterXEnd) {
+		while (posX < lengthX) {
+			for (k = 0; k < IDCount2; k++) {
 				buffer->insertID(bufferX[posX * IDCount2 + k]);
 			}
 			posX++;
@@ -705,7 +654,7 @@ void SortMergeJoin::Merge2(EntityIDBuffer *entBuffer1, ResultIDBuffer *entBuffer
 		delete iterX->second;
 		iterX->second = NULL;
 		iterX++;
-		if(iterX != iterXEnd){
+		if (iterX != iterXEnd) {
 			bufferX = iterX->second->getBuffer();
 			lengthX = iterX->second->getSize();
 			posX = 0;

@@ -10,10 +10,10 @@
 
 SynchronousBuffer::SynchronousBuffer() {
 	// TODO Auto-generated constructor stub
-	pthread_cond_init(&bufferNotEmpty,NULL);
-	pthread_cond_init(&bufferFull,NULL);
-	pthread_cond_init(&bufferNotFull,NULL);
-	pthread_mutex_init(&bufferLock,NULL);
+	pthread_cond_init(&bufferNotEmpty, NULL);
+	pthread_cond_init(&bufferFull, NULL);
+	pthread_cond_init(&bufferNotFull, NULL);
+	pthread_mutex_init(&bufferLock, NULL);
 
 	this->buffer = new MemoryBuffer(1);
 
@@ -32,19 +32,18 @@ SynchronousBuffer::~SynchronousBuffer() {
 	delete buffer;
 }
 
-Status SynchronousBuffer::MemoryCopy(void* src, size_t length)
-{
+Status SynchronousBuffer::MemoryCopy(void* src, size_t length) {
 	//TODO copy something to the memory;
 	int rtn;
-	if((rtn = pthread_mutex_lock(&bufferLock)) != 0)
+	if ((rtn = pthread_mutex_lock(&bufferLock)) != 0)
 		fprintf(stderr, "pthread_mutex_lock %d", rtn), exit(1);
 
-	while(IsBufferFull(length)){
-		if ((rtn = pthread_cond_wait(&bufferNotFull,&bufferLock)) != 0)
+	while (IsBufferFull(length)) {
+		if ((rtn = pthread_cond_wait(&bufferNotFull, &bufferLock)) != 0)
 			fprintf(stderr, "pthread_cond_wait %d", rtn), exit(1);
 	}
 
-	memcpy(base+writePos,src,length);
+	memcpy(base + writePos, src, length);
 	writePos = (writePos + length) % pageSize;
 
 	if ((rtn = pthread_cond_broadcast(&bufferNotEmpty)) != 0)
@@ -55,8 +54,7 @@ Status SynchronousBuffer::MemoryCopy(void* src, size_t length)
 	return OK;
 }
 
-Status SynchronousBuffer::MemoryGet(void* dest, size_t length)
-{
+Status SynchronousBuffer::MemoryGet(void* dest, size_t length) {
 	// TODO copy something from buffer to dest
 
 	int rtn;
@@ -64,7 +62,7 @@ Status SynchronousBuffer::MemoryGet(void* dest, size_t length)
 		fprintf(stderr, "pthread_mutex_lock %d", rtn), exit(1);
 
 	while (IsBufferEmpty()) {
-		if( finish == true){
+		if (finish == true) {
 			pthread_mutex_unlock(&bufferLock);
 			return FINISH_READ;
 		}
@@ -72,7 +70,7 @@ Status SynchronousBuffer::MemoryGet(void* dest, size_t length)
 			fprintf(stderr, "pthread_cond_wait %d", rtn), exit(1);
 	}
 
-	memcpy((char*)dest, (const char*)(base + readPos), length);
+	memcpy((char*) dest, (const char*) (base + readPos), length);
 	readPos = (readPos + length) % pageSize;
 
 	if ((rtn = pthread_cond_broadcast(&bufferNotFull)) != 0)
@@ -82,5 +80,4 @@ Status SynchronousBuffer::MemoryGet(void* dest, size_t length)
 
 	return OK;
 }
-
 

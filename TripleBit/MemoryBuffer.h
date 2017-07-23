@@ -38,9 +38,15 @@ public:
 	Status resize(unsigned increasedSize, bool zero);
 	char* getBuffer();
 	char* getBuffer(int pos);
-	size_t getSize() { return size; }
-	size_t get_length() {return size; }
-	char* get_address() { return buffer; }
+	size_t getSize() {
+		return size;
+	}
+	size_t get_length() {
+		return size;
+	}
+	char* get_address() {
+		return buffer;
+	}
 	void memset(char value);
 	void save(ofstream& ofile);
 	void load(ifstream& ifile);
@@ -64,8 +70,8 @@ public:
 	void save(ofstream& ofile);
 	void load(ifstream& ifile);
 private:
-	//获得id应该扄1�7在的Buffer坄1�7.
-	unsigned short*  getBuffer(ID id);
+	//获得id应该扄1�7在的Buffer坄1�7.
+	unsigned short* getBuffer(ID id);
 
 private:
 };

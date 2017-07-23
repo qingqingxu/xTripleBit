@@ -15,19 +15,23 @@
 
 using namespace std;
 
-class ThreadPool{
+class ThreadPool {
 private:
 	ThreadPool(int threadNum);
 
 public:
 	typedef boost::function<void()> Task;
 
-	class NodeTask{
+	class NodeTask {
 	public:
 		Task value;
 		NodeTask *next;
-		NodeTask():value(0), next(NULL){}
-		NodeTask(const Task &val):value(val), next(NULL){}
+		NodeTask() :
+				value(0), next(NULL) {
+		}
+		NodeTask(const Task &val) :
+				value(val), next(NULL) {
+		}
 	};
 
 public:
@@ -50,7 +54,9 @@ private:
 	int create();
 	void Enqueue(const Task &task);
 	Task Dequeue();
-	bool isEmpty(){ return head->next == NULL; }
+	bool isEmpty() {
+		return head->next == NULL;
+	}
 
 public:
 	static ThreadPool &getWorkPool();
@@ -65,8 +71,7 @@ public:
 	int wait();
 };
 
-struct ThreadPoolArg
-{
+struct ThreadPoolArg {
 	ThreadPool* pool;
 };
 #endif /* THREADPOOL_H_ */

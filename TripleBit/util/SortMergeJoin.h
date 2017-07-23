@@ -37,17 +37,16 @@ public:
 	void Merge2(EntityIDBuffer *entBuffer1, ResultIDBuffer *entBuffer2, int joinKey1, int joinKey2);
 };
 
-struct SortMergeJoinArg
-{
+struct SortMergeJoinArg {
 	ID* buffer1, *buffer2;
 	int length1, length2;
 	char* flag1, *flag2;
 	int IDCount1, IDCount2;
 	int joinKey1, joinKey2;
-	
-	SortMergeJoinArg(ID* _buffer1, ID* _buffer2, int _length1, int _length2, char* flag1, char* flag2, int IDCount1, int IDCount2,
-		int joinKey1, int joinKey2) : buffer1(_buffer1), buffer2(_buffer2), length1(_length1), length2(_length2),
-		flag1(flag1), flag2(flag2), IDCount1(IDCount1), IDCount2(IDCount2),joinKey1(joinKey1),joinKey2(joinKey2){}
+
+	SortMergeJoinArg(ID* _buffer1, ID* _buffer2, int _length1, int _length2, char* flag1, char* flag2, int IDCount1, int IDCount2, int joinKey1, int joinKey2) :
+			buffer1(_buffer1), buffer2(_buffer2), length1(_length1), length2(_length2), flag1(flag1), flag2(flag2), IDCount1(IDCount1), IDCount2(IDCount2), joinKey1(joinKey1), joinKey2(joinKey2) {
+	}
 };
 
 #endif /* SORTMERGEJOIN_H_ */

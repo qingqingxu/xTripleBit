@@ -14,8 +14,7 @@
 
 using namespace boost;
 
-class ResultIDBuffer
-{
+class ResultIDBuffer {
 private:
 	bool isEntityID;
 	EntityIDBuffer *buffer;
@@ -23,17 +22,22 @@ private:
 	int IDCount;
 
 public:
-	ResultIDBuffer(){}
+	ResultIDBuffer() {
+	}
 	ResultIDBuffer(shared_ptr<subTaskPackage> package);
 	~ResultIDBuffer();
-	bool isEntityIDBuffer() { return isEntityID; }
-	shared_ptr<subTaskPackage> getTaskPackage() { return taskPackage; }
+	bool isEntityIDBuffer() {
+		return isEntityID;
+	}
+	shared_ptr<subTaskPackage> getTaskPackage() {
+		return taskPackage;
+	}
 	EntityIDBuffer *getEntityIDBuffer();
 	void transForEntityIDBuffer();
 	void setEntityIDBuffer(EntityIDBuffer *buf);
 	void setTaskPackage(shared_ptr<subTaskPackage> package);
 
-	void getMinMax(ID &min, ID  &max);
+	void getMinMax(ID &min, ID &max);
 	int getIDCount();
 	size_t getSize();
 	Status sort(int sortKey);

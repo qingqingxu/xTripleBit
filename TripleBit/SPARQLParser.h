@@ -19,161 +19,180 @@
 class SPARQLLexer;
 //---------------------------------------------------------------------------
 /// A parser for SPARQL input
-class SPARQLParser
-{
+class SPARQLParser {
 public:
-   /// A parsing exception
-   struct ParserException {
-      /// The message
-      std::string message;
+	/// A parsing exception
+	struct ParserException {
+		/// The message
+		std::string message;
 
-      /// Constructor
-      ParserException(const std::string& message);
-      /// Constructor
-      ParserException(const char* message);
-      /// Destructor
-      ~ParserException();
-   };
-   /// An element in a graph pattern
-   struct Element {
-      /// Possible types
-      enum Type { Variable, Constant };
-      /// The type
-      Type type;
-      //the data type of constant
-      DataType dataType;
-      /// The string value
-      std::string value;
-      double dValue;
-      /// The id for variables
-      uint id;
-   };
+		/// Constructor
+		ParserException(const std::string& message);
+		/// Constructor
+		ParserException(const char* message);
+		/// Destructor
+		~ParserException();
+	};
+	/// An element in a graph pattern
+	struct Element {
+		/// Possible types
+		enum Type {
+			Variable, Constant
+		};
+		/// The type
+		Type type;
+		//the data type of constant
+		DataType dataType;
+		/// The string value
+		std::string value;
+		double dValue;
+		/// The id for variables
+		uint id;
+	};
 
-   /// A graph pattern
-   struct Pattern {
-      /// The entires
-      Element subject,predicate,object;
+	/// A graph pattern
+	struct Pattern {
+		/// The entires
+		Element subject, predicate, object;
 
-      /// Constructor
-      Pattern(Element subject,Element predicate,Element object);
-      /// Destructor
-      ~Pattern();
-   };
-   /// A filter condition
-   struct Filter {
-      /// Possible types
-      enum Type { Normal, Exclude, Path };
+		/// Constructor
+		Pattern(Element subject, Element predicate, Element object);
+		/// Destructor
+		~Pattern();
+	};
+	/// A filter condition
+	struct Filter {
+		/// Possible types
+		enum Type {
+			Normal, Exclude, Path
+		};
 
-      /// The filtered variable
-      unsigned id;
-      /// Valid entries
-      std::vector<Element> values;
-      /// The type
-      Type type;
-   };
-   /// A group of patterns
-   struct PatternGroup {
-      /// The patterns
-      std::vector<Pattern> patterns;
-      /// The filter conditions
-      std::vector<Filter> filters;
-      /// The optional parts
-      std::vector<PatternGroup> optional;
-      /// The union parts
-      std::vector<std::vector<PatternGroup> > unions;
-   };
-   /// The projection modifier
-   enum ProjectionModifier { Modifier_None, Modifier_Distinct, Modifier_Reduced, Modifier_Count, Modifier_Duplicates };
+		/// The filtered variable
+		unsigned id;
+		/// Valid entries
+		std::vector<Element> values;
+		/// The type
+		Type type;
+	};
+	/// A group of patterns
+	struct PatternGroup {
+		/// The patterns
+		std::vector<Pattern> patterns;
+		/// The filter conditions
+		std::vector<Filter> filters;
+		/// The optional parts
+		std::vector<PatternGroup> optional;
+		/// The union parts
+		std::vector<std::vector<PatternGroup> > unions;
+	};
+	/// The projection modifier
+	enum ProjectionModifier {
+		Modifier_None, Modifier_Distinct, Modifier_Reduced, Modifier_Count, Modifier_Duplicates
+	};
 
-   enum OpType {QUERY, INSERT_DATA , DELETE_DATA, DELETE_CLAUSE, UPDATE};
+	enum OpType {
+		QUERY, INSERT_DATA, DELETE_DATA, DELETE_CLAUSE, UPDATE
+	};
 
 private:
-   /// The lexer
-   SPARQLLexer& lexer;
-   /// The registered prefixes
-   std::map<std::string,std::string> prefixes;
-   /// The named variables
-   std::map<std::string,unsigned> namedVariables;
-   /// The total variable count
-   unsigned variableCount;
+	/// The lexer
+	SPARQLLexer& lexer;
+	/// The registered prefixes
+	std::map<std::string, std::string> prefixes;
+	/// The named variables
+	std::map<std::string, unsigned> namedVariables;
+	/// The total variable count
+	unsigned variableCount;
 
-   OpType QueryOperation;
+	OpType QueryOperation;
 
-   /// The projection modifier
-   ProjectionModifier projectionModifier;
-   /// The projection clause
-   std::vector<unsigned> projection;
-   /// The pattern
-   PatternGroup patterns;
-   /// The result limit
-   unsigned limit;
+	/// The projection modifier
+	ProjectionModifier projectionModifier;
+	/// The projection clause
+	std::vector<unsigned> projection;
+	/// The pattern
+	PatternGroup patterns;
+	/// The result limit
+	unsigned limit;
 
-   /// Lookup or create a named variable
-   unsigned nameVariable(const std::string& name);
+	/// Lookup or create a named variable
+	unsigned nameVariable(const std::string& name);
 
-   /// Parse a filter condition
-   void parseFilter(PatternGroup& group,std::map<std::string,unsigned>& localVars);
-   /// Parse an entry in a pattern
-   Element parsePatternElement(PatternGroup& group,std::map<std::string,unsigned>& localVars);
-   /// Parse blank node patterns
-   Element parseBlankNode(PatternGroup& group,std::map<std::string,unsigned>& localVars);
-   // Parse a graph pattern
-   void parseGraphPattern(PatternGroup& group);
-   // Parse a group of patterns
-   void parseGroupGraphPattern(PatternGroup& group);
+	/// Parse a filter condition
+	void parseFilter(PatternGroup& group, std::map<std::string, unsigned>& localVars);
+	/// Parse an entry in a pattern
+	Element parsePatternElement(PatternGroup& group, std::map<std::string, unsigned>& localVars);
+	/// Parse blank node patterns
+	Element parseBlankNode(PatternGroup& group, std::map<std::string, unsigned>& localVars);
+	// Parse a graph pattern
+	void parseGraphPattern(PatternGroup& group);
+	// Parse a group of patterns
+	void parseGroupGraphPattern(PatternGroup& group);
 
-   /// Parse the prefix part if any
-   void parsePrefix();
-   /// Parse the QueryString
-   void parseQueryString();
-   /// Parse the Query
-   void parseQuery();
-   /// Parse the Insert
-   void parseInsert();
-   /// Parse the Delete
-   void parseDelete();
-   /// Parse the Delete Data
-   void parseDeleteData();
-   /// Parse the Delete Clause
-   void parseDeleteClause();
-   ///  Parse the Update
-   void parseUpdate();
-   /// Parse the OperationType
-   void parseOpType();
-   /// Parse the projection
-   void parseProjection();
-   /// Parse the from part if any
-   void parseFrom();
-   /// Parse the where part if any
-   void parseWhere();
-   /// Parse the limit part if any
-   void parseLimit();
+	/// Parse the prefix part if any
+	void parsePrefix();
+	/// Parse the QueryString
+	void parseQueryString();
+	/// Parse the Query
+	void parseQuery();
+	/// Parse the Insert
+	void parseInsert();
+	/// Parse the Delete
+	void parseDelete();
+	/// Parse the Delete Data
+	void parseDeleteData();
+	/// Parse the Delete Clause
+	void parseDeleteClause();
+	///  Parse the Update
+	void parseUpdate();
+	/// Parse the OperationType
+	void parseOpType();
+	/// Parse the projection
+	void parseProjection();
+	/// Parse the from part if any
+	void parseFrom();
+	/// Parse the where part if any
+	void parseWhere();
+	/// Parse the limit part if any
+	void parseLimit();
 
 public:
-   /// Constructor
-   explicit SPARQLParser(SPARQLLexer& lexer);
-   /// Destructor
-   ~SPARQLParser();
+	/// Constructor
+	explicit SPARQLParser(SPARQLLexer& lexer);
+	/// Destructor
+	~SPARQLParser();
 
-   /// Parse the input. Throws an exception in the case of an error
-   void parse();
+	/// Parse the input. Throws an exception in the case of an error
+	void parse();
 
-   /// Get the patterns
-   const PatternGroup& getPatterns() const { return patterns; }
+	/// Get the patterns
+	const PatternGroup& getPatterns() const {
+		return patterns;
+	}
 
-   OpType getOperationType() const { return QueryOperation;}
+	OpType getOperationType() const {
+		return QueryOperation;
+	}
 
-   /// Iterator over the projection clause
-   typedef std::vector<unsigned>::const_iterator projection_iterator;
-   /// Iterator over the projection
-   projection_iterator projectionBegin() const { return projection.begin(); }
-   /// Iterator over the projection
-   projection_iterator projectionEnd() const { return projection.end(); }
+	/// Iterator over the projection clause
+	typedef std::vector<unsigned>::const_iterator projection_iterator;
+	/// Iterator over the projection
+	projection_iterator projectionBegin() const {
+		return projection.begin();
+	}
+	/// Iterator over the projection
+	projection_iterator projectionEnd() const {
+		return projection.end();
+	}
 
-   /// The projection modifier
-   ProjectionModifier getProjectionModifier() const { return projectionModifier; }
-   /// The size limit
-   unsigned int getLimit() const { return limit; }
+	/// The projection modifier
+	ProjectionModifier getProjectionModifier() const {
+		return projectionModifier;
+	}
+	/// The size limit
+	unsigned int getLimit() const {
+		return limit;
+	}
 };
 //---------------------------------------------------------------------------
 #endif

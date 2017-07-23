@@ -26,9 +26,7 @@ string TempFile::newSuffix()
 }
 //---------------------------------------------------------------------------
 TempFile::TempFile(const string& baseName) :
-		baseName(baseName), fileName(baseName + newSuffix()), out(
-				fileName.c_str(), ios::out | ios::binary | ios::trunc), writePointer(
-				0)
+		baseName(baseName), fileName(baseName + newSuffix()), out(fileName.c_str(), ios::out | ios::binary | ios::trunc), writePointer(0)
 // Constructor
 {
 }
@@ -68,7 +66,7 @@ void TempFile::writeID(ID id) {
 		out.write(writeBuffer, writePointer);
 		writePointer = 0;
 	}
-	*((ID*)(writeBuffer + writePointer)) = id;
+	*((ID*) (writeBuffer + writePointer)) = id;
 	writePointer += sizeof(ID);
 }
 
@@ -83,42 +81,39 @@ void TempFile::write(double data, char dataType) {
 	writePointer += sizeof(char);
 }
 
-void TempFile::writeTriple(ID subjectID, ID predicateID, double object,
-		char objType) {
-	if (writePointer + sizeof(ID) > bufferSize) {//s
+void TempFile::writeTriple(ID subjectID, ID predicateID, double object, char objType) {
+	if (writePointer + sizeof(ID) > bufferSize) { //s
 		out.write(writeBuffer, writePointer);
 		writePointer = 0;
 	}
 	*(ID*) (writeBuffer + writePointer) = subjectID;
 	writePointer += sizeof(ID);
 
-	if (writePointer + sizeof(ID) > bufferSize) {//p
+	if (writePointer + sizeof(ID) > bufferSize) { //p
 		out.write(writeBuffer, writePointer);
 		writePointer = 0;
 	}
 	*(ID*) (writeBuffer + writePointer) = predicateID;
 	writePointer += sizeof(ID);
 
-	write(object, objType);//o
+	write(object, objType); //o
 }
 
 const uchar* TempFile::readID(const uchar* reader, ID& data) {
-	data = *(ID*)reader;
+	data = *(ID*) reader;
 	reader += sizeof(ID);
 	return reader;
 }
 
-const uchar* TempFile::read(const uchar* reader, double& data,
-		char& dataType) {
-	data = *(double*)reader;
+const uchar* TempFile::read(const uchar* reader, double& data, char& dataType) {
+	data = *(double*) reader;
 	reader += sizeof(double);
-	dataType = *(char*)reader;
+	dataType = *(char*) reader;
 	reader += sizeof(char);
 	return reader;
 }
 
-const uchar* TempFile::readTriple(const uchar* reader, ID& subjectID,
-		ID& predicateID, double& object, char& objType) {
+const uchar* TempFile::readTriple(const uchar* reader, ID& subjectID, ID& predicateID, double& object, char& objType) {
 	reader = readID(readID(reader, subjectID), predicateID);
 	return read(reader, object, objType);
 }
@@ -152,7 +147,7 @@ const uchar* TempFile::skipId(const uchar* reader) {
 	return reader + sizeof(ID);
 }
 
-const uchar* TempFile::skipObject(const uchar* reader){
+const uchar* TempFile::skipObject(const uchar* reader) {
 	return reader + sizeof(double) + sizeof(char);
 }
 
@@ -173,7 +168,7 @@ void TempFile::write(unsigned len, const uchar* data)
 	if (writePointer + len > bufferSize) {
 		assert(writePointer == 0);
 		unsigned chunks = len / bufferSize;
-		out.write((const char*)data, chunks * bufferSize);
+		out.write((const char*) data, chunks * bufferSize);
 		len -= chunks * bufferSize;
 		data += chunks * bufferSize;
 	}
@@ -253,8 +248,7 @@ bool MemoryMappedFile::open(const char* name)
 		CloseHandle(file);
 		return false;
 	}
-	begin =
-			static_cast<char*>(MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, size));
+	begin = static_cast<char*>(MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, size));
 	if (!begin) {
 		CloseHandle(mapping);
 		CloseHandle(file);

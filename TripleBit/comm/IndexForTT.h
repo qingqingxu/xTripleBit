@@ -13,7 +13,7 @@
 using namespace std;
 using namespace boost;
 
-class IndexForTT{
+class IndexForTT {
 private:
 	size_t referenceCount;
 
@@ -21,38 +21,39 @@ private:
 	pthread_cond_t cond;
 
 public:
-	IndexForTT():referenceCount(0){
+	IndexForTT() :
+			referenceCount(0) {
 		pthread_mutex_init(&mutex, NULL);
 		pthread_cond_init(&cond, NULL);
 	}
-	IndexForTT(size_t reCount): referenceCount(reCount){
+	IndexForTT(size_t reCount) :
+			referenceCount(reCount) {
 		pthread_mutex_init(&mutex, NULL);
 		pthread_cond_init(&cond, NULL);
 	}
 
-	~IndexForTT(){
+	~IndexForTT() {
 		pthread_mutex_destroy(&mutex);
 		pthread_cond_destroy(&cond);
 	}
 
-	void completeOneTriple(){
+	void completeOneTriple() {
 		pthread_mutex_lock(&mutex);
 		referenceCount--;
 		cout << "referenceCount: " << referenceCount << endl;
-		if(referenceCount == 0){
+		if (referenceCount == 0) {
 			pthread_cond_broadcast(&cond);
 		}
 		pthread_mutex_unlock(&mutex);
 	}
 
-	void wait(){
+	void wait() {
 		pthread_mutex_lock(&mutex);
-		while(referenceCount != 0){
+		while (referenceCount != 0) {
 			pthread_cond_wait(&cond, &mutex);
 		}
 		pthread_mutex_unlock(&mutex);
 	}
 };
-
 
 #endif /* INDEXFORTT_H_ */

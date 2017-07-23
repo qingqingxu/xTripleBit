@@ -7,45 +7,44 @@
 
 #include "ResultIDBuffer.h"
 
-ResultIDBuffer::ResultIDBuffer(shared_ptr<subTaskPackage> package):isEntityID(false), buffer(NULL), taskPackage(package){
-	if(taskPackage->xTempBuffer.size() > 0){
+ResultIDBuffer::ResultIDBuffer(shared_ptr<subTaskPackage> package) :
+		isEntityID(false), buffer(NULL), taskPackage(package) {
+	if (taskPackage->xTempBuffer.size() > 0) {
 		IDCount = taskPackage->xTempBuffer.begin()->second->getIDCount();
-	}
-	else{
+	} else {
 		IDCount = taskPackage->xyTempBuffer.begin()->second->getIDCount();
 	}
 }
 
-ResultIDBuffer::~ResultIDBuffer(){
-	if(buffer != NULL){
+ResultIDBuffer::~ResultIDBuffer() {
+	if (buffer != NULL) {
 		buffer = NULL;
 	}
 }
 
-EntityIDBuffer *ResultIDBuffer::getEntityIDBuffer(){
+EntityIDBuffer *ResultIDBuffer::getEntityIDBuffer() {
 	transForEntityIDBuffer();
 	return buffer;
 }
 
-
-void ResultIDBuffer::transForEntityIDBuffer(){
-	if(!isEntityID){
+void ResultIDBuffer::transForEntityIDBuffer() {
+	if (!isEntityID) {
 		isEntityID = true;
 		buffer = taskPackage->getTaskResult();
 	}
 }
 
-void ResultIDBuffer::getMinMax(ID &min, ID &max){
+void ResultIDBuffer::getMinMax(ID &min, ID &max) {
 	transForEntityIDBuffer();
 	buffer->getMinMax(min, max);
 }
 
-int ResultIDBuffer::getIDCount(){
+int ResultIDBuffer::getIDCount() {
 	return IDCount;
 }
 
-void ResultIDBuffer::setTaskPackage(shared_ptr<subTaskPackage> package){
-	if(buffer != NULL){
+void ResultIDBuffer::setTaskPackage(shared_ptr<subTaskPackage> package) {
+	if (buffer != NULL) {
 		delete buffer;
 		buffer = NULL;
 	}
@@ -53,49 +52,43 @@ void ResultIDBuffer::setTaskPackage(shared_ptr<subTaskPackage> package){
 	isEntityID = false;
 }
 
-void ResultIDBuffer::setEntityIDBuffer(EntityIDBuffer *buf){
+void ResultIDBuffer::setEntityIDBuffer(EntityIDBuffer *buf) {
 	buffer = buf;
 	isEntityID = true;
 }
 
-Status ResultIDBuffer::sort(int sortKey){
-	if(isEntityID){
+Status ResultIDBuffer::sort(int sortKey) {
+	if (isEntityID) {
 		buffer->sort(sortKey);
-	}
-	else{
+	} else {
 		map<ID, EntityIDBuffer*>::iterator iter, iterEnd;
 		iter = taskPackage->xTempBuffer.begin();
 		iterEnd = taskPackage->xTempBuffer.end();
-		for(; iter != iterEnd; iter++){
+		for (; iter != iterEnd; iter++) {
 			iter->second->sort(sortKey);
 		}
 		iter = taskPackage->xyTempBuffer.begin();
 		iterEnd = taskPackage->xyTempBuffer.end();
-		for(; iter != iterEnd; iter++){
+		for (; iter != iterEnd; iter++) {
 			iter->second->sort(sortKey);
 		}
 	}
 	return OK;
 }
 
-size_t ResultIDBuffer::getSize(){
-	if(isEntityID){
+size_t ResultIDBuffer::getSize() {
+	if (isEntityID) {
 		return buffer->getSize();
-	}
-	else{
+	} else {
 		map<ID, EntityIDBuffer*>::iterator iter;
 		size_t totalSize = 0;
-		for(iter = taskPackage->xTempBuffer.begin(); iter != taskPackage->xTempBuffer.end(); iter++){
+		for (iter = taskPackage->xTempBuffer.begin(); iter != taskPackage->xTempBuffer.end(); iter++) {
 			totalSize += iter->second->getSize();
 		}
-		for(iter = taskPackage->xyTempBuffer.begin(); iter != taskPackage->xyTempBuffer.end(); iter++){
+		for (iter = taskPackage->xyTempBuffer.begin(); iter != taskPackage->xyTempBuffer.end(); iter++) {
 			totalSize += iter->second->getSize();
 		}
 		return totalSize;
 	}
 }
-
-
-
-
 

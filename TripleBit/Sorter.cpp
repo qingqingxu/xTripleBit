@@ -17,7 +17,7 @@ struct Range {
 
 	/// Constructor
 	Range(const uchar* from, const uchar* to) :
-		from(from), to(to) {
+			from(from), to(to) {
 	}
 
 	/// Some content?
@@ -36,7 +36,7 @@ struct CompareSorter {
 
 	/// Constructor
 	CompareSorter(func compare) :
-		compare(compare) {
+			compare(compare) {
 	}
 
 	/// Compare two entries
@@ -47,7 +47,7 @@ struct CompareSorter {
 //---------------------------------------------------------------------------
 static uchar* spool(uchar* ofs, TempFile& out, const vector<Range>& items, bool eliminateDuplicates)
 // Spool items to disk
-{
+		{
 	Range last(0, 0);
 	for (vector<Range>::const_iterator iter = items.begin(), limit = items.end(); iter != limit; ++iter) {
 		if ((!eliminateDuplicates) || (!last.equals(*iter))) {
@@ -61,9 +61,9 @@ static uchar* spool(uchar* ofs, TempFile& out, const vector<Range>& items, bool 
 //---------------------------------------------------------------------------
 }
 //---------------------------------------------------------------------------
-void Sorter::sort(TempFile& in, TempFile& out, const uchar* (*skip)(const uchar*), int(*compare)(const uchar*, const uchar*), bool eliminateDuplicates)
+void Sorter::sort(TempFile& in, TempFile& out, const uchar* (*skip)(const uchar*), int (*compare)(const uchar*, const uchar*), bool eliminateDuplicates)
 // Sort a temporary file
-{
+		{
 	// Open the input
 	in.close();
 	MemoryMappedFile mappedIn;
@@ -111,8 +111,8 @@ void Sorter::sort(TempFile& in, TempFile& out, const uchar* (*skip)(const uchar*
 		MemoryMappedFile tempIn;
 		assert(tempIn.open(intermediate.getFile().c_str()));
 		for (vector<Range>::iterator iter = runs.begin(), limit = runs.end(); iter != limit; ++iter) {
-			(*iter).from = tempIn.getBegin() + ((*iter).from - static_cast<uchar*> (0));
-			(*iter).to = tempIn.getBegin() + ((*iter).to - static_cast<uchar*> (0));
+			(*iter).from = tempIn.getBegin() + ((*iter).from - static_cast<uchar*>(0));
+			(*iter).to = tempIn.getBegin() + ((*iter).to - static_cast<uchar*>(0));
 		}
 
 		// Sort the run heads

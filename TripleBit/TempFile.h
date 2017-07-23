@@ -70,37 +70,40 @@ public:
 
 //----------------------------------------------------------------------------
 /// Maps a file read-only into memory
-class MemoryMappedFile
-{
-   private:
-   /// os dependent data
-   struct Data;
+class MemoryMappedFile {
+private:
+	/// os dependent data
+	struct Data;
 
-   /// os dependen tdata
-   Data* data;
-   /// Begin of the file
-   const uchar* begin;
-   /// End of the file
-   const uchar* end;
+	/// os dependen tdata
+	Data* data;
+	/// Begin of the file
+	const uchar* begin;
+	/// End of the file
+	const uchar* end;
 
-   public:
-   /// Constructor
-   MemoryMappedFile();
-   /// Destructor
-   ~MemoryMappedFile();
+public:
+	/// Constructor
+	MemoryMappedFile();
+	/// Destructor
+	~MemoryMappedFile();
 
-   /// Open
-   bool open(const char* name);
-   /// Close
-   void close();
+	/// Open
+	bool open(const char* name);
+	/// Close
+	void close();
 
-   /// Get the begin
-   const uchar* getBegin() const { return begin; }
-   /// Get the end
-   const uchar* getEnd() const { return end; }
+	/// Get the begin
+	const uchar* getBegin() const {
+		return begin;
+	}
+	/// Get the end
+	const uchar* getEnd() const {
+		return end;
+	}
 
-   /// Ask the operating system to prefetch a part of the file
-   void prefetch(const uchar* start,const uchar* end);
+	/// Ask the operating system to prefetch a part of the file
+	void prefetch(const uchar* start, const uchar* end);
 };
 //---------------------------------------------------------------------------
 #endif

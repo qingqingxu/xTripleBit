@@ -28,9 +28,9 @@ private:
 
 	//for synchronous access the buffer
 	pthread_mutex_t bufferLock;
-	pthread_cond_t  bufferNotEmpty;
-	pthread_cond_t  bufferFull;
-	pthread_cond_t  bufferNotFull;
+	pthread_cond_t bufferNotEmpty;
+	pthread_cond_t bufferFull;
+	pthread_cond_t bufferNotFull;
 
 	char* base;
 	unsigned int readPos;
@@ -43,14 +43,20 @@ private:
 	bool finish; //used to identify whether writing is finished;
 public:
 	SynchronousBuffer();
-	Status 	MemoryCopy(void* src, size_t length);
-	Status 	MemoryGet(void* dest, size_t length);
-	void	SetFinish() { finish = true; }
+	Status MemoryCopy(void* src, size_t length);
+	Status MemoryGet(void* dest, size_t length);
+	void SetFinish() {
+		finish = true;
+	}
 	virtual ~SynchronousBuffer();
 
 private:
-	bool 	IsBufferFull(size_t length) { return (writePos + length) % pageSize == readPos; }
-	bool 	IsBufferEmpty() { return (readPos == writePos); }
+	bool IsBufferFull(size_t length) {
+		return (writePos + length) % pageSize == readPos;
+	}
+	bool IsBufferEmpty() {
+		return (readPos == writePos);
+	}
 };
 
 #endif /* SYNCHRONOUSBUFFER_H_ */

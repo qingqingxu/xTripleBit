@@ -15,7 +15,7 @@
 using namespace std;
 using namespace boost;
 
-class ResultBuffer{
+class ResultBuffer {
 private:
 	int tail;
 	int head;
@@ -27,41 +27,45 @@ private:
 	condition_variable_any cond_dequeue;
 
 public:
-	bool Queue_Empty(){ return head == tail; }
+	bool Queue_Empty() {
+		return head == tail;
+	}
 
-	bool Queue_Full(){ return (tail % length + 1) == head;	}
+	bool Queue_Full() {
+		return (tail % length + 1) == head;
+	}
 
-	ResultBuffer():tail(1),head(1),length(MAXRESULTNUM){}
+	ResultBuffer() :
+			tail(1), head(1), length(MAXRESULTNUM) {
+	}
 //	~ResultBuffer(){
 //		delete[] resultBuffer;
 //	}
 
-	void EnQueue(ResultIDBuffer*& result){
+	void EnQueue(ResultIDBuffer*& result) {
 		{
 			mutex::scoped_lock lock(mu);
-			while(Queue_Full()){
+			while (Queue_Full()) {
 				cond_enqueue.wait(mu);
 			}
 			resultBuffer[tail] = result;
-			tail = (tail == length)? 1 : (tail + 1);
+			tail = (tail == length) ? 1 : (tail + 1);
 		}
 		cond_dequeue.notify_one();
 	}
 
-	ResultIDBuffer* DeQueue(){
+	ResultIDBuffer* DeQueue() {
 		mutex::scoped_lock lock(mu);
-		while(Queue_Empty()){
+		while (Queue_Empty()) {
 			cond_dequeue.wait(mu);
 		}
 		ResultIDBuffer* result = resultBuffer[head];
 		resultBuffer[head] = NULL;
-		head = (head == length)? 1 : (head + 1);
+		head = (head == length) ? 1 : (head + 1);
 		cond_enqueue.notify_one();
 
 		return result;
 	}
 };
-
-
 
 #endif /* RESULTBUFFER_H_ */
